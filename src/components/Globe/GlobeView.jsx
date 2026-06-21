@@ -7,25 +7,36 @@ import { COUNTRIES_DATA, NEWS_MARKERS } from "../../data/mockData";
 // NaturalEarth 110m GeoJSON sometimes has wrong/missing ISO_A2 values.
 // This map resolves them by ISO_A3 or by country name fallback.
 const ISO_A3_MAP = {
+  // Original 18
   USA: "US", GBR: "GB", JPN: "JP", DEU: "DE", CHN: "CN", IND: "IN",
   BRA: "BR", AUS: "AU", CAN: "CA", FRA: "FR", SAU: "SA", KOR: "KR",
   ZAF: "ZA", NGA: "NG", MEX: "MX", SGP: "SG", ARE: "AE", RUS: "RU",
-  // extras
-  ESP: "ES", ITA: "IT", NLD: "NL", SWE: "SE", NOR: "NO", ARG: "AR",
-  IDN: "ID", MYS: "MY", THA: "TH", PAK: "PK", BGD: "BD", EGY: "EG",
-  IRN: "IR", TUR: "TR", POL: "PL", UKR: "UA", ISR: "IL", PHL: "PH",
-  VNM: "VN", COL: "CO", CHL: "CL", PER: "PE", KAZ: "KZ", DZA: "DZ",
-  MAR: "MA", ETH: "ET", TZA: "TZ", KEN: "KE",
+  // Europe (new)
+  ESP: "ES", ITA: "IT", NLD: "NL", SWE: "SE", NOR: "NO", CHE: "CH",
+  DNK: "DK", FIN: "FI", AUT: "AT", PRT: "PT", GRC: "GR", POL: "PL",
+  BEL: "BE", IRL: "IE", HUN: "HU", CZE: "CZ", ROU: "RO", UKR: "UA",
+  // Middle East (new)
+  TUR: "TR", ISR: "IL", QAT: "QA", KWT: "KW", OMN: "OM", JOR: "JO",
+  BHR: "BH", IRN: "IR",
+  // Africa (new)
+  EGY: "EG", MAR: "MA", KEN: "KE", GHA: "GH", CIV: "CI", TZA: "TZ",
+  // Asia-Pacific (new)
+  TWN: "TW", HKG: "HK", IDN: "ID", MYS: "MY", THA: "TH", PHL: "PH",
+  VNM: "VN", PAK: "PK", BGD: "BD", LKA: "LK", NZL: "NZ", KAZ: "KZ",
+  // Latin America (new)
+  ARG: "AR", COL: "CO", CHL: "CL", PER: "PE",
 };
 
 const NAME_MAP = {
+  // Original 18
   "India": "IN",
   "United States of America": "US",
   "United Kingdom": "GB",
-  "France": "FR",      // NE sometimes stores as "FX"
+  "France": "FR",
   "Norway": "NO",
   "China": "CN",
   "South Korea": "KR",
+  "Republic of Korea": "KR",
   "Russia": "RU",
   "Australia": "AU",
   "Brazil": "BR",
@@ -38,6 +49,63 @@ const NAME_MAP = {
   "South Africa": "ZA",
   "Nigeria": "NG",
   "United Arab Emirates": "AE",
+  // Europe (new)
+  "Spain": "ES",
+  "Italy": "IT",
+  "Netherlands": "NL",
+  "Sweden": "SE",
+  "Switzerland": "CH",
+  "Denmark": "DK",
+  "Finland": "FI",
+  "Austria": "AT",
+  "Portugal": "PT",
+  "Greece": "GR",
+  "Poland": "PL",
+  "Belgium": "BE",
+  "Ireland": "IE",
+  "Hungary": "HU",
+  "Czech Republic": "CZ",
+  "Czechia": "CZ",
+  "Romania": "RO",
+  "Ukraine": "UA",
+  // Middle East (new)
+  "Turkey": "TR",
+  "Türkiye": "TR",
+  "Israel": "IL",
+  "Qatar": "QA",
+  "Kuwait": "KW",
+  "Oman": "OM",
+  "Jordan": "JO",
+  "Bahrain": "BH",
+  "Iran": "IR",
+  // Africa (new)
+  "Egypt": "EG",
+  "Morocco": "MA",
+  "Kenya": "KE",
+  "Ghana": "GH",
+  "Ivory Coast": "CI",
+  "Côte d'Ivoire": "CI",
+  "Tanzania": "TZ",
+  "United Republic of Tanzania": "TZ",
+  // Asia-Pacific (new)
+  "Taiwan": "TW",
+  "Hong Kong": "HK",
+  "Indonesia": "ID",
+  "Malaysia": "MY",
+  "Thailand": "TH",
+  "Philippines": "PH",
+  "Vietnam": "VN",
+  "Viet Nam": "VN",
+  "Pakistan": "PK",
+  "Bangladesh": "BD",
+  "Sri Lanka": "LK",
+  "New Zealand": "NZ",
+  "Kazakhstan": "KZ",
+  // Latin America (new)
+  "Argentina": "AR",
+  "Colombia": "CO",
+  "Chile": "CL",
+  "Peru": "PE",
 };
 
 /** Resolve a feature to one of our tracked ISO2 codes */

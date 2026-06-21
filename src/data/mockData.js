@@ -692,6 +692,592 @@ export const COUNTRIES_DATA = {
       },
     ],
   },
+
+  /* ─── EUROPE ─── */
+  ES: {
+    name: "Spain", code: "ES", lat: 40.46, lng: -3.74,
+    currency: "EUR", marketIndex: "IBEX 35",
+    indexValue: 10847.3, indexChange: -89.4, indexChangePct: -0.82,
+    color: "#ff6b35", newsIntensity: 0.62, sentiment: "bearish",
+    sparkline: [11010, 10990, 10960, 10930, 10910, 10875, 10847],
+    news: [
+      { id: 1, title: "Spain unemployment rate drops to 11.4%, 15-year low", source: "El País", time: "1h ago", sentiment: "bullish", impact: "+0.5%", category: "Employment" },
+      { id: 2, title: "Spanish banks face headwinds as ECB signals policy divergence", source: "FT", time: "3h ago", sentiment: "bearish", impact: "-0.9%", category: "Banking" },
+    ],
+  },
+
+  IT: {
+    name: "Italy", code: "IT", lat: 41.87, lng: 12.56,
+    currency: "EUR", marketIndex: "FTSE MIB",
+    indexValue: 34218.4, indexChange: +127.6, indexChangePct: +0.37,
+    color: "#ffaa00", newsIntensity: 0.58, sentiment: "neutral",
+    sparkline: [33900, 33980, 34050, 34100, 34150, 34185, 34218],
+    news: [
+      { id: 1, title: "Italian government unveils €15bn infrastructure spending plan", source: "Il Sole", time: "2h ago", sentiment: "bullish", impact: "+0.7%", category: "Fiscal" },
+      { id: 2, title: "Italy debt-to-GDP ratio hits 143%, ECB scrutiny intensifies", source: "Reuters", time: "5h ago", sentiment: "bearish", impact: "-0.5%", category: "Debt" },
+    ],
+  },
+
+  NL: {
+    name: "Netherlands", code: "NL", lat: 52.13, lng: 5.29,
+    currency: "EUR", marketIndex: "AEX",
+    indexValue: 898.72, indexChange: +8.34, indexChangePct: +0.94,
+    color: "#00ff88", newsIntensity: 0.6, sentiment: "bullish",
+    sparkline: [880, 884, 888, 891, 894, 896, 898],
+    news: [
+      { id: 1, title: "ASML books record €8.4bn orders, AI chip demand drives boom", source: "Bloomberg", time: "30 min ago", sentiment: "bullish", impact: "+2.8%", category: "Semiconductors" },
+      { id: 2, title: "Shell completes €5bn share buyback program", source: "Reuters", time: "4h ago", sentiment: "bullish", impact: "+0.6%", category: "Energy" },
+    ],
+  },
+
+  SE: {
+    name: "Sweden", code: "SE", lat: 60.12, lng: 18.64,
+    currency: "SEK", marketIndex: "OMX Stockholm 30",
+    indexValue: 2587.45, indexChange: +23.12, indexChangePct: +0.9,
+    color: "#00ff88", newsIntensity: 0.55, sentiment: "bullish",
+    sparkline: [2540, 2550, 2558, 2567, 2573, 2581, 2587],
+    news: [
+      { id: 1, title: "Spotify exceeds 650M monthly active users, stock rallies 4%", source: "Reuters", time: "1h ago", sentiment: "bullish", impact: "+1.9%", category: "Tech" },
+      { id: 2, title: "Riksbank cuts rates for second time, SEK weakens", source: "Bloomberg", time: "3h ago", sentiment: "bullish", impact: "+0.4%", category: "Monetary Policy" },
+    ],
+  },
+
+  NO: {
+    name: "Norway", code: "NO", lat: 60.47, lng: 8.46,
+    currency: "NOK", marketIndex: "OBX",
+    indexValue: 1312.88, indexChange: +4.21, indexChangePct: +0.32,
+    color: "#ffaa00", newsIntensity: 0.5, sentiment: "neutral",
+    sparkline: [1300, 1303, 1306, 1308, 1310, 1312, 1313],
+    news: [
+      { id: 1, title: "Equinor raises 2026 output target as North Sea oil production surges", source: "FT", time: "2h ago", sentiment: "bullish", impact: "+1.2%", category: "Energy" },
+      { id: 2, title: "Norway sovereign wealth fund hits $1.8 trillion, a new record", source: "Bloomberg", time: "6h ago", sentiment: "bullish", impact: "+0.3%", category: "Finance" },
+    ],
+  },
+
+  CH: {
+    name: "Switzerland", code: "CH", lat: 46.81, lng: 8.22,
+    currency: "CHF", marketIndex: "SMI",
+    indexValue: 11987.3, indexChange: +76.5, indexChangePct: +0.64,
+    color: "#00ff88", newsIntensity: 0.57, sentiment: "bullish",
+    sparkline: [11830, 11860, 11890, 11920, 11950, 11970, 11987],
+    news: [
+      { id: 1, title: "Nestlé reports 5.2% organic sales growth, beats estimates", source: "Reuters", time: "45 min ago", sentiment: "bullish", impact: "+1.1%", category: "Consumer" },
+      { id: 2, title: "SNB holds rates at 1.5%, CHF safe-haven demand rises", source: "Bloomberg", time: "4h ago", sentiment: "bullish", impact: "+0.4%", category: "Monetary Policy" },
+    ],
+  },
+
+  DK: {
+    name: "Denmark", code: "DK", lat: 56.26, lng: 9.5,
+    currency: "DKK", marketIndex: "OMX Copenhagen 20",
+    indexValue: 2234.67, indexChange: +34.56, indexChangePct: +1.57,
+    color: "#00ff88", newsIntensity: 0.65, sentiment: "bullish",
+    sparkline: [2170, 2183, 2196, 2205, 2215, 2226, 2234],
+    news: [
+      { id: 1, title: "Novo Nordisk obesity drug Ozempic drives 22% revenue surge", source: "FT", time: "20 min ago", sentiment: "bullish", impact: "+3.4%", category: "Pharma" },
+      { id: 2, title: "Denmark leads Europe in green energy transition, 88% renewables", source: "Bloomberg", time: "5h ago", sentiment: "bullish", impact: "+0.5%", category: "Energy" },
+    ],
+  },
+
+  FI: {
+    name: "Finland", code: "FI", lat: 61.92, lng: 25.74,
+    currency: "EUR", marketIndex: "OMX Helsinki 25",
+    indexValue: 5234.78, indexChange: +45.23, indexChangePct: +0.87,
+    color: "#00ff88", newsIntensity: 0.52, sentiment: "bullish",
+    sparkline: [5150, 5168, 5182, 5196, 5210, 5223, 5234],
+    news: [
+      { id: 1, title: "Nokia wins €2.1bn 5G infrastructure contract across Southeast Asia", source: "Reuters", time: "1h ago", sentiment: "bullish", impact: "+2.1%", category: "Tech" },
+      { id: 2, title: "Finland NATO integration boosts defence sector stocks 5%", source: "Bloomberg", time: "5h ago", sentiment: "bullish", impact: "+1.0%", category: "Defence" },
+    ],
+  },
+
+  AT: {
+    name: "Austria", code: "AT", lat: 47.51, lng: 14.55,
+    currency: "EUR", marketIndex: "ATX",
+    indexValue: 3587.45, indexChange: -42.3, indexChangePct: -1.17,
+    color: "#ff2244", newsIntensity: 0.48, sentiment: "bearish",
+    sparkline: [3680, 3660, 3640, 3625, 3610, 3597, 3587],
+    news: [
+      { id: 1, title: "Austrian banks exposed to Eastern Europe risks, Moody's warns", source: "FT", time: "2h ago", sentiment: "bearish", impact: "-1.5%", category: "Banking" },
+      { id: 2, title: "Vienna real estate market softens as rates bite construction sector", source: "Reuters", time: "6h ago", sentiment: "bearish", impact: "-0.6%", category: "Real Estate" },
+    ],
+  },
+
+  PT: {
+    name: "Portugal", code: "PT", lat: 39.39, lng: -8.22,
+    currency: "EUR", marketIndex: "PSI 20",
+    indexValue: 6712.34, indexChange: +12.45, indexChangePct: +0.19,
+    color: "#ffaa00", newsIntensity: 0.45, sentiment: "neutral",
+    sparkline: [6680, 6685, 6690, 6698, 6703, 6708, 6712],
+    news: [
+      { id: 1, title: "Portugal tourism revenues hit record €25bn, beating pre-COVID peak", source: "Reuters", time: "3h ago", sentiment: "bullish", impact: "+0.7%", category: "Tourism" },
+      { id: 2, title: "EDP Renewables secures offshore wind contract in Brazil", source: "Bloomberg", time: "7h ago", sentiment: "bullish", impact: "+0.9%", category: "Energy" },
+    ],
+  },
+
+  GR: {
+    name: "Greece", code: "GR", lat: 39.07, lng: 21.82,
+    currency: "EUR", marketIndex: "ASE General",
+    indexValue: 1423.56, indexChange: -18.72, indexChangePct: -1.3,
+    color: "#ff2244", newsIntensity: 0.53, sentiment: "bearish",
+    sparkline: [1480, 1467, 1456, 1448, 1440, 1431, 1423],
+    news: [
+      { id: 1, title: "Greek sovereign debt downgraded outlook to negative by S&P", source: "FT", time: "1h ago", sentiment: "bearish", impact: "-1.8%", category: "Debt" },
+      { id: 2, title: "Athens tourism sector booms — record 34M visitors in 2025", source: "Reuters", time: "5h ago", sentiment: "bullish", impact: "+0.4%", category: "Tourism" },
+    ],
+  },
+
+  PL: {
+    name: "Poland", code: "PL", lat: 51.91, lng: 19.14,
+    currency: "PLN", marketIndex: "WIG 20",
+    indexValue: 2456.78, indexChange: +34.12, indexChangePct: +1.41,
+    color: "#00ff88", newsIntensity: 0.61, sentiment: "bullish",
+    sparkline: [2390, 2403, 2415, 2425, 2436, 2446, 2456],
+    news: [
+      { id: 1, title: "Poland GDP grows 4.1% in Q1, fastest in Central Europe", source: "Reuters", time: "45 min ago", sentiment: "bullish", impact: "+1.3%", category: "Economy" },
+      { id: 2, title: "PKN Orlen acquires 3 European refinery assets, expands footprint", source: "Bloomberg", time: "4h ago", sentiment: "bullish", impact: "+0.8%", category: "Energy" },
+    ],
+  },
+
+  BE: {
+    name: "Belgium", code: "BE", lat: 50.5, lng: 4.47,
+    currency: "EUR", marketIndex: "BEL 20",
+    indexValue: 3987.34, indexChange: -28.45, indexChangePct: -0.71,
+    color: "#ff6b35", newsIntensity: 0.49, sentiment: "bearish",
+    sparkline: [4060, 4048, 4035, 4022, 4010, 3998, 3987],
+    news: [
+      { id: 1, title: "AB InBev volumes fall 3% amid global beer market slowdown", source: "FT", time: "2h ago", sentiment: "bearish", impact: "-1.4%", category: "Consumer" },
+      { id: 2, title: "Belgium nuclear plant life extension approved through 2040", source: "Bloomberg", time: "6h ago", sentiment: "bullish", impact: "+0.5%", category: "Energy" },
+    ],
+  },
+
+  IE: {
+    name: "Ireland", code: "IE", lat: 53.41, lng: -8.24,
+    currency: "EUR", marketIndex: "ISEQ 20",
+    indexValue: 9234.56, indexChange: -67.89, indexChangePct: -0.73,
+    color: "#ff6b35", newsIntensity: 0.54, sentiment: "bearish",
+    sparkline: [9380, 9360, 9340, 9315, 9300, 9268, 9234],
+    news: [
+      { id: 1, title: "Apple Ireland tax ruling forces €13bn payment to EU, shares dip", source: "FT", time: "1h ago", sentiment: "bearish", impact: "-0.9%", category: "Tech" },
+      { id: 2, title: "Ireland FDI at risk as US multinationals eye reshoring", source: "Reuters", time: "5h ago", sentiment: "bearish", impact: "-0.6%", category: "Trade" },
+    ],
+  },
+
+  HU: {
+    name: "Hungary", code: "HU", lat: 47.16, lng: 19.5,
+    currency: "HUF", marketIndex: "BUX",
+    indexValue: 71234.56, indexChange: -876.5, indexChangePct: -1.22,
+    color: "#ff2244", newsIntensity: 0.56, sentiment: "bearish",
+    sparkline: [73500, 73000, 72600, 72200, 71900, 71550, 71234],
+    news: [
+      { id: 1, title: "Hungary forint hits new low vs EUR amid political uncertainty", source: "Reuters", time: "30 min ago", sentiment: "bearish", impact: "-2.1%", category: "Currency" },
+      { id: 2, title: "OTP Bank reports rising NPL ratio, provisions surge", source: "Bloomberg", time: "4h ago", sentiment: "bearish", impact: "-1.4%", category: "Banking" },
+    ],
+  },
+
+  CZ: {
+    name: "Czech Republic", code: "CZ", lat: 49.81, lng: 15.47,
+    currency: "CZK", marketIndex: "PX",
+    indexValue: 1587.34, indexChange: +8.23, indexChangePct: +0.52,
+    color: "#ffaa00", newsIntensity: 0.44, sentiment: "neutral",
+    sparkline: [1565, 1568, 1572, 1576, 1580, 1584, 1587],
+    news: [
+      { id: 1, title: "Czech Republic inflation cools to 2.8%, central bank signals cut", source: "Reuters", time: "2h ago", sentiment: "bullish", impact: "+0.6%", category: "Monetary Policy" },
+      { id: 2, title: "Skoda EV transition plan worth €5bn approved by VW group", source: "Bloomberg", time: "6h ago", sentiment: "bullish", impact: "+0.4%", category: "Auto" },
+    ],
+  },
+
+  RO: {
+    name: "Romania", code: "RO", lat: 45.94, lng: 24.96,
+    currency: "RON", marketIndex: "BET",
+    indexValue: 19456.78, indexChange: +234.5, indexChangePct: +1.22,
+    color: "#00ff88", newsIntensity: 0.5, sentiment: "bullish",
+    sparkline: [19050, 19120, 19200, 19280, 19340, 19400, 19456],
+    news: [
+      { id: 1, title: "Romania FDI surges 28% as EU funds unlock €12bn for infrastructure", source: "Reuters", time: "1h ago", sentiment: "bullish", impact: "+1.6%", category: "Investment" },
+      { id: 2, title: "Petrom crude oil output rises 8%, boosts Bucharest index", source: "Bloomberg", time: "5h ago", sentiment: "bullish", impact: "+0.7%", category: "Energy" },
+    ],
+  },
+
+  UA: {
+    name: "Ukraine", code: "UA", lat: 48.37, lng: 31.16,
+    currency: "UAH", marketIndex: "PFTS Index",
+    indexValue: 312.45, indexChange: -8.67, indexChangePct: -2.7,
+    color: "#ff2244", newsIntensity: 0.95, sentiment: "bearish",
+    sparkline: [345, 338, 332, 325, 320, 316, 312],
+    news: [
+      { id: 1, title: "IMF unlocks $2.2bn tranche for Ukraine reconstruction fund", source: "Reuters", time: "15 min ago", sentiment: "bullish", impact: "+1.8%", category: "Aid" },
+      { id: 2, title: "Ukraine grain corridor disruption raises global food price fears", source: "Bloomberg", time: "2h ago", sentiment: "bearish", impact: "-3.1%", category: "Agriculture" },
+      { id: 3, title: "Kyiv tech diaspora firms raise $800M in Silicon Valley", source: "FT", time: "8h ago", sentiment: "bullish", impact: "+0.5%", category: "Tech" },
+    ],
+  },
+
+  /* ─── MIDDLE EAST ─── */
+  TR: {
+    name: "Turkey", code: "TR", lat: 38.96, lng: 35.24,
+    currency: "TRY", marketIndex: "BIST 100",
+    indexValue: 9876.43, indexChange: -234.56, indexChangePct: -2.32,
+    color: "#ff2244", newsIntensity: 0.8, sentiment: "bearish",
+    sparkline: [10300, 10230, 10160, 10100, 10040, 9960, 9876],
+    news: [
+      { id: 1, title: "Turkish lira falls 4% vs USD after central bank surprise decision", source: "Reuters", time: "20 min ago", sentiment: "bearish", impact: "-3.2%", category: "Currency" },
+      { id: 2, title: "Turkey inflation hits 62%, wage growth fails to keep pace", source: "Bloomberg", time: "2h ago", sentiment: "bearish", impact: "-1.8%", category: "Inflation" },
+      { id: 3, title: "Ankara secures $10bn Qatar investment deal in defence & energy", source: "FT", time: "7h ago", sentiment: "bullish", impact: "+0.9%", category: "Investment" },
+    ],
+  },
+
+  IL: {
+    name: "Israel", code: "IL", lat: 31.04, lng: 34.85,
+    currency: "ILS", marketIndex: "TA-35",
+    indexValue: 1734.56, indexChange: -45.23, indexChangePct: -2.54,
+    color: "#ff2244", newsIntensity: 0.92, sentiment: "bearish",
+    sparkline: [1890, 1860, 1840, 1810, 1790, 1762, 1734],
+    news: [
+      { id: 1, title: "Geopolitical tensions weigh on Tel Aviv exchange, shekel weakens", source: "Reuters", time: "10 min ago", sentiment: "bearish", impact: "-2.8%", category: "Geopolitics" },
+      { id: 2, title: "Israel tech sector VC funding drops 35% amid security concerns", source: "Bloomberg", time: "3h ago", sentiment: "bearish", impact: "-1.5%", category: "Tech" },
+      { id: 3, title: "Check Point Software reports 18% revenue growth, defies market", source: "FT", time: "8h ago", sentiment: "bullish", impact: "+2.3%", category: "Cybersecurity" },
+    ],
+  },
+
+  QA: {
+    name: "Qatar", code: "QA", lat: 25.35, lng: 51.18,
+    currency: "QAR", marketIndex: "QSI",
+    indexValue: 10234.56, indexChange: +89.45, indexChangePct: +0.88,
+    color: "#00ff88", newsIntensity: 0.68, sentiment: "bullish",
+    sparkline: [10050, 10080, 10110, 10140, 10175, 10205, 10234],
+    news: [
+      { id: 1, title: "QatarEnergy signs 27-year LNG supply deal with Germany", source: "Reuters", time: "35 min ago", sentiment: "bullish", impact: "+1.7%", category: "Energy" },
+      { id: 2, title: "Qatar 2030 Vision attracts $18bn in tech and tourism FDI", source: "Bloomberg", time: "4h ago", sentiment: "bullish", impact: "+0.9%", category: "Investment" },
+    ],
+  },
+
+  KW: {
+    name: "Kuwait", code: "KW", lat: 29.31, lng: 47.48,
+    currency: "KWD", marketIndex: "Boursa Kuwait",
+    indexValue: 7234.56, indexChange: +56.78, indexChangePct: +0.79,
+    color: "#00ff88", newsIntensity: 0.58, sentiment: "bullish",
+    sparkline: [7110, 7135, 7158, 7176, 7196, 7215, 7234],
+    news: [
+      { id: 1, title: "Kuwait Investment Authority divests $4bn US equity stake, rebalances", source: "FT", time: "2h ago", sentiment: "neutral", impact: "-0.2%", category: "Sovereign Wealth" },
+      { id: 2, title: "Zain Group reports 12% profit jump on mobile data growth", source: "Reuters", time: "5h ago", sentiment: "bullish", impact: "+1.1%", category: "Telecom" },
+    ],
+  },
+
+  OM: {
+    name: "Oman", code: "OM", lat: 21.51, lng: 55.92,
+    currency: "OMR", marketIndex: "MSM 30",
+    indexValue: 4567.89, indexChange: +23.45, indexChangePct: +0.52,
+    color: "#ffaa00", newsIntensity: 0.46, sentiment: "neutral",
+    sparkline: [4510, 4523, 4535, 4547, 4555, 4562, 4567],
+    news: [
+      { id: 1, title: "Oman accelerates Vision 2040 economic diversification push", source: "Reuters", time: "3h ago", sentiment: "bullish", impact: "+0.8%", category: "Economy" },
+      { id: 2, title: "Bank Muscat profits rise 9% on loan growth and digital banking", source: "Bloomberg", time: "7h ago", sentiment: "bullish", impact: "+0.6%", category: "Banking" },
+    ],
+  },
+
+  JO: {
+    name: "Jordan", code: "JO", lat: 30.58, lng: 36.23,
+    currency: "JOD", marketIndex: "ASE",
+    indexValue: 2134.56, indexChange: -23.45, indexChangePct: -1.09,
+    color: "#ff6b35", newsIntensity: 0.48, sentiment: "bearish",
+    sparkline: [2200, 2192, 2184, 2175, 2165, 2150, 2134],
+    news: [
+      { id: 1, title: "Jordan regional instability weighs on investor confidence", source: "Reuters", time: "1h ago", sentiment: "bearish", impact: "-1.4%", category: "Geopolitics" },
+      { id: 2, title: "Potash exports hit record — phosphate royalties boost budget", source: "Bloomberg", time: "6h ago", sentiment: "bullish", impact: "+0.7%", category: "Resources" },
+    ],
+  },
+
+  BH: {
+    name: "Bahrain", code: "BH", lat: 26.0, lng: 50.55,
+    currency: "BHD", marketIndex: "Bahrain All Share",
+    indexValue: 1987.34, indexChange: +14.56, indexChangePct: +0.74,
+    color: "#00ff88", newsIntensity: 0.44, sentiment: "bullish",
+    sparkline: [1950, 1956, 1962, 1968, 1975, 1981, 1987],
+    news: [
+      { id: 1, title: "Bahrain becomes first Gulf state to list crypto asset on exchange", source: "Reuters", time: "2h ago", sentiment: "bullish", impact: "+1.3%", category: "Crypto" },
+      { id: 2, title: "Alba aluminium smelter expansion complete, capacity up 35%", source: "Bloomberg", time: "8h ago", sentiment: "bullish", impact: "+0.8%", category: "Industry" },
+    ],
+  },
+
+  IR: {
+    name: "Iran", code: "IR", lat: 32.42, lng: 53.68,
+    currency: "IRR", marketIndex: "Tehran SE",
+    indexValue: 2134567.0, indexChange: -45678.0, indexChangePct: -2.1,
+    color: "#ff2244", newsIntensity: 0.78, sentiment: "bearish",
+    sparkline: [2280000, 2250000, 2225000, 2200000, 2175000, 2155000, 2134567],
+    news: [
+      { id: 1, title: "US sanctions tightening cuts Iran oil exports to 25-year low", source: "Reuters", time: "1h ago", sentiment: "bearish", impact: "-3.5%", category: "Sanctions" },
+      { id: 2, title: "Iranian rial hits new historical low vs USD on black market", source: "Bloomberg", time: "4h ago", sentiment: "bearish", impact: "-2.8%", category: "Currency" },
+    ],
+  },
+
+  /* ─── AFRICA ─── */
+  EG: {
+    name: "Egypt", code: "EG", lat: 26.82, lng: 30.8,
+    currency: "EGP", marketIndex: "EGX 30",
+    indexValue: 26789.45, indexChange: +234.56, indexChangePct: +0.88,
+    color: "#ffaa00", newsIntensity: 0.62, sentiment: "neutral",
+    sparkline: [26300, 26400, 26500, 26580, 26640, 26715, 26789],
+    news: [
+      { id: 1, title: "Egypt IMF programme extended as reforms gain traction", source: "Reuters", time: "40 min ago", sentiment: "bullish", impact: "+1.2%", category: "Economy" },
+      { id: 2, title: "Suez Canal revenues fall 40% on Red Sea shipping diversions", source: "Bloomberg", time: "3h ago", sentiment: "bearish", impact: "-1.8%", category: "Trade" },
+    ],
+  },
+
+  MA: {
+    name: "Morocco", code: "MA", lat: 31.79, lng: -7.09,
+    currency: "MAD", marketIndex: "MASI",
+    indexValue: 13456.78, indexChange: +123.45, indexChangePct: +0.93,
+    color: "#00ff88", newsIntensity: 0.55, sentiment: "bullish",
+    sparkline: [13200, 13240, 13280, 13320, 13370, 13415, 13456],
+    news: [
+      { id: 1, title: "Morocco World Cup 2030 co-host status boosts construction stocks", source: "Reuters", time: "1h ago", sentiment: "bullish", impact: "+2.1%", category: "Infrastructure" },
+      { id: 2, title: "Green hydrogen Xlinks project reaches financial close for €17bn", source: "Bloomberg", time: "4h ago", sentiment: "bullish", impact: "+1.4%", category: "Energy" },
+    ],
+  },
+
+  KE: {
+    name: "Kenya", code: "KE", lat: -0.02, lng: 37.9,
+    currency: "KES", marketIndex: "NSE 20",
+    indexValue: 1687.34, indexChange: -34.56, indexChangePct: -2.01,
+    color: "#ff2244", newsIntensity: 0.6, sentiment: "bearish",
+    sparkline: [1780, 1765, 1752, 1740, 1727, 1708, 1687],
+    news: [
+      { id: 1, title: "Kenya shilling slides 18% YTD, IMF bailout talks intensify", source: "Reuters", time: "25 min ago", sentiment: "bearish", impact: "-2.5%", category: "Currency" },
+      { id: 2, title: "Safaricom M-Pesa passes 50M users across Africa", source: "Bloomberg", time: "5h ago", sentiment: "bullish", impact: "+1.6%", category: "Fintech" },
+    ],
+  },
+
+  GH: {
+    name: "Ghana", code: "GH", lat: 7.95, lng: -1.02,
+    currency: "GHS", marketIndex: "GSE Composite",
+    indexValue: 3456.78, indexChange: -56.78, indexChangePct: -1.62,
+    color: "#ff2244", newsIntensity: 0.57, sentiment: "bearish",
+    sparkline: [3620, 3598, 3575, 3555, 3535, 3497, 3456],
+    news: [
+      { id: 1, title: "Ghana completes $3bn debt restructuring, IMF program resumes", source: "Reuters", time: "1h ago", sentiment: "bullish", impact: "+1.5%", category: "Debt" },
+      { id: 2, title: "Cocoa production falls 22% on El Niño drought impact", source: "Bloomberg", time: "4h ago", sentiment: "bearish", impact: "-2.3%", category: "Agriculture" },
+    ],
+  },
+
+  CI: {
+    name: "Ivory Coast", code: "CI", lat: 7.54, lng: -5.55,
+    currency: "XOF", marketIndex: "BRVM Composite",
+    indexValue: 234.56, indexChange: +3.45, indexChangePct: +1.49,
+    color: "#00ff88", newsIntensity: 0.5, sentiment: "bullish",
+    sparkline: [224, 226, 228, 230, 231, 233, 234],
+    news: [
+      { id: 1, title: "Ivory Coast cocoa output rebounds 15%, world's top producer surges", source: "Reuters", time: "2h ago", sentiment: "bullish", impact: "+2.0%", category: "Agriculture" },
+      { id: 2, title: "Abidjan port expansion boosts West Africa trade hub status", source: "Bloomberg", time: "7h ago", sentiment: "bullish", impact: "+0.8%", category: "Trade" },
+    ],
+  },
+
+  TZ: {
+    name: "Tanzania", code: "TZ", lat: -6.36, lng: 34.89,
+    currency: "TZS", marketIndex: "DSE All Share",
+    indexValue: 2187.45, indexChange: +23.12, indexChangePct: +1.07,
+    color: "#00ff88", newsIntensity: 0.44, sentiment: "bullish",
+    sparkline: [2130, 2141, 2152, 2162, 2171, 2180, 2187],
+    news: [
+      { id: 1, title: "Tanzania lithium reserves attract $5bn in mining investment", source: "Reuters", time: "3h ago", sentiment: "bullish", impact: "+1.9%", category: "Resources" },
+      { id: 2, title: "East African Community integration boosts Dar es Salaam exchange", source: "Bloomberg", time: "8h ago", sentiment: "bullish", impact: "+0.5%", category: "Trade" },
+    ],
+  },
+
+  /* ─── ASIA-PACIFIC ─── */
+  TW: {
+    name: "Taiwan", code: "TW", lat: 23.69, lng: 120.96,
+    currency: "TWD", marketIndex: "TAIEX",
+    indexValue: 21456.78, indexChange: +345.67, indexChangePct: +1.64,
+    color: "#00ff88", newsIntensity: 0.88, sentiment: "bullish",
+    sparkline: [20900, 20990, 21080, 21170, 21260, 21360, 21456],
+    news: [
+      { id: 1, title: "TSMC Q2 revenue surges 40% on AI chip demand, raises 2026 outlook", source: "Reuters", time: "5 min ago", sentiment: "bullish", impact: "+4.2%", category: "Semiconductors" },
+      { id: 2, title: "Taiwan Strait tensions ease after diplomatic backchannel talks", source: "Bloomberg", time: "2h ago", sentiment: "bullish", impact: "+1.8%", category: "Geopolitics" },
+      { id: 3, title: "MediaTek wins 5G baseband chip contract with major US OEM", source: "FT", time: "5h ago", sentiment: "bullish", impact: "+2.1%", category: "Tech" },
+    ],
+  },
+
+  HK: {
+    name: "Hong Kong", code: "HK", lat: 22.31, lng: 114.16,
+    currency: "HKD", marketIndex: "Hang Seng",
+    indexValue: 18342.11, indexChange: +78.34, indexChangePct: +0.43,
+    color: "#ffaa00", newsIntensity: 0.72, sentiment: "neutral",
+    sparkline: [18100, 18150, 18200, 18240, 18285, 18315, 18342],
+    news: [
+      { id: 1, title: "HK IPO market revives with 14 tech listings in Q2, biggest since 2020", source: "SCMP", time: "1h ago", sentiment: "bullish", impact: "+1.5%", category: "IPO" },
+      { id: 2, title: "Property sector drag continues as Evergrande liquidation proceeds", source: "Bloomberg", time: "3h ago", sentiment: "bearish", impact: "-0.9%", category: "Real Estate" },
+    ],
+  },
+
+  ID: {
+    name: "Indonesia", code: "ID", lat: -0.78, lng: 113.92,
+    currency: "IDR", marketIndex: "IDX Composite",
+    indexValue: 7234.56, indexChange: +89.23, indexChangePct: +1.25,
+    color: "#00ff88", newsIntensity: 0.72, sentiment: "bullish",
+    sparkline: [7040, 7075, 7100, 7130, 7162, 7198, 7234],
+    news: [
+      { id: 1, title: "Indonesia nickel processing boom attracts $12bn EV supply-chain FDI", source: "Reuters", time: "30 min ago", sentiment: "bullish", impact: "+2.3%", category: "Resources" },
+      { id: 2, title: "Bank Indonesia holds rate at 6%, eyes Q3 cut as inflation drops", source: "Bloomberg", time: "3h ago", sentiment: "bullish", impact: "+0.7%", category: "Monetary Policy" },
+    ],
+  },
+
+  MY: {
+    name: "Malaysia", code: "MY", lat: 4.21, lng: 108.96,
+    currency: "MYR", marketIndex: "KLCI",
+    indexValue: 1612.34, indexChange: +18.45, indexChangePct: +1.16,
+    color: "#00ff88", newsIntensity: 0.64, sentiment: "bullish",
+    sparkline: [1570, 1578, 1587, 1595, 1601, 1607, 1612],
+    news: [
+      { id: 1, title: "Malaysia overtakes Singapore as SE Asia's top semiconductor hub", source: "Reuters", time: "45 min ago", sentiment: "bullish", impact: "+1.9%", category: "Semiconductors" },
+      { id: 2, title: "Petronas reports record quarterly profit of RM 23bn", source: "Bloomberg", time: "4h ago", sentiment: "bullish", impact: "+1.2%", category: "Energy" },
+    ],
+  },
+
+  TH: {
+    name: "Thailand", code: "TH", lat: 15.87, lng: 100.99,
+    currency: "THB", marketIndex: "SET",
+    indexValue: 1387.45, indexChange: -23.12, indexChangePct: -1.64,
+    color: "#ff2244", newsIntensity: 0.6, sentiment: "bearish",
+    sparkline: [1450, 1435, 1425, 1415, 1407, 1397, 1387],
+    news: [
+      { id: 1, title: "Thai baht weakens as tourism receipts fall short of target", source: "Reuters", time: "1h ago", sentiment: "bearish", impact: "-1.3%", category: "Tourism" },
+      { id: 2, title: "Thailand political crisis resurfaces, PM faces no-confidence vote", source: "Bloomberg", time: "3h ago", sentiment: "bearish", impact: "-2.1%", category: "Politics" },
+    ],
+  },
+
+  PH: {
+    name: "Philippines", code: "PH", lat: 12.87, lng: 121.77,
+    currency: "PHP", marketIndex: "PSEi",
+    indexValue: 6987.45, indexChange: +67.34, indexChangePct: +0.97,
+    color: "#00ff88", newsIntensity: 0.61, sentiment: "bullish",
+    sparkline: [6840, 6862, 6885, 6910, 6935, 6962, 6987],
+    news: [
+      { id: 1, title: "Philippines OFW remittances hit record $38bn, drives consumer spending", source: "Reuters", time: "2h ago", sentiment: "bullish", impact: "+1.0%", category: "Economy" },
+      { id: 2, title: "SM Investments reports 14% profit growth on mall & banking units", source: "Bloomberg", time: "6h ago", sentiment: "bullish", impact: "+0.8%", category: "Consumer" },
+    ],
+  },
+
+  VN: {
+    name: "Vietnam", code: "VN", lat: 14.05, lng: 108.27,
+    currency: "VND", marketIndex: "VN Index",
+    indexValue: 1287.45, indexChange: +23.45, indexChangePct: +1.86,
+    color: "#00ff88", newsIntensity: 0.7, sentiment: "bullish",
+    sparkline: [1230, 1242, 1254, 1263, 1272, 1280, 1287],
+    news: [
+      { id: 1, title: "Vietnam electronics exports top $130bn as Apple shifts production from China", source: "Reuters", time: "1h ago", sentiment: "bullish", impact: "+2.8%", category: "Trade" },
+      { id: 2, title: "Vingroup EV brand VinFast expands into US and European markets", source: "Bloomberg", time: "4h ago", sentiment: "bullish", impact: "+3.2%", category: "Auto" },
+    ],
+  },
+
+  PK: {
+    name: "Pakistan", code: "PK", lat: 30.37, lng: 69.34,
+    currency: "PKR", marketIndex: "KSE 100",
+    indexValue: 78234.56, indexChange: +1234.56, indexChangePct: +1.6,
+    color: "#00ff88", newsIntensity: 0.75, sentiment: "bullish",
+    sparkline: [75000, 75600, 76200, 76800, 77300, 77800, 78234],
+    news: [
+      { id: 1, title: "Pakistan IMF deal extended, $7bn loan unlocks economic stabilization", source: "Reuters", time: "30 min ago", sentiment: "bullish", impact: "+3.1%", category: "Economy" },
+      { id: 2, title: "Karachi exchange hits all-time high as inflation drops to 18%", source: "Bloomberg", time: "3h ago", sentiment: "bullish", impact: "+2.4%", category: "Monetary Policy" },
+    ],
+  },
+
+  BD: {
+    name: "Bangladesh", code: "BD", lat: 23.68, lng: 90.35,
+    currency: "BDT", marketIndex: "DSEX",
+    indexValue: 5234.56, indexChange: -89.34, indexChangePct: -1.68,
+    color: "#ff2244", newsIntensity: 0.66, sentiment: "bearish",
+    sparkline: [5500, 5470, 5440, 5415, 5388, 5362, 5234],
+    news: [
+      { id: 1, title: "Bangladesh garment sector faces order cancellations from EU buyers", source: "Reuters", time: "1h ago", sentiment: "bearish", impact: "-2.1%", category: "Trade" },
+      { id: 2, title: "Political unrest disrupts Dhaka markets, taka hits low vs USD", source: "Bloomberg", time: "3h ago", sentiment: "bearish", impact: "-1.9%", category: "Politics" },
+    ],
+  },
+
+  LK: {
+    name: "Sri Lanka", code: "LK", lat: 7.87, lng: 80.77,
+    currency: "LKR", marketIndex: "CSE All Share",
+    indexValue: 12456.78, indexChange: +89.34, indexChangePct: +0.72,
+    color: "#ffaa00", newsIntensity: 0.54, sentiment: "neutral",
+    sparkline: [12200, 12240, 12280, 12320, 12370, 12415, 12456],
+    news: [
+      { id: 1, title: "Sri Lanka exits IMF program, debt restructuring complete", source: "Reuters", time: "2h ago", sentiment: "bullish", impact: "+2.5%", category: "Economy" },
+      { id: 2, title: "Ceylon Tea exports recover 8% after supply disruptions ease", source: "Bloomberg", time: "7h ago", sentiment: "bullish", impact: "+0.6%", category: "Agriculture" },
+    ],
+  },
+
+  NZ: {
+    name: "New Zealand", code: "NZ", lat: -40.9, lng: 174.88,
+    currency: "NZD", marketIndex: "NZX 50",
+    indexValue: 11987.45, indexChange: +78.34, indexChangePct: +0.66,
+    color: "#00ff88", newsIntensity: 0.5, sentiment: "bullish",
+    sparkline: [11800, 11830, 11858, 11890, 11920, 11955, 11987],
+    news: [
+      { id: 1, title: "New Zealand RBNZ cuts rates 50bps, housing market reacts", source: "Reuters", time: "1h ago", sentiment: "bullish", impact: "+1.1%", category: "Monetary Policy" },
+      { id: 2, title: "Fonterra dairy exports surge on Chinese demand recovery", source: "Bloomberg", time: "5h ago", sentiment: "bullish", impact: "+0.8%", category: "Agriculture" },
+    ],
+  },
+
+  KZ: {
+    name: "Kazakhstan", code: "KZ", lat: 48.01, lng: 66.92,
+    currency: "KZT", marketIndex: "KASE",
+    indexValue: 4567.89, indexChange: +56.78, indexChangePct: +1.26,
+    color: "#00ff88", newsIntensity: 0.55, sentiment: "bullish",
+    sparkline: [4420, 4450, 4480, 4505, 4530, 4550, 4567],
+    news: [
+      { id: 1, title: "Kazakhstan oil output diversification cuts Russia dependency to 30%", source: "Reuters", time: "2h ago", sentiment: "bullish", impact: "+1.8%", category: "Energy" },
+      { id: 2, title: "Almaty crypto mining hub attracts $2bn in global investments", source: "Bloomberg", time: "6h ago", sentiment: "bullish", impact: "+1.2%", category: "Crypto" },
+    ],
+  },
+
+  /* ─── LATIN AMERICA ─── */
+  AR: {
+    name: "Argentina", code: "AR", lat: -38.41, lng: -63.61,
+    currency: "ARS", marketIndex: "Merval",
+    indexValue: 1867234.0, indexChange: +34567.0, indexChangePct: +1.89,
+    color: "#00ff88", newsIntensity: 0.82, sentiment: "bullish",
+    sparkline: [1780000, 1800000, 1820000, 1835000, 1850000, 1860000, 1867234],
+    news: [
+      { id: 1, title: "Milei's austerity delivers 7% fiscal surplus — first in decades", source: "Reuters", time: "20 min ago", sentiment: "bullish", impact: "+4.5%", category: "Fiscal" },
+      { id: 2, title: "Argentina inflation falls to 48% from 290% peak, reforms praised", source: "Bloomberg", time: "2h ago", sentiment: "bullish", impact: "+2.8%", category: "Inflation" },
+      { id: 3, title: "Vaca Muerta shale output hits record 700,000 bpd, dollar inflows surge", source: "FT", time: "5h ago", sentiment: "bullish", impact: "+3.1%", category: "Energy" },
+    ],
+  },
+
+  CO: {
+    name: "Colombia", code: "CO", lat: 4.57, lng: -74.29,
+    currency: "COP", marketIndex: "Colcap",
+    indexValue: 1234.56, indexChange: -23.45, indexChangePct: -1.86,
+    color: "#ff2244", newsIntensity: 0.6, sentiment: "bearish",
+    sparkline: [1310, 1296, 1282, 1272, 1263, 1249, 1234],
+    news: [
+      { id: 1, title: "Colombia peso hits 3-month low as fiscal deficit widens", source: "Reuters", time: "1h ago", sentiment: "bearish", impact: "-2.0%", category: "Fiscal" },
+      { id: 2, title: "Ecopetrol crude output misses targets amid security incidents", source: "Bloomberg", time: "4h ago", sentiment: "bearish", impact: "-1.5%", category: "Energy" },
+    ],
+  },
+
+  CL: {
+    name: "Chile", code: "CL", lat: -35.67, lng: -71.54,
+    currency: "CLP", marketIndex: "IPSA",
+    indexValue: 6734.56, indexChange: +45.67, indexChangePct: +0.68,
+    color: "#ffaa00", newsIntensity: 0.58, sentiment: "neutral",
+    sparkline: [6640, 6660, 6680, 6698, 6710, 6724, 6734],
+    news: [
+      { id: 1, title: "Chile lithium nationalization plan draws mixed investor reaction", source: "Reuters", time: "2h ago", sentiment: "bearish", impact: "-1.2%", category: "Resources" },
+      { id: 2, title: "Copper futures hit $5.20/lb on Chinese stimulus demand surge", source: "Bloomberg", time: "5h ago", sentiment: "bullish", impact: "+2.1%", category: "Commodities" },
+    ],
+  },
+
+  PE: {
+    name: "Peru", code: "PE", lat: -9.19, lng: -75.01,
+    currency: "PEN", marketIndex: "BVL General",
+    indexValue: 21456.78, indexChange: +134.56, indexChangePct: +0.63,
+    color: "#ffaa00", newsIntensity: 0.52, sentiment: "neutral",
+    sparkline: [21100, 21160, 21220, 21280, 21340, 21400, 21456],
+    news: [
+      { id: 1, title: "Southern Copper reports 18% profit jump, largest producer gains", source: "Reuters", time: "3h ago", sentiment: "bullish", impact: "+1.8%", category: "Resources" },
+      { id: 2, title: "Peru political instability weighs on mining investment outlook", source: "Bloomberg", time: "7h ago", sentiment: "bearish", impact: "-0.9%", category: "Politics" },
+    ],
+  },
 };
 
 export const GLOBAL_INDICES = [
@@ -708,11 +1294,37 @@ export const GLOBAL_INDICES = [
   { name: "NIFTY 50", value: "24,567.89", change: "+0.96%", up: true },
   { name: "BOVESPA", value: "128,456", change: "-0.95%", up: false },
   { name: "TSX COMP", value: "22,145.67", change: "+0.40%", up: true },
+  { name: "TAIEX", value: "21,456.78", change: "+1.64%", up: true },
+  { name: "IBEX 35", value: "10,847.30", change: "-0.82%", up: false },
+  { name: "FTSE MIB", value: "34,218.40", change: "+0.37%", up: true },
+  { name: "AEX", value: "898.72", change: "+0.94%", up: true },
+  { name: "SMI", value: "11,987.30", change: "+0.64%", up: true },
+  { name: "BIST 100", value: "9,876.43", change: "-2.32%", up: false },
+  { name: "KLCI", value: "1,612.34", change: "+1.16%", up: true },
+  { name: "SET", value: "1,387.45", change: "-1.64%", up: false },
+  { name: "IDX COMP", value: "7,234.56", change: "+1.25%", up: true },
+  { name: "PSEi", value: "6,987.45", change: "+0.97%", up: true },
+  { name: "VN INDEX", value: "1,287.45", change: "+1.86%", up: true },
+  { name: "KSE 100", value: "78,234", change: "+1.60%", up: true },
+  { name: "WIG 20", value: "2,456.78", change: "+1.41%", up: true },
+  { name: "TA-35", value: "1,734.56", change: "-2.54%", up: false },
+  { name: "EGX 30", value: "26,789.45", change: "+0.88%", up: true },
+  { name: "MERVAL", value: "1,867,234", change: "+1.89%", up: true },
+  { name: "NZX 50", value: "11,987.45", change: "+0.66%", up: true },
   { name: "GOLD", value: "$2,387.50", change: "+0.32%", up: true },
+  { name: "SILVER", value: "$29.14", change: "+0.67%", up: true },
   { name: "WTI OIL", value: "$78.43", change: "-0.54%", up: false },
+  { name: "BRENT", value: "$82.17", change: "-0.41%", up: false },
+  { name: "NATURAL GAS", value: "$2.84", change: "+1.23%", up: true },
   { name: "BTC/USD", value: "$67,234", change: "+2.14%", up: true },
+  { name: "ETH/USD", value: "$3,456", change: "+1.87%", up: true },
   { name: "EUR/USD", value: "1.0876", change: "-0.12%", up: false },
+  { name: "USD/JPY", value: "148.32", change: "+0.34%", up: true },
+  { name: "GBP/USD", value: "1.2743", change: "-0.08%", up: false },
+  { name: "USD/INR", value: "83.42", change: "+0.14%", up: true },
   { name: "DXY", value: "104.23", change: "+0.21%", up: true },
+  { name: "VIX", value: "14.23", change: "-3.45%", up: false },
+  { name: "COPPER", value: "$5.18", change: "+1.92%", up: true },
 ];
 
 export const NEWS_MARKERS = Object.values(COUNTRIES_DATA).map((c) => ({

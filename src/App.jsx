@@ -7,6 +7,8 @@ import Header from "./components/Header/Header";
 import Ticker from "./components/Ticker/Ticker";
 import Sidebar from "./components/Sidebar/Sidebar";
 import GlobeArea from "./components/Globe/GlobeArea";
+import StockPanel from "./components/StockPanel/StockPanel";
+import "./components/StockPanel/StockPanel.css";
 import LoginPage from "./pages/LoginPage";
 import PendingPage from "./pages/PendingPage";
 import RejectedPage from "./pages/RejectedPage";
@@ -19,6 +21,8 @@ function TerminalApp() {
       <Ticker />
       <Sidebar />
       <GlobeArea />
+      {/* Global Stock Panel — renders as fixed overlay above everything */}
+      <StockPanel />
     </div>
   );
 }

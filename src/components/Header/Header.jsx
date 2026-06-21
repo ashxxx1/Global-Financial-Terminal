@@ -1,7 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { GLOBAL_INDICES } from "../../data/mockData";
 import { useAuth } from "../../contexts/AuthContext";
+import useTerminalStore from "../../store/terminalStore";
+import { searchStocks } from "../../data/stocksData";
+import { COUNTRIES_DATA } from "../../data/mockData";
+
+const EXCHANGES = [
+  { label: "NYSE", open: [13, 21] },
+  { label: "LSE", open: [8, 16] },
+  { label: "TSE", open: [0, 6] },
+  { label: "NSE", open: [3, 10] },
+];
 
 function LiveClock() {
   const [now, setNow] = useState(new Date());
@@ -9,30 +18,111 @@ function LiveClock() {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
-
+  const h = now.getUTCHours();
   const timeStr = now.toUTCString().slice(17, 25);
-  const dateStr = now.toUTCString().slice(0, 16);
-
+  const dateStr = now.toUTCString().slice(5, 16);
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-      <span className="header__clock">{timeStr} UTC</span>
-      <span className="header__date">{dateStr}</span>
+    <div className="header__clock-block">
+      <span className="header__clock">{timeStr}</span>
+      <span className="header__date">{dateStr} UTC</span>
     </div>
   );
 }
 
-function MarketStatus() {
-  const [isOpen, setIsOpen] = useState(false);
+function ExchangeClocks() {
+  const [h, setH] = useState(new Date().getUTCHours());
   useEffect(() => {
-    const h = new Date().getUTCHours();
-    setIsOpen(h >= 13 && h < 21);
+    const id = setInterval(() => setH(new Date().getUTCHours()), 10000);
+    return () => clearInterval(id);
   }, []);
+
   return (
-    <div className="header__market-status">
-      <div className={`header__status-dot ${isOpen ? "" : "closed"}`} />
-      <span style={{ color: isOpen ? "var(--accent-green)" : "var(--accent-red)", fontFamily: "var(--text-mono)", fontSize: 11 }}>
-        NYSE {isOpen ? "OPEN" : "CLOSED"}
-      </span>
+    <div className="header__exchanges">
+      {EXCHANGES.map((ex) => {
+        const open = h >= ex.open[0] && h < ex.open[1];
+        return (
+          <div key={ex.label} className="header__exchange-item">
+            <span className={`header__ex-dot ${open ? "open" : "closed"}`} />
+            <span className="header__ex-label">{ex.label}</span>
+            <span className={`header__ex-status ${open ? "open" : "closed"}`}>
+              {open ? "OPEN" : "CLSD"}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function GlobalSearch() {
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState([]);
+  const [show, setShow] = useState(false);
+  const ref = useRef(null);
+  const { setSelectedStock, setSelectedCountry } = useTerminalStore();
+
+  useEffect(() => {
+    function handler(e) {
+      if (ref.current && !ref.current.contains(e.target)) setShow(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleChange = (e) => {
+    const val = e.target.value;
+    setQ(val);
+    if (val.trim().length < 2) { setResults([]); setShow(false); return; }
+    const stocks = searchStocks(val).slice(0, 6);
+    const countries = Object.values(COUNTRIES_DATA).filter(
+      (c) => c.name.toLowerCase().includes(val.toLowerCase()) || c.code.toLowerCase().includes(val.toLowerCase())
+    ).slice(0, 3);
+    setResults([...countries.map((c) => ({ type: "country", ...c })), ...stocks.map((s) => ({ type: "stock", ...s }))]);
+    setShow(true);
+  };
+
+  const handleSelect = (item) => {
+    if (item.type === "country") { setSelectedCountry(item); }
+    else { setSelectedStock(item); }
+    setQ(""); setShow(false);
+  };
+
+  return (
+    <div className="header__search" ref={ref}>
+      <span className="header__search-icon">⌕</span>
+      <input
+        className="header__search-input"
+        placeholder="Search stocks, markets…"
+        value={q}
+        onChange={handleChange}
+        onFocus={() => q.length >= 2 && setShow(true)}
+      />
+      {show && results.length > 0 && (
+        <div className="header__search-dropdown">
+          {results.map((item, i) => (
+            <div key={i} className="header__search-result" onClick={() => handleSelect(item)}>
+              <span className={`header__sr-type ${item.type}`}>
+                {item.type === "country" ? "🌍" : "📈"}
+              </span>
+              <div className="header__sr-info">
+                <div className="header__sr-name">
+                  {item.type === "country" ? item.name : `${item.symbol} — ${item.name}`}
+                </div>
+                <div className="header__sr-sub">
+                  {item.type === "country"
+                    ? `${item.marketIndex} · ${item.currency}`
+                    : `${item.sector} · ${item.country}`}
+                </div>
+              </div>
+              {item.type === "stock" && (
+                <span className={`header__sr-chg ${item.changePct >= 0 ? "up" : "down"}`}>
+                  {item.changePct >= 0 ? "+" : ""}{item.changePct.toFixed(2)}%
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -69,11 +159,7 @@ function UserMenu() {
             <div style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "var(--text-mono)", marginTop: 2 }}>{currentUser.email}</div>
           </div>
           {isAdmin && (
-            <Link
-              to="/admin"
-              className="header__dropdown-item"
-              onClick={() => setOpen(false)}
-            >
+            <Link to="/admin" className="header__dropdown-item" onClick={() => setOpen(false)}>
               ⚙ Admin Panel
             </Link>
           )}
@@ -96,29 +182,26 @@ export default function Header() {
           <div className="header__logo-text">
             GLOBAL<span>FIN</span> TERMINAL
           </div>
-          <div style={{ fontFamily: "var(--text-mono)", fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
-            v0.1.0 · MARKET INTELLIGENCE
+          <div style={{ fontFamily: "var(--text-mono)", fontSize: 8, color: "var(--text-muted)", letterSpacing: "0.12em" }}>
+            REAL-TIME MARKET INTELLIGENCE
           </div>
         </div>
       </div>
 
       <div className="header__divider" />
-      <MarketStatus />
+      <ExchangeClocks />
+      <div className="header__divider" />
+      <GlobalSearch />
 
       {[
         { label: "BTC", val: "$67,234", up: true },
         { label: "GOLD", val: "$2,387", up: true },
         { label: "WTI", val: "$78.43", up: false },
-        { label: "EUR/USD", val: "1.0876", up: false },
         { label: "VIX", val: "14.32", up: false },
       ].map((item) => (
-        <div key={item.label} style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-          <span style={{ fontFamily: "var(--text-mono)", fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.08em" }}>
-            {item.label}
-          </span>
-          <span style={{ fontFamily: "var(--text-mono)", fontSize: 12, color: item.up ? "var(--accent-green)" : "var(--accent-red)", fontWeight: 600 }}>
-            {item.val}
-          </span>
+        <div key={item.label} className="header__quick-stat">
+          <span className="header__qs-label">{item.label}</span>
+          <span className={`header__qs-val ${item.up ? "up" : "down"}`}>{item.val}</span>
         </div>
       ))}
 

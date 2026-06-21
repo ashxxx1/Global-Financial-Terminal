@@ -97,7 +97,7 @@ export default function Header() {
             GLOBAL<span>FIN</span> TERMINAL
           </div>
           <div style={{ fontFamily: "var(--text-mono)", fontSize: 9, color: "var(--text-muted)", letterSpacing: "0.1em" }}>
-            v0.1.0 · MARKET INTELLIGENCE
+            v0.1.1 · MARKET INTELLIGENCE
           </div>
         </div>
       </div>

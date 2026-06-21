@@ -124,27 +124,47 @@ function resolveISO(feat) {
   return null;
 }
 
+// ─── Geopolitical risk system ────────────────────────────────────────────────
+const GEO_RISK = {
+  high:   ["UA", "RU", "IL", "IR", "IQ", "SY", "YE", "LY", "AF", "SD", "MM"],
+  medium: ["TR", "PK", "BD", "NG", "EG", "KZ", "CO", "TH", "KE", "GH", "CI", "ZW", "ML", "SO", "ET"],
+};
+function getGeoRiskLevel(iso) {
+  if (!iso) return "low";
+  if (GEO_RISK.high.includes(iso)) return "high";
+  if (GEO_RISK.medium.includes(iso)) return "medium";
+  return "low";
+}
+
 // ─── Color helpers ────────────────────────────────────────────────────────────
 function getCountryColor(iso) {
+  const level = getGeoRiskLevel(iso);
+  const tracked = !!COUNTRIES_DATA[iso];
+  if (!tracked) return "rgba(18, 22, 48, 0.22)";
+  if (level === "high")   return "rgba(255, 34, 68, 0.38)";
+  if (level === "medium") return "rgba(245, 166, 35, 0.32)";
+  // low risk — use market sentiment for color
   const c = COUNTRIES_DATA[iso];
-  if (!c) return "rgba(20, 30, 60, 0.28)";
   if (c.sentiment === "bullish") return "rgba(0, 232, 122, 0.32)";
-  if (c.sentiment === "bearish") return "rgba(255, 34, 68, 0.30)";
-  return "rgba(245, 166, 35, 0.28)";
+  if (c.sentiment === "bearish") return "rgba(255, 100, 60, 0.28)";
+  return "rgba(100, 180, 255, 0.22)";
 }
 function getSideColor(iso) {
+  const level = getGeoRiskLevel(iso);
+  if (!COUNTRIES_DATA[iso]) return "rgba(10,14,35,0.6)";
+  if (level === "high")   return "rgba(200, 20, 50, 0.55)";
+  if (level === "medium") return "rgba(200, 130, 0, 0.45)";
   const c = COUNTRIES_DATA[iso];
-  if (!c) return "rgba(10,16,40,0.7)";
-  if (c.sentiment === "bullish") return "rgba(0, 200, 100, 0.50)";
-  if (c.sentiment === "bearish") return "rgba(220, 30, 60, 0.50)";
-  return "rgba(210, 140, 0, 0.40)";
+  if (c.sentiment === "bullish") return "rgba(0, 180, 90, 0.50)";
+  if (c.sentiment === "bearish") return "rgba(200, 80, 40, 0.45)";
+  return "rgba(40, 100, 200, 0.35)";
 }
 function getStrokeColor(iso) {
-  const c = COUNTRIES_DATA[iso];
-  if (!c) return "rgba(100,150,255,0.06)";
-  if (c.sentiment === "bullish") return "rgba(0,232,122,0.22)";
-  if (c.sentiment === "bearish") return "rgba(255,34,68,0.22)";
-  return "rgba(245,166,35,0.18)";
+  const level = getGeoRiskLevel(iso);
+  if (!COUNTRIES_DATA[iso]) return "rgba(60, 80, 160, 0.05)";
+  if (level === "high")   return "rgba(255,34,68,0.30)";
+  if (level === "medium") return "rgba(245,166,35,0.22)";
+  return "rgba(0,232,122,0.18)";
 }
 
 function buildTooltip(iso, name) {

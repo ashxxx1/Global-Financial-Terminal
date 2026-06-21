@@ -11,11 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Integrated a new **Investment Disclaimer Footer** displaying regulatory warning messages to ensure compliance.
 - Created custom `Footer.jsx` React component.
 - Added responsive layout grid integration for the new footer component.
+- Patched 3D Globe visualization to display the **official map boundary of India** (Jammu, Kashmir, and Ladakh represented accurately) using Survey of India / land-simplified GIS coordinates.
 
 ### Changed
 - **UI Enhancements**:
   - Upgraded sidebar items with dynamic active-glowing left borders and inset glow styling on hover.
   - Implemented glassmorphic visual improvements and inset glow shadows for article cards in the News Panel.
+- **Performance Optimizations**:
+  - Resolved WebGL context memory leaks by cleaning up the Three.js/Globe.gl canvas instances upon component unmount.
 - Updated project metadata configuration.
 
 ---

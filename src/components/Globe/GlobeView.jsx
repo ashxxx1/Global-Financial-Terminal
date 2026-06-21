@@ -47,45 +47,61 @@ export default function GlobeView() {
       )
 
     // ── Country polygons ──
-    fetch("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson")
-      .then((r) => r.json())
-      .then((data) => {
-        globe
-          .polygonsData(data.features)
-          .polygonCapColor((feat) =>
-            getCountryColor(feat.properties.ISO_A2)
-          )
-          .polygonSideColor((feat) => getSideColor(feat.properties.ISO_A2))
-          .polygonStrokeColor(() => "rgba(0,255,136,0.08)")
-          .polygonAltitude((feat) => {
-            const c = COUNTRIES_DATA[feat.properties.ISO_A2];
-            return c ? 0.006 + c.newsIntensity * 0.012 : 0.004;
-          })
-          .polygonLabel((feat) => {
-            const iso = feat.properties.ISO_A2;
-            const c = COUNTRIES_DATA[iso];
-            if (!c) return feat.properties.NAME;
-            const arrow = c.sentiment === "bullish" ? "▲" : c.sentiment === "bearish" ? "▼" : "◆";
-            const color = c.sentiment === "bullish" ? "#00ff88" : c.sentiment === "bearish" ? "#ff2244" : "#ffaa00";
-            return `
-              <div style="background:rgba(10,10,20,0.95);border:1px solid rgba(0,255,136,0.2);border-radius:6px;padding:10px 14px;font-family:'JetBrains Mono',monospace;min-width:160px">
-                <div style="font-size:13px;font-weight:700;color:#e8e8f0;margin-bottom:6px">${c.name}</div>
-                <div style="font-size:11px;color:#8888aa;margin-bottom:4px">${c.marketIndex}</div>
-                <div style="font-size:16px;font-weight:700;color:#e8e8f0">${c.indexValue.toLocaleString()}</div>
-                <div style="font-size:12px;color:${color};margin-top:4px">${arrow} ${c.indexChange > 0 ? "+" : ""}${c.indexChangePct.toFixed(2)}% today</div>
-                <div style="font-size:9px;color:#555566;margin-top:8px;text-transform:uppercase;letter-spacing:0.1em">Click for news & market data</div>
-              </div>
-            `;
-          })
-          .onPolygonClick((feat) => {
-            const iso = feat.properties.ISO_A2;
-            const country = COUNTRIES_DATA[iso];
-            if (country) {
-              setSelectedCountry(country);
-              setGlobeAutoRotate(false);
+    Promise.all([
+      fetch("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson")
+        .then((r) => r.json()),
+      fetch("https://raw.githubusercontent.com/datameet/maps/master/Country/india-land-simplified.geojson")
+        .then((r) => r.json())
+        .catch(() => null)
+    ])
+      .then(([worldData, indiaData]) => {
+        if (worldData && worldData.features) {
+          if (indiaData && indiaData.features && indiaData.features.length > 0) {
+            const worldIndiaIdx = worldData.features.findIndex(
+              (feat) => feat.properties.ISO_A2 === "IN" || feat.properties.ISO_A3 === "IND"
+            );
+            if (worldIndiaIdx !== -1) {
+              worldData.features[worldIndiaIdx].geometry = indiaData.features[0].geometry;
             }
-          })
-          .polygonsTransitionDuration(600);
+          }
+
+          globe
+            .polygonsData(worldData.features)
+            .polygonCapColor((feat) =>
+              getCountryColor(feat.properties.ISO_A2)
+            )
+            .polygonSideColor((feat) => getSideColor(feat.properties.ISO_A2))
+            .polygonStrokeColor(() => "rgba(0,255,136,0.08)")
+            .polygonAltitude((feat) => {
+              const c = COUNTRIES_DATA[feat.properties.ISO_A2];
+              return c ? 0.006 + c.newsIntensity * 0.012 : 0.004;
+            })
+            .polygonLabel((feat) => {
+              const iso = feat.properties.ISO_A2;
+              const c = COUNTRIES_DATA[iso];
+              if (!c) return feat.properties.NAME;
+              const arrow = c.sentiment === "bullish" ? "▲" : c.sentiment === "bearish" ? "▼" : "◆";
+              const color = c.sentiment === "bullish" ? "#00ff88" : c.sentiment === "bearish" ? "#ff2244" : "#ffaa00";
+              return `
+                <div style="background:rgba(10,10,20,0.95);border:1px solid rgba(0,255,136,0.2);border-radius:6px;padding:10px 14px;font-family:'JetBrains Mono',monospace;min-width:160px">
+                  <div style="font-size:13px;font-weight:700;color:#e8e8f0;margin-bottom:6px">${c.name}</div>
+                  <div style="font-size:11px;color:#8888aa;margin-bottom:4px">${c.marketIndex}</div>
+                  <div style="font-size:16px;font-weight:700;color:#e8e8f0">${c.indexValue.toLocaleString()}</div>
+                  <div style="font-size:12px;color:${color};margin-top:4px">${arrow} ${c.indexChange > 0 ? "+" : ""}${c.indexChangePct.toFixed(2)}% today</div>
+                  <div style="font-size:9px;color:#555566;margin-top:8px;text-transform:uppercase;letter-spacing:0.1em">Click for news & market data</div>
+                </div>
+              `;
+            })
+            .onPolygonClick((feat) => {
+              const iso = feat.properties.ISO_A2;
+              const country = COUNTRIES_DATA[iso];
+              if (country) {
+                setSelectedCountry(country);
+                setGlobeAutoRotate(false);
+              }
+            })
+            .polygonsTransitionDuration(600);
+        }
       })
       .catch(() => {
         // Fallback: just use points if geojson fails
@@ -158,6 +174,10 @@ export default function GlobeView() {
 
     return () => {
       ro.disconnect();
+      if (globeRef.current) {
+        globeRef.current.innerHTML = "";
+      }
+      globeInstance.current = null;
     };
   }, []);
 

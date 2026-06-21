@@ -1,10 +1,33 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import useTerminalStore from "../../store/terminalStore";
 import CandlestickChart from "../Charts/CandlestickChart";
-import MiniChart from "../Charts/MiniChart";
 import "./StockPanel.css";
 
+function getSeed(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash);
+}
+
+function generateExtendedSparkline(base, n, seedVal) {
+  let arr = [...base];
+  if (arr.length === 0) {
+    arr = [100];
+  }
+  let currentSeed = seedVal;
+  while (arr.length < n) {
+    const last = arr[arr.length - 1];
+    currentSeed = (currentSeed * 1664525 + 1013904223) % 4294967296;
+    const r = currentSeed / 4294967296;
+    arr.push(last * (1 + (r - 0.48) * 0.015));
+  }
+  return arr.slice(-n);
+}
+
 const TIME_RANGES = ["1D", "1W", "1M", "3M", "1Y"];
+const RANGE_MULTI = { "1D": 7, "1W": 12, "1M": 20, "3M": 40, "1Y": 80 };
 
 function RSIBar({ value = 50 }) {
   const zone = value < 30 ? "oversold" : value > 70 ? "overbought" : "neutral";
@@ -41,25 +64,20 @@ export default function StockPanel() {
     useTerminalStore();
   const [activeRange, setActiveRange] = useState("1M");
 
+  const s = selectedStock;
+  const extendedSparkline = useMemo(() => {
+    if (!s) return [];
+    const base = s.sparkline || [];
+    const n = RANGE_MULTI[activeRange] || 20;
+    const seedVal = getSeed(s.symbol + activeRange);
+    return generateExtendedSparkline(base, n, seedVal);
+  }, [s, activeRange]);
+
   if (!selectedStock) return null;
 
-  const s = selectedStock;
   const up = s.changePct >= 0;
   const color = up ? "#00ff88" : "#ff2244";
   const inWatchlist = isInWatchlist(s.symbol, s.country);
-
-  // Simulate different sparklines per range
-  const rangeMulti = { "1D": 7, "1W": 12, "1M": 20, "3M": 40, "1Y": 80 };
-  const extendedSparkline = (() => {
-    const base = s.sparkline || [];
-    const n = rangeMulti[activeRange] || 20;
-    let arr = [...base];
-    while (arr.length < n) {
-      const last = arr[arr.length - 1];
-      arr.push(last * (1 + (Math.random() - 0.48) * 0.015));
-    }
-    return arr.slice(-n);
-  })();
 
   // Simulated technicals
   const rsi = 45 + (s.changePct || 0) * 4;

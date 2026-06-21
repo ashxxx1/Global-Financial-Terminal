@@ -18,7 +18,7 @@ function LiveClock() {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
-  const h = now.getUTCHours();
+
   const timeStr = now.toUTCString().slice(17, 25);
   const dateStr = now.toUTCString().slice(5, 16);
   return (

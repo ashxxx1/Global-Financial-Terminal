@@ -195,9 +195,10 @@ export default function GlobeView() {
   const setGlobeAutoRotate = useTerminalStore((s) => s.setGlobeAutoRotate);
 
   useEffect(() => {
-    if (!globeRef.current || globeInstance.current) return;
+    const container = globeRef.current;
+    if (!container || globeInstance.current) return;
 
-    const globe = Globe()(globeRef.current);
+    const globe = Globe()(container);
     globeInstance.current = globe;
 
     // ── Satellite earth ──────────────────────────────────────────────────────
@@ -303,19 +304,19 @@ export default function GlobeView() {
 
     // ── Resize ───────────────────────────────────────────────────────────────
     const ro = new ResizeObserver(() => {
-      if (globeRef.current) {
-        globe.width(globeRef.current.clientWidth);
-        globe.height(globeRef.current.clientHeight);
+      if (container) {
+        globe.width(container.clientWidth);
+        globe.height(container.clientHeight);
       }
     });
-    ro.observe(globeRef.current);
+    ro.observe(container);
 
     return () => {
       ro.disconnect();
-      if (globeRef.current) globeRef.current.innerHTML = "";
+      if (container) container.innerHTML = "";
       globeInstance.current = null;
     };
-  }, []);
+  }, [setSelectedCountry, setGlobeAutoRotate]);
 
   // Sync auto-rotate
   useEffect(() => {

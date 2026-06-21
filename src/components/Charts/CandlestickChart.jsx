@@ -18,7 +18,9 @@ function generateCandlestickData(sparkline, count = 30) {
 }
 
 export default function CandlestickChart({ sparkline = [], width = 600, height = 200, color = "#00ff88" }) {
-  const candles = useMemo(() => generateCandlestickData(sparkline, 30), [sparkline.join(",")]);
+  const sparklineKey = sparkline.join(",");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const candles = useMemo(() => generateCandlestickData(sparkline, 30), [sparklineKey]);
 
   const allPrices = candles.flatMap((c) => [c.high, c.low]);
   const minP = Math.min(...allPrices);

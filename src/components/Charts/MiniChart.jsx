@@ -13,7 +13,7 @@ export default function MiniChart({ data = [], color = "#00ff88", width = 80, he
     return `${x},${y}`;
   });
 
-  const firstPt = pts[0];
+
   const lastPt = pts[pts.length - 1];
   const areaPath = `M${pts.join("L")}L${lastPt.split(",")[0]},${pad + h}L${pad},${pad + h}Z`;
 

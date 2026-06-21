@@ -10,8 +10,8 @@ import {
   serverTimestamp,
   getCountFromServer,
 } from "firebase/firestore";
-import { db } from "../../services/firebase";
-import { useAuth } from "../../contexts/AuthContext";
+import { db } from "../services/firebase";
+import { useAuth } from "../contexts/AuthContext";
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "aarushkapoor23@gmail.com";
 const DEPLOY_HOOK = import.meta.env.VITE_VERCEL_DEPLOY_HOOK || "";

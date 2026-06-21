@@ -52,12 +52,16 @@
 html,
 body {
   height: 100%;
-  overflow: hidden;
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--text-sans);
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Terminal shell locks overflow; auth pages scroll freely */
+.app-shell {
+  overflow: hidden;
 }
 
 #root {

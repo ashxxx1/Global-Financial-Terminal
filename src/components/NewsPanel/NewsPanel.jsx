@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef, useCallback } from "react";
 import useTerminalStore from "../../store/terminalStore";
 import Sparkline from "../Sparkline/Sparkline";
 import MarketTable from "../MarketTable/MarketTable";
@@ -5,7 +6,27 @@ import MarketTable from "../MarketTable/MarketTable";
 const SENTIMENT_EMOJI = { bullish: "📈", bearish: "📉", neutral: "⚖" };
 const SENTIMENT_LABEL = { bullish: "BULLISH", bearish: "BEARISH", neutral: "NEUTRAL" };
 
-function NewsCard({ article }) {
+/* ── Stock row component ──────────────────────────────────────────────────── */
+function StockRow({ stock }) {
+  const up = stock.changePct >= 0;
+  return (
+    <div className="stock-row">
+      <div className="stock-row__left">
+        <span className="stock-row__ticker">{stock.ticker}</span>
+        <span className="stock-row__name">{stock.name}</span>
+      </div>
+      <div className="stock-row__right">
+        <span className="stock-row__price">{stock.currency || ""}{typeof stock.price === "number" ? stock.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : stock.price}</span>
+        <span className={`stock-row__change ${up ? "up" : "down"}`}>
+          {up ? "▲" : "▼"} {Math.abs(stock.changePct).toFixed(2)}%
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ── News card component ──────────────────────────────────────────────────── */
+function NewsCard({ article, showImpact = true }) {
   const isUp = article.impact?.startsWith("+");
   const isNeutral = article.impact === "0.0%";
   return (
@@ -24,8 +45,13 @@ function NewsCard({ article }) {
           <span className={`news-card__impact ${isNeutral ? "neutral" : isUp ? "up" : "down"}`}>
             {isUp ? "▲" : isNeutral ? "◆" : "▼"} {article.impact}
           </span>
-        )}
-      </div>
+          {article.impact && (
+            <span className={`news-card__impact ${isNeutral ? "neutral" : isUp ? "up" : "down"}`}>
+              {isUp ? "▲" : isNeutral ? "◆" : "▼"} Market Impact {article.impact}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -34,15 +60,16 @@ function AIScoreBanner({ country }) {
   const score = Math.round(country.newsIntensity * 100);
   const sentiment = country.sentiment;
   return (
-    <div className={`sentiment-banner ${sentiment}`}>
-      <div className="sentiment-banner__title">⚡ AI Market Sentiment Score</div>
-      <div className="sentiment-banner__score">{score}/100</div>
-      <div className="sentiment-banner__label">
-        {sentiment === "bullish"
-          ? "Overall bullish momentum — market confidence high"
-          : sentiment === "bearish"
-            ? "Downward pressure — caution advised"
-            : "Mixed signals — neutral outlook"}
+    <div className="geo-risk-badge" style={{ background: c.bg, borderColor: c.color + "40" }}>
+      <div className="geo-risk-badge__left">
+        <span className="geo-risk-badge__icon">{c.icon}</span>
+        <div>
+          <div className="geo-risk-badge__label" style={{ color: c.color }}>GEOPOLITICAL: {c.label}</div>
+          <div className="geo-risk-badge__desc">{c.desc}</div>
+        </div>
+      </div>
+      <div className="geo-risk-badge__bar">
+        <div className="geo-risk-badge__fill" style={{ width: risk === "high" ? "85%" : risk === "medium" ? "50%" : "18%", background: c.color }} />
       </div>
     </div>
   );
@@ -93,12 +120,8 @@ export default function NewsPanel() {
             </div>
             <div className="news-panel__index-row">
               <div>
-                <div className="news-panel__index-name">
-                  {selectedCountry.marketIndex} · {selectedCountry.currency}
-                </div>
-                <div className="news-panel__index-value">
-                  {selectedCountry.indexValue.toLocaleString()}
-                </div>
+                <div className="news-panel__index-name">{selectedCountry.marketIndex} · {selectedCountry.currency}</div>
+                <div className="news-panel__index-value">{selectedCountry.indexValue.toLocaleString()}</div>
               </div>
               <span className={`news-panel__index-change ${isUp ? "up" : "down"}`}>
                 {isUp ? "▲" : "▼"} {Math.abs(selectedCountry.indexChangePct).toFixed(2)}%

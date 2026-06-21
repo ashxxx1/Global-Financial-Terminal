@@ -13,6 +13,7 @@ import LoginPage from "./pages/LoginPage";
 import PendingPage from "./pages/PendingPage";
 import RejectedPage from "./pages/RejectedPage";
 import AdminPanel from "./pages/AdminPanel";
+import Footer from "./components/Footer/Footer";
 
 function TerminalApp() {
   return (

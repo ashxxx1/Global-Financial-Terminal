@@ -108,7 +108,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="login-card__footer">
-          <span>GlobalFin Terminal v0.1</span>
+          <span>GlobalFin Terminal v0.1.1</span>
           <span>·</span>
           <span>Private Beta</span>
           <span>·</span>

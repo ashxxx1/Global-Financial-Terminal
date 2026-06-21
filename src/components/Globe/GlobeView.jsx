@@ -6,18 +6,26 @@ import { COUNTRIES_DATA, NEWS_MARKERS } from "../../data/mockData";
 // Country ISO-2 → polygon color based on sentiment
 function getCountryColor(isoA2, opacity = 0.7) {
   const c = COUNTRIES_DATA[isoA2];
-  if (!c) return `rgba(30, 30, 50, ${opacity})`;
-  if (c.sentiment === "bullish") return `rgba(0, 255, 136, ${opacity * 0.45})`;
-  if (c.sentiment === "bearish") return `rgba(255, 34, 68, ${opacity * 0.45})`;
-  return `rgba(255, 170, 0, ${opacity * 0.35})`;
+  if (!c) return `rgba(20, 30, 60, ${opacity * 0.5})`;
+  if (c.sentiment === "bullish") return `rgba(0, 255, 136, ${opacity * 0.35})`;
+  if (c.sentiment === "bearish") return `rgba(255, 34, 68, ${opacity * 0.35})`;
+  return `rgba(255, 170, 0, ${opacity * 0.28})`;
 }
 
 function getSideColor(isoA2) {
   const c = COUNTRIES_DATA[isoA2];
-  if (!c) return "rgba(20,20,35,0.9)";
-  if (c.sentiment === "bullish") return "rgba(0, 180, 90, 0.6)";
-  if (c.sentiment === "bearish") return "rgba(200, 20, 50, 0.6)";
-  return "rgba(200, 130, 0, 0.5)";
+  if (!c) return "rgba(15,20,45,0.8)";
+  if (c.sentiment === "bullish") return "rgba(0, 200, 100, 0.55)";
+  if (c.sentiment === "bearish") return "rgba(220, 30, 60, 0.55)";
+  return "rgba(210, 140, 0, 0.45)";
+}
+
+function getStrokeColor(isoA2) {
+  const c = COUNTRIES_DATA[isoA2];
+  if (!c) return "rgba(100,150,255,0.06)";
+  if (c.sentiment === "bullish") return "rgba(0,255,136,0.18)";
+  if (c.sentiment === "bearish") return "rgba(255,34,68,0.18)";
+  return "rgba(255,170,0,0.14)";
 }
 
 export default function GlobeView() {
@@ -33,20 +41,22 @@ export default function GlobeView() {
     const globe = Globe()(globeRef.current);
     globeInstance.current = globe;
 
-    // ── Config ──
+    // ── Config: Satellite Earth Texture ──
     globe
       .backgroundColor("rgba(0,0,0,0)")
       .showAtmosphere(true)
-      .atmosphereColor("rgba(0, 120, 255, 0.12)")
-      .atmosphereAltitude(0.18)
+      .atmosphereColor("rgba(80, 160, 255, 0.20)")
+      .atmosphereAltitude(0.22)
+      // Satellite / Blue Marble earth textures
       .globeImageUrl(
-        "https://unpkg.com/three-globe/example/img/earth-dark.jpg"
+        "https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
       )
       .bumpImageUrl(
         "https://unpkg.com/three-globe/example/img/earth-topology.png"
       )
+      .showGraticules(true);
 
-    // ── Country polygons ──
+    // ── Country polygons with correct India map ──
     Promise.all([
       fetch("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson")
         .then((r) => r.json()),
@@ -56,6 +66,7 @@ export default function GlobeView() {
     ])
       .then(([worldData, indiaData]) => {
         if (worldData && worldData.features) {
+          // Patch India with official boundaries
           if (indiaData && indiaData.features && indiaData.features.length > 0) {
             const worldIndiaIdx = worldData.features.findIndex(
               (feat) => feat.properties.ISO_A2 === "IN" || feat.properties.ISO_A3 === "IND"
@@ -67,28 +78,31 @@ export default function GlobeView() {
 
           globe
             .polygonsData(worldData.features)
-            .polygonCapColor((feat) =>
-              getCountryColor(feat.properties.ISO_A2)
-            )
+            .polygonCapColor((feat) => getCountryColor(feat.properties.ISO_A2))
             .polygonSideColor((feat) => getSideColor(feat.properties.ISO_A2))
-            .polygonStrokeColor(() => "rgba(0,255,136,0.08)")
+            .polygonStrokeColor((feat) => getStrokeColor(feat.properties.ISO_A2))
             .polygonAltitude((feat) => {
               const c = COUNTRIES_DATA[feat.properties.ISO_A2];
-              return c ? 0.006 + c.newsIntensity * 0.012 : 0.004;
+              return c ? 0.008 + c.newsIntensity * 0.015 : 0.003;
             })
             .polygonLabel((feat) => {
               const iso = feat.properties.ISO_A2;
               const c = COUNTRIES_DATA[iso];
-              if (!c) return feat.properties.NAME;
+              if (!c) return `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8888aa;padding:4px 8px;background:rgba(10,10,20,0.85);border-radius:4px">${feat.properties.NAME}</div>`;
               const arrow = c.sentiment === "bullish" ? "▲" : c.sentiment === "bearish" ? "▼" : "◆";
               const color = c.sentiment === "bullish" ? "#00ff88" : c.sentiment === "bearish" ? "#ff2244" : "#ffaa00";
+              const bgBorder = c.sentiment === "bullish" ? "rgba(0,255,136,0.25)" : c.sentiment === "bearish" ? "rgba(255,34,68,0.25)" : "rgba(255,170,0,0.25)";
               return `
-                <div style="background:rgba(10,10,20,0.95);border:1px solid rgba(0,255,136,0.2);border-radius:6px;padding:10px 14px;font-family:'JetBrains Mono',monospace;min-width:160px">
-                  <div style="font-size:13px;font-weight:700;color:#e8e8f0;margin-bottom:6px">${c.name}</div>
-                  <div style="font-size:11px;color:#8888aa;margin-bottom:4px">${c.marketIndex}</div>
-                  <div style="font-size:16px;font-weight:700;color:#e8e8f0">${c.indexValue.toLocaleString()}</div>
-                  <div style="font-size:12px;color:${color};margin-top:4px">${arrow} ${c.indexChange > 0 ? "+" : ""}${c.indexChangePct.toFixed(2)}% today</div>
-                  <div style="font-size:9px;color:#555566;margin-top:8px;text-transform:uppercase;letter-spacing:0.1em">Click for news & market data</div>
+                <div style="background:rgba(6,6,12,0.97);border:1px solid ${bgBorder};border-radius:8px;padding:12px 16px;font-family:'JetBrains Mono',monospace;min-width:180px;box-shadow:0 8px 32px rgba(0,0,0,0.8)">
+                  <div style="font-size:9px;color:#555566;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px">${iso} · MARKET DATA</div>
+                  <div style="font-size:14px;font-weight:700;color:#e8e8f0;margin-bottom:4px">${c.name}</div>
+                  <div style="font-size:10px;color:#8888aa;margin-bottom:8px">${c.marketIndex} · ${c.currency}</div>
+                  <div style="font-size:18px;font-weight:700;color:#e8e8f0;margin-bottom:6px">${c.indexValue.toLocaleString()}</div>
+                  <div style="font-size:13px;color:${color};display:flex;align-items:center;gap:6px">
+                    <span>${arrow} ${c.indexChange > 0 ? "+" : ""}${c.indexChangePct.toFixed(2)}%</span>
+                    <span style="font-size:10px;opacity:0.7">today</span>
+                  </div>
+                  <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);font-size:9px;color:#555566;letter-spacing:0.1em">CLICK FOR NEWS & ANALYSIS →</div>
                 </div>
               `;
             })
@@ -100,12 +114,13 @@ export default function GlobeView() {
                 setGlobeAutoRotate(false);
               }
             })
-            .polygonsTransitionDuration(600);
+            .onPolygonHover((feat) => {
+              globeRef.current.style.cursor = feat && COUNTRIES_DATA[feat.properties?.ISO_A2] ? "pointer" : "default";
+            })
+            .polygonsTransitionDuration(500);
         }
       })
-      .catch(() => {
-        // Fallback: just use points if geojson fails
-      });
+      .catch(() => {});
 
     // ── News marker rings ──
     globe
@@ -115,19 +130,19 @@ export default function GlobeView() {
         const alpha = Math.max(0, 1 - t);
         return c.replace(")", `, ${alpha})`).replace("rgb", "rgba");
       })
-      .ringMaxRadius(4)
-      .ringPropagationSpeed(1.5)
-      .ringRepeatPeriod(1200)
-      .ringAltitude(0.01)
+      .ringMaxRadius(5)
+      .ringPropagationSpeed(1.8)
+      .ringRepeatPeriod(1000)
+      .ringAltitude(0.012);
 
     // ── News points ──
     globe
       .pointsData(NEWS_MARKERS)
       .pointColor((d) => d.color)
-      .pointAltitude(0.02)
-      .pointRadius((d) => d.size * 0.4)
+      .pointAltitude(0.025)
+      .pointRadius((d) => d.size * 0.5)
       .pointsMerge(false)
-      .pointLabel((d) => d.label)
+      .pointLabel((d) => `<div style="background:rgba(6,6,12,0.95);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#8888aa">${d.label}</div>`)
       .onPointClick((d) => {
         const country = COUNTRIES_DATA[d.country];
         if (country) {
@@ -138,32 +153,17 @@ export default function GlobeView() {
 
     // ── Auto-rotate ──
     globe.controls().autoRotate = true;
-    globe.controls().autoRotateSpeed = 0.4;
+    globe.controls().autoRotateSpeed = 0.35;
     globe.controls().enableZoom = true;
-    globe.controls().minDistance = 200;
-    globe.controls().maxDistance = 700;
+    globe.controls().minDistance = 180;
+    globe.controls().maxDistance = 650;
+    globe.controls().enableDamping = true;
+    globe.controls().dampingFactor = 0.08;
 
-    // ── Initial POV ──
-    globe.pointOfView({ altitude: 2.5 }, 0);
+    // ── Initial POV centered on Asia-Europe ──
+    globe.pointOfView({ lat: 20, lng: 60, altitude: 2.3 }, 0);
 
-    // ── Star field ──
-    const starCount = 4000;
-    const starPositions = new Float32Array(starCount * 3);
-    const R = 1200;
-    for (let i = 0; i < starCount; i++) {
-      const theta = Math.random() * 2 * Math.PI;
-      const phi = Math.acos(2 * Math.random() - 1);
-      starPositions[i * 3] = R * Math.sin(phi) * Math.cos(theta);
-      starPositions[i * 3 + 1] = R * Math.sin(phi) * Math.sin(theta);
-      starPositions[i * 3 + 2] = R * Math.cos(phi);
-    }
-
-    const THREE = globe.renderer().domElement.__three;
-    if (globe.scene && typeof globe.scene === "function") {
-      // Stars via custom layer would go here in a more complex setup
-    }
-
-    // ── Resize ──
+    // ── Resize handler ──
     const ro = new ResizeObserver(() => {
       if (globeRef.current) {
         globe.width(globeRef.current.clientWidth);

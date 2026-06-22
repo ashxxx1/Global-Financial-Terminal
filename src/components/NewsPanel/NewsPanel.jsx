@@ -1,6 +1,7 @@
 import useTerminalStore from "../../store/terminalStore";
 import Sparkline from "../Sparkline/Sparkline";
 import MarketTable from "../MarketTable/MarketTable";
+import AIInsights from "../AIInsights/AIInsights";
 
 const SENTIMENT_EMOJI = { bullish: "📈", bearish: "📉", neutral: "⚖️" };
 const SENTIMENT_LABEL = { bullish: "BULLISH", bearish: "BEARISH", neutral: "NEUTRAL" };
@@ -123,6 +124,9 @@ export default function NewsPanel() {
 
           {/* ── AI Sentiment Banner ── */}
           <AIScoreBanner country={selectedCountry} />
+
+          {/* ── AI Market Narrative ── */}
+          <AIInsights country={selectedCountry} />
 
           {/* ── Listed Stocks ── */}
           <div className="news-panel__section-title">📊 Listed Stocks · {selectedCountry.name}</div>

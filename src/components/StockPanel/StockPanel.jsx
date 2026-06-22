@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import useTerminalStore from "../../store/terminalStore";
 import CandlestickChart from "../Charts/CandlestickChart";
+import AIInsights from "../AIInsights/AIInsights";
 import "./StockPanel.css";
 
 function getSeed(str) {
@@ -181,6 +182,9 @@ export default function StockPanel() {
           <FinancialBar label="P/E vs Sector Avg" value={(s.pe || 15).toFixed(1)} maxValue={50} />
           <FinancialBar label="EPS Growth (YoY)" value={`${(s.changePct * 3 || 5).toFixed(1)}%`} maxValue={30} />
         </div>
+
+        {/* ── AI Narrative Insights ── */}
+        <AIInsights stock={s} />
 
         {/* ── Description ── */}
         <div className="sp-section-title">About</div>

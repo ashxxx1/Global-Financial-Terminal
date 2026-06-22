@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import useTerminalStore from "../../store/terminalStore";
 import { searchStocks } from "../../data/stocksData";
 import { COUNTRIES_DATA } from "../../data/mockData";
+import { AlertBell } from "../Alerts/AlertSystem";
+import { getNextHighImpactEvent } from "../EconomicCalendar/calendarData";
 
 const EXCHANGES = [
   { label: "NYSE", open: [13, 21] },
@@ -12,13 +14,21 @@ const EXCHANGES = [
   { label: "NSE", open: [3, 10] },
 ];
 
+const VIEW_BUTTONS = [
+  { id: "globe", icon: "🌐", label: "Globe" },
+  { id: "heatmap", icon: "🌡️", label: "Heat" },
+  { id: "calendar", icon: "🗓️", label: "Cal" },
+  { id: "portfolio", icon: "📊", label: "Port" },
+  { id: "fx", icon: "💱", label: "FX" },
+  { id: "correlation", icon: "🔍", label: "Corr" },
+];
+
 function LiveClock() {
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
-
   const timeStr = now.toUTCString().slice(17, 25);
   const dateStr = now.toUTCString().slice(5, 16);
   return (
@@ -35,7 +45,6 @@ function ExchangeClocks() {
     const id = setInterval(() => setH(new Date().getUTCHours()), 10000);
     return () => clearInterval(id);
   }, []);
-
   return (
     <div className="header__exchanges">
       {EXCHANGES.map((ex) => {
@@ -163,6 +172,9 @@ function UserMenu() {
               ⚙ Admin Panel
             </Link>
           )}
+          <Link to="/forum" className="header__dropdown-item" onClick={() => setOpen(false)}>
+            💬 Community Forum
+          </Link>
           <div className="header__dropdown-divider" />
           <button className="header__dropdown-item danger" onClick={() => { logout(); setOpen(false); }}>
             ↩ Sign out
@@ -173,7 +185,29 @@ function UserMenu() {
   );
 }
 
+function CalendarChip() {
+  const nextEvent = getNextHighImpactEvent();
+  const { setActiveView } = useTerminalStore();
+  if (!nextEvent) return null;
+  const dt = new Date(`${nextEvent.date}T${nextEvent.time}`);
+  const hoursUntil = Math.floor((dt - Date.now()) / 3600000);
+  return (
+    <button className="header__calendar-chip" onClick={() => setActiveView("calendar")} title="Economic Calendar">
+      <span>🗓️</span>
+      <span className="header__calendar-chip-text">
+        {nextEvent.countryFlag} {nextEvent.event.slice(0, 18)}{nextEvent.event.length > 18 ? "…" : ""}
+      </span>
+      <span className="header__calendar-chip-countdown">
+        {hoursUntil < 1 ? "<1h" : `${hoursUntil}h`}
+      </span>
+    </button>
+  );
+}
+
 export default function Header() {
+  const { setCommandPaletteOpen, activeView, setActiveView } = useTerminalStore();
+  const navigate = useNavigate();
+
   return (
     <header className="header">
       <div className="header__logo">
@@ -193,10 +227,34 @@ export default function Header() {
       <div className="header__divider" />
       <GlobalSearch />
 
+      {/* View switcher */}
+      <div className="header__view-switcher">
+        {VIEW_BUTTONS.map((v) => (
+          <button
+            key={v.id}
+            className={`header__view-btn ${activeView === v.id ? "active" : ""}`}
+            onClick={() => setActiveView(v.id)}
+            title={v.label}
+          >
+            <span>{v.icon}</span>
+            <span className="header__view-btn-label">{v.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="header__divider" />
+
+      {/* Forum link */}
+      <button className="header__forum-btn" onClick={() => navigate("/forum")} title="Community Forum">
+        💬 <span className="header__forum-btn-label">Forum</span>
+      </button>
+
+      {/* Calendar chip */}
+      <CalendarChip />
+
       {[
         { label: "BTC", val: "$67,234", up: true },
         { label: "GOLD", val: "$2,387", up: true },
-        { label: "WTI", val: "$78.43", up: false },
         { label: "VIX", val: "14.32", up: false },
       ].map((item) => (
         <div key={item.label} className="header__quick-stat">
@@ -207,6 +265,19 @@ export default function Header() {
 
       <div className="header__divider" />
       <LiveClock />
+
+      {/* Alerts bell */}
+      <AlertBell />
+
+      {/* Command palette trigger */}
+      <button
+        className="header__cmd-btn"
+        onClick={() => setCommandPaletteOpen(true)}
+        title="Command Palette (Ctrl+K)"
+      >
+        <span>⌘</span><span>K</span>
+      </button>
+
       <UserMenu />
     </header>
   );

@@ -87,7 +87,7 @@ function TerminalApp() {
               <div className="absolute inset-0 z-10 flex pointer-events-none w-full h-full">
                 
                 {/* Left Panel: Market overview & Risk radar */}
-                <div className="w-[300px] h-full flex flex-col border-r border-indigo-500/10 bg-black/40 backdrop-blur-xl pointer-events-auto flex-shrink-0 shadow-[40px_0_100px_rgba(0,0,0,0.5)]">
+                <div className="w-[300px] h-full flex flex-col border-r border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[40px_0_100px_rgba(0,0,0,0.5)]">
                   <Sidebar />
                 </div>
 
@@ -110,13 +110,13 @@ function TerminalApp() {
                   </div> 
                   
                   {/* Bottom Panel: Global News / Flows */}
-                  <div className="h-[240px] w-full border-t border-indigo-500/10 bg-black/40 backdrop-blur-xl pointer-events-auto flex-shrink-0 flex flex-col shadow-[0_-40px_100px_rgba(0,0,0,0.5)]">
+                  <div className="h-[240px] w-full border-t border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 flex flex-col shadow-[0_-40px_100px_rgba(0,0,0,0.5)]">
                     <GlobalNews />
                   </div>
                 </div>
 
                 {/* Right Panel: Intelligence / Social */}
-                <div className="w-[360px] h-full flex flex-col border-l border-indigo-500/10 bg-black/40 backdrop-blur-xl pointer-events-auto flex-shrink-0 shadow-[-40px_0_100px_rgba(0,0,0,0.5)]">
+                <div className="w-[360px] h-full flex flex-col border-l border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[-40px_0_100px_rgba(0,0,0,0.5)]">
                   <RightSidebar onSetView={setActiveView} />
                 </div>
               </div>

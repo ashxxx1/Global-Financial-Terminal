@@ -21,6 +21,7 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userProfileData, setUserProfileData] = useState(null);
   const [userStatus, setUserStatus] = useState(null); // "pending" | "approved" | "rejected"
   const [loading, setLoading] = useState(true);
 
@@ -83,13 +84,7 @@ export function AuthProvider({ children }) {
       if (!user) {
         setLoading(false);
         setUserStatus(null);
-        return;
-      }
-
-      // Admin is always approved
-      if (user.email === ADMIN_EMAIL) {
-        setUserStatus("approved");
-        setLoading(false);
+        setUserProfileData(null);
         return;
       }
 
@@ -97,7 +92,14 @@ export function AuthProvider({ children }) {
       const userRef = doc(db, "users", user.uid);
       const unsubFirestore = onSnapshot(userRef, (snap) => {
         if (snap.exists()) {
-          setUserStatus(snap.data().status);
+          const data = snap.data();
+          setUserStatus(data.status || (user.email === ADMIN_EMAIL ? "approved" : "pending"));
+          setUserProfileData(data);
+        } else {
+          setUserProfileData(null);
+          if (user.email === ADMIN_EMAIL) {
+            setUserStatus("approved");
+          }
         }
         setLoading(false);
       });
@@ -111,6 +113,7 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     userStatus,
+    userProfileData,
     isAdmin,
     loading,
     signInWithGoogle,

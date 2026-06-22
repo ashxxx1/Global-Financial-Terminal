@@ -5,6 +5,7 @@ import { db } from "../../services/firebase";
 import {
   collection,
   query,
+  getDoc,
   getDocs,
   where,
   updateDoc,
@@ -31,6 +32,8 @@ export default function SocialPage() {
   // Profile settings
   const [userProfile, setUserProfile] = useState({
     displayName: currentUser?.displayName || "AlphaTrader",
+    username: "",
+    photoURL: currentUser?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser?.uid}`,
     bio: "Institutional macro research & active swing trading.",
     reputation: "Analyst"
   });
@@ -54,30 +57,66 @@ export default function SocialPage() {
         const data = snap.data();
         setUserProfile({
           displayName: data.displayName || currentUser.displayName || "AlphaTrader",
+          username: data.username || "",
+          photoURL: data.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
           bio: data.bio || "Institutional macro research & active swing trading.",
           reputation: data.reputation || "Analyst"
         });
         
         // Populate friends list if database matches
         if (data.friendsList && data.friendsList.length > 0) {
-          const list = data.friendsList.map((fUid, idx) => ({
-            uid: fUid,
-            name: `Trader_${fUid.slice(0, 4)}`,
-            avatar: "T",
-            role: "Quantitative Analyst",
-            reputation: "Analyst",
-            online: true
-          }));
-          setFriends([...INITIAL_MOCK_FRIENDS, ...list]);
+          const fetchFriendsDetails = async () => {
+            const list = [];
+            for (const fUid of data.friendsList) {
+              try {
+                const fSnap = await getDoc(doc(db, "users", fUid));
+                if (fSnap.exists()) {
+                  const fData = fSnap.data();
+                  list.push({
+                    uid: fUid,
+                    name: fData.displayName || fData.username || `Trader_${fUid.slice(0, 4)}`,
+                    avatar: fData.photoURL || (fData.displayName || "T")[0],
+                    role: fData.bio || "Quantitative Analyst",
+                    reputation: fData.reputation || "Analyst",
+                    online: true
+                  });
+                }
+              } catch (e) {
+                console.error("Failed to load friend detail", e);
+              }
+            }
+            setFriends([...INITIAL_MOCK_FRIENDS, ...list]);
+          };
+          fetchFriendsDetails();
+        } else {
+          setFriends(INITIAL_MOCK_FRIENDS);
         }
-        if (data.friendRequests) {
-          const reqs = data.friendRequests.map((req) => ({
-            uid: req.uid,
-            name: req.name || "New Trader",
-            avatar: "NT",
-            reputation: "Analyst"
-          }));
-          setFriendRequests(reqs);
+
+        if (data.friendRequests && data.friendRequests.length > 0) {
+          const fetchRequestsDetails = async () => {
+            const reqs = [];
+            for (const req of data.friendRequests) {
+              try {
+                const rUid = typeof req === "string" ? req : req.uid;
+                const rSnap = await getDoc(doc(db, "users", rUid));
+                if (rSnap.exists()) {
+                  const rData = rSnap.data();
+                  reqs.push({
+                    uid: rUid,
+                    name: rData.displayName || rData.username || "New Trader",
+                    avatar: rData.photoURL || (rData.displayName || "N")[0],
+                    reputation: rData.reputation || "Analyst"
+                  });
+                }
+              } catch (e) {
+                console.error("Failed to load friend request detail", e);
+              }
+            }
+            setFriendRequests(reqs);
+          };
+          fetchRequestsDetails();
+        } else {
+          setFriendRequests([]);
         }
       }
     });
@@ -91,6 +130,7 @@ export default function SocialPage() {
     if (currentUser) {
       await updateUserProfile({
         displayName: userProfile.displayName,
+        photoURL: userProfile.photoURL,
         bio: userProfile.bio,
         reputation: userProfile.reputation
       });
@@ -124,8 +164,8 @@ export default function SocialPage() {
         const docData = qSnap.docs[0].data();
         setSearchResult({
           uid: docData.uid,
-          name: docData.displayName || "Trader",
-          avatar: (docData.displayName || "T")[0],
+          name: docData.displayName || docData.username || "Trader",
+          avatar: docData.photoURL || (docData.displayName || "T")[0],
           reputation: docData.reputation || "Analyst"
         });
         setSearchMsg("");
@@ -228,7 +268,11 @@ export default function SocialPage() {
                 }}
               >
                 <div className="social-page__friend-avatar">
-                  {f.avatar}
+                  {f.avatar && (f.avatar.startsWith("http") || f.avatar.includes("/") || f.avatar.startsWith("data:")) ? (
+                    <img src={f.avatar} alt={f.name} className="social-page__friend-avatar-img" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                  ) : (
+                    f.avatar || "T"
+                  )}
                   <span className={`social-page__friend-status-dot ${f.online ? "online" : "offline"}`} />
                 </div>
                 <div className="social-page__friend-meta">
@@ -276,12 +320,47 @@ export default function SocialPage() {
             {isEditingProfile ? (
               <form onSubmit={handleProfileSave} className="social-page__profile-form">
                 <div className="social-page__form-field">
-                  <label>Handle Name</label>
+                  <label>Display Name</label>
                   <input
                     type="text"
                     value={userProfile.displayName}
                     onChange={(e) => setUserProfile({ ...userProfile, displayName: e.target.value })}
                   />
+                </div>
+                <div className="social-page__form-field">
+                  <label>Avatar Image URL</label>
+                  <input
+                    type="text"
+                    placeholder="https://example.com/avatar.png"
+                    value={userProfile.photoURL || ""}
+                    onChange={(e) => setUserProfile({ ...userProfile, photoURL: e.target.value })}
+                  />
+                  <div className="avatar-preview-options" style={{ display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      className="avatar-preset-btn"
+                      style={{ fontSize: 10, padding: "2px 6px", background: "rgba(255,255,255,0.06)", border: "1px solid var(--border-subtle)", borderRadius: 3, cursor: "pointer", color: "var(--text-primary)" }}
+                      onClick={() => setUserProfile({ ...userProfile, photoURL: `https://api.dicebear.com/7.x/identicon/svg?seed=${currentUser.uid}` })}
+                    >
+                      Identicon
+                    </button>
+                    <button
+                      type="button"
+                      className="avatar-preset-btn"
+                      style={{ fontSize: 10, padding: "2px 6px", background: "rgba(255,255,255,0.06)", border: "1px solid var(--border-subtle)", borderRadius: 3, cursor: "pointer", color: "var(--text-primary)" }}
+                      onClick={() => setUserProfile({ ...userProfile, photoURL: `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}` })}
+                    >
+                      Bottts
+                    </button>
+                    <button
+                      type="button"
+                      className="avatar-preset-btn"
+                      style={{ fontSize: 10, padding: "2px 6px", background: "rgba(255,255,255,0.06)", border: "1px solid var(--border-subtle)", borderRadius: 3, cursor: "pointer", color: "var(--text-primary)" }}
+                      onClick={() => setUserProfile({ ...userProfile, photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.uid}` })}
+                    >
+                      Avataaars
+                    </button>
+                  </div>
                 </div>
                 <div className="social-page__form-field">
                   <label>Bio Summary</label>
@@ -310,9 +389,16 @@ export default function SocialPage() {
             ) : (
               <div className="social-page__profile-view">
                 <div className="social-page__profile-avatar">
-                  {userProfile.displayName[0]?.toUpperCase()}
+                  {userProfile.photoURL && (userProfile.photoURL.startsWith("http") || userProfile.photoURL.includes("/") || userProfile.photoURL.startsWith("data:")) ? (
+                    <img src={userProfile.photoURL} alt={userProfile.displayName} className="social-page__profile-avatar-img" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                  ) : (
+                    userProfile.displayName[0]?.toUpperCase()
+                  )}
                 </div>
-                <div className="social-page__profile-name">{userProfile.displayName}</div>
+                <div className="social-page__profile-name">
+                  {userProfile.displayName}
+                  {userProfile.username && <span className="social-page__profile-handle" style={{ display: "block", fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>@{userProfile.username}</span>}
+                </div>
                 <div className="social-page__profile-badge">{userProfile.reputation}</div>
                 <div className="social-page__profile-bio">"{userProfile.bio}"</div>
                 <button className="social-page__profile-edit-btn" onClick={() => setIsEditingProfile(true)}>
@@ -336,7 +422,13 @@ export default function SocialPage() {
             </form>
             {searchResult && (
               <div className="social-page__search-result">
-                <div className="social-page__sr-avatar">{searchResult.avatar}</div>
+                <div className="social-page__sr-avatar">
+                  {searchResult.avatar && (searchResult.avatar.startsWith("http") || searchResult.avatar.includes("/") || searchResult.avatar.startsWith("data:")) ? (
+                    <img src={searchResult.avatar} alt={searchResult.name} className="social-page__friend-avatar-img" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                  ) : (
+                    searchResult.avatar || "T"
+                  )}
+                </div>
                 <div className="social-page__sr-info">
                   <div className="social-page__sr-name">{searchResult.name}</div>
                   <div className="social-page__sr-rep">{searchResult.reputation}</div>
@@ -353,7 +445,13 @@ export default function SocialPage() {
               <div className="forum-sidebar__section-title">Friend Requests ({friendRequests.length})</div>
               {friendRequests.map((req) => (
                 <div key={req.uid} className="social-page__request-row">
-                  <div className="social-page__req-avatar">{req.avatar}</div>
+                  <div className="social-page__req-avatar">
+                    {req.avatar && (req.avatar.startsWith("http") || req.avatar.includes("/") || req.avatar.startsWith("data:")) ? (
+                      <img src={req.avatar} alt={req.name} className="social-page__friend-avatar-img" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                    ) : (
+                      req.avatar || "T"
+                    )}
+                  </div>
                   <div className="social-page__req-info">
                     <div className="social-page__req-name">{req.name}</div>
                     <div className="social-page__req-rep">{req.reputation}</div>

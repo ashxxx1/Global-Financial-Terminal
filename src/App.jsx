@@ -18,6 +18,7 @@ import ForumPage from "./pages/Forum/ForumPage";
 import ForumCategory from "./pages/Forum/ForumCategory";
 import ForumThread from "./pages/Forum/ForumThread";
 import SocialPage from "./pages/Social/SocialPage";
+import SetupUsername from "./pages/SetupUsername";
 
 import CommandPalette from "./components/CommandPalette/CommandPalette";
 import { AlertSystem, AlertPanel } from "./components/Alerts/AlertSystem";
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/pending" element={<PendingPage />} />
           <Route path="/rejected" element={<RejectedPage />} />
+          <Route path="/setup-username" element={<SetupUsername />} />
 
           {/* Admin only */}
           <Route

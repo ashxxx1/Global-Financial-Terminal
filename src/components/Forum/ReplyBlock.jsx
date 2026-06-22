@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getUserById } from "../../data/forumData";
+import { useAuth } from "../../contexts/AuthContext";
 import StockMention from "./StockMention";
 
 function renderBody(text) {
@@ -32,10 +33,11 @@ function formatTimeAgo(dateStr) {
 }
 
 export default function ReplyBlock({ reply, childReplies = [], votes, onVote }) {
+  const { currentUser, userProfileData } = useAuth();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [children, setChildren] = useState(childReplies);
-  const user = getUserById(reply.author);
+  const user = reply.authorUser || getUserById(reply.author);
   const myVote = votes[reply.id] || 0;
   const badgeColor = user?.badge === "Analyst" ? "var(--accent-blue)" : user?.badge === "Bull" ? "var(--accent-green)" : "var(--accent-red)";
 
@@ -43,7 +45,14 @@ export default function ReplyBlock({ reply, childReplies = [], votes, onVote }) 
     if (!replyText.trim()) return;
     setChildren((c) => [...c, {
       id: "cr_" + Date.now(),
-      author: "u1",
+      author: currentUser?.uid || "u1",
+      authorUser: currentUser ? {
+        id: currentUser.uid,
+        name: userProfileData?.displayName || currentUser.displayName || "AlphaTrader",
+        avatar: userProfileData?.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+        badge: userProfileData?.reputation || "Analyst",
+        role: userProfileData?.bio || "Institutional macro research & active swing trading.",
+      } : null,
       body: replyText.trim(),
       upvotes: 0,
       createdAt: new Date().toISOString(),
@@ -56,8 +65,12 @@ export default function ReplyBlock({ reply, childReplies = [], votes, onVote }) 
   return (
     <div className="reply-block">
       <div className="reply-block__main">
-        <div className="reply-block__avatar" style={{ background: `${badgeColor}22`, borderColor: badgeColor }}>
-          {user?.avatar || "?"}
+        <div className="reply-block__avatar" style={{ background: `${badgeColor}22`, borderColor: badgeColor, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+          {user?.avatar && (user.avatar.startsWith("http") || user.avatar.includes("/") || user.avatar.startsWith("data:")) ? (
+            <img src={user.avatar} alt={user.name} className="reply-block__avatar-img" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+          ) : (
+            user?.avatar || "?"
+          )}
         </div>
         <div className="reply-block__content">
           <div className="reply-block__meta">

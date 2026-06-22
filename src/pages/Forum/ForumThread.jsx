@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getThreadById, getUserById, FORUM_CATEGORIES } from "../../data/forumData";
+import { useAuth } from "../../contexts/AuthContext";
 import useTerminalStore from "../../store/terminalStore";
 import ReplyBlock from "../../components/Forum/ReplyBlock";
 import StockMention from "../../components/Forum/StockMention";
@@ -29,18 +30,22 @@ function renderBody(text) {
   });
 }
 
-function UserBadge({ userId }) {
-  const user = getUserById(userId);
+function UserBadge({ userId, authorUser }) {
+  const user = authorUser || getUserById(userId);
   if (!user) return <span className="forum-thread__author">Unknown</span>;
   const badgeColor = user.badge === "Analyst" ? "var(--accent-blue)" : user.badge === "Bull" ? "var(--accent-green)" : "var(--accent-red)";
   return (
     <div className="forum-thread__user">
       <div className="forum-thread__avatar" style={{ background: `linear-gradient(135deg, ${badgeColor}33, ${badgeColor}66)`, borderColor: badgeColor }}>
-        {user.avatar}
+        {user.avatar && (user.avatar.startsWith("http") || user.avatar.includes("/") || user.avatar.startsWith("data:")) ? (
+          <img src={user.avatar} alt={user.name} className="forum-thread__avatar-img" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+        ) : (
+          user.avatar || "T"
+        )}
       </div>
       <div>
         <div className="forum-thread__user-name">{user.name}</div>
-        <div className="forum-thread__user-role">{user.role}</div>
+        <div className="forum-thread__user-role" title={user.role}>{user.role}</div>
       </div>
       <span className="forum-thread__badge" style={{ color: badgeColor, borderColor: badgeColor }}>{user.badge}</span>
     </div>
@@ -55,9 +60,7 @@ export default function ForumThread() {
   });
   const [replyText, setReplyText] = useState("");
   const [votes, setVotes] = useState({});
-  const { currentUser } = (() => {
-    try { return useTerminalStore(); } catch { return { currentUser: null }; }
-  })();
+  const { currentUser, userProfileData } = useAuth();
 
   if (!thread) {
     return (
@@ -86,7 +89,14 @@ export default function ForumThread() {
     const newReply = {
       id: "r_new_" + Date.now(),
       threadId: thread.id,
-      author: "u1",
+      author: currentUser?.uid || "u1",
+      authorUser: currentUser ? {
+        id: currentUser.uid,
+        name: userProfileData?.displayName || currentUser.displayName || "AlphaTrader",
+        avatar: userProfileData?.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+        badge: userProfileData?.reputation || "Analyst",
+        role: userProfileData?.bio || "Institutional macro research & active swing trading.",
+      } : null,
       body: replyText.trim(),
       upvotes: 0,
       downvotes: 0,
@@ -130,7 +140,7 @@ export default function ForumThread() {
             <h1 className="forum-thread__title">{thread.title}</h1>
 
             <div className="forum-thread__meta">
-              <UserBadge userId={thread.author} />
+              <UserBadge userId={thread.author} authorUser={thread.authorUser} />
               <span className="forum-thread__date">{new Date(thread.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
               <span className="forum-thread__views">👁 {thread.views?.toLocaleString()} views</span>
             </div>

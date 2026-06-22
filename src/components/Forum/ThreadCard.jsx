@@ -13,7 +13,7 @@ function formatTimeAgo(dateStr) {
 
 export default function ThreadCard({ thread }) {
   const [votes, setVotes] = useState(0);
-  const user = getUserById(thread.author);
+  const user = thread.authorUser || getUserById(thread.author);
   const cat = FORUM_CATEGORIES.find((c) => c.id === thread.categoryId);
 
   return (
@@ -54,9 +54,15 @@ export default function ThreadCard({ thread }) {
         <div className="thread-card__footer">
           {user && (
             <div className="thread-card__author">
-              <div className="thread-card__avatar">{user.avatar}</div>
+              <div className="thread-card__avatar">
+                {user.avatar && (user.avatar.startsWith("http") || user.avatar.includes("/") || user.avatar.startsWith("data:")) ? (
+                  <img src={user.avatar} alt={user.name} className="thread-card__avatar-img" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                ) : (
+                  user.avatar || "T"
+                )}
+              </div>
               <span className="thread-card__author-name">{user.name}</span>
-              <span className="thread-card__author-role">{user.role}</span>
+              <span className="thread-card__author-role" title={user.role}>{user.role}</span>
             </div>
           )}
           <div className="thread-card__stats">

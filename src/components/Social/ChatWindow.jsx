@@ -131,7 +131,13 @@ export default function ChatWindow({ activeFriend }) {
   return (
     <div className="chat-window">
       <div className="chat-window__header">
-        <div className="chat-window__avatar">{activeFriend.avatar}</div>
+        <div className="chat-window__avatar">
+          {activeFriend.avatar && (activeFriend.avatar.startsWith("http") || activeFriend.avatar.includes("/") || activeFriend.avatar.startsWith("data:")) ? (
+            <img src={activeFriend.avatar} alt={activeFriend.name} className="chat-window__avatar-img" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+          ) : (
+            activeFriend.avatar || "T"
+          )}
+        </div>
         <div>
           <div className="chat-window__friend-name">{activeFriend.name}</div>
           <div className="chat-window__friend-role">{activeFriend.role}</div>

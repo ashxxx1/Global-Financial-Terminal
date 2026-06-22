@@ -137,7 +137,7 @@ function GlobalSearch() {
 }
 
 function UserMenu() {
-  const { currentUser, isAdmin, logout } = useAuth();
+  const { currentUser, userProfileData, isAdmin, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -155,16 +155,23 @@ function UserMenu() {
     <div className="header__user" ref={ref}>
       {isAdmin && <span className="header__admin-badge">ADMIN</span>}
       <img
-        src={currentUser.photoURL}
-        alt={currentUser.displayName}
+        src={userProfileData?.photoURL || currentUser.photoURL}
+        alt={userProfileData?.displayName || currentUser.displayName}
         className="header__user-avatar"
         onClick={() => setOpen((o) => !o)}
-        title={currentUser.displayName}
+        title={userProfileData?.displayName || currentUser.displayName}
       />
       {open && (
         <div className="header__user-dropdown">
           <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--border-subtle)" }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{currentUser.displayName}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>
+              {userProfileData?.displayName || currentUser.displayName}
+              {userProfileData?.username && (
+                <span style={{ fontSize: 10, color: "var(--text-muted)", marginLeft: 6 }}>
+                  @{userProfileData.username}
+                </span>
+              )}
+            </div>
             <div style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "var(--text-mono)", marginTop: 2 }}>{currentUser.email}</div>
           </div>
           {isAdmin && (

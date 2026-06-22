@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { FORUM_CATEGORIES } from "../../data/forumData";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function CreateThreadModal({ onClose, onSubmit, defaultCategory }) {
+  const { currentUser, userProfileData } = useAuth();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [category, setCategory] = useState(defaultCategory || FORUM_CATEGORIES[0].id);
@@ -18,7 +20,14 @@ export default function CreateThreadModal({ onClose, onSubmit, defaultCategory }
       categoryId: category,
       title: title.trim(),
       body: body.trim(),
-      author: "u1",
+      author: currentUser?.uid || "u1",
+      authorUser: currentUser ? {
+        id: currentUser.uid,
+        name: userProfileData?.displayName || currentUser.displayName || "AlphaTrader",
+        avatar: userProfileData?.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+        badge: userProfileData?.reputation || "Analyst",
+        role: userProfileData?.bio || "Institutional macro research & active swing trading.",
+      } : null,
       upvotes: 0,
       downvotes: 0,
       replyCount: 0,

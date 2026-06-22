@@ -39,7 +39,7 @@ const MOCK_SOCIAL_POSTS = [
 ];
 
 export default function PostsFeed() {
-  const { currentUser } = useAuth();
+  const { currentUser, userProfileData } = useAuth();
   const [posts, setPosts] = useState([]);
   const [inputText, setInputText] = useState("");
   const [imageURL, setImageURL] = useState("");
@@ -63,6 +63,7 @@ export default function PostsFeed() {
         const list = snap.docs.map((doc) => ({
           id: doc.id,
           authorName: doc.data().authorName,
+          authorUsername: doc.data().authorUsername || "",
           authorAvatar: doc.data().authorAvatar,
           authorRep: doc.data().authorRep,
           text: doc.data().text,
@@ -98,9 +99,10 @@ export default function PostsFeed() {
     if (currentUser) {
       try {
         await addDoc(collection(db, "social_posts"), {
-          authorName: currentUser.displayName || "Trader",
-          authorAvatar: (currentUser.displayName || "T")[0],
-          authorRep: "Member",
+          authorName: userProfileData?.displayName || currentUser.displayName || "Trader",
+          authorUsername: userProfileData?.username || "",
+          authorAvatar: userProfileData?.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+          authorRep: userProfileData?.reputation || "Analyst",
           text: postContent,
           imageURL: postImg || null,
           likes: 0,
@@ -115,9 +117,10 @@ export default function PostsFeed() {
       setPosts((prev) => [
         {
           id: "sp_sim_" + Date.now(),
-          authorName: "You",
-          authorAvatar: "U",
-          authorRep: "Retail Trader",
+          authorName: userProfileData?.displayName || "You",
+          authorUsername: userProfileData?.username || "you",
+          authorAvatar: userProfileData?.photoURL || "U",
+          authorRep: userProfileData?.reputation || "Retail Trader",
           text: postContent,
           imageURL: postImg || null,
           likes: 0,
@@ -187,9 +190,18 @@ export default function PostsFeed() {
           return (
             <div key={post.id} className="post-card">
               <div className="post-card__header">
-                <div className="post-card__avatar">{post.authorAvatar}</div>
+                <div className="post-card__avatar">
+                  {post.authorAvatar && (post.authorAvatar.startsWith("http") || post.authorAvatar.includes("/") || post.authorAvatar.startsWith("data:")) ? (
+                    <img src={post.authorAvatar} alt={post.authorName} className="post-card__avatar-img" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                  ) : (
+                    post.authorAvatar || "T"
+                  )}
+                </div>
                 <div className="post-card__author-info">
-                  <div className="post-card__author-name">{post.authorName}</div>
+                  <div className="post-card__author-name">
+                    {post.authorName}
+                    {post.authorUsername && <span className="post-card__author-handle" style={{ fontSize: 10, color: "var(--text-secondary)", marginLeft: 6 }}>@{post.authorUsername}</span>}
+                  </div>
                   <div className="post-card__author-rep">{post.authorRep}</div>
                 </div>
                 <span className="post-card__time">{post.time}</span>

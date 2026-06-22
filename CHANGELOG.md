@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-06-22
+
+### Added
+- **Gmail Auth & Username claims** — Integrated Google Sign-In with real-time uniqueness validation for custom usernames (@handles) on new registration onboarding.
+- **Custom Profile Pictures** — Enabled editing custom photoURLs in the profile card editor, with built-in Dicebear presets (Identicon, Bottts, Avataaars) generated on UID seeds.
+- **Global Profile Propagation** — Custom display names, handles, and avatars are fully propagated across the Header dropdown, Forum thread cards, Forum thread pages, sub-replies, and Social chats/posts.
+
+### Changed
+- **Bloomberg-Stripe Premium Aesthetic** — Upgraded the visual style: changed neon glows to flat deep steel-grey (`#0d0e15`), muted text (`#94a3b8`), and precise emerald green (`#10b981`).
+- **Outlines Overhaul** — Removed all glowing drop shadows and neon box-shadow highlights in favor of thin, sharp borders (`1px solid rgba(255,255,255,0.06)`).
+
 ## [0.3.0] - 2026-06-22
 
 ### Added

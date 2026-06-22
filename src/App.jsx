@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import "./styles/index.css";
+import "./index.css";
 
 // Premium Integrated UI Components
 import { TopBar } from "./components/Terminal/TopBar";

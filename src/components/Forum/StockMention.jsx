@@ -17,7 +17,7 @@ export default function StockMention({ symbol }) {
     e.stopPropagation();
     if (stock) {
       setSelectedStock(stock);
-      if (location.pathname.startsWith("/forum")) {
+      if (location.pathname.startsWith("/forum") || location.pathname.startsWith("/social")) {
         navigate("/");
       }
     }

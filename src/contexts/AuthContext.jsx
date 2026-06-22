@@ -12,6 +12,7 @@ import {
   updateDoc,
   serverTimestamp,
   onSnapshot,
+  runTransaction,
 } from "firebase/firestore";
 import { auth, db, googleProvider } from "../services/firebase";
 
@@ -33,36 +34,56 @@ export function AuthProvider({ children }) {
     const user = result.user;
 
     const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
+    const counterRef = doc(db, "counters", "users");
 
-    if (!snap.exists()) {
-      // New user — create their document as pending
-      await setDoc(userRef, {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
-        status: user.email === ADMIN_EMAIL ? "approved" : "pending",
-        requestedAt: serverTimestamp(),
-        approvedAt: user.email === ADMIN_EMAIL ? serverTimestamp() : null,
-        approvedBy: user.email === ADMIN_EMAIL ? ADMIN_EMAIL : null,
-        lastLogin: serverTimestamp(),
-        bio: "Institutional macro research & active swing trading.",
-        reputation: "Analyst",
-        friendsList: [],
-        friendRequests: []
-      });
-    } else {
-      // Existing user — update last login
-      const data = snap.data();
-      await updateDoc(userRef, { 
-        lastLogin: serverTimestamp(),
-        bio: data.bio || "Institutional macro research & active swing trading.",
-        reputation: data.reputation || "Analyst",
-        friendsList: data.friendsList || [],
-        friendRequests: data.friendRequests || []
-      });
-    }
+    await runTransaction(db, async (transaction) => {
+      const snap = await transaction.get(userRef);
+      if (!snap.exists()) {
+        // New user — create their document as pending
+        const counterSnap = await transaction.get(counterRef);
+        let nextId = 1;
+        if (counterSnap.exists()) {
+          nextId = (counterSnap.data().count || 0) + 1;
+        }
+        transaction.set(counterRef, { count: nextId });
+        transaction.set(userRef, {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          idNum: nextId,
+          photoURL: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
+          status: user.email === ADMIN_EMAIL ? "approved" : "pending",
+          requestedAt: serverTimestamp(),
+          approvedAt: user.email === ADMIN_EMAIL ? serverTimestamp() : null,
+          approvedBy: user.email === ADMIN_EMAIL ? ADMIN_EMAIL : null,
+          lastLogin: serverTimestamp(),
+          bio: "Institutional macro research & active swing trading.",
+          reputation: "Analyst",
+          friendsList: [],
+          friendRequests: []
+        });
+      } else {
+        // Existing user — update last login & ensure they have idNum
+        const data = snap.data();
+        const updateData = {
+          lastLogin: serverTimestamp(),
+          bio: data.bio || "Institutional macro research & active swing trading.",
+          reputation: data.reputation || "Analyst",
+          friendsList: data.friendsList || [],
+          friendRequests: data.friendRequests || []
+        };
+        if (data.idNum === undefined) {
+          const counterSnap = await transaction.get(counterRef);
+          let nextId = 1;
+          if (counterSnap.exists()) {
+            nextId = (counterSnap.data().count || 0) + 1;
+          }
+          transaction.set(counterRef, { count: nextId });
+          updateData.idNum = nextId;
+        }
+        transaction.update(userRef, updateData);
+      }
+    });
 
     return result;
   }

@@ -179,8 +179,8 @@ function UserMenu() {
               ⚙ Admin Panel
             </Link>
           )}
-          <Link to="/forum" className="header__dropdown-item" onClick={() => setOpen(false)}>
-            💬 Community Forum
+          <Link to="/social" className="header__dropdown-item" onClick={() => setOpen(false)}>
+            👥 Social Hub
           </Link>
           <div className="header__dropdown-divider" />
           <button className="header__dropdown-item danger" onClick={() => { logout(); setOpen(false); }}>
@@ -251,10 +251,7 @@ export default function Header() {
 
       <div className="header__divider" />
 
-      {/* Forum link */}
-      <button className="header__forum-btn" onClick={() => navigate("/forum")} title="Community Forum">
-        💬 <span className="header__forum-btn-label">Forum</span>
-      </button>
+
 
       {/* Social Hub link */}
       <button className="header__social-btn" onClick={() => navigate("/social")} title="Social Hub">

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import "./styles/index.css";
@@ -81,31 +81,8 @@ export default function App() {
             }
           />
 
-          {/* Forum — requires approved */}
-          <Route
-            path="/forum"
-            element={
-              <ProtectedRoute>
-                <ForumPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/forum/:categoryId"
-            element={
-              <ProtectedRoute>
-                <ForumCategory />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/forum/thread/:threadId"
-            element={
-              <ProtectedRoute>
-                <ForumThread />
-              </ProtectedRoute>
-            }
-          />
+          {/* Forum — legacy redirect to social */}
+          <Route path="/forum/*" element={<Navigate to="/social" replace />} />
           <Route
             path="/social"
             element={

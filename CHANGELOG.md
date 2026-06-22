@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-06-22
+
+### Added
+- **Unified X-Style Social network** — Merged Forum and Community views into a single cohesive Social tab.
+- **Auto-Incrementing User IDs** — Integrated atomic Firestore counter transaction ensuring every user receives a unique `#ID <number>` sequentially next to their handle/name.
+- **Feed Interactions** — Added Firestore-backed Liking (double-like protection), Disliking, Reposting (copying text as a quoted post reference), and inline Comments replies.
+- **Media Attachments** — Allowed adding images and HTML5 video attachments in the composer.
+- **Clean Slate DB Feed** — Removed all mock posts, allowing the database to dynamically load real posts or show a welcoming empty state.
+
+### Changed
+- **Header Navigation Cleaned** — Removed the legacy Forum button, keeping the unified Social button.
+- **Legacy Redirects** — Added a wild-card route redirecting old `/forum/*` paths to `/social` automatically.
+
 ## [0.4.0] - 2026-06-22
 
 ### Added

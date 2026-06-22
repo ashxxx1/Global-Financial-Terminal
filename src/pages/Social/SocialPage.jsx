@@ -33,6 +33,7 @@ export default function SocialPage() {
   const [userProfile, setUserProfile] = useState({
     displayName: currentUser?.displayName || "AlphaTrader",
     username: "",
+    idNum: "",
     photoURL: currentUser?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser?.uid}`,
     bio: "Institutional macro research & active swing trading.",
     reputation: "Analyst"
@@ -58,6 +59,7 @@ export default function SocialPage() {
         setUserProfile({
           displayName: data.displayName || currentUser.displayName || "AlphaTrader",
           username: data.username || "",
+          idNum: data.idNum || "",
           photoURL: data.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
           bio: data.bio || "Institutional macro research & active swing trading.",
           reputation: data.reputation || "Analyst"
@@ -75,6 +77,7 @@ export default function SocialPage() {
                   list.push({
                     uid: fUid,
                     name: fData.displayName || fData.username || `Trader_${fUid.slice(0, 4)}`,
+                    idNum: fData.idNum || "",
                     avatar: fData.photoURL || (fData.displayName || "T")[0],
                     role: fData.bio || "Quantitative Analyst",
                     reputation: fData.reputation || "Analyst",
@@ -276,7 +279,9 @@ export default function SocialPage() {
                   <span className={`social-page__friend-status-dot ${f.online ? "online" : "offline"}`} />
                 </div>
                 <div className="social-page__friend-meta">
-                  <div className="social-page__friend-name">{f.name}</div>
+                  <div className="social-page__friend-name">
+                    {f.name} {f.idNum && <span style={{ fontSize: "9px", color: "var(--accent-green)", fontWeight: "normal" }}>#ID {f.idNum}</span>}
+                  </div>
                   <div className="social-page__friend-role">{f.role}</div>
                 </div>
                 <span className="social-page__friend-rep">{f.reputation}</span>
@@ -396,7 +401,7 @@ export default function SocialPage() {
                   )}
                 </div>
                 <div className="social-page__profile-name">
-                  {userProfile.displayName}
+                  {userProfile.displayName} {userProfile.idNum && <span className="social-page__profile-id" style={{ fontSize: "11px", color: "var(--accent-green)", fontWeight: "normal", marginLeft: "4px" }}>#ID {userProfile.idNum}</span>}
                   {userProfile.username && <span className="social-page__profile-handle" style={{ display: "block", fontSize: "11px", color: "var(--text-secondary)", marginTop: "2px" }}>@{userProfile.username}</span>}
                 </div>
                 <div className="social-page__profile-badge">{userProfile.reputation}</div>

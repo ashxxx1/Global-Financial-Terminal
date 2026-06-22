@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-06-22
+
+### Added
+- **Integrated Premium Tailwind UI** — Replaced the legacy vanilla CSS interface with the advanced glassmorphism layout, featuring Tailwind v4 `@theme` integrations, LeftNav routing, and a clean TopBar shell with dynamic time zones.
+- **Interactive Globe & Country Details** — Migrated NASA Blue Marble rendering to `react-globe.gl` with Three.js sun tracking, trade arcs, and country sentiment highlight colors.
+- **Geopolitical news & Outlets** — Upgraded the details panel with economic metrics, strategic equities listings, 10 news channel outlets from `localNewsData.js`, and typewriter geopolitical summary animations.
+- **Real-Time Social Feed & Private Chat** — Unified the roster, direct messages (DMs) chat history, friend requests management, profile settings with Dicebear seeds presets, and community feed synced with active Firestore queries.
+- **Portfolio Center Convergence** — Wired the manual simulator and Alpaca API paper broker credentials persistence, dynamic SVG Pie charts, capital inputs, and AI-powered beta/risk reports.
+
 ## [0.5.0] - 2026-06-22
 
 ### Added

@@ -1,0 +1,113 @@
+import { useState, useEffect } from 'react';
+import { IntelligenceFeed } from './IntelligenceFeed';
+import { Globe2, Hash, MessageSquare, Heart } from 'lucide-react';
+import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { db } from '../../services/firebase';
+
+function SocialFeedPreview({ onSetView }) {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, "social_posts"),
+      orderBy("createdAt", "desc"),
+      limit(5)
+    );
+
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const list = snap.docs.map((doc) => ({
+          id: doc.id,
+          authorName: doc.data().authorName,
+          authorUsername: doc.data().authorUsername || "",
+          text: doc.data().text,
+          likes: doc.data().likes || 0,
+          commentCount: doc.data().commentCount || 0,
+          time: doc.data().createdAt ? new Date(doc.data().createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now"
+        }));
+        setPosts(list);
+      } else {
+        setPosts([]);
+      }
+    }, () => {
+      setPosts([]);
+    });
+
+    return () => unsub();
+  }, []);
+
+  return (
+    <div className="flex flex-col h-full bg-transparent">
+      <div className="p-4 border-b border-white/5 flex justify-between items-center bg-black/20">
+        <div className="flex items-center gap-2">
+          <Hash className="w-4 h-4 text-indigo-500" />
+          <h2 className="text-[13px] font-bold tracking-widest text-[#94a3b8]">COMMUNITY FLOW</h2>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        {posts.map((post) => (
+          <div 
+            key={post.id} 
+            onClick={() => onSetView('social')}
+            className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl cursor-pointer transition-all duration-200"
+          >
+            <div className="flex items-center justify-between mb-1.5 text-[11px]">
+              <span className="font-bold text-slate-300">@{post.authorUsername || post.authorName}</span>
+              <span className="text-slate-500 font-mono">{post.time}</span>
+            </div>
+            <p className="text-[13px] text-slate-200 line-clamp-2 leading-relaxed mb-2.5">
+              {post.text}
+            </p>
+            <div className="flex gap-4 text-slate-500 text-[11px]">
+              <span className="flex items-center gap-1"><MessageSquare className="w-3.5 h-3.5" /> {post.commentCount}</span>
+              <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5" /> {post.likes}</span>
+            </div>
+          </div>
+        ))}
+        {posts.length === 0 && (
+          <div className="p-8 text-center text-slate-600 font-mono text-[12px] tracking-wider">
+            NO POSTS YET. CLICK TO WRITE THE FIRST!
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function RightSidebar({ onSetView }) {
+  const [view, setView] = useState('INTEL');
+
+  return (
+    <div className="flex-1 flex flex-col h-full bg-transparent">
+      {/* Top switch header */}
+      <div className="flex bg-[#020617] p-1.5 border-b border-white/5 shrink-0">
+        <button
+          onClick={() => setView('INTEL')}
+          className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-[11px] font-bold tracking-widest uppercase transition-colors ${
+             view === 'INTEL' 
+               ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)] font-bold' 
+               : 'text-slate-500 hover:text-slate-300 border border-transparent'
+          }`}
+        >
+          <Globe2 className="w-3.5 h-3.5" />
+          Intelligence
+        </button>
+        <button
+          onClick={() => setView('SOCIAL')}
+          className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-[11px] font-bold tracking-widest uppercase transition-colors ${
+             view === 'SOCIAL' 
+               ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)] font-bold' 
+               : 'text-slate-500 hover:text-slate-300 border border-transparent'
+          }`}
+        >
+          <Hash className="w-3.5 h-3.5" />
+          Social Flow
+        </button>
+      </div>
+
+      <div className="flex-1 min-h-0 relative">
+        {view === 'INTEL' ? <IntelligenceFeed /> : <SocialFeedPreview onSetView={onSetView} />}
+      </div>
+    </div>
+  );
+}

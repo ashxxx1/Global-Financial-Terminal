@@ -40,19 +40,36 @@ export function AuthProvider({ children }) {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
-        photoURL: user.photoURL,
+        photoURL: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
         status: user.email === ADMIN_EMAIL ? "approved" : "pending",
         requestedAt: serverTimestamp(),
         approvedAt: user.email === ADMIN_EMAIL ? serverTimestamp() : null,
         approvedBy: user.email === ADMIN_EMAIL ? ADMIN_EMAIL : null,
         lastLogin: serverTimestamp(),
+        bio: "Institutional macro research & active swing trading.",
+        reputation: "Analyst",
+        friendsList: [],
+        friendRequests: []
       });
     } else {
       // Existing user — update last login
-      await updateDoc(userRef, { lastLogin: serverTimestamp() });
+      const data = snap.data();
+      await updateDoc(userRef, { 
+        lastLogin: serverTimestamp(),
+        bio: data.bio || "Institutional macro research & active swing trading.",
+        reputation: data.reputation || "Analyst",
+        friendsList: data.friendsList || [],
+        friendRequests: data.friendRequests || []
+      });
     }
 
     return result;
+  }
+
+  async function updateUserProfile(fields) {
+    if (!currentUser) return;
+    const userRef = doc(db, "users", currentUser.uid);
+    await updateDoc(userRef, fields);
   }
 
   async function logout() {
@@ -97,6 +114,7 @@ export function AuthProvider({ children }) {
     isAdmin,
     loading,
     signInWithGoogle,
+    updateUserProfile,
     logout,
   };
 

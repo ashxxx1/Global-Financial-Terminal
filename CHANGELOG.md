@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-06-22
+
+### Added
+- **Social Trading Hub** — Added trader profiles, user bios, direct direct-messages with active friends, community feed to publish updates, like updates, and reputation badges.
+- **Brokerage Sync Integration** — Added Alpaca, Interactive Brokers, and Robinhood connectivity. Supports direct sync of paper trade positions or manually allocating portfolios.
+- **AI Portfolio recommendations** — Real-time Beta calculation, tech sector concentration alert, and portfolio hedging advice.
+- **Geopolitical News Aggregator** — Connected 10 national news channels per country (US, IN, CN, DE, JP) and integrated an AI geopolitical risk typewriter summary inside the News Panel.
+- **Support for Virtual Category All** — Displays all forum threads across all categories combined under `/forum/all`.
+- **Trader Redirect Flow** — Clicking `$TICKER` inside the forum now automatically navigates back to the main terminal dashboard and opens the stock panel instantly.
+
+### Changed
+- **Version Tracking**: Updated active shell version to `v0.3.0-alpha`.
+- **UI Harmonization**: Removed neon colors in place of slate overlays and standardized panel borders for a more editorial human feel.
+
 ## [0.2.0] - 2026-06-22
 
 ### Added

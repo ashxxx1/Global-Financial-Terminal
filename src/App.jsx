@@ -17,6 +17,7 @@ import AdminPanel from "./pages/AdminPanel";
 import ForumPage from "./pages/Forum/ForumPage";
 import ForumCategory from "./pages/Forum/ForumCategory";
 import ForumThread from "./pages/Forum/ForumThread";
+import SocialPage from "./pages/Social/SocialPage";
 
 import CommandPalette from "./components/CommandPalette/CommandPalette";
 import { AlertSystem, AlertPanel } from "./components/Alerts/AlertSystem";
@@ -100,6 +101,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <ForumThread />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/social"
+            element={
+              <ProtectedRoute>
+                <SocialPage />
               </ProtectedRoute>
             }
           />

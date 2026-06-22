@@ -249,6 +249,11 @@ export default function Header() {
         💬 <span className="header__forum-btn-label">Forum</span>
       </button>
 
+      {/* Social Hub link */}
+      <button className="header__social-btn" onClick={() => navigate("/social")} title="Social Hub">
+        👥 <span className="header__social-btn-label">Social</span>
+      </button>
+
       {/* Calendar chip */}
       <CalendarChip />
 

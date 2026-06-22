@@ -8,7 +8,7 @@ export default function Footer() {
         </span>
       </div>
       <div className="footer__version">
-        GFT-SECURE · v0.1.1
+        GFT-SECURE · v0.3.0-alpha
       </div>
     </footer>
   );

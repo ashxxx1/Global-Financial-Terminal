@@ -572,3 +572,5 @@ export default function PortfolioPanel({ onClose }) {
   );
 }
 export { PortfolioPanel };
+export default PortfolioPanel;
+

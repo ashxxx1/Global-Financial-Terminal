@@ -804,3 +804,34 @@ export const STOCKS_BY_COUNTRY = {
     { ticker: "CPACASC",name:"Alicorp",                price: 6.78,    changePct: -0.34, currency: "PEN", sector: "Consumer" },
   ],
 };
+
+export function getStocksForCountry(countryCode) {
+  const code = (countryCode || "").toUpperCase();
+  const list = STOCKS_BY_COUNTRY[code] || [];
+  return list.map(stock => ({
+    ...stock,
+    symbol: stock.symbol || stock.ticker,
+    country: code
+  }));
+}
+
+export function searchStocks(query) {
+  if (!query) return [];
+  const q = query.toLowerCase();
+  const results = [];
+  Object.entries(STOCKS_BY_COUNTRY).forEach(([country, list]) => {
+    list.forEach(stock => {
+      const sym = (stock.symbol || stock.ticker || "").toLowerCase();
+      const name = (stock.name || "").toLowerCase();
+      if (sym.includes(q) || name.includes(q)) {
+        results.push({
+          ...stock,
+          symbol: stock.symbol || stock.ticker,
+          country
+        });
+      }
+    });
+  });
+  return results;
+}
+

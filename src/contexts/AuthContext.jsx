@@ -91,8 +91,10 @@ export function AuthProvider({ children }) {
   async function updateUserProfile(fields) {
     if (!currentUser) return;
     const userRef = doc(db, "users", currentUser.uid);
-    await updateDoc(userRef, fields);
+    // setDoc with merge is safe whether the doc exists or not
+    await setDoc(userRef, fields, { merge: true });
   }
+
 
   async function logout() {
     await signOut(auth);

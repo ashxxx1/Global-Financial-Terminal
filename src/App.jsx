@@ -1,86 +1,123 @@
 import { useState, useCallback } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import "./styles/index.css";
 import "./index.css";
 
-// Premium Integrated UI Components
-import { TopBar } from "./components/Terminal/TopBar";
-import { LeftNav } from "./components/Terminal/LeftNav";
-import { Sidebar } from "./components/Terminal/Sidebar";
+// ── Terminal UI (pulled from merge) ──────────────────────────────────────────
+import { TopBar }       from "./components/Terminal/TopBar";
+import { LeftNav }      from "./components/Terminal/LeftNav";
+import { Sidebar }      from "./components/Terminal/Sidebar";
 import { RightSidebar } from "./components/Terminal/RightSidebar";
-import { GlobeVis } from "./components/Terminal/GlobeVis";
-import { GlobalNews } from "./components/Terminal/GlobalNews";
+import { GlobeVis }     from "./components/Terminal/GlobeVis";
+import { GlobalNews }   from "./components/Terminal/GlobalNews";
 import { CountryPanel } from "./components/Terminal/CountryPanel";
 import { SocialModule } from "./components/Terminal/SocialModule";
-import PortfolioPanel from "./components/Terminal/PortfolioPanel";
+import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
 
-// Global Alerts & Stock panels
-import StockPanel from "./components/StockPanel/StockPanel";
+// ── Global overlays ──────────────────────────────────────────────────────────
+import StockPanel               from "./components/StockPanel/StockPanel";
 import "./components/StockPanel/StockPanel.css";
 import { AlertSystem, AlertPanel } from "./components/Alerts/AlertSystem";
-import CommandPalette from "./components/CommandPalette/CommandPalette";
+import CommandPalette            from "./components/CommandPalette/CommandPalette";
+import MacroHeatmap              from "./components/MacroHeatmap/MacroHeatmap";
+import EconomicCalendar          from "./components/EconomicCalendar/EconomicCalendar";
+import CorrelationMatrix         from "./components/Correlation/CorrelationMatrix";
+import FXDashboard               from "./components/FXDashboard/FXDashboard";
 
-// Overlays
-import MacroHeatmap from "./components/MacroHeatmap/MacroHeatmap";
-import EconomicCalendar from "./components/EconomicCalendar/EconomicCalendar";
-import CorrelationMatrix from "./components/Correlation/CorrelationMatrix";
-import FXDashboard from "./components/FXDashboard/FXDashboard";
+// ── Pages ────────────────────────────────────────────────────────────────────
+import LoginPage      from "./pages/LoginPage";
+import PendingPage    from "./pages/PendingPage";
+import RejectedPage   from "./pages/RejectedPage";
+import AdminPanel     from "./pages/AdminPanel";
+import SetupUsername  from "./pages/SetupUsername";
 
-// State
+// ── State ────────────────────────────────────────────────────────────────────
 import useTerminalStore from "./store/terminalStore";
-import LoginPage from "./pages/LoginPage";
-import PendingPage from "./pages/PendingPage";
-import RejectedPage from "./pages/RejectedPage";
-import AdminPanel from "./pages/AdminPanel";
-import Footer from "./components/Footer/Footer";
-import useTerminalStore from "./store/terminalStore";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Main Terminal Application
+// ─────────────────────────────────────────────────────────────────────────────
 function TerminalApp() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isNewsPanelOpen, closeNewsPanel } = useTerminalStore();
+  const {
+    activeView,
+    setActiveView,
+    selectedCountry,
+    isNewsPanelOpen,
+    closeNewsPanel,
+    selectedStock,
+    isStockPanelOpen,
+    closeStockPanel,
+    alertPanelOpen,
+    setAlertPanelOpen,
+  } = useTerminalStore();
 
-  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
-  const toggleSidebar = useCallback(() => setSidebarOpen((v) => !v), []);
+  // Mobile sidebar sheet state
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const closeMobileSidebar = useCallback(() => setMobileSidebarOpen(false), []);
+  const toggleMobileSidebar = useCallback(() => setMobileSidebarOpen((v) => !v), []);
 
-  const anySheetOpen = sidebarOpen || isNewsPanelOpen;
+  const anySheetOpen = mobileSidebarOpen || isNewsPanelOpen || isStockPanelOpen;
 
   return (
     <div className="app-shell">
-      <Header />
-      <Ticker />
-      <Sidebar mobileOpen={sidebarOpen} onClose={closeSidebar} />
-      <GlobeArea />
-      <Footer />
+      {/* Top bar — header with nav, search, alerts, user */}
+      <TopBar currentView={activeView} onSetView={setActiveView} />
 
-      {/* ── Mobile-only backdrop ── */}
+      {/* Left nav — icon sidebar for view switching */}
+      <LeftNav currentView={activeView} onSetView={setActiveView} />
+
+      {/* Left data sidebar — indices, watchlist */}
+      <Sidebar />
+
+      {/* Main content area — Globe / Heatmap / Calendar / Portfolio / FX / Correlation */}
+      <main className="globe-area" style={{ position: "relative", overflow: "hidden" }}>
+        {activeView === "globe"       && <GlobeVis />}
+        {activeView === "news"        && <GlobalNews />}
+        {activeView === "social"      && <SocialModule />}
+        {activeView === "portfolio"   && <PortfolioPanel />}
+        {activeView === "heatmap"     && <MacroHeatmap />}
+        {activeView === "calendar"    && <EconomicCalendar />}
+        {activeView === "fx"          && <FXDashboard />}
+        {activeView === "correlation" && <CorrelationMatrix />}
+
+        {/* Country detail panel (slides over globe on country click) */}
+        {isNewsPanelOpen && selectedCountry && (
+          <CountryPanel country={selectedCountry} onClose={closeNewsPanel} />
+        )}
+      </main>
+
+      {/* Right sidebar — intelligence feed */}
+      <RightSidebar />
+
+      {/* Stock detail panel */}
+      {isStockPanelOpen && selectedStock && (
+        <StockPanel stock={selectedStock} onClose={closeStockPanel} />
+      )}
+
+      {/* Alert panel */}
+      {alertPanelOpen && (
+        <AlertPanel onClose={() => setAlertPanelOpen(false)} />
+      )}
+
+      {/* Background alert watcher */}
+      <AlertSystem />
+
+      {/* ── Mobile-only: backdrop + bottom nav ─────────────────────────── */}
       <div
         className={`mobile-backdrop${anySheetOpen ? " visible" : ""}`}
         onClick={() => {
-          closeSidebar();
+          closeMobileSidebar();
           if (isNewsPanelOpen) closeNewsPanel();
+          if (isStockPanelOpen) closeStockPanel();
         }}
       />
 
-      {/* ── Mobile bottom navigation bar ── */}
       <nav className="mobile-nav" aria-label="Mobile navigation">
         <button
-          className={`mobile-nav__btn${sidebarOpen ? " active" : ""}`}
-          onClick={toggleSidebar}
-          aria-label="Markets"
-        >
-          <span className="mobile-nav__btn-icon">📊</span>
-          MARKETS
-        </button>
-
-        <button
-          className="mobile-nav__btn"
-          style={{ borderLeft: "1px solid rgba(255,255,255,0.04)", borderRight: "1px solid rgba(255,255,255,0.04)" }}
-          onClick={() => {
-            closeSidebar();
-            if (isNewsPanelOpen) closeNewsPanel();
-          }}
+          className={`mobile-nav__btn${activeView === "globe" ? " active" : ""}`}
+          onClick={() => setActiveView("globe")}
           aria-label="Globe"
         >
           <span className="mobile-nav__btn-icon">🌍</span>
@@ -88,11 +125,18 @@ function TerminalApp() {
         </button>
 
         <button
-          className={`mobile-nav__btn${isNewsPanelOpen ? " active" : ""}`}
-          onClick={() => {
-            closeSidebar();
-            /* news panel opens when user taps a country — this just closes sidebar */
-          }}
+          className={`mobile-nav__btn${mobileSidebarOpen ? " active" : ""}`}
+          style={{ borderLeft: "1px solid rgba(255,255,255,0.04)", borderRight: "1px solid rgba(255,255,255,0.04)" }}
+          onClick={toggleMobileSidebar}
+          aria-label="Markets"
+        >
+          <span className="mobile-nav__btn-icon">📊</span>
+          MARKETS
+        </button>
+
+        <button
+          className={`mobile-nav__btn${activeView === "news" ? " active" : ""}`}
+          onClick={() => setActiveView("news")}
           aria-label="News"
         >
           <span className="mobile-nav__btn-icon">📡</span>
@@ -103,19 +147,26 @@ function TerminalApp() {
   );
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Root App with Router
+// ─────────────────────────────────────────────────────────────────────────────
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        {/* Command palette lives outside Routes so it works app-wide */}
         <CommandPalette />
+
         <Routes>
-          {/* Public */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/pending" element={<PendingPage />} />
-          <Route path="/rejected" element={<RejectedPage />} />
+          {/* ── Public / Auth pages ── */}
+          <Route path="/login"          element={<LoginPage />} />
+          <Route path="/pending"        element={<PendingPage />} />
+          <Route path="/rejected"       element={<RejectedPage />} />
+
+          {/* ── Username setup (after first Google login + approval) ── */}
           <Route path="/setup-username" element={<SetupUsername />} />
 
-          {/* Admin only */}
+          {/* ── Admin panel ── */}
           <Route
             path="/admin"
             element={
@@ -125,20 +176,10 @@ export default function App() {
             }
           />
 
-          {/* Forum — legacy redirect to social */}
+          {/* ── Legacy forum redirect ── */}
           <Route path="/forum/*" element={<Navigate to="/social" replace />} />
-          
-          {/* Social direct route */}
-          <Route
-            path="/social"
-            element={
-              <ProtectedRoute>
-                <TerminalApp />
-              </ProtectedRoute>
-            }
-          />
 
-          {/* Main terminal */}
+          {/* ── Main terminal (all other paths) ── */}
           <Route
             path="/*"
             element={

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../services/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { doc, collection, query, where, getDocs, setDoc } from "firebase/firestore";
+
 
 export default function SetupUsername() {
   const { currentUser, userStatus, userProfileData, updateUserProfile, loading } = useAuth();
@@ -58,24 +59,32 @@ export default function SetupUsername() {
         return;
       }
 
-      // 3. Update profile
-      await updateUserProfile({
+      // 3. Write username to Firestore — use setDoc+merge so it works
+      //    even if the user document was partially created or updateDoc fails
+      const userRef = doc(db, "users", currentUser.uid);
+      await setDoc(userRef, {
         username: cleanUsername,
-        // Set default display name if it's empty
-        displayName: userProfileData?.displayName || cleanUsername
-      });
+        displayName: userProfileData?.displayName || currentUser.displayName || cleanUsername,
+      }, { merge: true });
 
       setSuccess(true);
       setTimeout(() => {
         navigate("/", { replace: true });
       }, 1000);
     } catch (err) {
-      console.error("Failed to setup username:", err);
-      setError("Database connection error. Please try again.");
+      console.error("SetupUsername error:", err.code, err.message);
+      if (err.code === "permission-denied") {
+        setError("Permission denied — please contact the admin.");
+      } else if (err.code === "unavailable" || err.message?.includes("network")) {
+        setError("Network error — check your connection and try again.");
+      } else {
+        setError(`Error: ${err.message || "Please try again."}`);
+      }
     } finally {
       setChecking(false);
     }
   };
+
 
   return (
     <div className="login-page setup-username-page">

@@ -105,7 +105,8 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
         const camera = globeRef.current.camera();
         
         // Remove default directional lights attached to camera
-        camera.children = camera.children.filter((c) => c.type !== 'DirectionalLight');
+        const dirLights = camera.children.filter((c) => c.isDirectionalLight || c.type === 'DirectionalLight');
+        dirLights.forEach((light) => camera.remove(light));
 
         sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
         scene.add(sunLight);

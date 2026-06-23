@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../services/firebase";
-import { doc, collection, query, where, getDocs, setDoc } from "firebase/firestore";
+import { doc, collection, query, where, getDocs, setDoc, runTransaction, serverTimestamp } from "firebase/firestore";
 
 
 export default function SetupUsername() {
-  const { currentUser, userStatus, userProfileData, updateUserProfile, loading } = useAuth();
+  const { currentUser, userStatus, userProfileData, updateUserProfile, loading, isAdmin } = useAuth();
   const [username, setUsername] = useState("");
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");
@@ -59,13 +59,43 @@ export default function SetupUsername() {
         return;
       }
 
-      // 3. Write username to Firestore — use setDoc+merge so it works
-      //    even if the user document was partially created or updateDoc fails
+      // 3. Write username to Firestore and create user doc using a transaction
       const userRef = doc(db, "users", currentUser.uid);
-      await setDoc(userRef, {
-        username: cleanUsername,
-        displayName: userProfileData?.displayName || currentUser.displayName || cleanUsername,
-      }, { merge: true });
+      const counterRef = doc(db, "counters", "users");
+
+      await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(userRef);
+        if (!snap.exists()) {
+          const counterSnap = await transaction.get(counterRef);
+          let nextId = 1;
+          if (counterSnap.exists()) {
+            nextId = (counterSnap.data().count || 0) + 1;
+          }
+          transaction.set(counterRef, { count: nextId });
+          transaction.set(userRef, {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName || cleanUsername,
+            username: cleanUsername,
+            idNum: nextId,
+            photoURL: currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+            status: isAdmin ? "approved" : "pending",
+            requestedAt: serverTimestamp(),
+            approvedAt: isAdmin ? serverTimestamp() : null,
+            approvedBy: isAdmin ? currentUser.email : null,
+            lastLogin: serverTimestamp(),
+            bio: "Institutional macro research & active swing trading.",
+            reputation: "Analyst",
+            friendsList: [],
+            friendRequests: [],
+          });
+        } else {
+          transaction.update(userRef, {
+            username: cleanUsername,
+            displayName: snap.data().displayName || currentUser.displayName || cleanUsername,
+          });
+        }
+      });
 
       setSuccess(true);
       setTimeout(() => {

@@ -34,28 +34,7 @@ async function upsertUserDoc(user) {
   await runTransaction(db, async (transaction) => {
     const snap = await transaction.get(userRef);
     if (!snap.exists()) {
-      const counterSnap = await transaction.get(counterRef);
-      let nextId = 1;
-      if (counterSnap.exists()) {
-        nextId = (counterSnap.data().count || 0) + 1;
-      }
-      transaction.set(counterRef, { count: nextId });
-      transaction.set(userRef, {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        idNum: nextId,
-        photoURL: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
-        status: ADMIN_EMAILS.includes(user.email) ? "approved" : "pending",
-        requestedAt: serverTimestamp(),
-        approvedAt: ADMIN_EMAILS.includes(user.email) ? serverTimestamp() : null,
-        approvedBy: ADMIN_EMAILS.includes(user.email) ? user.email : null,
-        lastLogin: serverTimestamp(),
-        bio: "Institutional macro research & active swing trading.",
-        reputation: "Analyst",
-        friendsList: [],
-        friendRequests: [],
-      });
+      // Do not create document here, let SetupUsername handle creation
     } else {
       const data = snap.data();
       const updateData = {

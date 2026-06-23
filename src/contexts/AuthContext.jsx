@@ -17,7 +17,7 @@ import {
 } from "firebase/firestore";
 import { auth, db, googleProvider } from "../services/firebase";
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "aarushkapoor23@gmail.com";
+const ADMIN_EMAILS = ["aarushkapoor23@gmail.com", "anchitaduggal7@gmail.com"];
 
 const AuthContext = createContext(null);
 
@@ -46,10 +46,10 @@ async function upsertUserDoc(user) {
         displayName: user.displayName,
         idNum: nextId,
         photoURL: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
-        status: user.email === ADMIN_EMAIL ? "approved" : "pending",
+        status: ADMIN_EMAILS.includes(user.email) ? "approved" : "pending",
         requestedAt: serverTimestamp(),
-        approvedAt: user.email === ADMIN_EMAIL ? serverTimestamp() : null,
-        approvedBy: user.email === ADMIN_EMAIL ? ADMIN_EMAIL : null,
+        approvedAt: ADMIN_EMAILS.includes(user.email) ? serverTimestamp() : null,
+        approvedBy: ADMIN_EMAILS.includes(user.email) ? user.email : null,
         lastLogin: serverTimestamp(),
         bio: "Institutional macro research & active swing trading.",
         reputation: "Analyst",
@@ -85,7 +85,7 @@ export function AuthProvider({ children }) {
   const [userStatus, setUserStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = currentUser?.email === ADMIN_EMAIL;
+  const isAdmin = currentUser?.email && ADMIN_EMAILS.includes(currentUser.email);
 
   // Sign in — use redirect on mobile (popup blocked by iOS Safari)
   async function signInWithGoogle() {

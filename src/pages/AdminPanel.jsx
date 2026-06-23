@@ -12,7 +12,7 @@ import {
 import { db } from "../services/firebase";
 import { useAuth } from "../contexts/AuthContext";
 
-const ADMIN_EMAILS = ["aarushkapoor23@gmail.com", "anchitaduggal7@gmail.com"];
+const ADMIN_EMAILS = ["aarushkapoor23@gmail.com", "anchitaduggal7@gmail.com", "anchitaduggal@7gmail.com"];
 const DEPLOY_HOOK = import.meta.env.VITE_VERCEL_DEPLOY_HOOK || "";
 
 // ── User row in the admin table ──────────────────────────────

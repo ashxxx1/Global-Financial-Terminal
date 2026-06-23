@@ -17,7 +17,7 @@ import {
 } from "firebase/firestore";
 import { auth, db, googleProvider } from "../services/firebase";
 
-const ADMIN_EMAILS = ["aarushkapoor23@gmail.com", "anchitaduggal7@gmail.com"];
+const ADMIN_EMAILS = ["aarushkapoor23@gmail.com", "anchitaduggal7@gmail.com", "anchitaduggal@7gmail.com"];
 
 const AuthContext = createContext(null);
 

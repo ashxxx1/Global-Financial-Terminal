@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -12,15 +13,70 @@ import PendingPage from "./pages/PendingPage";
 import RejectedPage from "./pages/RejectedPage";
 import AdminPanel from "./pages/AdminPanel";
 import Footer from "./components/Footer/Footer";
+import useTerminalStore from "./store/terminalStore";
 
 function TerminalApp() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isNewsPanelOpen, closeNewsPanel } = useTerminalStore();
+
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+  const toggleSidebar = useCallback(() => setSidebarOpen((v) => !v), []);
+
+  const anySheetOpen = sidebarOpen || isNewsPanelOpen;
+
   return (
     <div className="app-shell">
       <Header />
       <Ticker />
-      <Sidebar />
+      <Sidebar mobileOpen={sidebarOpen} onClose={closeSidebar} />
       <GlobeArea />
       <Footer />
+
+      {/* ── Mobile-only backdrop ── */}
+      <div
+        className={`mobile-backdrop${anySheetOpen ? " visible" : ""}`}
+        onClick={() => {
+          closeSidebar();
+          if (isNewsPanelOpen) closeNewsPanel();
+        }}
+      />
+
+      {/* ── Mobile bottom navigation bar ── */}
+      <nav className="mobile-nav" aria-label="Mobile navigation">
+        <button
+          className={`mobile-nav__btn${sidebarOpen ? " active" : ""}`}
+          onClick={toggleSidebar}
+          aria-label="Markets"
+        >
+          <span className="mobile-nav__btn-icon">📊</span>
+          MARKETS
+        </button>
+
+        <button
+          className="mobile-nav__btn"
+          style={{ borderLeft: "1px solid rgba(255,255,255,0.04)", borderRight: "1px solid rgba(255,255,255,0.04)" }}
+          onClick={() => {
+            closeSidebar();
+            if (isNewsPanelOpen) closeNewsPanel();
+          }}
+          aria-label="Globe"
+        >
+          <span className="mobile-nav__btn-icon">🌍</span>
+          GLOBE
+        </button>
+
+        <button
+          className={`mobile-nav__btn${isNewsPanelOpen ? " active" : ""}`}
+          onClick={() => {
+            closeSidebar();
+            /* news panel opens when user taps a country — this just closes sidebar */
+          }}
+          aria-label="News"
+        >
+          <span className="mobile-nav__btn-icon">📡</span>
+          NEWS
+        </button>
+      </nav>
     </div>
   );
 }

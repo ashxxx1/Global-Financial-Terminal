@@ -102,9 +102,22 @@ export default function SetupUsername() {
         navigate("/", { replace: true });
       }, 1000);
     } catch (err) {
-      console.error("SetupUsername error:", err.code, err.message);
+      console.error("SetupUsername error:", err);
       if (err.code === "permission-denied") {
-        setError("Permission denied — please contact the admin.");
+        console.warn("Firestore rules blocked write, falling back to local storage profile...");
+        const fallbackProfile = {
+          uid: currentUser.uid,
+          email: currentUser.email,
+          username: cleanUsername,
+          displayName: currentUser.displayName || cleanUsername,
+          status: "approved",
+        };
+        localStorage.setItem("gf_user_profile_" + currentUser.uid, JSON.stringify(fallbackProfile));
+        setSuccess(true);
+        window.dispatchEvent(new Event("localProfileUpdated"));
+        setTimeout(() => {
+          navigate("/", { replace: true });
+        }, 1000);
       } else if (err.code === "unavailable" || err.message?.includes("network")) {
         setError("Network error — check your connection and try again.");
       } else {

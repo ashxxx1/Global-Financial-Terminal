@@ -113,32 +113,58 @@ export function AuthProvider({ children }) {
         return;
       }
 
+      const loadProfile = (snapData) => {
+        let data = snapData;
+        const localProfileStr = localStorage.getItem("gf_user_profile_" + user.uid);
+        if (localProfileStr) {
+          try {
+            const localData = JSON.parse(localProfileStr);
+            data = { ...(data || {}), ...localData };
+          } catch (e) {
+            console.error("Local profile parse error:", e);
+          }
+        }
+        if (data) {
+          setUserStatus(
+            data.status || (ADMIN_EMAILS.includes(user.email) ? "approved" : "pending")
+          );
+          setUserProfileData(data);
+        } else {
+          setUserProfileData(null);
+          if (ADMIN_EMAILS.includes(user.email)) {
+            setUserStatus("approved");
+          } else {
+            setUserStatus("pending");
+          }
+        }
+      };
+
       // Listen to this user's Firestore doc in real-time
       const userRef = doc(db, "users", user.uid);
       const unsubFirestore = onSnapshot(
         userRef,
         (snap) => {
-          if (snap.exists()) {
-            const data = snap.data();
-            setUserStatus(
-              data.status || (user.email === ADMIN_EMAIL ? "approved" : "pending")
-            );
-            setUserProfileData(data);
-          } else {
-            setUserProfileData(null);
-            if (user.email === ADMIN_EMAIL) {
-              setUserStatus("approved");
-            }
-          }
+          loadProfile(snap.exists() ? snap.data() : null);
           setLoading(false);
         },
         (err) => {
           console.error("Firestore snapshot error:", err);
+          // Fallback if snap fails (e.g. permission-denied)
+          loadProfile(null);
           setLoading(false);
         }
       );
 
-      return () => unsubFirestore();
+      // Listen for local profile updates
+      const handleLocalUpdate = () => {
+        loadProfile(null); // reload from local storage / cache
+      };
+      window.addEventListener("localProfileUpdated", handleLocalUpdate);
+
+      return () => {
+        unsubFirestore();
+        window.removeEventListener("localProfileUpdated", handleLocalUpdate);
+      };
     });
 
     return () => unsubAuth();

@@ -7,6 +7,7 @@ export default function LoginPage() {
   const { currentUser, userStatus, isAdmin, signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [redirecting, setRedirecting] = useState(false);
 
   // Already signed in — redirect appropriately
   if (currentUser) {
@@ -14,8 +15,6 @@ export default function LoginPage() {
     if (userStatus === "pending") return <Navigate to="/pending" replace />;
     if (userStatus === "rejected") return <Navigate to="/rejected" replace />;
   }
-
-  const [redirecting, setRedirecting] = useState(false);
 
   // Detect mobile
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);

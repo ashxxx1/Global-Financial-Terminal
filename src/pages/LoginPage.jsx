@@ -15,18 +15,38 @@ export default function LoginPage() {
     if (userStatus === "rejected") return <Navigate to="/rejected" replace />;
   }
 
+  const [redirecting, setRedirecting] = useState(false);
+
+  // Detect mobile
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
   async function handleGoogleSignIn() {
     setError("");
     setLoading(true);
     try {
-      await signInWithGoogle();
+      if (isMobile) {
+        setRedirecting(true);
+        // signInWithGoogle triggers signInWithRedirect — page will leave
+        await signInWithGoogle();
+        // (execution stops here on mobile — page redirects to Google)
+      } else {
+        await signInWithGoogle();
+      }
     } catch (err) {
-      setError("Sign-in failed. Please try again.");
-      console.error(err);
+      console.error("Sign-in error:", err.code, err.message);
+      if (err.code === "auth/popup-blocked") {
+        setError("Popup was blocked — try disabling your popup blocker.");
+      } else if (err.code === "auth/popup-closed-by-user") {
+        setError("Sign-in window was closed. Please try again.");
+      } else {
+        setError("Sign-in failed. Please try again.");
+      }
     } finally {
       setLoading(false);
+      setRedirecting(false);
     }
   }
+
 
   return (
     <div className="login-page">
@@ -83,10 +103,12 @@ export default function LoginPage() {
           <button
             className={`login-card__btn ${loading ? "loading" : ""}`}
             onClick={handleGoogleSignIn}
-            disabled={loading}
+            disabled={loading || redirecting}
             id="google-signin-btn"
           >
-            {loading ? (
+            {redirecting ? (
+              <span className="login-card__btn-spinner" />
+            ) : loading ? (
               <span className="login-card__btn-spinner" />
             ) : (
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -96,8 +118,9 @@ export default function LoginPage() {
                 <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
               </svg>
             )}
-            {loading ? "Signing in…" : "Continue with Google"}
+            {redirecting ? "Redirecting to Google…" : loading ? "Signing in…" : "Continue with Google"}
           </button>
+
 
           {error && <div className="login-card__error">{error}</div>}
 

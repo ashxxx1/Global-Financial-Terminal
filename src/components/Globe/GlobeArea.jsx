@@ -22,7 +22,7 @@ function GlobeLoading() {
 }
 
 function CoordDisplay() {
-  const [coords, setCoords] = useState({ lat: 20.0, lng: 0.0 });
+  const coords = { lat: 20.0, lng: 0.0 };
   return (
     <div className="coord-display">
       LAT {coords.lat.toFixed(2)}° · LNG {coords.lng.toFixed(2)}°
@@ -31,7 +31,7 @@ function CoordDisplay() {
 }
 
 export default function GlobeArea() {
-  const { isNewsPanelOpen, globeAutoRotate, setGlobeAutoRotate } =
+  const { globeAutoRotate, setGlobeAutoRotate } =
     useTerminalStore();
 
   return (

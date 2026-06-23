@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function ProtectedRoute({ children, adminOnly = false }) {
-  const { currentUser, userStatus, isAdmin, loading } = useAuth();
+  const { currentUser, userStatus, userProfileData, isAdmin, loading } = useAuth();
 
   if (loading) {
     return (
@@ -16,6 +16,7 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
   if (adminOnly && !isAdmin) return <Navigate to="/" replace />;
   if (!isAdmin && userStatus === "pending") return <Navigate to="/pending" replace />;
   if (!isAdmin && userStatus === "rejected") return <Navigate to="/rejected" replace />;
+  if (userStatus === "approved" && !userProfileData?.username) return <Navigate to="/setup-username" replace />;
 
   return children;
 }

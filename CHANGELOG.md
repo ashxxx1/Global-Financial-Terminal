@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-06-22
+
+### Added
+- **Integrated Premium Tailwind UI** — Replaced the legacy vanilla CSS interface with the advanced glassmorphism layout, featuring Tailwind v4 `@theme` integrations, LeftNav routing, and a clean TopBar shell with dynamic time zones.
+- **Interactive Globe & Country Details** — Migrated NASA Blue Marble rendering to `react-globe.gl` with Three.js sun tracking, trade arcs, and country sentiment highlight colors.
+- **Geopolitical news & Outlets** — Upgraded the details panel with economic metrics, strategic equities listings, 10 news channel outlets from `localNewsData.js`, and typewriter geopolitical summary animations.
+- **Real-Time Social Feed & Private Chat** — Unified the roster, direct messages (DMs) chat history, friend requests management, profile settings with Dicebear seeds presets, and community feed synced with active Firestore queries.
+- **Portfolio Center Convergence** — Wired the manual simulator and Alpaca API paper broker credentials persistence, dynamic SVG Pie charts, capital inputs, and AI-powered beta/risk reports.
+
+## [0.5.0] - 2026-06-22
+
+### Added
+- **Unified X-Style Social network** — Merged Forum and Community views into a single cohesive Social tab.
+- **Auto-Incrementing User IDs** — Integrated atomic Firestore counter transaction ensuring every user receives a unique `#ID <number>` sequentially next to their handle/name.
+- **Feed Interactions** — Added Firestore-backed Liking (double-like protection), Disliking, Reposting (copying text as a quoted post reference), and inline Comments replies.
+- **Media Attachments** — Allowed adding images and HTML5 video attachments in the composer.
+- **Clean Slate DB Feed** — Removed all mock posts, allowing the database to dynamically load real posts or show a welcoming empty state.
+
+### Changed
+- **Header Navigation Cleaned** — Removed the legacy Forum button, keeping the unified Social button.
+- **Legacy Redirects** — Added a wild-card route redirecting old `/forum/*` paths to `/social` automatically.
+
+## [0.4.0] - 2026-06-22
+
+### Added
+- **Gmail Auth & Username claims** — Integrated Google Sign-In with real-time uniqueness validation for custom usernames (@handles) on new registration onboarding.
+- **Custom Profile Pictures** — Enabled editing custom photoURLs in the profile card editor, with built-in Dicebear presets (Identicon, Bottts, Avataaars) generated on UID seeds.
+- **Global Profile Propagation** — Custom display names, handles, and avatars are fully propagated across the Header dropdown, Forum thread cards, Forum thread pages, sub-replies, and Social chats/posts.
+
+### Changed
+- **Bloomberg-Stripe Premium Aesthetic** — Upgraded the visual style: changed neon glows to flat deep steel-grey (`#0d0e15`), muted text (`#94a3b8`), and precise emerald green (`#10b981`).
+- **Outlines Overhaul** — Removed all glowing drop shadows and neon box-shadow highlights in favor of thin, sharp borders (`1px solid rgba(255,255,255,0.06)`).
+
+## [0.3.0] - 2026-06-22
+
+### Added
+- **Social Trading Hub** — Added trader profiles, user bios, direct direct-messages with active friends, community feed to publish updates, like updates, and reputation badges.
+- **Brokerage Sync Integration** — Added Alpaca, Interactive Brokers, and Robinhood connectivity. Supports direct sync of paper trade positions or manually allocating portfolios.
+- **AI Portfolio recommendations** — Real-time Beta calculation, tech sector concentration alert, and portfolio hedging advice.
+- **Geopolitical News Aggregator** — Connected 10 national news channels per country (US, IN, CN, DE, JP) and integrated an AI geopolitical risk typewriter summary inside the News Panel.
+- **Support for Virtual Category All** — Displays all forum threads across all categories combined under `/forum/all`.
+- **Trader Redirect Flow** — Clicking `$TICKER` inside the forum now automatically navigates back to the main terminal dashboard and opens the stock panel instantly.
+
+### Changed
+- **Version Tracking**: Updated active shell version to `v0.3.0-alpha`.
+- **UI Harmonization**: Removed neon colors in place of slate overlays and standardized panel borders for a more editorial human feel.
+
 ## [0.2.0] - 2026-06-22
 
 ### Added

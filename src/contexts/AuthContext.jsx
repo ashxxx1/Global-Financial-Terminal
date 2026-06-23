@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import {
   signInWithPopup,
@@ -11,6 +12,7 @@ import {
   updateDoc,
   serverTimestamp,
   onSnapshot,
+  runTransaction,
 } from "firebase/firestore";
 import { auth, db, googleProvider } from "../services/firebase";
 
@@ -20,6 +22,7 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userProfileData, setUserProfileData] = useState(null);
   const [userStatus, setUserStatus] = useState(null); // "pending" | "approved" | "rejected"
   const [loading, setLoading] = useState(true);
 
@@ -31,27 +34,64 @@ export function AuthProvider({ children }) {
     const user = result.user;
 
     const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
+    const counterRef = doc(db, "counters", "users");
 
-    if (!snap.exists()) {
-      // New user — create their document as pending
-      await setDoc(userRef, {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        status: user.email === ADMIN_EMAIL ? "approved" : "pending",
-        requestedAt: serverTimestamp(),
-        approvedAt: user.email === ADMIN_EMAIL ? serverTimestamp() : null,
-        approvedBy: user.email === ADMIN_EMAIL ? ADMIN_EMAIL : null,
-        lastLogin: serverTimestamp(),
-      });
-    } else {
-      // Existing user — update last login
-      await updateDoc(userRef, { lastLogin: serverTimestamp() });
-    }
+    await runTransaction(db, async (transaction) => {
+      const snap = await transaction.get(userRef);
+      if (!snap.exists()) {
+        // New user — create their document as pending
+        const counterSnap = await transaction.get(counterRef);
+        let nextId = 1;
+        if (counterSnap.exists()) {
+          nextId = (counterSnap.data().count || 0) + 1;
+        }
+        transaction.set(counterRef, { count: nextId });
+        transaction.set(userRef, {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          idNum: nextId,
+          photoURL: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
+          status: user.email === ADMIN_EMAIL ? "approved" : "pending",
+          requestedAt: serverTimestamp(),
+          approvedAt: user.email === ADMIN_EMAIL ? serverTimestamp() : null,
+          approvedBy: user.email === ADMIN_EMAIL ? ADMIN_EMAIL : null,
+          lastLogin: serverTimestamp(),
+          bio: "Institutional macro research & active swing trading.",
+          reputation: "Analyst",
+          friendsList: [],
+          friendRequests: []
+        });
+      } else {
+        // Existing user — update last login & ensure they have idNum
+        const data = snap.data();
+        const updateData = {
+          lastLogin: serverTimestamp(),
+          bio: data.bio || "Institutional macro research & active swing trading.",
+          reputation: data.reputation || "Analyst",
+          friendsList: data.friendsList || [],
+          friendRequests: data.friendRequests || []
+        };
+        if (data.idNum === undefined) {
+          const counterSnap = await transaction.get(counterRef);
+          let nextId = 1;
+          if (counterSnap.exists()) {
+            nextId = (counterSnap.data().count || 0) + 1;
+          }
+          transaction.set(counterRef, { count: nextId });
+          updateData.idNum = nextId;
+        }
+        transaction.update(userRef, updateData);
+      }
+    });
 
     return result;
+  }
+
+  async function updateUserProfile(fields) {
+    if (!currentUser) return;
+    const userRef = doc(db, "users", currentUser.uid);
+    await updateDoc(userRef, fields);
   }
 
   async function logout() {
@@ -65,13 +105,7 @@ export function AuthProvider({ children }) {
       if (!user) {
         setLoading(false);
         setUserStatus(null);
-        return;
-      }
-
-      // Admin is always approved
-      if (user.email === ADMIN_EMAIL) {
-        setUserStatus("approved");
-        setLoading(false);
+        setUserProfileData(null);
         return;
       }
 
@@ -79,7 +113,14 @@ export function AuthProvider({ children }) {
       const userRef = doc(db, "users", user.uid);
       const unsubFirestore = onSnapshot(userRef, (snap) => {
         if (snap.exists()) {
-          setUserStatus(snap.data().status);
+          const data = snap.data();
+          setUserStatus(data.status || (user.email === ADMIN_EMAIL ? "approved" : "pending"));
+          setUserProfileData(data);
+        } else {
+          setUserProfileData(null);
+          if (user.email === ADMIN_EMAIL) {
+            setUserStatus("approved");
+          }
         }
         setLoading(false);
       });
@@ -93,9 +134,11 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     userStatus,
+    userProfileData,
     isAdmin,
     loading,
     signInWithGoogle,
+    updateUserProfile,
     logout,
   };
 

@@ -8,7 +8,6 @@ import {
   doc,
   updateDoc,
   serverTimestamp,
-  getCountFromServer,
 } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { useAuth } from "../contexts/AuthContext";
@@ -190,16 +189,17 @@ export default function AdminPanel() {
   const [tab, setTab] = useState("pending");
   const [loading, setLoading] = useState(true);
 
-  if (!isAdmin) return <Navigate to="/" replace />;
-
   useEffect(() => {
+    if (!isAdmin) return;
     const q = query(collection(db, "users"), orderBy("requestedAt", "desc"));
     const unsub = onSnapshot(q, (snap) => {
       setUsers(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
       setLoading(false);
     });
     return () => unsub();
-  }, []);
+  }, [isAdmin]);
+
+  if (!isAdmin) return <Navigate to="/" replace />;
 
   async function approveUser(uid) {
     await updateDoc(doc(db, "users", uid), {

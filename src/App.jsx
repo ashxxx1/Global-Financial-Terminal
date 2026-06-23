@@ -3,11 +3,33 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import "./styles/index.css";
+import "./index.css";
 
-import Header from "./components/Header/Header";
-import Ticker from "./components/Ticker/Ticker";
-import Sidebar from "./components/Sidebar/Sidebar";
-import GlobeArea from "./components/Globe/GlobeArea";
+// Premium Integrated UI Components
+import { TopBar } from "./components/Terminal/TopBar";
+import { LeftNav } from "./components/Terminal/LeftNav";
+import { Sidebar } from "./components/Terminal/Sidebar";
+import { RightSidebar } from "./components/Terminal/RightSidebar";
+import { GlobeVis } from "./components/Terminal/GlobeVis";
+import { GlobalNews } from "./components/Terminal/GlobalNews";
+import { CountryPanel } from "./components/Terminal/CountryPanel";
+import { SocialModule } from "./components/Terminal/SocialModule";
+import PortfolioPanel from "./components/Terminal/PortfolioPanel";
+
+// Global Alerts & Stock panels
+import StockPanel from "./components/StockPanel/StockPanel";
+import "./components/StockPanel/StockPanel.css";
+import { AlertSystem, AlertPanel } from "./components/Alerts/AlertSystem";
+import CommandPalette from "./components/CommandPalette/CommandPalette";
+
+// Overlays
+import MacroHeatmap from "./components/MacroHeatmap/MacroHeatmap";
+import EconomicCalendar from "./components/EconomicCalendar/EconomicCalendar";
+import CorrelationMatrix from "./components/Correlation/CorrelationMatrix";
+import FXDashboard from "./components/FXDashboard/FXDashboard";
+
+// State
+import useTerminalStore from "./store/terminalStore";
 import LoginPage from "./pages/LoginPage";
 import PendingPage from "./pages/PendingPage";
 import RejectedPage from "./pages/RejectedPage";
@@ -85,13 +107,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <CommandPalette />
         <Routes>
           {/* Public */}
           <Route path="/login" element={<LoginPage />} />
-
-          {/* Auth required — pending/rejected go to status pages */}
           <Route path="/pending" element={<PendingPage />} />
           <Route path="/rejected" element={<RejectedPage />} />
+          <Route path="/setup-username" element={<SetupUsername />} />
 
           {/* Admin only */}
           <Route
@@ -103,7 +125,20 @@ export default function App() {
             }
           />
 
-          {/* Main terminal — requires approved status */}
+          {/* Forum — legacy redirect to social */}
+          <Route path="/forum/*" element={<Navigate to="/social" replace />} />
+          
+          {/* Social direct route */}
+          <Route
+            path="/social"
+            element={
+              <ProtectedRoute>
+                <TerminalApp />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Main terminal */}
           <Route
             path="/*"
             element={

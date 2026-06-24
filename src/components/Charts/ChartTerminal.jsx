@@ -207,7 +207,9 @@ export function ChartTerminal() {
   const [showHelp, setShowHelp] = useState(true);
   const [sidebarHover, setSidebarHover] = useState(false);
   const [simpleMode, setSimpleMode] = useState(true);
-  const [selectedSimpleCategory, setSelectedSimpleCategory] = useState("ind_it");
+  const [simpleCategory, setSimpleCategory] = useState("India");
+  const [simpleSidebarOpen, setSimpleSidebarOpen] = useState(true);
+  const [simpleSearch, setSimpleSearch] = useState("");
   const [searchTab, setSearchTab] = useState("All");
   const [searchTab2, setSearchTab2] = useState("All");
 
@@ -864,8 +866,174 @@ export function ChartTerminal() {
     );
   };
 
-  // ─── Render Simple Dashboard View ───────────────────────────────────────────
-  const renderSimpleDashboard = () => {
+  // ─── Render Simple Sidebar ──────────────────────────────────────────────────
+  const renderSimpleSidebar = () => {
+    // Categories: India, US, Crypto, Commodities, Forex
+    const categories = [
+      { id: "India",       label: "🇮🇳 India",       icon: "🇮🇳" },
+      { id: "USA",         label: "🇺🇸 US Stocks",   icon: "🇺🇸" },
+      { id: "Crypto",      label: "🪙 Crypto",      icon: "🪙" },
+      { id: "Indices",     label: "📈 Indices",     icon: "📈" },
+      { id: "Commodities", label: "🌻 Commodities", icon: "🌻" },
+      { id: "Forex",       label: "💱 Forex",       icon: "💱" }
+    ];
+
+    // Filter and group assets
+    const filtered = ASSET_CATALOG.filter(a => {
+      // First, filter by search term if active
+      if (simpleSearch) {
+        const q = simpleSearch.toLowerCase();
+        const matches = a.symbol.toLowerCase().includes(q) || a.name.toLowerCase().includes(q) || (a.sector && a.sector.toLowerCase().includes(q));
+        if (!matches) return false;
+      }
+      
+      // Category filter (if search is empty)
+      if (!simpleSearch) {
+        if (simpleCategory === "India") return a.type === "Indian Stock";
+        if (simpleCategory === "USA") return a.type === "Stock";
+        if (simpleCategory === "Crypto") return a.type === "Crypto";
+        if (simpleCategory === "Indices") return a.type === "Index";
+        if (simpleCategory === "Commodities") return a.type === "Commodity";
+        if (simpleCategory === "Forex") return a.type === "Forex";
+        return false;
+      }
+      return true;
+    });
+
+    // If Indian stocks or generic grouping, group by sector/type
+    const groups = {};
+    filtered.forEach(a => {
+      let gName = a.type;
+      if (a.type === "Indian Stock") {
+        gName = `🇮🇳 Indian - ${a.sector}`;
+      } else if (a.type === "Stock") {
+        gName = "🇺🇸 US Stocks";
+      } else if (a.type === "Crypto") {
+        gName = "🪙 Cryptocurrencies";
+      } else if (a.type === "Index") {
+        gName = "📈 Indices";
+      } else if (a.type === "Commodity") {
+        gName = "🌻 Commodities";
+      } else if (a.type === "Forex") {
+        gName = "💱 Forex Pairs";
+      }
+      
+      if (!groups[gName]) groups[gName] = [];
+      groups[gName].push(a);
+    });
+
+    return (
+      <div className="w-full md:w-80 bg-[#06091a] border-r border-[#1e293b] flex flex-col flex-shrink-0 z-20 overflow-hidden select-none">
+        
+        {/* Sidebar Search Bar */}
+        <div className="p-3 border-b border-[#1e293b] bg-[#080f1e] shrink-0">
+          <div className="flex items-center gap-2 bg-[#0c1220] border border-[#1e293b] rounded-xl px-3 py-2 focus-within:border-indigo-500/60 transition-all">
+            <Search size={15} className="text-slate-400 shrink-0" />
+            <input
+              type="text"
+              value={simpleSearch}
+              onChange={e => setSimpleSearch(e.target.value)}
+              placeholder="Search symbol, name, or sector..."
+              className="w-full bg-transparent text-xs text-white placeholder-slate-500 outline-none"
+            />
+            {simpleSearch && (
+              <button onClick={() => setSimpleSearch("")} className="text-slate-400 hover:text-white p-0.5 cursor-pointer shrink-0">
+                <X size={13} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Category Tabs (only shown when not searching) */}
+        {!simpleSearch && (
+          <div className="flex items-center gap-1.5 p-2 bg-[#080f1e] border-b border-[#1e293b] overflow-x-auto scrollbar-none shrink-0">
+            {categories.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSimpleCategory(cat.id)}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap cursor-pointer transition-all ${
+                  simpleCategory === cat.id
+                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Scrollable list of stocks */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-4">
+          {Object.keys(groups).length === 0 ? (
+            <div className="text-[11px] text-slate-500 text-center py-10 select-none">No matching assets found</div>
+          ) : (
+            Object.entries(groups).map(([groupName, assets]) => (
+              <div key={groupName} className="space-y-2">
+                <div className="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest px-1 py-0.5 select-none border-b border-[#1e293b] mt-1">
+                  {groupName}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  {assets.map(a => {
+                    const isSelected = symbol === a.symbol;
+                    const isIndianStock = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
+                    const curSym = isIndianStock ? "₹" : "$";
+                    
+                    // Get price and percent change for the stock
+                    const stockData = generateOHLCV(a.symbol, timeframe);
+                    const lastB = stockData[stockData.length - 1];
+                    const firstB = stockData[0];
+                    const chgPct = firstB && lastB ? pct(lastB.close, firstB.close) : "0.00";
+                    const isUpStock = parseFloat(chgPct) >= 0;
+
+                    let badgeClass = "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20";
+                    if (a.type === "Indian Stock") badgeClass = "bg-teal-500/10 text-teal-400 border border-teal-500/20";
+                    else if (a.type === "Crypto") badgeClass = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                    else if (a.type === "Index") badgeClass = "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20";
+                    else if (a.type === "Forex") badgeClass = "bg-violet-500/10 text-violet-400 border border-violet-500/20";
+                    else if (a.type === "Commodity") badgeClass = "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20";
+
+                    return (
+                      <button
+                        key={a.symbol}
+                        onClick={() => setSymbol(a.symbol)}
+                        className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer bg-[#0e1626]/40 border-white/5 hover:border-indigo-500/50 hover:bg-[#131d31] group shadow-sm ${
+                          isSelected ? "border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500/30 text-indigo-300" : "text-slate-300"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 select-none ${badgeClass}`}>
+                            {a.symbol.slice(0, 2)}
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[12px] font-mono font-bold text-white group-hover:text-indigo-400 transition-colors flex items-center gap-1">
+                              {a.symbol}
+                            </span>
+                            <span className="text-[10px] text-slate-500 truncate max-w-[130px]">{a.name}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end shrink-0">
+                          <span className="text-[12px] font-mono font-extrabold text-white">
+                            {curSym}{fmt(lastB?.close || a.basePrice, a.basePrice < 10 ? 4 : 2)}
+                          </span>
+                          <span className={`text-[9.5px] font-bold font-mono flex items-center gap-0.5 ${isUpStock ? "text-emerald-400" : "text-rose-400"}`}>
+                            {isUpStock ? "▲ +" : "▼ "}{chgPct}%
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // ─── Render Simple Chart Area ───────────────────────────────────────────────
+  const renderSimpleChartArea = () => {
     const activeAsset = ASSET_CATALOG.find(a => a.symbol === symbol) || ASSET_CATALOG[0];
     const activeRawData = generateOHLCV(symbol, timeframe);
 
@@ -905,423 +1073,334 @@ export function ChartTerminal() {
     const isIndian = activeAsset.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(activeAsset.symbol);
     const currency = isIndian ? "₹" : "$";
 
-    // Helper for benchmark cards
-    const getIndexData = (sym) => {
-      const asset = ASSET_CATALOG.find(a => a.symbol === sym);
-      const data = generateOHLCV(sym, timeframe);
-      const lastBar = data[data.length - 1];
-      const firstBar = data[0];
-      const chg = lastBar && firstBar ? lastBar.close - firstBar.close : 0;
-      const pctChg = firstBar ? pct(lastBar?.close, firstBar.close) : "0.00";
-      return {
-        symbol: sym,
-        name: asset?.name || sym,
-        price: lastBar?.close || asset?.basePrice || 0,
-        change: chg,
-        pctChange: pctChg,
-        isUp: chg >= 0
-      };
-    };
-
-    const benchmarks = [
-      getIndexData("NIFTY"),
-      getIndexData("SENSEX"),
-      getIndexData("BANKNIFTY"),
-      getIndexData("CNXIT")
-    ];
-
-    // Filter stocks for the explore grid
-    const currentCatObj = SIMPLE_CATEGORIES.find(c => c.id === selectedSimpleCategory) || SIMPLE_CATEGORIES[0];
-    const categoryStocks = ASSET_CATALOG.filter(currentCatObj.filter);
-
     return (
-      <div className="flex-1 flex flex-col min-h-0 bg-[#03060f] overflow-y-auto select-none p-4 md:p-6 space-y-6">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-[#03070e] overflow-hidden relative">
         
-        {/* Simple Mode Header */}
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-[#080f1e]/80 border border-[#1e293b] p-4 rounded-2xl backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/10">
-              <span className="text-xl">📈</span>
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-white tracking-wide">Market Center</h1>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">🔰 Simple Invest</span>
-                <span className="text-[10px] text-slate-500">Real-time simulation</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Search Button (Large and friendly) */}
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="flex-1 max-w-xl flex items-center gap-3 bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/50 rounded-xl px-4 py-2.5 cursor-pointer transition-all shadow-inner text-left text-slate-400 hover:text-slate-300"
-          >
-            <Search size={16} className="text-slate-400" />
-            <span className="text-xs font-semibold">🔍 Search Indian & Global Stocks (e.g. Reliance, TCS, Apple)...</span>
-          </button>
-
-          {/* Switch to Advanced */}
-          <button
-            onClick={() => {
-              setSimpleMode(false);
-              setChartType("candle");
-            }}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-500/20 hover:scale-[1.02] cursor-pointer flex items-center justify-center gap-2"
-          >
-            <span>⚙️ Switch to Pro Terminal</span>
-          </button>
-        </div>
-
-        {/* Index Cards Row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {benchmarks.map(idx => {
-            const isUpIdx = idx.isUp;
-            const glowClass = isUpIdx 
-              ? "hover:border-emerald-500/40 hover:shadow-[0_0_15px_rgba(16,185,129,0.15)]" 
-              : "hover:border-rose-500/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)]";
-            return (
-              <button
-                key={idx.symbol}
-                onClick={() => setSymbol(idx.symbol)}
-                className={`bg-[#080f1e]/40 border border-white/5 rounded-2xl p-3.5 text-left transition-all cursor-pointer ${glowClass} ${
-                  symbol === idx.symbol ? "border-indigo-500/50 bg-indigo-500/5" : ""
-                }`}
-              >
-                <div className="flex justify-between items-start mb-1">
-                  <span className="text-xs font-bold text-slate-400 truncate max-w-[120px]">{idx.name}</span>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${
-                    isUpIdx ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-rose-500/10 border-rose-500/20 text-rose-400"
-                  }`}>
-                    {isUpIdx ? "+" : ""}{idx.pctChange}%
-                  </span>
-                </div>
-                <div className="text-lg font-bold font-mono text-white">
-                  ₹{fmt(idx.price, 0)}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Main Chart + Info Column */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+        {/* Sub-header / Asset details and timeframe selector */}
+        <div className="flex items-center gap-4 px-5 py-3 border-b border-[#1e293b] bg-[#06091a] flex-shrink-0 flex-wrap z-20 justify-between">
           
-          {/* Active Ticker Info Card & Quick Chart Controls */}
-          <div className="xl:col-span-1 bg-[#080f1e]/60 border border-[#1e293b] p-5 rounded-2xl space-y-6">
-            
-            {/* Active Asset Summary Card */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className={`text-[9px] px-2 py-0.5 rounded-full border font-bold uppercase tracking-wider ${
-                  activeAsset.type === "Indian Stock" ? "text-teal-400 bg-teal-500/10 border-teal-500/20" : "text-indigo-400 bg-indigo-500/10 border-indigo-500/20"
-                }`}>
-                  {activeAsset.type === "Indian Stock" ? "🇮🇳 Indian Market" : activeAsset.type}
-                </span>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{activeAsset.sector || "Index"}</span>
-              </div>
-              <h2 className="text-xl font-bold text-white">{activeAsset.name}</h2>
-              <p className="text-sm font-mono text-slate-500 font-bold mt-0.5">{activeAsset.symbol}</p>
-
-              <div className="mt-4 flex items-baseline gap-2">
-                <span className="text-3xl font-extrabold font-mono text-white tracking-tight">
-                  {currency}{fmt(last?.close, activeAsset.basePrice < 10 ? 4 : 2)}
-                </span>
-                <span className={`text-sm font-bold font-mono ${isUp ? "text-emerald-400" : "text-rose-400"}`}>
-                  {isUp ? "▲" : "▼"} {isUp ? "+" : ""}{changePct}%
-                </span>
-              </div>
+          <div className="flex items-center gap-3">
+            {/* Round asset icon */}
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs select-none shrink-0 border ${
+              activeAsset.type === "Indian Stock" ? "bg-teal-500/10 text-teal-400 border-teal-500/20" :
+              activeAsset.type === "Crypto" ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+              activeAsset.type === "Index" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" :
+              activeAsset.type === "Forex" ? "bg-violet-500/10 text-violet-400 border-violet-500/20" :
+              activeAsset.type === "Commodity" ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" :
+              "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+            }`}>
+              {activeAsset.symbol.slice(0, 2)}
             </div>
 
-            {/* Quick Actions Panel */}
-            <div className="border-t border-[#1e293b] pt-5">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Chart Filters & Controls</h3>
-              <div className="flex flex-col gap-2">
-                {/* Volume Toggle */}
-                <button
-                  onClick={() => toggleIndicator("volume")}
-                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl border font-bold text-[11px] transition-all cursor-pointer ${
-                    isEnabled("volume")
-                      ? "bg-indigo-500/10 border-indigo-500/50 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.15)]"
-                      : "bg-[#0c1220]/40 border-white/5 text-slate-400 hover:text-white hover:border-[#1e293b]"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">📊 <span>Volume Bars</span></span>
-                  <span className="text-[9px] uppercase tracking-wider">{isEnabled("volume") ? "Shown" : "Hidden"}</span>
-                </button>
-
-                {/* SMA Toggle */}
-                <button
-                  onClick={() => toggleIndicator("sma20")}
-                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl border font-bold text-[11px] transition-all cursor-pointer ${
-                    isEnabled("sma20")
-                      ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
-                      : "bg-[#0c1220]/40 border-white/5 text-slate-400 hover:text-white hover:border-[#1e293b]"
-                  }`}
-                >
-                  <span className="flex items-center gap-2">📈 <span>20-Day Trend Line (MA)</span></span>
-                  <span className="text-[9px] uppercase tracking-wider">{isEnabled("sma20") ? "Active" : "Disabled"}</span>
-                </button>
-
-                {/* Compare Overlay Toggle */}
-                {compareSymbol ? (
-                  <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/40 text-amber-300 text-[11px] font-bold">
-                    <span className="flex items-center gap-2">⚖️ <span>Overlaying {compareSymbol}</span></span>
-                    <button 
-                      onClick={() => setCompareSymbol(null)} 
-                      className="text-amber-400 hover:text-rose-400 cursor-pointer font-bold px-1.5 py-0.5 rounded hover:bg-rose-500/10"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setCompareSearchOpen1(true)}
-                    className="flex items-center justify-between px-3 py-2.5 bg-[#0c1220]/40 border border-white/5 hover:border-amber-500/50 rounded-xl font-bold text-[11px] text-slate-400 hover:text-white transition-all cursor-pointer"
-                  >
-                    <span className="flex items-center gap-2">⚖️ <span>Compare with other Stock</span></span>
-                    <span className="text-[9px] uppercase tracking-wider text-amber-400">+ Compare</span>
-                  </button>
-                )}
+            {/* Asset Symbol & Name */}
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="text-[16px] font-mono font-black text-white">{activeAsset.symbol}</span>
+                <span className="text-[10px] uppercase px-1.5 py-0.2 rounded font-bold border bg-slate-500/10 text-slate-400 border-slate-700/30">
+                  {activeAsset.type === "Stock" ? "US Stock" : activeAsset.type}
+                </span>
               </div>
+              <span className="text-[11px] text-slate-400 font-medium">{activeAsset.name}</span>
             </div>
 
-            {/* Quick Chart Type (Simple Mode) */}
-            <div className="border-t border-[#1e293b] pt-5">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Chart Display Type</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: "area", label: "📈 Area fill", icon: "📊" },
-                  { id: "line", label: "📉 Line only", icon: "📈" }
-                ].map(typeObj => (
-                  <button
-                    key={typeObj.id}
-                    onClick={() => setChartType(typeObj.id)}
-                    className={`py-2 rounded-xl text-[10.5px] font-bold text-center border cursor-pointer transition-all ${
-                      chartType === typeObj.id 
-                        ? "bg-indigo-500 border-indigo-400 text-white" 
-                        : "bg-[#0c1220]/40 border-white/5 text-slate-400 hover:text-white hover:border-[#1e293b]"
-                    }`}
-                  >
-                    {typeObj.label}
-                  </button>
-                ))}
-              </div>
+            {/* Price Details - Large and beautiful */}
+            <div className="flex items-baseline gap-2 ml-4 pl-4 border-l border-white/10">
+              <span className="text-[20px] font-black font-mono text-white tracking-tight">
+                {currency}{fmt(last?.close, activeAsset.basePrice < 10 ? 4 : 2)}
+              </span>
+              <span className={`text-[12px] font-bold font-mono flex items-center gap-0.5 ${isUp ? "text-emerald-400":"text-rose-400"}`}>
+                {isUp ? "▲ +" : "▼ "}{currency}{fmt(Math.abs(change), activeAsset.basePrice < 10 ? 4 : 2)} ({isUp ? "+" : ""}{changePct}%)
+              </span>
             </div>
-
           </div>
 
-          {/* Simple Clean Price Chart Area */}
-          <div className="xl:col-span-2 bg-[#080f1e]/60 border border-[#1e293b] p-5 rounded-2xl flex flex-col h-[400px] md:h-[450px]">
-            
-            {/* Timeframe pill selector (Robinhood style) */}
-            <div className="flex items-center justify-between border-b border-[#1e293b] pb-3 mb-4 flex-wrap gap-2">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Price History Chart</span>
-              
-              <div className="flex items-center bg-black/40 border border-white/5 p-0.5 rounded-xl">
-                {TIMEFRAMES.map(tfObj => (
-                  <button
-                    key={tfObj.label}
-                    onClick={() => setTimeframe(tfObj.label)}
-                    className={`px-3 py-1 rounded-lg text-[10.5px] font-bold font-mono transition-all cursor-pointer ${
-                      timeframe === tfObj.label 
-                        ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/20" 
-                        : "text-slate-500 hover:text-white"
-                    }`}
-                  >
-                    {tfObj.label}
-                  </button>
-                ))}
-              </div>
+          <div className="flex items-center gap-4">
+            {/* Timeframe pill selector */}
+            <div className="flex items-center bg-[#0c1220] border border-[#1e293b] rounded-xl p-0.5 shadow-inner">
+              {TIMEFRAMES.map(tfObj => (
+                <button 
+                  key={tfObj.label} 
+                  onClick={() => setTimeframe(tfObj.label)}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold font-mono transition-all cursor-pointer ${
+                    timeframe === tfObj.label 
+                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30" 
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {tfObj.label}
+                </button>
+              ))}
             </div>
 
-            {/* Recharts responsive box */}
-            <div className="flex-1 min-h-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={mergedChartData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="colorArea" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={isUp ? "#10b981" : "#ef4444"} stopOpacity={0.25}/>
-                      <stop offset="95%" stopColor={isUp ? "#10b981" : "#ef4444"} stopOpacity={0.0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="2 4" stroke="#1e293b" vertical={false} />
-                  <XAxis 
-                    dataKey="time" 
-                    tickFormatter={t => fmtTime(t, timeframe)}
-                    tick={{ fill: "#475569", fontSize: 9 }} 
-                    axisLine={false} 
-                    tickLine={false} 
-                    minTickGap={40}
-                  />
-                  <YAxis 
-                    domain={[pMin, pMax]} 
-                    orientation="right" 
-                    width={40}
-                    tickFormatter={v => fmt(v, activeAsset.basePrice < 10 ? 4 : 1)}
-                    tick={{ fill: "#475569", fontSize: 9 }} 
-                    axisLine={false} 
-                    tickLine={false} 
-                  />
-                  {compareSymbol && (
-                    <YAxis 
-                      yAxisId="compare" 
-                      domain={['auto', 'auto']} 
-                      orientation="left" 
-                      width={45}
-                      tickFormatter={v => fmt(v, ASSET_CATALOG.find(a => a.symbol === compareSymbol)?.basePrice < 10 ? 4 : 1)}
-                      tick={{ fill: "#fbbf24", fontSize: 9 }} 
-                      axisLine={false} 
-                      tickLine={false} 
-                    />
-                  )}
-                  <Tooltip content={<ChartTooltip timeframe={timeframe} />} />
-
-                  {/* Indicators */}
-                  {isEnabled("sma20") && (
-                    <Line 
-                      type="monotone" 
-                      dataKey="sma20" 
-                      stroke="#10b981" 
-                      strokeWidth={1.5} 
-                      dot={false} 
-                      isAnimationActive={false} 
-                    />
-                  )}
-
-                  {/* Volume Overlay (drawn behind line) */}
-                  {isEnabled("volume") && (
-                    <Bar 
-                      dataKey="volume" 
-                      isAnimationActive={false}
-                      shape={(props) => {
-                        const { x, y, width, height, index } = props;
-                        const bar = mergedChartData[index];
-                        if (!bar) return null;
-                        const color = bar.close >= bar.open ? "#10b98115" : "#ef444415";
-                        const stroke = bar.close >= bar.open ? "#10b98125" : "#ef444425";
-                        // scale height to fit in bottom 15% of chart
-                        const maxH = 50;
-                        const scaledH = Math.min(height, maxH);
-                        const scaledY = y + (height - scaledH);
-                        return <rect x={x} y={scaledY} width={Math.max(width-1,1)} height={scaledH} fill={color} stroke={stroke} strokeWidth={0.5} />;
-                      }}
-                    />
-                  )}
-
-                  {/* Core Chart Series */}
-                  {chartType === "line" ? (
-                    <Line 
-                      type="monotone" 
-                      dataKey="close" 
-                      stroke={isUp ? "#10b981" : "#ef4444"}
-                      strokeWidth={2.5} 
-                      dot={false} 
-                      isAnimationActive={false} 
-                    />
-                  ) : (
-                    <Area 
-                      type="monotone" 
-                      dataKey="close" 
-                      stroke={isUp ? "#10b981" : "#ef4444"}
-                      fill="url(#colorArea)" 
-                      strokeWidth={2.5} 
-                      dot={false} 
-                      isAnimationActive={false} 
-                    />
-                  )}
-
-                  {/* Comparison Series */}
-                  {compareSymbol && (
-                    <Line 
-                      yAxisId="compare" 
-                      type="monotone" 
-                      dataKey="compareClose" 
-                      stroke="#fbbf24"
-                      strokeWidth={1.8} 
-                      dot={false} 
-                      isAnimationActive={false} 
-                    />
-                  )}
-                </ComposedChart>
-              </ResponsiveContainer>
+            {/* Chart Type Selector */}
+            <div className="flex items-center bg-[#0c1220] border border-[#1e293b] rounded-xl p-0.5 shadow-inner">
+              {[
+                { type: "area", label: "📈 Area" },
+                { type: "candle", label: "📊 Candles" },
+                { type: "line", label: "📉 Line" }
+              ].map(item => (
+                <button 
+                  key={item.type} 
+                  onClick={() => setChartType(item.type)}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                    chartType === item.type 
+                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30" 
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  <span>{item.label}</span>
+                </button>
+              ))}
             </div>
-            
-            {/* Disclaimer / info */}
-            <div className="text-[9px] text-slate-600 text-center mt-2 select-none border-t border-white/5 pt-2">
-              All prices represent simulated market walk data. For study/development only.
-            </div>
-
           </div>
+
         </div>
 
-        {/* Explore Categories: Grid of Stocks */}
-        <div className="bg-[#080f1e]/60 border border-[#1e293b] p-5 rounded-2xl space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1e293b] pb-3">
-            <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Explore Markets & Sectors</h2>
-              <p className="text-[10px] text-slate-500">Quick-browse all categorized Indian stocks, Crypto, Commodities & Forex</p>
-            </div>
-          </div>
+        {/* Main Chart Canvas Area */}
+        <div className="flex-1 min-h-0 select-none p-4 relative bg-[#03070e]">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={mergedChartData} margin={{ top: 10, right: 35, left: 0, bottom: 5 }}>
+              <defs>
+                <linearGradient id="simpleColorArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={isUp ? "#10b981" : "#ef4444"} stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor={isUp ? "#10b981" : "#ef4444"} stopOpacity={0.0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="2 4" stroke="#1e293b" vertical={false} />
+              <XAxis 
+                dataKey="time" 
+                tickFormatter={t => fmtTime(t, timeframe)}
+                tick={{ fill: "#475569", fontSize: 8 }} 
+                axisLine={false} 
+                tickLine={false} 
+                minTickGap={45}
+              />
+              <YAxis 
+                domain={[pMin, pMax]} 
+                orientation="right" 
+                width={40}
+                tickFormatter={v => fmt(v, activeAsset.basePrice < 10 ? 4 : 1)}
+                tick={{ fill: "#475569", fontSize: 8 }} 
+                axisLine={false} 
+                tickLine={false} 
+              />
+              {compareSymbol && (
+                <YAxis 
+                  yAxisId="compare" 
+                  domain={['auto', 'auto']} 
+                  orientation="left" 
+                  width={45}
+                  tickFormatter={v => fmt(v, ASSET_CATALOG.find(a => a.symbol === compareSymbol)?.basePrice < 10 ? 4 : 1)}
+                  tick={{ fill: "#fbbf24", fontSize: 8 }} 
+                  axisLine={false} 
+                  tickLine={false} 
+                />
+              )}
+              <Tooltip content={<ChartTooltip timeframe={timeframe} />} />
 
-          {/* Categories Tab Bar */}
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-none">
-            {SIMPLE_CATEGORIES.map(cat => (
+              {/* Indicators */}
+              {isEnabled("sma20") && (
+                <Line 
+                  type="monotone" 
+                  dataKey="sma20" 
+                  stroke="#10b981" 
+                  strokeWidth={1.2} 
+                  dot={false} 
+                  isAnimationActive={false} 
+                />
+              )}
+
+              {/* Volume Overlay */}
+              {isEnabled("volume") && (
+                <Bar 
+                  dataKey="volume" 
+                  isAnimationActive={false}
+                  shape={(props) => {
+                    const { x, y, width, height, index } = props;
+                    const bar = mergedChartData[index];
+                    if (!bar) return null;
+                    const color = bar.close >= bar.open ? "#10b98115" : "#ef444415";
+                    const stroke = bar.close >= bar.open ? "#10b98125" : "#ef444425";
+                    // scale height to fit in bottom 15% of chart
+                    const maxH = 50;
+                    const scaledH = Math.min(height, maxH);
+                    const scaledY = y + (height - scaledH);
+                    return <rect x={x} y={scaledY} width={Math.max(width-1,1)} height={scaledH} fill={color} stroke={stroke} strokeWidth={0.5} />;
+                  }}
+                />
+              )}
+
+              {/* Series */}
+              {chartType === "line" && (
+                <Line 
+                  type="monotone" 
+                  dataKey="close" 
+                  stroke={isUp ? "#10b981" : "#ef4444"}
+                  strokeWidth={2.0} 
+                  dot={false} 
+                  isAnimationActive={false} 
+                />
+              )}
+              {chartType === "area" && (
+                <Area 
+                  type="monotone" 
+                  dataKey="close" 
+                  stroke={isUp ? "#10b981" : "#ef4444"}
+                  fill="url(#simpleColorArea)" 
+                  strokeWidth={2.0} 
+                  dot={false} 
+                  isAnimationActive={false} 
+                />
+              )}
+              {chartType === "candle" && (
+                <Bar 
+                  dataKey="high" 
+                  fill="transparent" 
+                  isAnimationActive={false}
+                  shape={<CandlestickBar pMin={pMin} />}
+                />
+              )}
+
+              {/* Comparison Overlay */}
+              {compareSymbol && (
+                <Line 
+                  yAxisId="compare" 
+                  type="monotone" 
+                  dataKey="compareClose" 
+                  stroke="#fbbf24"
+                  strokeWidth={1.5} 
+                  dot={false} 
+                  isAnimationActive={false} 
+                />
+              )}
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Footer controls for Simple mode */}
+        <div className="flex items-center gap-6 px-5 py-3 border-t border-[#1e293b] bg-[#06091a] justify-between flex-wrap z-20 shrink-0">
+          
+          {/* Quick indicator checklists */}
+          <div className="flex items-center gap-5 select-none flex-wrap">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">INDICATORS:</span>
+            
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300 hover:text-white transition-colors">
+              <input
+                type="checkbox"
+                checked={!!isEnabled("volume")}
+                onChange={() => toggleIndicator("volume")}
+                className="w-4 h-4 rounded border-slate-700 bg-[#0c1220] text-indigo-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+              />
+              <span>📊 Show Volume Overlay</span>
+            </label>
+            
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300 hover:text-white transition-colors">
+              <input
+                type="checkbox"
+                checked={!!isEnabled("sma20")}
+                onChange={() => toggleIndicator("sma20")}
+                className="w-4 h-4 rounded border-slate-700 bg-[#0c1220] text-indigo-600 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+              />
+              <span>📈 Show MA Trend Line</span>
+            </label>
+
+            {/* Compare Overlay Toggle */}
+            <div className="h-4 w-px bg-white/10 mx-1" />
+            {compareSymbol ? (
+              <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-xl px-2.5 py-1 text-xs font-mono text-amber-400 shadow-sm animate-fade-in">
+                <span>⚖️ vs {compareSymbol}</span>
+                <button onClick={() => setCompareSymbol(null)} className="hover:text-rose-400 cursor-pointer ml-1 font-bold text-sm">×</button>
+              </div>
+            ) : (
               <button
-                key={cat.id}
-                onClick={() => setSelectedSimpleCategory(cat.id)}
-                className={`px-3.5 py-2 rounded-xl text-[10.5px] font-bold whitespace-nowrap cursor-pointer transition-all border shrink-0 ${
-                  selectedSimpleCategory === cat.id
-                    ? "bg-indigo-500 border-indigo-400 text-white shadow-lg shadow-indigo-500/20"
-                    : "bg-[#0c1220]/60 border-white/5 text-slate-400 hover:text-slate-200 hover:border-[#1e293b]"
-                }`}
+                onClick={() => setCompareSearchOpen1(true)}
+                className="text-xs font-bold text-slate-400 hover:text-white cursor-pointer bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/40 px-3 py-1.5 rounded-xl transition-all"
               >
-                {cat.label}
+                ➕ Compare Asset Overlay
               </button>
-            ))}
+            )}
           </div>
 
-          {/* Grid of Stocks */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {categoryStocks.map(a => {
-              const isSelected = symbol === a.symbol;
-              const isIndianStock = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
-              const curSym = isIndianStock ? "₹" : "$";
-              
-              // Get price for index or stock
-              const stockData = generateOHLCV(a.symbol, timeframe);
-              const lastB = stockData[stockData.length - 1];
-              const firstB = stockData[0];
-              const chgPct = firstB && lastB ? pct(lastB.close, firstB.close) : "0.00";
-              const isUpStock = parseFloat(chgPct) >= 0;
-
-              return (
-                <button
-                  key={a.symbol}
-                  onClick={() => setSymbol(a.symbol)}
-                  className={`flex flex-col p-3 rounded-xl border text-left transition-all cursor-pointer bg-[#0c1220]/40 border-white/5 hover:border-indigo-500/40 hover:bg-[#0c1220]/80 group ${
-                    isSelected ? "border-indigo-500/60 bg-indigo-500/5 ring-1 ring-indigo-500/30" : ""
-                  }`}
-                >
-                  <span className="text-[11px] font-mono font-bold text-white group-hover:text-indigo-400 transition-colors flex justify-between items-center w-full">
-                    <span>{a.symbol}</span>
-                    <span className={`text-[8.5px] font-bold ${isUpStock ? "text-emerald-500" : "text-rose-500"}`}>
-                      {isUpStock ? "+" : ""}{chgPct}%
-                    </span>
-                  </span>
-                  <span className="text-[9px] text-slate-500 truncate mt-0.5 mb-2.5 max-w-full font-medium">{a.name}</span>
-                  <span className="text-[11px] font-mono font-extrabold text-indigo-300 mt-auto">
-                    {curSym}{fmt(lastB?.close || a.basePrice, a.basePrice < 10 ? 4 : 2)}
-                  </span>
-                </button>
-              );
-            })}
+          {/* Right side mode controls */}
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 select-none">🔰 Simple Mode</span>
+            <button
+              onClick={() => {
+                setSimpleMode(false);
+                setChartType("candle");
+              }}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold cursor-pointer transition-all shadow-lg shadow-indigo-600/30"
+            >
+              ⚙️ Switch to Pro Terminal
+            </button>
           </div>
+
         </div>
 
       </div>
     );
   };
+
+  // ─── Render Simple Dashboard View ───────────────────────────────────────────
+  const renderSimpleDashboard = () => {
+    return (
+      <div className="flex-1 flex flex-col min-h-0 bg-[#03060f] select-none overflow-hidden relative">
+        
+        {/* Simple Mode Header */}
+        <div className="flex items-center gap-4 px-5 py-3 border-b border-[#1e293b] bg-[#06091a] flex-shrink-0 flex-wrap justify-between z-20">
+          <div className="flex items-center gap-3">
+            <span className="font-bold text-[12px] tracking-widest text-[#94a3b8] uppercase">Chart Terminal</span>
+            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 select-none">🔰 Simple Mode</span>
+            
+            <button
+              onClick={() => setSimpleSidebarOpen(prev => !prev)}
+              className={`flex items-center gap-2 ml-4 px-3 py-1.5 bg-[#0c1220] border hover:border-indigo-500/50 rounded-xl text-xs font-bold cursor-pointer transition-all ${
+                simpleSidebarOpen ? "border-indigo-500 text-indigo-400 bg-indigo-500/5 shadow-md shadow-indigo-500/5" : "border-[#1e293b] text-slate-400 hover:text-white"
+              }`}
+            >
+              📂 <span>{simpleSidebarOpen ? "Hide Markets" : "Browse Markets"}</span>
+            </button>
+          </div>
+          
+          {/* Quick Switch Watchlist */}
+          <div className="flex items-center gap-2 overflow-x-auto max-w-full md:max-w-none scrollbar-none shrink-0 py-0.5">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1 hidden sm:inline">QUICK WATCH:</span>
+            {watchlist.slice(0, 8).map(sym => {
+              const isSelected = symbol === sym;
+              return (
+                <button
+                  key={sym}
+                  onClick={() => setSymbol(sym)}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold font-mono transition-all border cursor-pointer ${
+                    isSelected ? 'bg-indigo-600/15 border-indigo-500 text-indigo-300 shadow-md' : 'border-[#1e293b] bg-[#0c1220]/40 text-slate-400 hover:text-white hover:border-slate-700'
+                  }`}
+                >
+                  {sym}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={() => {
+              setSimpleMode(false);
+              setChartType("candle");
+            }}
+            className="px-3.5 py-1.5 border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 rounded-full text-xs font-bold cursor-pointer transition-colors shadow-sm"
+          >
+            ⚙️ Pro Terminal
+          </button>
+        </div>
+
+        {/* Body content with category sidebar + chart */}
+        <div className="flex-1 flex min-h-0 overflow-hidden relative flex-col md:flex-row bg-[#03070e]">
+          {simpleSidebarOpen && renderSimpleSidebar()}
+          {renderSimpleChartArea()}
+        </div>
+
+      </div>
+    );
+  };;
 
   // ─── Render Sub-pane ────────────────────────────────────────────────────────
   const renderChartPane = (paneId) => {
@@ -1846,7 +1925,7 @@ export function ChartTerminal() {
 
   if (simpleMode) {
     return (
-      <div className="flex flex-col min-h-full md:h-full bg-[#040912] text-white pb-[56px] md:pb-0 overflow-y-auto select-none relative">
+      <div className="w-full h-full flex flex-col bg-[#040912] text-white pb-[56px] md:pb-0 overflow-hidden select-none relative">
         {renderSimpleDashboard()}
         
         {/* Modals rendered at root */}

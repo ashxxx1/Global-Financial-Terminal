@@ -104,7 +104,7 @@ export function TopBar({ currentView, onSetView }) {
               <div className="hidden md:flex flex-col font-mono text-[9px] leading-none text-left">
                 <span className="text-slate-300 font-bold truncate max-w-[80px]">{userProfileData?.displayName || "Trader"}</span>
                 {userProfileData?.idNum && (
-                  <span className="text-indigo-400 font-bold mt-0.5">#ID {userProfileData.idNum}</span>
+                  <span className="text-indigo-400 font-bold mt-0.5">#{userProfileData.idNum}</span>
                 )}
               </div>
             </div>

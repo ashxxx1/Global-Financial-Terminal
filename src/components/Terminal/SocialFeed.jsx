@@ -340,6 +340,7 @@ export function SocialFeed() {
                placeholder="Share analysis, charts, or macro thesis... Use $TICKER to tag assets." 
                className="w-full bg-transparent border-none text-[15px] outline-none placeholder:text-slate-500 font-medium py-1.5 resize-none"
                rows={2}
+               maxLength={280}
              />
           </div>
         </div>
@@ -364,14 +365,19 @@ export function SocialFeed() {
         )}
 
         <div className="flex justify-between items-center ml-13 mt-1">
-          <button 
-            type="button"
-            onClick={() => setShowMediaFields(!showMediaFields)}
-            className="flex items-center gap-1 text-[11px] font-bold text-indigo-400 hover:text-indigo-300 cursor-pointer"
-          >
-            <Image className="w-4 h-4" />
-            Add Media
-          </button>
+          <div className="flex items-center gap-4">
+            <button 
+              type="button"
+              onClick={() => setShowMediaFields(!showMediaFields)}
+              className="flex items-center gap-1 text-[11px] font-bold text-indigo-400 hover:text-indigo-300 cursor-pointer"
+            >
+              <Image className="w-4 h-4" />
+              Add Media
+            </button>
+            <span className={`text-[10px] font-mono ${inputText.length > 250 ? 'text-rose-400 font-bold' : 'text-slate-500'}`}>
+              {inputText.length}/280
+            </span>
+          </div>
           <button 
             type="submit"
             disabled={!inputText.trim() && !imageURL.trim() && !videoURL.trim()}
@@ -401,7 +407,7 @@ export function SocialFeed() {
                 <div className="flex-1 flex flex-col">
                   <div className="flex items-center gap-1.5 text-[14px]">
                     <span className="font-bold text-slate-100 hover:underline">{post.authorName}</span>
-                    {post.authorIdNum && <span className="text-[10px] text-emerald-400 font-mono">#ID {post.authorIdNum}</span>}
+                    {post.authorIdNum && <span className="text-[10px] text-emerald-400 font-mono font-bold">#{post.authorIdNum}</span>}
                     {post.authorUsername && <span className="text-slate-500 text-xs">@{post.authorUsername}</span>}
                     <span className="text-slate-600">·</span>
                     <span className="text-slate-500 text-xs">{post.time}</span>
@@ -435,7 +441,7 @@ export function SocialFeed() {
                              )}
                           </div>
                           <span className="font-bold text-slate-300">{post.repostedFromData.authorName}</span>
-                          {post.repostedFromData.authorIdNum && <span className="text-[9px] text-emerald-400">#ID {post.repostedFromData.authorIdNum}</span>}
+                          {post.repostedFromData.authorIdNum && <span className="text-[9px] text-emerald-400 font-bold">#{post.repostedFromData.authorIdNum}</span>}
                           {post.repostedFromData.authorUsername && <span className="text-slate-500 text-[10px]">@{post.repostedFromData.authorUsername}</span>}
                        </div>
                        <p className="text-xs text-slate-400 leading-normal">{post.repostedFromData.text}</p>
@@ -500,7 +506,7 @@ export function SocialFeed() {
                                 )}
                              </div>
                              <span className="font-bold text-slate-300">{comment.authorName}</span>
-                             {comment.authorIdNum && <span className="text-[8px] text-emerald-400">#ID {comment.authorIdNum}</span>}
+                             {comment.authorIdNum && <span className="text-[8px] text-emerald-400 font-bold">#{comment.authorIdNum}</span>}
                              {comment.authorUsername && <span className="text-slate-500 text-[9px]">@{comment.authorUsername}</span>}
                              <span className="text-slate-600 text-[9px] ml-auto">{comment.time}</span>
                           </div>

@@ -17,7 +17,7 @@ import {
   orderBy,
   serverTimestamp
 } from 'firebase/firestore';
-import { Hash, Mail, User, Plus, Compass, Check, Send, Image } from 'lucide-react';
+import { Hash, Mail, User, Plus, Compass, Check, Send, Image, X } from 'lucide-react';
 
 const INITIAL_MOCK_FRIENDS = [
   { uid: "uf1", name: "AlexTrade", avatar: "AT", role: "Senior Analyst", reputation: "Analyst", online: true },
@@ -74,11 +74,139 @@ export function SocialModule() {
     setProfileAvatar(userProfileData?.photoURL || currentUser?.photoURL || "");
   }
 
-  const servers = [
-    { id: 's1', name: 'Macro Trading', initials: 'MT', color: 'bg-emerald-600' },
-    { id: 's2', name: 'Crypto Alpha', initials: 'CA', color: 'bg-indigo-600' },
-    { id: 's3', name: 'Quant Network', initials: 'QN', color: 'bg-purple-600' },
-  ];
+  const [servers, setServers] = useState([]);
+  const [showCreateServerModal, setShowCreateServerModal] = useState(false);
+  const [newServerName, setNewServerName] = useState("");
+
+  const [channels, setChannels] = useState([]);
+  const [activeChannelId, setActiveChannelId] = useState(null);
+  const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
+  const [newChannelName, setNewChannelName] = useState("");
+
+  const [channelMessages, setChannelMessages] = useState([]);
+  const [channelInputText, setChannelInputText] = useState("");
+  const [channelImageURL, setChannelImageURL] = useState("");
+  const [showChannelImgInput, setShowChannelImgInput] = useState(false);
+  const channelBottomRef = useRef(null);
+
+  // Fetch servers in real-time
+  useEffect(() => {
+    const q = query(collection(db, "social_servers"), orderBy("createdAt", "asc"));
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const list = snap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setServers(list);
+      } else {
+        // Default seed servers if empty
+        setServers([
+          { id: 's1', name: 'Macro Trading', initials: 'MT', color: 'bg-emerald-600' },
+          { id: 's2', name: 'Crypto Alpha', initials: 'CA', color: 'bg-indigo-600' },
+          { id: 's3', name: 'Quant Network', initials: 'QN', color: 'bg-purple-600' },
+        ]);
+      }
+    }, (err) => {
+      console.warn("Firestore servers permission or read error, using offline seed:", err);
+      setServers([
+        { id: 's1', name: 'Macro Trading', initials: 'MT', color: 'bg-emerald-600' },
+        { id: 's2', name: 'Crypto Alpha', initials: 'CA', color: 'bg-indigo-600' },
+        { id: 's3', name: 'Quant Network', initials: 'QN', color: 'bg-purple-600' },
+      ]);
+    });
+    return () => unsub();
+  }, []);
+
+  // Fetch channels for the selected server
+  useEffect(() => {
+    if (activeWorkspace === 'home') {
+      setChannels([]);
+      setActiveChannelId(null);
+      return;
+    }
+    const q = query(
+      collection(db, "social_channels"),
+      where("serverId", "==", activeWorkspace),
+      orderBy("createdAt", "asc")
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const list = snap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setChannels(list);
+        if (!list.some(c => c.id === activeChannelId)) {
+          setActiveChannelId(list[0].id);
+        }
+      } else {
+        // Enforce default general channel
+        const defaultCh = { id: `ch_gen_${activeWorkspace}`, serverId: activeWorkspace, name: "general" };
+        setChannels([defaultCh]);
+        setActiveChannelId(defaultCh.id);
+      }
+    }, (err) => {
+      console.warn("Firestore channels read error, using offline channels:", err);
+      const defaultChList = [
+        { id: `ch_gen_${activeWorkspace}`, serverId: activeWorkspace, name: "general" },
+        { id: `ch_ideas_${activeWorkspace}`, serverId: activeWorkspace, name: "trade-ideas" },
+        { id: `ch_news_${activeWorkspace}`, serverId: activeWorkspace, name: "macro-news" }
+      ];
+      setChannels(defaultChList);
+      if (!defaultChList.some(c => c.id === activeChannelId)) {
+        setActiveChannelId(defaultChList[0].id);
+      }
+    });
+    return () => unsub();
+  }, [activeWorkspace]);
+
+  // Fetch group messages for the selected channel
+  useEffect(() => {
+    if (!activeChannelId) {
+      setChannelMessages([]);
+      return;
+    }
+    const q = query(
+      collection(db, "channel_messages"),
+      where("channelId", "==", activeChannelId),
+      orderBy("createdAt", "asc")
+    );
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const list = snap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          time: doc.data().createdAt ? new Date(doc.data().createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Sending..."
+        }));
+        setChannelMessages(list);
+      } else {
+        setChannelMessages([]);
+      }
+    }, (err) => {
+      console.warn("Firestore channel messages error, using local fallback:", err);
+      // Fallback initial conversations
+      setChannelMessages([
+        {
+          id: "m1",
+          senderName: "TraderJoe",
+          senderIdNum: 23,
+          senderAvatar: "https://api.dicebear.com/7.x/identicon/svg?seed=tj",
+          text: "Anyone looking at the yen right now? Intervention levels definitely hit.",
+          time: "10:42 AM"
+        },
+        {
+          id: "m2",
+          senderName: "QuantAlgo",
+          senderIdNum: 42,
+          senderAvatar: "https://api.dicebear.com/7.x/identicon/svg?seed=qa",
+          text: "Yeah, my flow models are showing massive BoJ selling. Booked some profit on USDJPY shorts.",
+          time: "10:45 AM"
+        }
+      ]);
+    });
+    return () => unsub();
+  }, [activeChannelId]);
 
   // Load Friends details in real time
   useEffect(() => {
@@ -315,6 +443,124 @@ export function SocialModule() {
     setIsEditingProfile(false);
   };
 
+  // Handle Server Creation
+  const handleCreateServer = async (e) => {
+    e.preventDefault();
+    if (!newServerName.trim()) return;
+    const serverName = newServerName.trim();
+    setNewServerName("");
+    setShowCreateServerModal(false);
+
+    // Compute initials
+    const words = serverName.split(/\s+/);
+    let initials = words.map(w => w[0]).join("").slice(0, 3).toUpperCase();
+    if (!initials) initials = serverName.slice(0, 2).toUpperCase();
+
+    const colors = ["bg-emerald-600", "bg-indigo-600", "bg-purple-600", "bg-rose-600", "bg-pink-600", "bg-amber-600", "bg-blue-600"];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+
+    if (currentUser) {
+      try {
+        const docRef = await addDoc(collection(db, "social_servers"), {
+          name: serverName,
+          initials,
+          color,
+          createdBy: currentUser.uid,
+          createdAt: serverTimestamp()
+        });
+
+        // Auto create general channel
+        await addDoc(collection(db, "social_channels"), {
+          serverId: docRef.id,
+          name: "general",
+          createdBy: currentUser.uid,
+          createdAt: serverTimestamp()
+        });
+      } catch (err) {
+        console.error("Failed to create server:", err);
+      }
+    } else {
+      // Local fallback
+      const localId = `s_${Date.now()}`;
+      const newS = { id: localId, name: serverName, initials, color };
+      setServers(prev => [...prev, newS]);
+      setChannels(prev => [...prev, { id: `ch_gen_${localId}`, serverId: localId, name: "general" }]);
+    }
+  };
+
+  // Handle Channel Creation
+  const handleCreateChannel = async (e) => {
+    e.preventDefault();
+    if (!newChannelName.trim()) return;
+    const channelName = newChannelName.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-');
+    setNewChannelName("");
+    setShowCreateChannelModal(false);
+
+    if (currentUser && activeWorkspace !== 'home') {
+      try {
+        await addDoc(collection(db, "social_channels"), {
+          serverId: activeWorkspace,
+          name: channelName,
+          createdBy: currentUser.uid,
+          createdAt: serverTimestamp()
+        });
+      } catch (err) {
+        console.error("Failed to create channel:", err);
+      }
+    } else {
+      // Local fallback
+      const localCh = { id: `ch_${Date.now()}`, serverId: activeWorkspace, name: channelName };
+      setChannels(prev => [...prev, localCh]);
+    }
+  };
+
+  // Handle Send Channel Message
+  const handleSendChannelMessage = async (e) => {
+    e.preventDefault();
+    if (!channelInputText.trim() && !channelImageURL.trim()) return;
+
+    const text = channelInputText;
+    const img = channelImageURL;
+    setChannelInputText("");
+    setChannelImageURL("");
+    setShowChannelImgInput(false);
+
+    if (currentUser && activeChannelId) {
+      try {
+        await addDoc(collection(db, "channel_messages"), {
+          channelId: activeChannelId,
+          serverId: activeWorkspace,
+          senderId: currentUser.uid,
+          senderName: userProfileData?.displayName || currentUser.displayName || "Trader",
+          senderIdNum: userProfileData?.idNum || null,
+          senderAvatar: userProfileData?.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+          text,
+          imageURL: img || null,
+          createdAt: serverTimestamp()
+        });
+      } catch (err) {
+        console.error("Channel message send failed:", err);
+      }
+    } else {
+      // Local fallback message
+      const fallbackMsg = {
+        id: `m_${Date.now()}`,
+        senderName: userProfileData?.displayName || "Trader",
+        senderIdNum: userProfileData?.idNum || 1,
+        senderAvatar: userProfileData?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=fallback`,
+        text,
+        imageURL: img || null,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChannelMessages(prev => [...prev, fallbackMsg]);
+    }
+  };
+
+  // Scroll to bottom on channel messages update
+  useEffect(() => {
+    channelBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [channelMessages]);
+
   return (
     <div className="flex h-full w-full bg-[#020617] text-slate-200">
       {/* Server List Column */}
@@ -322,6 +568,7 @@ export function SocialModule() {
         <button 
           onClick={() => setActiveWorkspace('home')}
           className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all cursor-pointer ${activeWorkspace === 'home' ? 'bg-indigo-500 text-white rounded-xl' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:rounded-xl'}`}
+          title="Social Core Feed"
         >
           <Hash className="w-6 h-6" />
         </button>
@@ -331,14 +578,19 @@ export function SocialModule() {
             key={s.id}
             onClick={() => setActiveWorkspace(s.id)}
             className={`w-12 h-12 flex items-center justify-center font-bold text-lg transition-all cursor-pointer ${activeWorkspace === s.id ? `${s.color} text-white justify-center rounded-xl` : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:rounded-xl rounded-2xl'}`}
+            title={s.name}
           >
             {s.initials}
           </button>
         ))}
-        <button className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-slate-800 text-emerald-400 hover:bg-emerald-500 hover:text-white hover:rounded-xl group cursor-pointer">
+        <button 
+          onClick={() => setShowCreateServerModal(true)}
+          className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-slate-800 text-emerald-400 hover:bg-emerald-500 hover:text-white hover:rounded-xl group cursor-pointer"
+          title="Create a Server"
+        >
           <Plus className="w-6 h-6" />
         </button>
-        <button className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-slate-800 text-indigo-400 hover:bg-indigo-500 hover:text-white hover:rounded-xl group cursor-pointer">
+        <button className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-slate-800 text-indigo-400 hover:bg-indigo-500 hover:text-white hover:rounded-xl group cursor-pointer" title="Discover Public Servers">
           <Compass className="w-6 h-6" />
         </button>
       </div>
@@ -396,23 +648,38 @@ export function SocialModule() {
         </div>
       ) : (
         <div className="w-[240px] shrink-0 border-r border-white/5 bg-[#070b14] flex flex-col">
-          <div className="p-4 border-b border-white/5 shadow-md font-bold text-[15px] hover:bg-white/5 cursor-pointer transition-colors text-slate-200">
-            {servers.find(s => s.id === activeWorkspace)?.name}
+          <div className="p-4 border-b border-white/5 shadow-md font-bold text-[13px] hover:bg-white/5 cursor-pointer transition-colors text-slate-200 uppercase tracking-wider">
+            {servers.find(s => s.id === activeWorkspace)?.name || "Active Server"}
           </div>
           <div className="p-3 flex flex-col gap-1">
-            <div className="text-[11px] font-bold tracking-widest text-slate-500 uppercase px-2 mb-1">Text Channels</div>
-            <button className="flex items-center gap-2 px-2 py-1.5 rounded bg-white/10 text-slate-200 font-medium cursor-pointer">
-              <Hash className="w-4 h-4 text-slate-400" />
-              <span>general</span>
-            </button>
-            <button className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-slate-200 font-medium cursor-pointer">
-              <Hash className="w-4 h-4 text-slate-400" />
-              <span>trade-ideas</span>
-            </button>
-            <button className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-white/5 text-slate-400 hover:text-slate-200 font-medium cursor-pointer">
-              <Hash className="w-4 h-4 text-slate-400" />
-              <span>macro-news</span>
-            </button>
+            <div className="flex justify-between items-center px-2 mb-2">
+              <div className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">Text Channels</div>
+              <button 
+                onClick={() => setShowCreateChannelModal(true)} 
+                className="text-slate-500 hover:text-white cursor-pointer transition-colors"
+                title="Create Channel"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-1 overflow-y-auto max-h-[400px]">
+              {channels.map(c => {
+                const active = activeChannelId === c.id;
+                return (
+                  <button 
+                    key={c.id}
+                    onClick={() => setActiveChannelId(c.id)}
+                    className={`flex items-center gap-2 px-2.5 py-2 rounded-lg transition-all text-left w-full cursor-pointer ${active ? 'bg-white/10 text-slate-200 font-bold' : 'hover:bg-white/5 text-slate-400 hover:text-slate-200 font-medium'}`}
+                  >
+                    <Hash className="w-4 h-4 text-slate-500" />
+                    <span className="text-xs">{c.name}</span>
+                  </button>
+                );
+              })}
+              {channels.length === 0 && (
+                <div className="text-[10px] text-slate-600 font-mono italic px-2">No channels.</div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -469,7 +736,9 @@ export function SocialModule() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                    <div className="flex justify-between items-baseline">
-                                      <span className="font-bold text-slate-200 text-xs truncate">{friend.name}</span>
+                                      <span className="font-bold text-slate-200 text-xs truncate">
+                                        {friend.name} {friend.idNum && <span className="text-[10px] text-emerald-400 font-mono font-bold">#{friend.idNum}</span>}
+                                      </span>
                                       {friend.online && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />}
                                    </div>
                                    <p className="text-[10px] text-slate-500 truncate mt-0.5">{friend.role}</p>
@@ -493,7 +762,9 @@ export function SocialModule() {
                                 )}
                               </div>
                               <div>
-                                 <h3 className="font-bold text-slate-200 text-sm">{activeFriend.name}</h3>
+                                 <h3 className="font-bold text-slate-200 text-sm">
+                                   {activeFriend.name} {activeFriend.idNum && <span className="text-[11px] text-emerald-400 font-mono font-bold">#{activeFriend.idNum}</span>}
+                                 </h3>
                                  <p className={`text-[10px] font-bold ${activeFriend.online ? 'text-emerald-400' : 'text-slate-500'}`}>{activeFriend.online ? 'Online' : 'Offline'}</p>
                               </div>
                               <span className="text-[9px] font-mono font-bold text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded bg-indigo-500/10 ml-auto">{activeFriend.reputation}</span>
@@ -650,8 +921,8 @@ export function SocialModule() {
                         ) : (
                           <div className="mt-16">
                              <h2 className="text-xl font-bold flex items-center gap-2">
-                                {profileName} 
-                                {userProfileData?.idNum && <span className="text-[10px] text-emerald-400 font-mono">#ID {userProfileData.idNum}</span>}
+                                 {profileName} 
+                                 {userProfileData?.idNum && <span className="text-[10px] text-emerald-400 font-mono font-bold">#{userProfileData.idNum}</span>}
                              </h2>
                              <p className="text-slate-400 text-xs mb-3">@{userProfileData?.username || 'analyst_node'}</p>
                              <div className="text-xs font-mono font-bold text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded bg-indigo-500/10 inline-block mb-4">{profileRep}</div>
@@ -712,63 +983,209 @@ export function SocialModule() {
             </div>
           </div>
         ) : (
-          /* Sub-servers channels visual view */
+          /* Dynamic sub-servers channels visual view */
           <>
              <div className="flex-1 flex flex-col border-r border-white/5 bg-[#020617]">
-                <div className="h-14 border-b border-white/5 px-4 flex items-center gap-2 shadow-sm shrink-0">
+                <div className="h-14 border-b border-white/5 px-6 flex items-center gap-2 shadow-sm shrink-0">
                    <Hash className="w-5 h-5 text-slate-400" />
-                   <span className="font-bold text-slate-200 text-sm">general</span>
+                   <span className="font-bold text-slate-200 text-sm">
+                     {channels.find(c => c.id === activeChannelId)?.name || "general"}
+                   </span>
                 </div>
-                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
-                   <div className="flex gap-4 group">
-                      <div className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold shrink-0 text-xs text-white">T</div>
-                      <div className="flex flex-col">
-                         <div className="flex items-baseline gap-2">
-                            <span className="font-bold text-emerald-400 text-xs">TraderJoe</span>
-                            <span className="text-[9px] text-slate-500">Today at 10:42 AM</span>
+                <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+                   {channelMessages.map(msg => (
+                      <div key={msg.id} className="flex gap-4 group">
+                         <div className="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-bold shrink-0 text-xs text-white overflow-hidden">
+                            {msg.senderAvatar && (msg.senderAvatar.startsWith("http") || msg.senderAvatar.includes("/")) ? (
+                              <img src={msg.senderAvatar} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <span>{msg.senderAvatar || (msg.senderName || "T")[0]}</span>
+                            )}
                          </div>
-                         <p className="text-[#e2e8f0] leading-relaxed mt-0.5 text-sm">Anyone looking at the yen right now? Intervention levels definitely hit.</p>
-                      </div>
-                   </div>
-                   <div className="flex gap-4 group">
-                      <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center font-bold shrink-0 text-xs text-white">Q</div>
-                      <div className="flex flex-col">
-                         <div className="flex items-baseline gap-2">
-                            <span className="font-bold text-indigo-400 text-xs">QuantAlgo</span>
-                            <span className="text-[9px] text-slate-500">Today at 10:45 AM</span>
+                         <div className="flex flex-col">
+                            <div className="flex items-baseline gap-2">
+                               <span className="font-bold text-indigo-400 text-xs">
+                                 {msg.senderName}
+                               </span>
+                               {msg.senderIdNum && (
+                                 <span className="text-[10px] text-emerald-400 font-mono font-bold">
+                                   #{msg.senderIdNum}
+                                 </span>
+                               )}
+                               <span className="text-[9px] text-slate-500">{msg.time}</span>
+                            </div>
+                            {msg.imageURL && (
+                              <div className="rounded-lg overflow-hidden border border-white/5 max-h-[200px] mt-2 mb-1 max-w-md">
+                                 <img src={msg.imageURL} alt="Shared attachment" className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                            <p className="text-[#e2e8f0] leading-relaxed mt-1 text-sm">{msg.text}</p>
                          </div>
-                         <p className="text-[#e2e8f0] leading-relaxed mt-0.5 text-sm">Yeah, my flow models are showing massive BoJ selling. Booked some profit on USDJPY shorts.</p>
                       </div>
-                   </div>
+                   ))}
+                   {channelMessages.length === 0 && (
+                      <div className="flex-1 flex flex-col items-center justify-center text-slate-600 font-mono text-xs p-6 text-center">
+                         <span>📡</span>
+                         <p className="mt-2">No messages in #{channels.find(c => c.id === activeChannelId)?.name || 'general'}. Start the conversation!</p>
+                      </div>
+                   )}
+                   <div ref={channelBottomRef} />
                 </div>
-                <div className="p-4 shrink-0">
-                   <div className="bg-white/5 border border-white/5 rounded-lg px-4 py-3 flex items-center shadow-inner">
-                      <Plus className="w-5 h-5 text-slate-400 mr-3 cursor-pointer hover:text-white transition-colors" />
-                      <input type="text" placeholder="Message #general" className="bg-transparent flex-1 outline-none font-medium placeholder:text-slate-500 text-slate-200 text-xs" />
+                <form onSubmit={handleSendChannelMessage} className="p-4 shrink-0 flex flex-col gap-2 border-t border-white/5 bg-black/20">
+                   {showChannelImgInput && (
+                      <div className="bg-white/5 border border-white/10 rounded px-3 py-1 flex items-center">
+                         <input 
+                           type="text" 
+                           value={channelImageURL}
+                           onChange={(e) => setChannelImageURL(e.target.value)}
+                           placeholder="Paste image link..." 
+                           className="bg-transparent border-none outline-none text-xs w-full text-slate-200" 
+                         />
+                      </div>
+                   )}
+                   <div className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 flex items-center shadow-inner">
+                      <button 
+                        type="button" 
+                        onClick={() => setShowChannelImgInput(!showChannelImgInput)} 
+                        className={`p-1.5 mr-2 rounded hover:bg-white/5 cursor-pointer text-slate-400 hover:text-white ${showChannelImgInput ? 'text-indigo-400' : ''}`}
+                      >
+                         <Image className="w-4 h-4" />
+                      </button>
+                      <input 
+                        type="text" 
+                        value={channelInputText}
+                        onChange={(e) => setChannelInputText(e.target.value)}
+                        placeholder={`Message #${channels.find(c => c.id === activeChannelId)?.name || 'general'}`} 
+                        className="bg-transparent flex-1 outline-none font-medium placeholder:text-slate-500 text-slate-200 text-xs" 
+                      />
+                      <button type="submit" className="text-indigo-400 hover:text-white cursor-pointer ml-2">
+                         <Send className="w-4 h-4" />
+                      </button>
                    </div>
-                </div>
+                </form>
              </div>
              {/* Channels active roster members list */}
              <div className="w-[200px] shrink-0 bg-[#070b14] hidden xl:flex flex-col p-4">
                 <div className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-2">Online Members</div>
+                
+                {/* Current User */}
+                <div className="flex items-center gap-3 py-1.5 cursor-pointer hover:bg-white/5 rounded px-2 -mx-2 transition-colors">
+                   <div className="relative">
+                      <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white overflow-hidden">
+                        {userProfileData?.photoURL ? (
+                          <img src={userProfileData.photoURL} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <span>ME</span>
+                        )}
+                      </div>
+                      <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-[#070b14]" />
+                   </div>
+                   <div className="flex flex-col">
+                     <span className="text-indigo-400 font-bold text-xs">
+                       {userProfileData?.displayName || "Trader"}
+                     </span>
+                     {userProfileData?.idNum && (
+                       <span className="text-[8px] text-emerald-400 font-mono">#{userProfileData.idNum}</span>
+                     )}
+                   </div>
+                </div>
+
+                {/* Simulated Members */}
                 <div className="flex items-center gap-3 py-1.5 cursor-pointer hover:bg-white/5 rounded px-2 -mx-2 transition-colors">
                    <div className="relative">
                       <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-xs text-white">T</div>
                       <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-[#070b14]" />
                    </div>
-                   <span className="text-emerald-400 font-bold text-xs">TraderJoe</span>
+                   <div className="flex flex-col">
+                      <span className="text-emerald-400 font-bold text-xs">TraderJoe</span>
+                      <span className="text-[8px] text-emerald-400 font-mono">#23</span>
+                   </div>
                 </div>
                 <div className="flex items-center gap-3 py-1.5 cursor-pointer hover:bg-white/5 rounded px-2 -mx-2 transition-colors">
                    <div className="relative">
                       <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white">Q</div>
                       <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-[#070b14]" />
                    </div>
-                   <span className="text-indigo-400 font-bold text-xs">QuantAlgo</span>
+                   <div className="flex flex-col">
+                      <span className="text-indigo-400 font-bold text-xs">QuantAlgo</span>
+                      <span className="text-[8px] text-emerald-400 font-mono">#42</span>
+                   </div>
                 </div>
              </div>
           </>
         )}
       </div>
+
+      {/* Create Server Modal */}
+      {showCreateServerModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-[#080f1e] border border-[#1e293b] rounded-xl p-6 shadow-2xl relative">
+            <button 
+              onClick={() => setShowCreateServerModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-base font-bold text-slate-200 mb-4 uppercase tracking-wider">Create a Server</h3>
+            <form onSubmit={handleCreateServer} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Server Name</label>
+                <input 
+                  type="text" 
+                  value={newServerName}
+                  onChange={(e) => setNewServerName(e.target.value)}
+                  placeholder="e.g. Quantitative Syndicate"
+                  className="bg-black/40 border border-[#1e293b] rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 outline-none"
+                  required
+                />
+              </div>
+              <button 
+                type="submit" 
+                className="mt-2 w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-bold text-xs transition-colors cursor-pointer shadow-[0_0_10px_rgba(99,102,241,0.3)]"
+              >
+                Create
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Create Channel Modal */}
+      {showCreateChannelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-sm bg-[#080f1e] border border-[#1e293b] rounded-xl p-6 shadow-2xl relative">
+            <button 
+              onClick={() => setShowCreateChannelModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-base font-bold text-slate-200 mb-4 uppercase tracking-wider">Create Text Channel</h3>
+            <form onSubmit={handleCreateChannel} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Channel Name</label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-slate-500 font-bold text-sm">#</span>
+                  <input 
+                    type="text" 
+                    value={newChannelName}
+                    onChange={(e) => setNewChannelName(e.target.value)}
+                    placeholder="e.g. options-alpha"
+                    className="w-full bg-black/40 border border-[#1e293b] rounded-lg pl-7 pr-3 py-2 text-xs text-slate-200 focus:border-indigo-500 outline-none"
+                    required
+                  />
+                </div>
+              </div>
+              <button 
+                type="submit" 
+                className="mt-2 w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-bold text-xs transition-colors cursor-pointer shadow-[0_0_10px_rgba(99,102,241,0.3)]"
+              >
+                Create
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

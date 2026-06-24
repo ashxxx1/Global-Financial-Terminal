@@ -188,12 +188,17 @@ export function ChartTerminal() {
   const searchRef2 = useRef(null);
 
   const [textInput, setTextInput] = useState({ visible: false, x: 0, y: 0, paneId: null });
+  const [showHelp, setShowHelp] = useState(true);
+  const [sidebarHover, setSidebarHover] = useState(false);
+  const [simpleMode, setSimpleMode] = useState(true);
+  const [searchTab, setSearchTab] = useState("All");
+  const [searchTab2, setSearchTab2] = useState("All");
 
   const isEnabled = (id) => indicators.find(i => i.id === id)?.enabled;
   const getColor  = (id) => indicatorSettings[id]?.color || "#fff";
 
   // Watchlist (pinned quick-access)
-  const watchlist = ["AAPL","MSFT","NVDA","BTC","ETH","SPX","EURUSD","GOLD","OIL","TSLA"];
+  const watchlist = ["NIFTY", "RELIANCE", "TCS", "HDFCBANK", "AAPL", "BTC", "GOLD", "EURUSD"];
 
   // Toggle indicator
   const toggleIndicator = useCallback((id) => {
@@ -426,8 +431,10 @@ export function ChartTerminal() {
     const lastBar = activeData[activeData.length - 1];
     if (drawTool === "hline") {
       setDrawingsList(prev => [...prev, { id: Date.now(), type: "hline", y1: pos.y, price: lastBar?.close || 0 }]);
+      setDrawTool("cursor");
     } else if (drawTool === "vline") {
       setDrawingsList(prev => [...prev, { id: Date.now(), type: "vline", x1: pos.x }]);
+      setDrawTool("cursor");
     } else if (drawTool === "text") {
       setTextInput({ visible: true, x: pos.x, y: pos.y, paneId: chartNum });
     } else {
@@ -508,6 +515,7 @@ export function ChartTerminal() {
         setDrawings2(prev => [...prev, drawing]);
       }
       setDrawing(null);
+      setDrawTool("cursor");
     }
   };
 
@@ -538,6 +546,7 @@ export function ChartTerminal() {
         setDrawings2(prev => [...prev, drawing]);
       }
       setDrawing(null);
+      setDrawTool("cursor");
     }
   };
 
@@ -650,13 +659,60 @@ export function ChartTerminal() {
       : subPanels.length === 1 ? 68
       : subPanels.length === 2 ? 54 : 44;
 
-    // Filtered search results
-    const searchResults = !activeSearch ? ASSET_CATALOG.slice(0, 20) : ASSET_CATALOG.filter(a =>
-      a.symbol.toLowerCase().includes(activeSearch.toLowerCase()) || a.name.toLowerCase().includes(activeSearch.toLowerCase())
-    ).slice(0, 12);
+    // Upgraded Search tab and group filtering
+    const activeSearchTab = isChart1 ? searchTab : searchTab2;
+    const setActiveSearchTab = isChart1 ? setSearchTab : setSearchTab2;
+
+    const filteredAssets = ASSET_CATALOG.filter(a => {
+      // Tab filter
+      if (activeSearchTab === "India" && a.type !== "Indian Stock") return false;
+      if (activeSearchTab === "USA" && a.type !== "Stock") return false;
+      if (activeSearchTab === "Crypto" && a.type !== "Crypto") return false;
+      if (activeSearchTab === "Indices" && a.type !== "Index") return false;
+      if (activeSearchTab === "Commodities" && a.type !== "Commodity") return false;
+      if (activeSearchTab === "Forex" && a.type !== "Forex") return false;
+
+      // Search text filter
+      if (activeSearch) {
+        const q = activeSearch.toLowerCase();
+        return a.symbol.toLowerCase().includes(q) || a.name.toLowerCase().includes(q);
+      }
+      return true;
+    });
+
+    // Group assets for rendering
+    const searchGroups = {};
+    filteredAssets.forEach(a => {
+      let gName = "";
+      if (a.type === "Indian Stock") {
+        gName = `🇮🇳 Indian - ${a.sector}`;
+      } else if (a.type === "Stock") {
+        gName = "🇺🇸 US Stocks";
+      } else if (a.type === "Crypto") {
+        gName = "🪙 Cryptocurrencies";
+      } else if (a.type === "Index") {
+        if (["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol)) {
+          gName = "🇮🇳 Indian Indices";
+        } else {
+          gName = "📈 Global Indices";
+        }
+      } else if (a.type === "Forex") {
+        gName = "💱 Forex Pairs";
+      } else if (a.type === "Commodity") {
+        gName = "🌻 Commodities";
+      } else {
+        gName = "Other";
+      }
+
+      if (!searchGroups[gName]) {
+        searchGroups[gName] = [];
+      }
+      searchGroups[gName].push(a);
+    });
 
     const typeColor = {
       Stock: "text-indigo-400 bg-indigo-500/10 border-indigo-500/30",
+      "Indian Stock": "text-teal-400 bg-teal-500/10 border-teal-500/30",
       Crypto: "text-amber-400 bg-amber-500/10 border-amber-500/30",
       Index: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30",
       Forex: "text-violet-400 bg-violet-500/10 border-violet-500/30",
@@ -682,34 +738,106 @@ export function ChartTerminal() {
             </button>
 
             {activeSearchOpen && (
-              <div className="absolute top-full left-0 mt-1 w-[260px] bg-[#080f1e] border border-[#1e293b] rounded-xl shadow-2xl z-50 overflow-hidden">
-                <div className="flex items-center gap-2 px-3 py-1.5 border-b border-white/5">
+              <div className="absolute top-full left-0 mt-1 w-[320px] bg-[#080f1e] border border-[#1e293b] rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col">
+                {/* Tabs */}
+                <div className="flex gap-1 p-1 bg-[#050a14] border-b border-white/5 overflow-x-auto scrollbar-none">
+                  {["All", "India", "USA", "Crypto", "Indices", "Commodities", "Forex"].map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveSearchTab(tab)}
+                      className={`px-2 py-0.8 rounded text-[9.5px] font-bold whitespace-nowrap cursor-pointer transition-all ${
+                        activeSearchTab === tab
+                          ? "bg-indigo-500 text-white"
+                          : "text-slate-500 hover:text-slate-300"
+                      }`}
+                    >
+                      {tab === "All" ? "All"
+                       : tab === "India" ? "🇮🇳 India"
+                       : tab === "USA" ? "🇺🇸 USA"
+                       : tab === "Crypto" ? "🪙 Crypto"
+                       : tab === "Indices" ? "📈 Indices"
+                       : tab === "Commodities" ? "🌻 Commodities"
+                       : tab === "Forex" ? "💱 Forex" : tab}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Input Search */}
+                <div className="flex items-center gap-2 px-3 py-1.5 border-b border-white/5 bg-[#080f1e]">
                   <Search size={11} className="text-slate-500" />
                   <input
                     autoFocus
                     value={activeSearch}
                     onChange={e => setActiveSearch(e.target.value)}
-                    placeholder="Search asset..."
+                    placeholder="Search symbol or name..."
                     className="flex-1 bg-transparent text-[12px] text-white placeholder-slate-600 outline-none"
                   />
                   {activeSearch && <button onClick={() => setActiveSearch("")}><X size={10} className="text-slate-500" /></button>}
                 </div>
-                <div className="max-h-[200px] overflow-y-auto">
-                  {searchResults.map(a => (
-                    <button key={a.symbol}
-                      onClick={() => { setCurrentSymbol(a.symbol); setActiveSearchOpen(false); setActiveSearch(""); }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-1.5 hover:bg-white/5 transition-colors cursor-pointer text-left ${a.symbol === currentSymbol ? "bg-indigo-500/10" : ""}`}
-                    >
-                      <span className="text-[11px] font-bold text-white w-12">{a.symbol}</span>
-                      <span className="text-[10px] text-slate-500 truncate flex-1">{a.name}</span>
-                      <span className={`text-[8px] px-1 py-0.2 rounded border font-bold uppercase ${typeColor}`}>{a.type}</span>
-                    </button>
-                  ))}
+
+                {/* Results List */}
+                <div className="max-h-[250px] overflow-y-auto bg-[#080f1e]">
+                  {Object.keys(searchGroups).length === 0 ? (
+                    <div className="text-[10px] text-slate-500 text-center py-4 select-none">No assets found</div>
+                  ) : (
+                    Object.entries(searchGroups).map(([groupName, assets]) => (
+                      <div key={groupName} className="mb-1.5">
+                        <div className="text-[8.5px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 bg-[#0c1220]/50 border-y border-white/5 select-none">
+                          {groupName}
+                        </div>
+                        <div className="flex flex-col">
+                          {assets.map(a => {
+                            const isIndian = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
+                            const currency = isIndian ? "₹" : "$";
+                            return (
+                              <button key={a.symbol}
+                                onClick={() => { setCurrentSymbol(a.symbol); setActiveSearchOpen(false); setActiveSearch(""); }}
+                                className={`w-full flex items-center justify-between px-3 py-1.5 hover:bg-white/5 transition-colors cursor-pointer text-left ${a.symbol === currentSymbol ? "bg-indigo-500/10 text-indigo-400" : ""}`}
+                              >
+                                <div className="flex items-center gap-2 truncate">
+                                  <span className="text-[11px] font-mono font-bold text-white w-14 shrink-0">{a.symbol}</span>
+                                  <span className="text-[10px] text-slate-400 truncate max-w-[140px]">{a.name}</span>
+                                </div>
+                                <span className="text-[9.5px] font-mono text-slate-500 text-right font-medium">
+                                  {currency}{fmt(a.basePrice, a.basePrice < 10 ? 4 : 2)}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}
           </div>
           {activeSearchOpen && <div className="fixed inset-0 z-40" onClick={() => { setActiveSearchOpen(false); setActiveSearch(""); }} />}
+
+          {/* Quick Comparison Presets */}
+          <div className="hidden sm:flex items-center gap-1 ml-1 select-none">
+            {["NIFTY", "SENSEX", "SPX", "BTC"].map(sym => {
+              if (sym === currentSymbol) return null;
+              const isComparing = compareSymbol === sym;
+              return (
+                <button
+                  key={sym}
+                  onClick={() => {
+                    if (isComparing) setCompareSymbol(null);
+                    else setCompareSymbol(sym);
+                  }}
+                  className={`px-1.5 py-0.8 rounded text-[9px] font-bold font-mono transition-all border cursor-pointer ${
+                    isComparing
+                      ? "bg-amber-500/15 border-amber-500/50 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.2)]"
+                      : "border-white/5 bg-[#0c1220] text-slate-500 hover:text-white hover:border-[#1e293b]"
+                  }`}
+                  title={`Toggle overlay comparison with ${sym}`}
+                >
+                  {isComparing ? `✓ ${sym}` : `+ ${sym}`}
+                </button>
+              );
+            })}
+          </div>
 
           {/* Comparison Search Selector */}
           <div className="relative">
@@ -762,11 +890,45 @@ export function ChartTerminal() {
 
           {/* Price details */}
           <div className="flex items-baseline gap-1.5">
-            <span className="text-[15px] font-bold font-mono text-white">{fmt(last?.close, activeAsset.basePrice < 10 ? 4 : 2)}</span>
-            <span className={`text-[10.5px] font-bold font-mono ${isUp ? "text-emerald-400":"text-rose-400"}`}>
-              {isUp ? "+" : ""}{fmt(change, activeAsset.basePrice < 10 ? 4 : 2)} ({isUp ? "+" : ""}{changePct}%)
-            </span>
+            {(() => {
+              const isIndian = activeAsset.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(activeAsset.symbol);
+              const currency = isIndian ? "₹" : "$";
+              return (
+                <>
+                  <span className="text-[15px] font-bold font-mono text-white">
+                    {currency}{fmt(last?.close, activeAsset.basePrice < 10 ? 4 : 2)}
+                  </span>
+                  <span className={`text-[10.5px] font-bold font-mono ${isUp ? "text-emerald-400":"text-rose-400"}`}>
+                    {isUp ? "+" : "-"}{currency}{fmt(Math.abs(change), activeAsset.basePrice < 10 ? 4 : 2)} ({isUp ? "+" : ""}{changePct}%)
+                  </span>
+                </>
+              );
+            })()}
           </div>
+
+          {/* Simple Indicators Checklist (Only in Simple Mode) */}
+          {simpleMode && (
+            <div className="flex items-center gap-3.5 ml-4 border-l border-white/10 pl-4 select-none">
+              <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-400 hover:text-white transition-colors">
+                <input
+                  type="checkbox"
+                  checked={!!indicators.find(i => i.id === "volume")?.enabled}
+                  onChange={() => toggleIndicator("volume")}
+                  className="w-3 h-3 rounded border border-slate-700 bg-[#0c1220] text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                />
+                <span>📊 Volume Bar</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer text-[10px] font-bold text-slate-400 hover:text-white transition-colors">
+                <input
+                  type="checkbox"
+                  checked={!!indicators.find(i => i.id === "sma20")?.enabled}
+                  onChange={() => toggleIndicator("sma20")}
+                  className="w-3 h-3 rounded border border-slate-700 bg-[#0c1220] text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                />
+                <span>📈 MA Trend Line</span>
+              </label>
+            </div>
+          )}
 
           {/* Timeframe selector */}
           <div className="flex items-center bg-[#0c1220] border border-[#1e293b] rounded overflow-hidden ml-auto">
@@ -780,7 +942,7 @@ export function ChartTerminal() {
 
           {/* Chart Type selector */}
           <div className="flex items-center bg-[#0c1220] border border-[#1e293b] rounded overflow-hidden">
-            {["candle", "line", "area"].map(type => (
+            {(simpleMode ? ["area", "line"] : ["candle", "line", "area"]).map(type => (
               <button key={type} onClick={() => setCurrentChartType(type)}
                 className={`px-1.5 py-0.8 text-[8.5px] font-bold uppercase transition-all cursor-pointer ${currentChartType===type ? "bg-indigo-500 text-white" : "text-slate-500 hover:text-white"}`}>
                 {type}
@@ -800,15 +962,17 @@ export function ChartTerminal() {
               if (e.key === "Enter") {
                 setDrawingsList(prev => [...prev, { id: Date.now(), type: "text", x1: textInput.x, y1: textInput.y, label: e.target.value }]);
                 setTextInput({ visible: false, x: 0, y: 0, paneId: null });
+                setDrawTool("cursor");
               } else if (e.key === "Escape") {
                 setTextInput({ visible: false, x: 0, y: 0, paneId: null });
+                setDrawTool("cursor");
               }
             }}
           />
         )}
 
         {/* Floating selected drawing delete button */}
-        {selectedDrawing && selectedDrawingPane === paneId && (() => {
+        {!simpleMode && selectedDrawing && selectedDrawingPane === paneId && (() => {
           const activeCanvas = activeCanvasRef.current;
           const canvasWidth = activeCanvas ? activeCanvas.width : 500;
           const canvasHeight = activeCanvas ? activeCanvas.height : 300;
@@ -844,37 +1008,41 @@ export function ChartTerminal() {
         })()}
 
         {/* Active Indicators Overlay List (TradingView style) */}
-        <div className="absolute top-12 left-3 z-20 flex flex-col gap-1 pointer-events-auto select-none">
-          {indicators.filter(ind => ind.enabled).map(ind => {
-            const settings = indicatorSettings[ind.id];
-            let desc = ind.label;
-            if (settings?.period) desc += ` (${settings.period})`;
-            else if (settings?.fast) desc += ` (${settings.fast}, ${settings.slow}, ${settings.signal})`;
-            
-            return (
-              <div key={ind.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#080f1e]/85 backdrop-blur-sm border border-[#1e293b]/50 text-[9px] font-mono text-slate-300 shadow-md">
-                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: settings?.color || '#fff' }} />
-                <span className="font-bold">{desc}</span>
-                <button onClick={() => toggleIndicator(ind.id)} title="Remove" className="hover:text-rose-400 cursor-pointer pl-0.5"><X size={8} /></button>
-                {ind.id !== 'volume' && (
-                  <button onClick={() => setEditingIndicator(ind.id)} title="Settings" className="hover:text-indigo-400 cursor-pointer"><Settings size={8} /></button>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        {!simpleMode && (
+          <div className="absolute top-12 left-3 z-20 flex flex-col gap-1 pointer-events-auto select-none">
+            {indicators.filter(ind => ind.enabled).map(ind => {
+              const settings = indicatorSettings[ind.id];
+              let desc = ind.label;
+              if (settings?.period) desc += ` (${settings.period})`;
+              else if (settings?.fast) desc += ` (${settings.fast}, ${settings.slow}, ${settings.signal})`;
+              
+              return (
+                <div key={ind.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#080f1e]/85 backdrop-blur-sm border border-[#1e293b]/50 text-[9px] font-mono text-slate-300 shadow-md">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: settings?.color || '#fff' }} />
+                  <span className="font-bold">{desc}</span>
+                  <button onClick={() => toggleIndicator(ind.id)} title="Remove" className="hover:text-rose-400 cursor-pointer pl-0.5"><X size={8} /></button>
+                  {ind.id !== 'volume' && (
+                    <button onClick={() => setEditingIndicator(ind.id)} title="Settings" className="hover:text-indigo-400 cursor-pointer"><Settings size={8} /></button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Overlay Canvas */}
-        <canvas ref={activeCanvasRef}
-          className="absolute inset-0 z-10 pointer-events-auto"
-          style={{ cursor: drawTool === "cursor" ? "default" : "crosshair" }}
-          onMouseDown={e => handleCanvasMouseDown(e, paneId)}
-          onMouseMove={e => handleCanvasMouseMove(e, paneId)}
-          onMouseUp={handleCanvasMouseUp}
-          onTouchStart={e => handleCanvasTouchStart(e, paneId)}
-          onTouchMove={e => handleCanvasTouchMove(e, paneId)}
-          onTouchEnd={e => handleCanvasTouchEnd(e, paneId)}
-        />
+        {!simpleMode && (
+          <canvas ref={activeCanvasRef}
+            className="absolute inset-0 z-10 pointer-events-auto"
+            style={{ cursor: drawTool === "cursor" ? "default" : "crosshair" }}
+            onMouseDown={e => handleCanvasMouseDown(e, paneId)}
+            onMouseMove={e => handleCanvasMouseMove(e, paneId)}
+            onMouseUp={handleCanvasMouseUp}
+            onTouchStart={e => handleCanvasTouchStart(e, paneId)}
+            onTouchMove={e => handleCanvasTouchMove(e, paneId)}
+            onTouchEnd={e => handleCanvasTouchEnd(e, paneId)}
+          />
+        )}
 
         {/* Recharts Pane */}
         <div className="flex-1 flex flex-col min-h-0 select-none bg-[#03070e]">
@@ -1018,8 +1186,44 @@ export function ChartTerminal() {
       {/* ── Top Control Bar (Responsive) ────────────────────────────────────────── */}
       <div className="flex items-center gap-3 px-4 py-2 border-b border-[#1e293b] bg-[#06091a] flex-shrink-0 flex-wrap">
         
-        {/* Title */}
-        <span className="font-bold text-[11px] tracking-widest text-[#94a3b8] hidden md:inline uppercase">Chart Terminal</span>
+        {/* Title & Help */}
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-[11px] tracking-widest text-[#94a3b8] hidden md:inline uppercase">Chart Terminal</span>
+          <button 
+            onClick={() => setShowHelp(prev => !prev)}
+            className="w-4 h-4 rounded-full border border-slate-700 hover:border-indigo-400 flex items-center justify-center text-[9px] font-bold text-slate-500 hover:text-white transition-colors cursor-pointer"
+            title="Toggle Quick Guide"
+          >
+            ?
+          </button>
+          
+          {/* Simple Mode / Advanced Pro Toggle */}
+          <button
+            onClick={() => {
+              setSimpleMode(prev => {
+                const next = !prev;
+                if (next) {
+                  // Reset to simple defaults when entering simple mode
+                  setLayout("single");
+                  setChartType("area");
+                  setChartType2("area");
+                  setDrawTool("cursor");
+                } else {
+                  setChartType("candle");
+                  setChartType2("candle");
+                }
+                return next;
+              });
+            }}
+            className={`flex items-center gap-1 px-2.5 py-0.8 rounded-full text-[10px] font-bold transition-all border cursor-pointer ${
+              simpleMode 
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20" 
+                : "bg-indigo-500/10 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20"
+            }`}
+          >
+            {simpleMode ? "🔰 Simple Mode" : "⚙️ Pro Terminal"}
+          </button>
+        </div>
 
         {/* Watchlist Quick Switch */}
         <div className="flex items-center gap-1 overflow-x-auto max-w-full md:max-w-none scrollbar-none shrink-0 py-0.5">
@@ -1046,103 +1250,144 @@ export function ChartTerminal() {
           })}
         </div>
 
-        <div className="ml-auto flex items-center gap-2 flex-wrap">
-          {/* Layout switch button */}
-          <button onClick={() => {
-            setLayout(l => {
-              const next = l === 'single' ? 'split' : 'single';
-              setSelectedDrawingId(null);
-              setSelectedDrawingPane(null);
-              return next;
-            });
-          }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/50 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition-all cursor-pointer`}>
-            <LayoutPanelTop size={12} className={layout === 'split' ? "text-indigo-400" : ""} />
-            <span>{layout === 'split' ? 'Single View' : 'Split View'}</span>
-          </button>
-
-          {/* Indicators dropdown */}
-          <div className="relative">
-            <button onClick={() => setIndicatorOpen(!indicatorOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/50 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition-all cursor-pointer">
-              <Activity size={12} />Indicators
-              {indicators.filter(i=>i.enabled).length > 0 && (
-                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-indigo-500 text-white text-[8px] font-bold">
-                  {indicators.filter(i=>i.enabled).length}
-                </span>
-              )}
+        {!simpleMode && (
+          <div className="ml-auto flex items-center gap-2 flex-wrap">
+            {/* Layout switch button */}
+            <button onClick={() => {
+              setLayout(l => {
+                const next = l === 'single' ? 'split' : 'single';
+                setSelectedDrawingId(null);
+                setSelectedDrawingPane(null);
+                return next;
+              });
+            }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/50 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition-all cursor-pointer`}>
+              <LayoutPanelTop size={12} className={layout === 'split' ? "text-indigo-400" : ""} />
+              <span>{layout === 'split' ? 'Single View' : 'Split View'}</span>
             </button>
-            {indicatorOpen && (
-              <div className="absolute right-0 top-full mt-1 w-[240px] bg-[#080f1e] border border-[#1e293b] rounded-xl shadow-2xl z-50 p-2">
-                <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest px-2 py-1 select-none">Overlay Indicators</div>
-                {indicators.filter(i=>i.group==="overlay").map(ind => (
-                  <div key={ind.id} className="w-full flex items-center justify-between px-2 py-1 rounded-lg hover:bg-white/5 transition-colors">
-                    <button onClick={() => toggleIndicator(ind.id)}
-                      className="flex-1 flex items-center gap-2 text-left cursor-pointer">
-                      <div className={`w-3 h-3 rounded-sm border-2 flex items-center justify-center transition-colors ${ind.enabled ? "border-indigo-500 bg-indigo-500" : "border-slate-600"}`}>
-                        {ind.enabled && <span className="text-white text-[8px]">✓</span>}
-                      </div>
-                      <div className="w-3 h-0.5 rounded" style={{background: getColor(ind.id)}} />
-                      <span className="text-[11px] text-slate-300 font-mono">{ind.label}</span>
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); setEditingIndicator(ind.id); }}
-                      className="text-slate-500 hover:text-white p-1 cursor-pointer">
-                      <Settings size={11} />
-                    </button>
-                  </div>
-                ))}
-                <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest px-2 py-1 mt-1 border-t border-white/5 select-none">Sub-Panel Indicators</div>
-                {indicators.filter(i=>i.group==="sub").map(ind => (
-                  <div key={ind.id} className="w-full flex items-center justify-between px-2 py-1 rounded-lg hover:bg-white/5 transition-colors">
-                    <button onClick={() => toggleIndicator(ind.id)}
-                      className="flex-1 flex items-center gap-2 text-left cursor-pointer">
-                      <div className={`w-3 h-3 rounded-sm border-2 flex items-center justify-center transition-colors ${ind.enabled ? "border-indigo-500 bg-indigo-500" : "border-slate-600"}`}>
-                        {ind.enabled && <span className="text-white text-[8px]">✓</span>}
-                      </div>
-                      <div className="w-3 h-0.5 rounded" style={{background: getColor(ind.id)}} />
-                      <span className="text-[11px] text-slate-300 font-mono">{ind.label}</span>
-                    </button>
-                    {ind.id !== 'volume' && (
+
+            {/* Indicators dropdown */}
+            <div className="relative">
+              <button onClick={() => setIndicatorOpen(!indicatorOpen)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/50 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition-all cursor-pointer">
+                <Activity size={12} />Indicators
+                {indicators.filter(i=>i.enabled).length > 0 && (
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full bg-indigo-500 text-white text-[8px] font-bold">
+                    {indicators.filter(i=>i.enabled).length}
+                  </span>
+                )}
+              </button>
+              {indicatorOpen && (
+                <div className="absolute right-0 top-full mt-1 w-[240px] bg-[#080f1e] border border-[#1e293b] rounded-xl shadow-2xl z-50 p-2">
+                  <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest px-2 py-1 select-none">Overlay Indicators</div>
+                  {indicators.filter(i=>i.group==="overlay").map(ind => (
+                    <div key={ind.id} className="w-full flex items-center justify-between px-2 py-1 rounded-lg hover:bg-white/5 transition-colors">
+                      <button onClick={() => toggleIndicator(ind.id)}
+                        className="flex-1 flex items-center gap-2 text-left cursor-pointer">
+                        <div className={`w-3 h-3 rounded-sm border-2 flex items-center justify-center transition-colors ${ind.enabled ? "border-indigo-500 bg-indigo-500" : "border-slate-600"}`}>
+                          {ind.enabled && <span className="text-white text-[8px]">✓</span>}
+                        </div>
+                        <div className="w-3 h-0.5 rounded" style={{background: getColor(ind.id)}} />
+                        <span className="text-[11px] text-slate-300 font-mono">{ind.label}</span>
+                      </button>
                       <button onClick={(e) => { e.stopPropagation(); setEditingIndicator(ind.id); }}
                         className="text-slate-500 hover:text-white p-1 cursor-pointer">
                         <Settings size={11} />
                       </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-            {indicatorOpen && <div className="fixed inset-0 z-40" onClick={() => setIndicatorOpen(false)} />}
+                    </div>
+                  ))}
+                  <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest px-2 py-1 mt-1 border-t border-white/5 select-none">Sub-Panel Indicators</div>
+                  {indicators.filter(i=>i.group==="sub").map(ind => (
+                    <div key={ind.id} className="w-full flex items-center justify-between px-2 py-1 rounded-lg hover:bg-white/5 transition-colors">
+                      <button onClick={() => toggleIndicator(ind.id)}
+                        className="flex-1 flex items-center gap-2 text-left cursor-pointer">
+                        <div className={`w-3 h-3 rounded-sm border-2 flex items-center justify-center transition-colors ${ind.enabled ? "border-indigo-500 bg-indigo-500" : "border-slate-600"}`}>
+                          {ind.enabled && <span className="text-white text-[8px]">✓</span>}
+                        </div>
+                        <div className="w-3 h-0.5 rounded" style={{background: getColor(ind.id)}} />
+                        <span className="text-[11px] text-slate-300 font-mono">{ind.label}</span>
+                      </button>
+                      {ind.id !== 'volume' && (
+                        <button onClick={(e) => { e.stopPropagation(); setEditingIndicator(ind.id); }}
+                          className="text-slate-500 hover:text-white p-1 cursor-pointer">
+                          <Settings size={11} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {indicatorOpen && <div className="fixed inset-0 z-40" onClick={() => setIndicatorOpen(false)} />}
+            </div>
           </div>
-        </div>
+        )}
       </div>
+
+      {/* ── Quick Help & Onboarding panel (Collapsible) ─────────────────────────── */}
+      {showHelp && (
+        <div className="bg-indigo-950/20 border-b border-[#1e293b] px-4 py-2 flex items-center justify-between gap-4 z-20 flex-wrap relative backdrop-blur-sm">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs">💡</span>
+            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Quick Guide:</span>
+          </div>
+          <div className="flex gap-5 text-[10px] text-slate-400 font-medium flex-wrap">
+            <span className="flex items-center gap-1">🔍 <strong className="text-white">Change Ticker</strong> via Search dropdown</span>
+            <span className="flex items-center gap-1">⚖️ <strong className="text-white">Compare charts</strong> by clicking quick benchmarks (SPX, BTC, etc.) or +Compare</span>
+            <span className="flex items-center gap-1">✏️ <strong className="text-white">Draw lines</strong> using left sidebar tools, then click/drag on chart</span>
+            <span className="flex items-center gap-1">🗑️ <strong className="text-white">Delete drawings</strong> by clicking any line (cyan selection) and pressing Backspace or clicking Delete</span>
+          </div>
+          <button 
+            onClick={() => setShowHelp(false)} 
+            className="text-[9px] font-bold font-mono text-slate-500 hover:text-white px-2 py-0.5 rounded border border-white/5 hover:border-slate-700 cursor-pointer ml-auto transition-colors"
+          >
+            Hide Guide
+          </button>
+        </div>
+      )}
 
       {/* ── Body (Sidebar + Chart Panels) ────────────────────────────────────────── */}
       <div className="flex flex-1 min-h-0 overflow-hidden relative">
         
-        {/* Drawings Toolbar Sidebar */}
-        <div className="w-10 bg-[#06091a] border-r border-[#1e293b] flex flex-col items-center py-3 gap-1.5 flex-shrink-0 z-20">
-          {DRAWING_TOOLS.map(tool => (
-            <button key={tool.id} onClick={() => setDrawTool(tool.id)}
-              title={tool.label}
-              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all cursor-pointer ${drawTool===tool.id ? "bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.4)]" : "text-slate-600 hover:text-slate-300 hover:bg-white/5"}`}>
-              <tool.icon size={13} />
-            </button>
-          ))}
-          <div className="h-px w-6 bg-white/10 my-1" />
-          {selectedDrawingId && (
-            <button onClick={deleteSelectedDrawing} title="Delete selected drawing"
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer animate-pulse border border-rose-500/20">
-              <Trash2 size={13} />
-            </button>
-          )}
-          {(drawings.length > 0 || drawings2.length > 0) && (
-            <button onClick={clearAllDrawings} title="Clear all drawings"
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer">
-              <Eraser size={13} />
-            </button>
-          )}
-        </div>
+        {/* Drawings Toolbar Sidebar (Expandable on hover) */}
+        {!simpleMode && (
+          <div 
+            onMouseEnter={() => setSidebarHover(true)}
+            onMouseLeave={() => setSidebarHover(false)}
+            className={`bg-[#06091a] border-r border-[#1e293b] flex flex-col items-center py-3 gap-1.5 flex-shrink-0 z-20 transition-all duration-300 select-none ${
+              sidebarHover ? "w-36 px-2 items-stretch" : "w-10 px-0"
+            }`}
+          >
+            {DRAWING_TOOLS.map(tool => (
+              <button key={tool.id} onClick={() => setDrawTool(tool.id)}
+                title={tool.label}
+                className={`h-8 rounded-lg flex items-center transition-all cursor-pointer ${
+                  sidebarHover ? "w-full justify-start px-2.5 gap-2" : "w-8 justify-center"
+                } ${drawTool===tool.id ? "bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.4)]" : "text-slate-600 hover:text-slate-300 hover:bg-white/5"}`}>
+                <tool.icon size={13} className="shrink-0" />
+                {sidebarHover && <span className="text-[10px] font-bold tracking-wide truncate">{tool.label}</span>}
+              </button>
+            ))}
+            <div className="h-px w-6 bg-white/10 my-1 self-center" />
+            {selectedDrawingId && (
+              <button onClick={deleteSelectedDrawing} title="Delete selected drawing"
+                className={`h-8 rounded-lg flex items-center text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer animate-pulse border border-rose-500/20 ${
+                  sidebarHover ? "w-full justify-start px-2.5 gap-2" : "w-8 justify-center"
+                }`}>
+                <Trash2 size={13} className="shrink-0" />
+                {sidebarHover && <span className="text-[9px] font-bold uppercase tracking-wider">Delete Line</span>}
+              </button>
+            )}
+            {(drawings.length > 0 || drawings2.length > 0) && (
+              <button onClick={clearAllDrawings} title="Clear all drawings"
+                className={`h-8 rounded-lg flex items-center text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer ${
+                  sidebarHover ? "w-full justify-start px-2.5 gap-2" : "w-8 justify-center"
+                }`}>
+                <Eraser size={13} className="shrink-0" />
+                {sidebarHover && <span className="text-[9px] font-bold uppercase tracking-wider">Clear All</span>}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Chart View Panel columns (Responsive: stacks vertically on mobile, side-by-side on desktop) */}
         <div className={`flex-1 flex min-h-0 min-w-0 ${layout === 'split' ? 'flex-col md:flex-row' : 'flex-col'}`}>
@@ -1153,11 +1398,14 @@ export function ChartTerminal() {
 
       {/* ── Status Bar ───────────────────────────────────────────────────────────── */}
       <div className="flex items-center gap-4 px-4 py-1 border-t border-[#1e293b] bg-[#06091a] text-[9px] text-slate-600 flex-shrink-0 select-none z-20">
-        <span>Active Layout: {layout === 'split' ? 'Split comparative' : 'Single'}</span>
+        <span>Active Mode: {simpleMode ? 'Simple' : 'Advanced Pro'}</span>
+        {!simpleMode && <span>Active Layout: {layout === 'split' ? 'Split comparative' : 'Single'}</span>}
         <span className="ml-auto hidden sm:inline">Simulated data · For demonstration only</span>
-        <span className={`px-2 py-0.5 rounded font-bold text-[8px] uppercase ${drawTool !== "cursor" ? "bg-indigo-500/20 text-indigo-400" : ""}`}>
-          {drawTool !== "cursor" ? `✏ ${DRAWING_TOOLS.find(t=>t.id===drawTool)?.label}` : ""}
-        </span>
+        {!simpleMode && (
+          <span className={`px-2 py-0.5 rounded font-bold text-[8px] uppercase ${drawTool !== "cursor" ? "bg-indigo-500/20 text-indigo-400" : ""}`}>
+            {drawTool !== "cursor" ? `✏ ${DRAWING_TOOLS.find(t=>t.id===drawTool)?.label}` : ""}
+          </span>
+        )}
       </div>
 
       {/* Indicator Settings Modal */}

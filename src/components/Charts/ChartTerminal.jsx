@@ -105,6 +105,22 @@ const INDICATOR_DEFS = [
   { id: "macd",   label: "MACD (12,26,9)", group: "sub",     enabled: false },
 ];
 
+const SIMPLE_CATEGORIES = [
+  { id: "ind_it", label: "💻 Indian IT Services", filter: (a) => a.type === "Indian Stock" && a.sector === "IT Services" },
+  { id: "ind_bank", label: "🏦 Indian Banking & Finance", filter: (a) => a.type === "Indian Stock" && a.sector === "Banking & Finance" },
+  { id: "ind_energy", label: "⚡ Indian Energy & Utilities", filter: (a) => a.type === "Indian Stock" && a.sector === "Energy & Utilities" },
+  { id: "ind_auto", label: "🚗 Indian Automotive", filter: (a) => a.type === "Indian Stock" && a.sector === "Automotive" },
+  { id: "ind_fmcg", label: "🛒 Indian Consumer / FMCG", filter: (a) => a.type === "Indian Stock" && a.sector === "Consumer Goods / FMCG" },
+  { id: "ind_metals", label: "⛏️ Indian Metals & Mining", filter: (a) => a.type === "Indian Stock" && a.sector === "Metals & Mining" },
+  { id: "ind_pharma", label: "💊 Indian Pharma & Healthcare", filter: (a) => a.type === "Indian Stock" && a.sector === "Healthcare & Pharma" },
+  { id: "ind_infra", label: "🏗️ Indian Infra & Conglomerate", filter: (a) => a.type === "Indian Stock" && a.sector === "Conglomerates & Infrastructure" },
+  { id: "us_stocks", label: "🇺🇸 US Equities", filter: (a) => a.type === "Stock" },
+  { id: "crypto", label: "🪙 Cryptocurrencies", filter: (a) => a.type === "Crypto" },
+  { id: "indices", label: "📈 Market Indices", filter: (a) => a.type === "Index" },
+  { id: "commodities", label: "🌻 Commodities", filter: (a) => a.type === "Commodity" },
+  { id: "forex", label: "💱 Forex Pairs", filter: (a) => a.type === "Forex" }
+];
+
 // ─── Main Chart Terminal ──────────────────────────────────────────────────────
 export function ChartTerminal() {
   // Chart 1 state
@@ -191,6 +207,7 @@ export function ChartTerminal() {
   const [showHelp, setShowHelp] = useState(true);
   const [sidebarHover, setSidebarHover] = useState(false);
   const [simpleMode, setSimpleMode] = useState(true);
+  const [selectedSimpleCategory, setSelectedSimpleCategory] = useState("ind_it");
   const [searchTab, setSearchTab] = useState("All");
   const [searchTab2, setSearchTab2] = useState("All");
 
@@ -557,6 +574,755 @@ export function ChartTerminal() {
     setSelectedDrawingPane(null);
   };
 
+  // ─── Render Asset Search Modal ──────────────────────────────────────────────
+  const renderAssetSearchModal = (paneId) => {
+    const isChart1 = paneId === 1;
+    const currentSymbol = isChart1 ? symbol : symbol2;
+    const setCurrentSymbol = isChart1 ? setSymbol : setSymbol2;
+    const activeSearch = isChart1 ? search : search2;
+    const setActiveSearch = isChart1 ? setSearch : setSearch2;
+    const activeSearchOpen = isChart1 ? searchOpen : searchOpen2;
+    const setActiveSearchOpen = isChart1 ? setSearchOpen : setSearchOpen2;
+    const activeSearchTab = isChart1 ? searchTab : searchTab2;
+    const setActiveSearchTab = isChart1 ? setSearchTab : setSearchTab2;
+
+    if (!activeSearchOpen) return null;
+
+    const filteredAssets = ASSET_CATALOG.filter(a => {
+      // Tab filter
+      if (activeSearchTab === "India" && a.type !== "Indian Stock") return false;
+      if (activeSearchTab === "USA" && a.type !== "Stock") return false;
+      if (activeSearchTab === "Crypto" && a.type !== "Crypto") return false;
+      if (activeSearchTab === "Indices" && a.type !== "Index") return false;
+      if (activeSearchTab === "Commodities" && a.type !== "Commodity") return false;
+      if (activeSearchTab === "Forex" && a.type !== "Forex") return false;
+
+      // Search text filter
+      if (activeSearch) {
+        const q = activeSearch.toLowerCase();
+        return a.symbol.toLowerCase().includes(q) || a.name.toLowerCase().includes(q);
+      }
+      return true;
+    });
+
+    const searchGroups = {};
+    filteredAssets.forEach(a => {
+      let gName = "";
+      if (a.type === "Indian Stock") {
+        gName = `🇮🇳 Indian - ${a.sector}`;
+      } else if (a.type === "Stock") {
+        gName = "🇺🇸 US Stocks";
+      } else if (a.type === "Crypto") {
+        gName = "🪙 Cryptocurrencies";
+      } else if (a.type === "Index") {
+        if (["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol)) {
+          gName = "🇮🇳 Indian Indices";
+        } else {
+          gName = "📈 Global Indices";
+        }
+      } else if (a.type === "Forex") {
+        gName = "💱 Forex Pairs";
+      } else if (a.type === "Commodity") {
+        gName = "🌻 Commodities";
+      } else {
+        gName = "Other";
+      }
+
+      if (!searchGroups[gName]) {
+        searchGroups[gName] = [];
+      }
+      searchGroups[gName].push(a);
+    });
+
+    return (
+      <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 pointer-events-auto" onClick={(e) => { if (e.target === e.currentTarget) { setActiveSearchOpen(false); setActiveSearch(""); } }}>
+        <div className="bg-[#080f1e] border border-slate-800 rounded-2xl w-full max-w-3xl h-[600px] max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative">
+          
+          {/* Modal Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#0a1020]">
+            <div className="flex items-center gap-2">
+              <span className="text-xs">🌐</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Select Asset</span>
+            </div>
+            <button 
+              onClick={() => { setActiveSearchOpen(false); setActiveSearch(""); }}
+              className="text-slate-400 hover:text-white p-1 hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          {/* Search Input Bar */}
+          <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1020] border-b border-white/5">
+            <Search size={16} className="text-slate-400 shrink-0" />
+            <input
+              autoFocus
+              value={activeSearch}
+              onChange={e => setActiveSearch(e.target.value)}
+              placeholder="Search asset symbol, name, or sector (e.g. Reliance, HDFC, IT, Banking)..."
+              className="flex-1 bg-transparent text-[13px] text-white placeholder-slate-500 outline-none"
+            />
+            {activeSearch && (
+              <button onClick={() => setActiveSearch("")} className="text-slate-400 hover:text-white p-1 cursor-pointer">
+                <X size={12} />
+              </button>
+            )}
+          </div>
+
+          {/* Modal Body */}
+          <div className="flex flex-col md:flex-row flex-1 min-h-0">
+            {/* Left Sidebar Navigation (only shown when not searching) */}
+            {!activeSearch && (
+              <div className="w-full md:w-48 bg-[#050a14] border-b md:border-b-0 md:border-r border-white/5 flex flex-row md:flex-col p-1.5 gap-1 shrink-0 overflow-x-auto md:overflow-y-auto scrollbar-none">
+                {[
+                  { id: "All",         label: "All Markets",     icon: "🌐" },
+                  { id: "India",       label: "Indian Equities", icon: "🇮🇳" },
+                  { id: "USA",         label: "US Equities",     icon: "🇺🇸" },
+                  { id: "Crypto",      label: "Crypto Assets",   icon: "🪙" },
+                  { id: "Indices",     label: "Stock Indices",   icon: "📈" },
+                  { id: "Commodities", label: "Commodities",     icon: "🌻" },
+                  { id: "Forex",       label: "Forex Pairs",     icon: "💱" },
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveSearchTab(tab.id)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[10.5px] font-bold text-left cursor-pointer transition-all whitespace-nowrap shrink-0 ${
+                      activeSearchTab === tab.id
+                        ? "bg-indigo-500 text-white shadow-lg"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                    }`}
+                  >
+                    <span className="text-sm shrink-0">{tab.icon}</span>
+                    <span className="truncate">{tab.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Right Scrolling Content Area */}
+            <div className="flex-1 overflow-y-auto p-4 bg-[#080f1e]">
+              {Object.keys(searchGroups).length === 0 ? (
+                <div className="text-[11px] text-slate-500 text-center py-10 select-none">No matching assets found</div>
+              ) : (
+                Object.entries(searchGroups).map(([groupName, assets]) => (
+                  <div key={groupName} className="mb-5">
+                    <div className="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest px-1 py-1 mb-2 border-b border-white/5 select-none">
+                      {groupName}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {assets.map(a => {
+                        const isIndian = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
+                        const currency = isIndian ? "₹" : "$";
+                        return (
+                          <button
+                            key={a.symbol}
+                            onClick={() => { setCurrentSymbol(a.symbol); setActiveSearchOpen(false); setActiveSearch(""); }}
+                            className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-left bg-[#0c1220]/40 border-white/5 hover:border-indigo-500/50 hover:bg-[#0c1220]/80 group ${
+                              a.symbol === currentSymbol ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-400" : "text-slate-300"
+                            }`}
+                          >
+                            <div className="flex flex-col min-w-0 pr-2">
+                              <span className="text-[12px] font-mono font-bold text-white group-hover:text-indigo-400 transition-colors">{a.symbol}</span>
+                              <span className="text-[10px] text-slate-500 truncate max-w-[170px]">{a.name}</span>
+                            </div>
+                            <span className="text-[11px] font-mono font-bold text-indigo-300 text-right shrink-0">
+                              {currency}{fmt(a.basePrice, a.basePrice < 10 ? 4 : 2)}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ─── Render Compare Search Modal ──────────────────────────────────────────
+  const renderCompareSearchModal = (paneId) => {
+    const isChart1 = paneId === 1;
+    const currentSymbol = isChart1 ? symbol : symbol2;
+    const compareSymbol = isChart1 ? compareSymbol1 : compareSymbol2;
+    const setCompareSymbol = isChart1 ? setCompareSymbol1 : setCompareSymbol2;
+    const compareSearchOpen = isChart1 ? compareSearchOpen1 : compareSearchOpen2;
+    const setCompareSearchOpen = isChart1 ? setCompareSearchOpen1 : setCompareSearchOpen2;
+    const compareSearch = isChart1 ? compareSearch1 : compareSearch2;
+    const setCompareSearch = isChart1 ? setCompareSearch1 : setCompareSearch2;
+
+    if (!compareSearchOpen) return null;
+
+    const compareFiltered = ASSET_CATALOG.filter(a => a.symbol !== currentSymbol)
+      .filter(a => !compareSearch || a.symbol.toLowerCase().includes(compareSearch.toLowerCase()) || a.name.toLowerCase().includes(compareSearch.toLowerCase()));
+
+    const compareGroups = {};
+    compareFiltered.forEach(a => {
+      let gName = "";
+      if (a.type === "Indian Stock") {
+        gName = `🇮🇳 Indian - ${a.sector}`;
+      } else if (a.type === "Stock") {
+        gName = "🇺🇸 US Stocks";
+      } else if (a.type === "Crypto") {
+        gName = "🪙 Cryptocurrencies";
+      } else if (a.type === "Index") {
+        if (["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol)) {
+          gName = "🇮🇳 Indian Indices";
+        } else {
+          gName = "📈 Global Indices";
+        }
+      } else if (a.type === "Forex") {
+        gName = "💱 Forex Pairs";
+      } else if (a.type === "Commodity") {
+        gName = "🌻 Commodities";
+      } else {
+        gName = "Other";
+      }
+
+      if (!compareGroups[gName]) {
+        compareGroups[gName] = [];
+      }
+      compareGroups[gName].push(a);
+    });
+
+    return (
+      <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 pointer-events-auto" onClick={(e) => { if (e.target === e.currentTarget) { setCompareSearchOpen(false); setCompareSearch(""); } }}>
+        <div className="bg-[#080f1e] border border-slate-800 rounded-2xl w-full max-w-3xl h-[600px] max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative">
+          
+          {/* Modal Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#0a1020]">
+            <div className="flex items-center gap-2">
+              <span className="text-xs">⚖️</span>
+              <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">Compare Benchmark Overlay</span>
+            </div>
+            <button 
+              onClick={() => { setCompareSearchOpen(false); setCompareSearch(""); }}
+              className="text-slate-400 hover:text-white p-1 hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          {/* Search Input Bar */}
+          <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1020] border-b border-white/5">
+            <Search size={16} className="text-slate-400 shrink-0" />
+            <input
+              autoFocus
+              value={compareSearch}
+              onChange={e => setCompareSearch(e.target.value)}
+              placeholder="Type symbol or name to overlay..."
+              className="flex-1 bg-transparent text-[13px] text-white placeholder-slate-500 outline-none"
+            />
+            {compareSearch && (
+              <button onClick={() => setCompareSearch("")} className="text-slate-400 hover:text-white p-1 cursor-pointer">
+                <X size={12} />
+              </button>
+            )}
+          </div>
+
+          {/* Modal Body */}
+          <div className="flex-1 overflow-y-auto p-4 bg-[#080f1e]">
+            {Object.keys(compareGroups).length === 0 ? (
+              <div className="text-[11px] text-slate-500 text-center py-10 select-none">No matching assets found</div>
+            ) : (
+              Object.entries(compareGroups).map(([groupName, assets]) => (
+                <div key={groupName} className="mb-5">
+                  <div className="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest px-1 py-1 mb-2 border-b border-white/5 select-none">
+                    {groupName}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {assets.map(a => {
+                      const isIndian = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
+                      const currency = isIndian ? "₹" : "$";
+                      return (
+                        <button
+                          key={a.symbol}
+                          onClick={() => { setCompareSymbol(a.symbol); setCompareSearchOpen(false); setCompareSearch(""); }}
+                          className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-left bg-[#0c1220]/40 border-white/5 hover:border-amber-500/50 hover:bg-[#0c1220]/80 group ${
+                            a.symbol === compareSymbol ? "border-amber-500/50 bg-amber-500/10 text-amber-400" : "text-slate-300"
+                          }`}
+                        >
+                          <div className="flex flex-col min-w-0 pr-2">
+                            <span className="text-[12px] font-mono font-bold text-white group-hover:text-amber-400 transition-colors">{a.symbol}</span>
+                            <span className="text-[10px] text-slate-500 truncate max-w-[170px]">{a.name}</span>
+                          </div>
+                          <span className="text-[11px] font-mono font-bold text-amber-300 text-right shrink-0">
+                            {currency}{fmt(a.basePrice, a.basePrice < 10 ? 4 : 2)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ─── Render Simple Dashboard View ───────────────────────────────────────────
+  const renderSimpleDashboard = () => {
+    const activeAsset = ASSET_CATALOG.find(a => a.symbol === symbol) || ASSET_CATALOG[0];
+    const activeRawData = generateOHLCV(symbol, timeframe);
+
+    // Indicator calculations
+    const sma20Data  = calcSMA(activeRawData, indicatorSettings.sma20.period);
+    
+    // Comparison data if active
+    const compareSymbol = compareSymbol1;
+    const setCompareSymbol = setCompareSymbol1;
+    const compareRawData = compareSymbol ? generateOHLCV(compareSymbol, timeframe) : [];
+    const compareMap = {};
+    compareRawData.forEach(b => {
+      compareMap[b.time] = b.close;
+    });
+
+    const mergedChartData = activeRawData.map(bar => {
+      const newBar = { ...bar };
+      if (compareSymbol) {
+        newBar.compareClose = compareMap[bar.time] || null;
+      }
+      // SMA
+      const smaPt = sma20Data.find(p => p.time === bar.time);
+      if (smaPt) newBar.sma20 = smaPt.value;
+      return newBar;
+    });
+
+    const last = activeRawData[activeRawData.length - 1];
+    const first = activeRawData[0];
+    const change = last && first ? last.close - first.close : 0;
+    const changePct = first ? pct(last?.close, first.close) : "0.00";
+    const isUp = change >= 0;
+
+    const prices = mergedChartData.flatMap(b => [b.high, b.low].filter(Boolean));
+    const pMin = Math.min(...prices) * 0.998;
+    const pMax = Math.max(...prices) * 1.002;
+
+    const isIndian = activeAsset.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(activeAsset.symbol);
+    const currency = isIndian ? "₹" : "$";
+
+    // Helper for benchmark cards
+    const getIndexData = (sym) => {
+      const asset = ASSET_CATALOG.find(a => a.symbol === sym);
+      const data = generateOHLCV(sym, timeframe);
+      const lastBar = data[data.length - 1];
+      const firstBar = data[0];
+      const chg = lastBar && firstBar ? lastBar.close - firstBar.close : 0;
+      const pctChg = firstBar ? pct(lastBar?.close, firstBar.close) : "0.00";
+      return {
+        symbol: sym,
+        name: asset?.name || sym,
+        price: lastBar?.close || asset?.basePrice || 0,
+        change: chg,
+        pctChange: pctChg,
+        isUp: chg >= 0
+      };
+    };
+
+    const benchmarks = [
+      getIndexData("NIFTY"),
+      getIndexData("SENSEX"),
+      getIndexData("BANKNIFTY"),
+      getIndexData("CNXIT")
+    ];
+
+    // Filter stocks for the explore grid
+    const currentCatObj = SIMPLE_CATEGORIES.find(c => c.id === selectedSimpleCategory) || SIMPLE_CATEGORIES[0];
+    const categoryStocks = ASSET_CATALOG.filter(currentCatObj.filter);
+
+    return (
+      <div className="flex-1 flex flex-col min-h-0 bg-[#03060f] overflow-y-auto select-none p-4 md:p-6 space-y-6">
+        
+        {/* Simple Mode Header */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-[#080f1e]/80 border border-[#1e293b] p-4 rounded-2xl backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+              <span className="text-xl">📈</span>
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-white tracking-wide">Market Center</h1>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">🔰 Simple Invest</span>
+                <span className="text-[10px] text-slate-500">Real-time simulation</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Search Button (Large and friendly) */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="flex-1 max-w-xl flex items-center gap-3 bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/50 rounded-xl px-4 py-2.5 cursor-pointer transition-all shadow-inner text-left text-slate-400 hover:text-slate-300"
+          >
+            <Search size={16} className="text-slate-400" />
+            <span className="text-xs font-semibold">🔍 Search Indian & Global Stocks (e.g. Reliance, TCS, Apple)...</span>
+          </button>
+
+          {/* Switch to Advanced */}
+          <button
+            onClick={() => {
+              setSimpleMode(false);
+              setChartType("candle");
+            }}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-500/20 hover:scale-[1.02] cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>⚙️ Switch to Pro Terminal</span>
+          </button>
+        </div>
+
+        {/* Index Cards Row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {benchmarks.map(idx => {
+            const isUpIdx = idx.isUp;
+            const glowClass = isUpIdx 
+              ? "hover:border-emerald-500/40 hover:shadow-[0_0_15px_rgba(16,185,129,0.15)]" 
+              : "hover:border-rose-500/40 hover:shadow-[0_0_15px_rgba(239,68,68,0.15)]";
+            return (
+              <button
+                key={idx.symbol}
+                onClick={() => setSymbol(idx.symbol)}
+                className={`bg-[#080f1e]/40 border border-white/5 rounded-2xl p-3.5 text-left transition-all cursor-pointer ${glowClass} ${
+                  symbol === idx.symbol ? "border-indigo-500/50 bg-indigo-500/5" : ""
+                }`}
+              >
+                <div className="flex justify-between items-start mb-1">
+                  <span className="text-xs font-bold text-slate-400 truncate max-w-[120px]">{idx.name}</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${
+                    isUpIdx ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                  }`}>
+                    {isUpIdx ? "+" : ""}{idx.pctChange}%
+                  </span>
+                </div>
+                <div className="text-lg font-bold font-mono text-white">
+                  ₹{fmt(idx.price, 0)}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Main Chart + Info Column */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+          
+          {/* Active Ticker Info Card & Quick Chart Controls */}
+          <div className="xl:col-span-1 bg-[#080f1e]/60 border border-[#1e293b] p-5 rounded-2xl space-y-6">
+            
+            {/* Active Asset Summary Card */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className={`text-[9px] px-2 py-0.5 rounded-full border font-bold uppercase tracking-wider ${
+                  activeAsset.type === "Indian Stock" ? "text-teal-400 bg-teal-500/10 border-teal-500/20" : "text-indigo-400 bg-indigo-500/10 border-indigo-500/20"
+                }`}>
+                  {activeAsset.type === "Indian Stock" ? "🇮🇳 Indian Market" : activeAsset.type}
+                </span>
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{activeAsset.sector || "Index"}</span>
+              </div>
+              <h2 className="text-xl font-bold text-white">{activeAsset.name}</h2>
+              <p className="text-sm font-mono text-slate-500 font-bold mt-0.5">{activeAsset.symbol}</p>
+
+              <div className="mt-4 flex items-baseline gap-2">
+                <span className="text-3xl font-extrabold font-mono text-white tracking-tight">
+                  {currency}{fmt(last?.close, activeAsset.basePrice < 10 ? 4 : 2)}
+                </span>
+                <span className={`text-sm font-bold font-mono ${isUp ? "text-emerald-400" : "text-rose-400"}`}>
+                  {isUp ? "▲" : "▼"} {isUp ? "+" : ""}{changePct}%
+                </span>
+              </div>
+            </div>
+
+            {/* Quick Actions Panel */}
+            <div className="border-t border-[#1e293b] pt-5">
+              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Chart Filters & Controls</h3>
+              <div className="flex flex-col gap-2">
+                {/* Volume Toggle */}
+                <button
+                  onClick={() => toggleIndicator("volume")}
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl border font-bold text-[11px] transition-all cursor-pointer ${
+                    isEnabled("volume")
+                      ? "bg-indigo-500/10 border-indigo-500/50 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.15)]"
+                      : "bg-[#0c1220]/40 border-white/5 text-slate-400 hover:text-white hover:border-[#1e293b]"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">📊 <span>Volume Bars</span></span>
+                  <span className="text-[9px] uppercase tracking-wider">{isEnabled("volume") ? "Shown" : "Hidden"}</span>
+                </button>
+
+                {/* SMA Toggle */}
+                <button
+                  onClick={() => toggleIndicator("sma20")}
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl border font-bold text-[11px] transition-all cursor-pointer ${
+                    isEnabled("sma20")
+                      ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                      : "bg-[#0c1220]/40 border-white/5 text-slate-400 hover:text-white hover:border-[#1e293b]"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">📈 <span>20-Day Trend Line (MA)</span></span>
+                  <span className="text-[9px] uppercase tracking-wider">{isEnabled("sma20") ? "Active" : "Disabled"}</span>
+                </button>
+
+                {/* Compare Overlay Toggle */}
+                {compareSymbol ? (
+                  <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/40 text-amber-300 text-[11px] font-bold">
+                    <span className="flex items-center gap-2">⚖️ <span>Overlaying {compareSymbol}</span></span>
+                    <button 
+                      onClick={() => setCompareSymbol(null)} 
+                      className="text-amber-400 hover:text-rose-400 cursor-pointer font-bold px-1.5 py-0.5 rounded hover:bg-rose-500/10"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setCompareSearchOpen1(true)}
+                    className="flex items-center justify-between px-3 py-2.5 bg-[#0c1220]/40 border border-white/5 hover:border-amber-500/50 rounded-xl font-bold text-[11px] text-slate-400 hover:text-white transition-all cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">⚖️ <span>Compare with other Stock</span></span>
+                    <span className="text-[9px] uppercase tracking-wider text-amber-400">+ Compare</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Chart Type (Simple Mode) */}
+            <div className="border-t border-[#1e293b] pt-5">
+              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Chart Display Type</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: "area", label: "📈 Area fill", icon: "📊" },
+                  { id: "line", label: "📉 Line only", icon: "📈" }
+                ].map(typeObj => (
+                  <button
+                    key={typeObj.id}
+                    onClick={() => setChartType(typeObj.id)}
+                    className={`py-2 rounded-xl text-[10.5px] font-bold text-center border cursor-pointer transition-all ${
+                      chartType === typeObj.id 
+                        ? "bg-indigo-500 border-indigo-400 text-white" 
+                        : "bg-[#0c1220]/40 border-white/5 text-slate-400 hover:text-white hover:border-[#1e293b]"
+                    }`}
+                  >
+                    {typeObj.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Simple Clean Price Chart Area */}
+          <div className="xl:col-span-2 bg-[#080f1e]/60 border border-[#1e293b] p-5 rounded-2xl flex flex-col h-[400px] md:h-[450px]">
+            
+            {/* Timeframe pill selector (Robinhood style) */}
+            <div className="flex items-center justify-between border-b border-[#1e293b] pb-3 mb-4 flex-wrap gap-2">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Price History Chart</span>
+              
+              <div className="flex items-center bg-black/40 border border-white/5 p-0.5 rounded-xl">
+                {TIMEFRAMES.map(tfObj => (
+                  <button
+                    key={tfObj.label}
+                    onClick={() => setTimeframe(tfObj.label)}
+                    className={`px-3 py-1 rounded-lg text-[10.5px] font-bold font-mono transition-all cursor-pointer ${
+                      timeframe === tfObj.label 
+                        ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/20" 
+                        : "text-slate-500 hover:text-white"
+                    }`}
+                  >
+                    {tfObj.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Recharts responsive box */}
+            <div className="flex-1 min-h-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={mergedChartData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="colorArea" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={isUp ? "#10b981" : "#ef4444"} stopOpacity={0.25}/>
+                      <stop offset="95%" stopColor={isUp ? "#10b981" : "#ef4444"} stopOpacity={0.0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="2 4" stroke="#1e293b" vertical={false} />
+                  <XAxis 
+                    dataKey="time" 
+                    tickFormatter={t => fmtTime(t, timeframe)}
+                    tick={{ fill: "#475569", fontSize: 9 }} 
+                    axisLine={false} 
+                    tickLine={false} 
+                    minTickGap={40}
+                  />
+                  <YAxis 
+                    domain={[pMin, pMax]} 
+                    orientation="right" 
+                    width={40}
+                    tickFormatter={v => fmt(v, activeAsset.basePrice < 10 ? 4 : 1)}
+                    tick={{ fill: "#475569", fontSize: 9 }} 
+                    axisLine={false} 
+                    tickLine={false} 
+                  />
+                  {compareSymbol && (
+                    <YAxis 
+                      yAxisId="compare" 
+                      domain={['auto', 'auto']} 
+                      orientation="left" 
+                      width={45}
+                      tickFormatter={v => fmt(v, ASSET_CATALOG.find(a => a.symbol === compareSymbol)?.basePrice < 10 ? 4 : 1)}
+                      tick={{ fill: "#fbbf24", fontSize: 9 }} 
+                      axisLine={false} 
+                      tickLine={false} 
+                    />
+                  )}
+                  <Tooltip content={<ChartTooltip timeframe={timeframe} />} />
+
+                  {/* Indicators */}
+                  {isEnabled("sma20") && (
+                    <Line 
+                      type="monotone" 
+                      dataKey="sma20" 
+                      stroke="#10b981" 
+                      strokeWidth={1.5} 
+                      dot={false} 
+                      isAnimationActive={false} 
+                    />
+                  )}
+
+                  {/* Volume Overlay (drawn behind line) */}
+                  {isEnabled("volume") && (
+                    <Bar 
+                      dataKey="volume" 
+                      isAnimationActive={false}
+                      shape={(props) => {
+                        const { x, y, width, height, index } = props;
+                        const bar = mergedChartData[index];
+                        if (!bar) return null;
+                        const color = bar.close >= bar.open ? "#10b98115" : "#ef444415";
+                        const stroke = bar.close >= bar.open ? "#10b98125" : "#ef444425";
+                        // scale height to fit in bottom 15% of chart
+                        const maxH = 50;
+                        const scaledH = Math.min(height, maxH);
+                        const scaledY = y + (height - scaledH);
+                        return <rect x={x} y={scaledY} width={Math.max(width-1,1)} height={scaledH} fill={color} stroke={stroke} strokeWidth={0.5} />;
+                      }}
+                    />
+                  )}
+
+                  {/* Core Chart Series */}
+                  {chartType === "line" ? (
+                    <Line 
+                      type="monotone" 
+                      dataKey="close" 
+                      stroke={isUp ? "#10b981" : "#ef4444"}
+                      strokeWidth={2.5} 
+                      dot={false} 
+                      isAnimationActive={false} 
+                    />
+                  ) : (
+                    <Area 
+                      type="monotone" 
+                      dataKey="close" 
+                      stroke={isUp ? "#10b981" : "#ef4444"}
+                      fill="url(#colorArea)" 
+                      strokeWidth={2.5} 
+                      dot={false} 
+                      isAnimationActive={false} 
+                    />
+                  )}
+
+                  {/* Comparison Series */}
+                  {compareSymbol && (
+                    <Line 
+                      yAxisId="compare" 
+                      type="monotone" 
+                      dataKey="compareClose" 
+                      stroke="#fbbf24"
+                      strokeWidth={1.8} 
+                      dot={false} 
+                      isAnimationActive={false} 
+                    />
+                  )}
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Disclaimer / info */}
+            <div className="text-[9px] text-slate-600 text-center mt-2 select-none border-t border-white/5 pt-2">
+              All prices represent simulated market walk data. For study/development only.
+            </div>
+
+          </div>
+        </div>
+
+        {/* Explore Categories: Grid of Stocks */}
+        <div className="bg-[#080f1e]/60 border border-[#1e293b] p-5 rounded-2xl space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1e293b] pb-3">
+            <div>
+              <h2 className="text-sm font-bold text-white uppercase tracking-wider">Explore Markets & Sectors</h2>
+              <p className="text-[10px] text-slate-500">Quick-browse all categorized Indian stocks, Crypto, Commodities & Forex</p>
+            </div>
+          </div>
+
+          {/* Categories Tab Bar */}
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-none">
+            {SIMPLE_CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedSimpleCategory(cat.id)}
+                className={`px-3.5 py-2 rounded-xl text-[10.5px] font-bold whitespace-nowrap cursor-pointer transition-all border shrink-0 ${
+                  selectedSimpleCategory === cat.id
+                    ? "bg-indigo-500 border-indigo-400 text-white shadow-lg shadow-indigo-500/20"
+                    : "bg-[#0c1220]/60 border-white/5 text-slate-400 hover:text-slate-200 hover:border-[#1e293b]"
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Grid of Stocks */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {categoryStocks.map(a => {
+              const isSelected = symbol === a.symbol;
+              const isIndianStock = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
+              const curSym = isIndianStock ? "₹" : "$";
+              
+              // Get price for index or stock
+              const stockData = generateOHLCV(a.symbol, timeframe);
+              const lastB = stockData[stockData.length - 1];
+              const firstB = stockData[0];
+              const chgPct = firstB && lastB ? pct(lastB.close, firstB.close) : "0.00";
+              const isUpStock = parseFloat(chgPct) >= 0;
+
+              return (
+                <button
+                  key={a.symbol}
+                  onClick={() => setSymbol(a.symbol)}
+                  className={`flex flex-col p-3 rounded-xl border text-left transition-all cursor-pointer bg-[#0c1220]/40 border-white/5 hover:border-indigo-500/40 hover:bg-[#0c1220]/80 group ${
+                    isSelected ? "border-indigo-500/60 bg-indigo-500/5 ring-1 ring-indigo-500/30" : ""
+                  }`}
+                >
+                  <span className="text-[11px] font-mono font-bold text-white group-hover:text-indigo-400 transition-colors flex justify-between items-center w-full">
+                    <span>{a.symbol}</span>
+                    <span className={`text-[8.5px] font-bold ${isUpStock ? "text-emerald-500" : "text-rose-500"}`}>
+                      {isUpStock ? "+" : ""}{chgPct}%
+                    </span>
+                  </span>
+                  <span className="text-[9px] text-slate-500 truncate mt-0.5 mb-2.5 max-w-full font-medium">{a.name}</span>
+                  <span className="text-[11px] font-mono font-extrabold text-indigo-300 mt-auto">
+                    {curSym}{fmt(lastB?.close || a.basePrice, a.basePrice < 10 ? 4 : 2)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+      </div>
+    );
+  };
+
   // ─── Render Sub-pane ────────────────────────────────────────────────────────
   const renderChartPane = (paneId) => {
     const isChart1 = paneId === 1;
@@ -737,112 +1503,7 @@ export function ChartTerminal() {
               <ChevronDown size={13} className="text-slate-500 ml-0.5 shrink-0" />
             </button>
 
-            {activeSearchOpen && (
-              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4" onClick={(e) => { if (e.target === e.currentTarget) { setActiveSearchOpen(false); setActiveSearch(""); } }}>
-                <div className="bg-[#080f1e] border border-slate-800 rounded-2xl w-full max-w-3xl h-[600px] max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative">
-                  
-                  {/* Modal Header */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#0a1020]">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs">🌐</span>
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Select Asset</span>
-                    </div>
-                    <button 
-                      onClick={() => { setActiveSearchOpen(false); setActiveSearch(""); }}
-                      className="text-slate-400 hover:text-white p-1 hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
 
-                  {/* Search Input Bar */}
-                  <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1020] border-b border-white/5">
-                    <Search size={16} className="text-slate-400 shrink-0" />
-                    <input
-                      autoFocus
-                      value={activeSearch}
-                      onChange={e => setActiveSearch(e.target.value)}
-                      placeholder="Search asset symbol, name, or sector (e.g. Reliance, HDFC, IT, Banking)..."
-                      className="flex-1 bg-transparent text-[13px] text-white placeholder-slate-500 outline-none"
-                    />
-                    {activeSearch && (
-                      <button onClick={() => setActiveSearch("")} className="text-slate-400 hover:text-white p-1 cursor-pointer">
-                        <X size={12} />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Modal Body */}
-                  <div className="flex flex-col md:flex-row flex-1 min-h-0">
-                    {/* Left Sidebar Navigation (only shown when not searching) */}
-                    {!activeSearch && (
-                      <div className="w-full md:w-48 bg-[#050a14] border-b md:border-b-0 md:border-r border-white/5 flex flex-row md:flex-col p-1.5 gap-1 shrink-0 overflow-x-auto md:overflow-y-auto scrollbar-none">
-                        {[
-                          { id: "All",         label: "All Markets",     icon: "🌐" },
-                          { id: "India",       label: "Indian Equities", icon: "🇮🇳" },
-                          { id: "USA",         label: "US Equities",     icon: "🇺🇸" },
-                          { id: "Crypto",      label: "Crypto Assets",   icon: "🪙" },
-                          { id: "Indices",     label: "Stock Indices",   icon: "📈" },
-                          { id: "Commodities", label: "Commodities",     icon: "🌻" },
-                          { id: "Forex",       label: "Forex Pairs",     icon: "💱" },
-                        ].map(tab => (
-                          <button
-                            key={tab.id}
-                            onClick={() => setActiveSearchTab(tab.id)}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[10.5px] font-bold text-left cursor-pointer transition-all whitespace-nowrap shrink-0 ${
-                              activeSearchTab === tab.id
-                                ? "bg-indigo-500 text-white shadow-lg"
-                                : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                            }`}
-                          >
-                            <span className="text-sm shrink-0">{tab.icon}</span>
-                            <span className="truncate">{tab.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Right Scrolling Content Area */}
-                    <div className="flex-1 overflow-y-auto p-4 bg-[#080f1e]">
-                      {Object.keys(searchGroups).length === 0 ? (
-                        <div className="text-[11px] text-slate-500 text-center py-10 select-none">No matching assets found</div>
-                      ) : (
-                        Object.entries(searchGroups).map(([groupName, assets]) => (
-                          <div key={groupName} className="mb-5">
-                            <div className="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest px-1 py-1 mb-2 border-b border-white/5 select-none">
-                              {groupName}
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              {assets.map(a => {
-                                const isIndian = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
-                                const currency = isIndian ? "₹" : "$";
-                                return (
-                                  <button
-                                    key={a.symbol}
-                                    onClick={() => { setCurrentSymbol(a.symbol); setActiveSearchOpen(false); setActiveSearch(""); }}
-                                    className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-left bg-[#0c1220]/40 border-white/5 hover:border-indigo-500/50 hover:bg-[#0c1220]/80 group ${
-                                      a.symbol === currentSymbol ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-400" : "text-slate-300"
-                                    }`}
-                                  >
-                                    <div className="flex flex-col min-w-0 pr-2">
-                                      <span className="text-[12px] font-mono font-bold text-white group-hover:text-indigo-400 transition-colors">{a.symbol}</span>
-                                      <span className="text-[10px] text-slate-500 truncate max-w-[170px]">{a.name}</span>
-                                    </div>
-                                    <span className="text-[11px] font-mono font-bold text-indigo-300 text-right shrink-0">
-                                      {currency}{fmt(a.basePrice, a.basePrice < 10 ? 4 : 2)}
-                                    </span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Quick Comparison Presets */}
@@ -888,115 +1549,7 @@ export function ChartTerminal() {
               </button>
             )}
 
-            {compareSearchOpen && (
-              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4" onClick={(e) => { if (e.target === e.currentTarget) { setCompareSearchOpen(false); setCompareSearch(""); } }}>
-                <div className="bg-[#080f1e] border border-slate-800 rounded-2xl w-full max-w-3xl h-[600px] max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative">
-                  
-                  {/* Modal Header */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#0a1020]">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs">⚖️</span>
-                      <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">Compare Benchmark Overlay</span>
-                    </div>
-                    <button 
-                      onClick={() => { setCompareSearchOpen(false); setCompareSearch(""); }}
-                      className="text-slate-400 hover:text-white p-1 hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
 
-                  {/* Search Input Bar */}
-                  <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1020] border-b border-white/5">
-                    <Search size={16} className="text-slate-400 shrink-0" />
-                    <input
-                      autoFocus
-                      value={compareSearch}
-                      onChange={e => setCompareSearch(e.target.value)}
-                      placeholder="Type symbol or name to overlay..."
-                      className="flex-1 bg-transparent text-[13px] text-white placeholder-slate-500 outline-none"
-                    />
-                    {compareSearch && (
-                      <button onClick={() => setCompareSearch("")} className="text-slate-400 hover:text-white p-1 cursor-pointer">
-                        <X size={12} />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Modal Body */}
-                  <div className="flex-1 overflow-y-auto p-4 bg-[#080f1e]">
-                    {(() => {
-                      const compareFiltered = ASSET_CATALOG.filter(a => a.symbol !== currentSymbol)
-                        .filter(a => !compareSearch || a.symbol.toLowerCase().includes(compareSearch.toLowerCase()) || a.name.toLowerCase().includes(compareSearch.toLowerCase()));
-
-                      const compareGroups = {};
-                      compareFiltered.forEach(a => {
-                        let gName = "";
-                        if (a.type === "Indian Stock") {
-                          gName = `🇮🇳 Indian - ${a.sector}`;
-                        } else if (a.type === "Stock") {
-                          gName = "🇺🇸 US Stocks";
-                        } else if (a.type === "Crypto") {
-                          gName = "🪙 Cryptocurrencies";
-                        } else if (a.type === "Index") {
-                          if (["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol)) {
-                            gName = "🇮🇳 Indian Indices";
-                          } else {
-                            gName = "📈 Global Indices";
-                          }
-                        } else if (a.type === "Forex") {
-                          gName = "💱 Forex Pairs";
-                        } else if (a.type === "Commodity") {
-                          gName = "🌻 Commodities";
-                        } else {
-                          gName = "Other";
-                        }
-
-                        if (!compareGroups[gName]) {
-                          compareGroups[gName] = [];
-                        }
-                        compareGroups[gName].push(a);
-                      });
-
-                      if (Object.keys(compareGroups).length === 0) {
-                        return <div className="text-[11px] text-slate-500 text-center py-10 select-none">No matching assets found</div>;
-                      }
-
-                      return Object.entries(compareGroups).map(([groupName, assets]) => (
-                        <div key={groupName} className="mb-5">
-                          <div className="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest px-1 py-1 mb-2 border-b border-white/5 select-none">
-                            {groupName}
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {assets.map(a => {
-                              const isIndian = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
-                              const currency = isIndian ? "₹" : "$";
-                              return (
-                                <button
-                                  key={a.symbol}
-                                  onClick={() => { setCompareSymbol(a.symbol); setCompareSearchOpen(false); setCompareSearch(""); }}
-                                  className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-left bg-[#0c1220]/40 border-white/5 hover:border-amber-500/50 hover:bg-[#0c1220]/80 group ${
-                                    a.symbol === compareSymbol ? "border-amber-500/50 bg-amber-500/10 text-amber-400" : "text-slate-300"
-                                  }`}
-                                >
-                                  <div className="flex flex-col min-w-0 pr-2">
-                                    <span className="text-[12px] font-mono font-bold text-white group-hover:text-amber-400 transition-colors">{a.symbol}</span>
-                                    <span className="text-[10px] text-slate-500 truncate max-w-[170px]">{a.name}</span>
-                                  </div>
-                                  <span className="text-[11px] font-mono font-bold text-amber-300 text-right shrink-0">
-                                    {currency}{fmt(a.basePrice, a.basePrice < 10 ? 4 : 2)}
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ));
-                    })()}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Price details */}
@@ -1290,6 +1843,18 @@ export function ChartTerminal() {
       </div>
     );
   };
+
+  if (simpleMode) {
+    return (
+      <div className="flex flex-col min-h-full md:h-full bg-[#040912] text-white pb-[56px] md:pb-0 overflow-y-auto select-none relative">
+        {renderSimpleDashboard()}
+        
+        {/* Modals rendered at root */}
+        {renderAssetSearchModal(1)}
+        {renderCompareSearchModal(1)}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-full md:h-full bg-[#040912] text-white pb-[56px] md:pb-0 overflow-y-auto md:overflow-hidden select-none">
@@ -1636,6 +2201,12 @@ export function ChartTerminal() {
           </div>
         </div>
       )}
+
+      {/* Root Modals for Pro view */}
+      {renderAssetSearchModal(1)}
+      {renderAssetSearchModal(2)}
+      {renderCompareSearchModal(1)}
+      {renderCompareSearchModal(2)}
     </div>
   );
 }

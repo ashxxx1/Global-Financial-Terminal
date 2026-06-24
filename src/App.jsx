@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -12,6 +12,7 @@ import { Sidebar }      from "./components/Terminal/Sidebar";
 import { RightSidebar } from "./components/Terminal/RightSidebar";
 import { GlobeVis }     from "./components/Terminal/GlobeVis";
 import { GlobalNews }   from "./components/Terminal/GlobalNews";
+import { MarketBrief }  from "./components/Terminal/MarketBrief";
 import { CountryPanel } from "./components/Terminal/CountryPanel";
 import { SocialModule } from "./components/Terminal/SocialModule";
 import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
@@ -27,7 +28,7 @@ import { AlertSystem, AlertPanel } from "./components/Alerts/AlertSystem";
 import CommandPalette            from "./components/CommandPalette/CommandPalette";
 import MacroHeatmap              from "./components/MacroHeatmap/MacroHeatmap";
 import EconomicCalendar          from "./components/EconomicCalendar/EconomicCalendar";
-import CorrelationMatrix         from "./components/Correlation/CorrelationMatrix";
+import ChartTerminal             from "./components/Charts/ChartTerminal";
 import FXDashboard               from "./components/FXDashboard/FXDashboard";
 
 // ── Pages ────────────────────────────────────────────────────────────────────
@@ -64,6 +65,19 @@ function TerminalApp() {
   const closeMobileSidebar = useCallback(() => setMobileSidebarOpen(false), []);
   const toggleMobileSidebar = useCallback(() => setMobileSidebarOpen((v) => !v), []);
 
+  // Desktop collapsible panel states — start collapsed so globe fills screen
+  const [leftCollapsed, setLeftCollapsed] = useState(true);
+  const [rightCollapsed, setRightCollapsed] = useState(true);
+  const [bottomCollapsed, setBottomCollapsed] = useState(true);
+
+  // Auto-expand sidebars when a country is selected
+  useEffect(() => {
+    if (selectedCountry) {
+      setLeftCollapsed(false);
+      setRightCollapsed(false);
+    }
+  }, [selectedCountry]);
+
   const anySheetOpen = mobileSidebarOpen || isNewsPanelOpen || isStockPanelOpen;
 
   return (
@@ -80,58 +94,128 @@ function TerminalApp() {
       {/* Main content area */}
       <main className="globe-area" style={{ position: "relative", overflow: "hidden" }}>
         {activeView === "globe" ? (
-          <>
-            {/* Globe is the omnipresent centerpiece */}
-            <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">
-              <GlobeVis selectedCountry={selectedCountry} onCountryClick={setSelectedCountry} timeframe={timeframe} />
+          <div className="flex w-full h-full">
+            {/* Left Panel: Market overview & Risk radar OR Country Info */}
+            <div className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""} ${leftCollapsed ? "w-0 border-r-0" : "w-[350px]"} h-full flex flex-col border-r border-indigo-500/10 glass-panel flex-shrink-0 transition-all duration-300 overflow-y-auto shadow-[40px_0_100px_rgba(0,0,0,0.5)]`}>
+              {selectedCountry ? (
+                <CountryLeftPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />
+              ) : (
+                <Sidebar />
+              )}
             </div>
 
-            {/* Glassmorphism Overlays */}
-            <div className="absolute inset-0 z-10 flex pointer-events-none w-full h-full">
-              
-              {/* Left Panel: Market overview & Risk radar */}
-              <div className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""} w-[350px] h-full flex flex-col border-r border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[40px_0_100px_rgba(0,0,0,0.5)] overflow-y-auto`}>
-                {selectedCountry ? (
-                  <CountryLeftPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />
-                ) : (
-                  <Sidebar />
-                )}
-              </div>
+            {/* Center Content Space & Bottom Dashboard */}
+            <div className="flex-1 flex flex-col min-w-0 h-full relative">
+              {/* Floating Left Sidebar Toggle */}
+              <button 
+                onClick={() => setLeftCollapsed(!leftCollapsed)}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-30 w-5 h-16 bg-[#0c1220]/95 border border-l-0 border-[#1e293b]/70 hover:border-indigo-500 text-indigo-400 hover:text-white rounded-r flex items-center justify-center cursor-pointer transition-colors shadow-2xl"
+                title={leftCollapsed ? "Expand Markets" : "Collapse Markets"}
+              >
+                <span className="text-[10px] font-bold">{leftCollapsed ? "▶" : "◀"}</span>
+              </button>
 
-              {/* Center Content Space & Bottom Dashboard */}
-              <div className="flex-1 flex flex-col min-w-0 h-full relative">
-                <div className="flex-1 w-full pointer-events-none flex flex-col justify-end">
-                    <div className="w-full flex justify-center mb-6 pointer-events-auto">
-                      <div className="flex items-center bg-[#0c1220]/90 backdrop-blur-md border border-[#1e293b] p-1 rounded shadow-2xl">
-                        {["1D", "1W", "1M", "YTD"].map((tf) => (
-                            <button 
-                              key={tf}
-                              onClick={() => setTimeframe(tf)}
-                              className={`px-4 py-1.5 text-[11px] font-bold font-mono uppercase tracking-widest rounded transition-colors cursor-pointer ${timeframe === tf ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                            >
-                              {tf}
-                            </button>
-                        ))}
-                      </div>
-                    </div>
-                </div> 
-                
-                {/* Bottom Panel: Global News / Flows */}
-                <div className="hidden md:flex relative h-[240px] w-full border-t border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 flex flex-col shadow-[0_-40px_100px_rgba(0,0,0,0.5)]">
-                  <GlobalNews />
+              {/* Floating Right Sidebar Toggle */}
+              <button 
+                onClick={() => setRightCollapsed(!rightCollapsed)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-5 h-16 bg-[#0c1220]/95 border border-r-0 border-[#1e293b]/70 hover:border-indigo-500 text-indigo-400 hover:text-white rounded-l flex items-center justify-center cursor-pointer transition-colors shadow-2xl"
+                title={rightCollapsed ? "Expand Intelligence" : "Collapse Intelligence"}
+              >
+                <span className="text-[10px] font-bold">{rightCollapsed ? "◀" : "▶"}</span>
+              </button>
+
+              {/* Globe centerpiece container */}
+              <div className="flex-1 w-full relative">
+                {/* Floating Workspace & Control Overlay */}
+                {/* Top-left: View title & Timeframe */}
+                <div className="absolute top-4 left-8 z-20 pointer-events-auto flex items-center gap-3 bg-[#080f1e]/90 backdrop-blur-md border border-[#1e293b] px-4 py-2 rounded-lg shadow-2xl">
+                  <span className="font-bold text-[11px] text-white tracking-widest">🌍 GLOBAL MARKET MAP</span>
+                  <div className="h-4 w-px bg-slate-700" />
+                  <div className="flex items-center bg-black/40 border border-white/10 p-0.5 rounded">
+                    {["1D", "1W", "1M", "YTD"].map((tf) => (
+                      <button 
+                        key={tf}
+                        onClick={() => setTimeframe(tf)}
+                        className={`px-3 py-1 text-[10px] font-bold font-mono uppercase tracking-wider rounded transition-all cursor-pointer ${timeframe === tf ? 'bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                      >
+                        {tf}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Top-right: AI Market Brief floating card */}
+                <div className="absolute top-4 right-8 z-20 pointer-events-auto w-72">
+                  <MarketBrief />
+                </div>
+
+                {/* Bottom-center: Panel Toggles — large, clearly labeled */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto flex items-center gap-3 bg-[#080f1e]/95 backdrop-blur-xl border border-[#1e293b] px-5 py-2.5 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+                  <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mr-1">PANELS</span>
+                  
+                  <button
+                    onClick={() => setLeftCollapsed(!leftCollapsed)}
+                    className={`px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all border cursor-pointer flex items-center gap-2 ${
+                      !leftCollapsed 
+                        ? 'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
+                        : 'bg-white/5 text-slate-400 border-white/10 hover:border-indigo-500/50 hover:text-indigo-300'
+                    }`}
+                  >
+                    📊 <span>Markets</span>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${!leftCollapsed ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-500'}`}>
+                      {leftCollapsed ? 'OFF' : 'ON'}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => setRightCollapsed(!rightCollapsed)}
+                    className={`px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all border cursor-pointer flex items-center gap-2 ${
+                      !rightCollapsed 
+                        ? 'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
+                        : 'bg-white/5 text-slate-400 border-white/10 hover:border-indigo-500/50 hover:text-indigo-300'
+                    }`}
+                  >
+                    🧠 <span>Intel</span>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${!rightCollapsed ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-500'}`}>
+                      {rightCollapsed ? 'OFF' : 'ON'}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => setBottomCollapsed(!bottomCollapsed)}
+                    className={`px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all border cursor-pointer flex items-center gap-2 ${
+                      !bottomCollapsed 
+                        ? 'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
+                        : 'bg-white/5 text-slate-400 border-white/10 hover:border-indigo-500/50 hover:text-indigo-300'
+                    }`}
+                  >
+                    📡 <span>News</span>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${!bottomCollapsed ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-500'}`}>
+                      {bottomCollapsed ? 'OFF' : 'ON'}
+                    </span>
+                  </button>
+                </div>
+
+                <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">
+                  <GlobeVis selectedCountry={selectedCountry} onCountryClick={setSelectedCountry} timeframe={timeframe} />
                 </div>
               </div>
-
-              {/* Right Panel: Intelligence / Social */}
-              <div className="hidden md:flex w-[380px] h-full flex-col border-l border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[-40px_0_100px_rgba(0,0,0,0.5)] overflow-y-auto">
-                {selectedCountry ? (
-                  <CountryRightPanel country={selectedCountry} timeframe={timeframe} />
-                ) : (
-                  <RightSidebar onSetView={setActiveView} />
-                )}
+              
+              {/* Bottom Panel: Global News */}
+              <div className={`hidden md:flex relative ${bottomCollapsed ? "h-[44px]" : "h-[220px]"} w-full border-t border-indigo-500/10 glass-panel flex-shrink-0 flex flex-col transition-all duration-300 overflow-hidden shadow-[0_-40px_100px_rgba(0,0,0,0.5)]`}>
+                <GlobalNews isCollapsed={bottomCollapsed} onToggle={() => setBottomCollapsed(!bottomCollapsed)} />
               </div>
             </div>
-          </>
+
+            {/* Right Panel: Intelligence / Social OR Country Feed */}
+            <div className={`hidden md:flex ${rightCollapsed ? "w-0 border-l-0" : "w-[380px]"} h-full flex-col border-l border-indigo-500/10 glass-panel flex-shrink-0 transition-all duration-300 overflow-y-auto shadow-[-40px_0_100px_rgba(0,0,0,0.5)]`}>
+              {selectedCountry ? (
+                <CountryRightPanel country={selectedCountry} timeframe={timeframe} />
+              ) : (
+                <RightSidebar onSetView={setActiveView} />
+              )}
+            </div>
+          </div>
         ) : (
           <div className="absolute inset-0 z-10 flex flex-col w-full h-full bg-[#020617] overflow-hidden">
             {activeView === "news"        && <GlobalNews />}
@@ -141,16 +225,23 @@ function TerminalApp() {
             {activeView === "calendar"    && <EconomicCalendar />}
             {activeView === "fx"          && <FXDashboard />}
             {activeView === "correlation" && <CorrelationMatrix />}
+            {activeView === "charts"      && <ChartTerminal />}
           </div>
         )}
 
         {/* Selected Country Panel Overlay */}
         {selectedCountry && (
-          <div className="absolute inset-0 z-50 pointer-events-none flex justify-center items-center bg-black/50 backdrop-blur-sm md:hidden">
-             <div className="pointer-events-auto w-full max-w-[640px] px-4 md:px-0 shadow-[0_0_80px_rgba(30,58,138,0.3)]">
-               <div className="bg-[#020617]/95 backdrop-blur-xl border border-[#1e293b] overflow-hidden rounded-lg">
-                  <CountryPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />
-               </div>
+          <div 
+            onClick={() => setSelectedCountry(null)}
+            className="absolute inset-0 z-50 flex justify-center items-center bg-black/60 backdrop-blur-sm cursor-pointer md:hidden"
+          >
+             <div 
+               onClick={(e) => e.stopPropagation()}
+               className="w-full max-w-[640px] px-4 md:px-0 shadow-[0_0_80px_rgba(30,58,138,0.3)] cursor-default"
+             >
+                <div className="bg-[#020617]/95 backdrop-blur-xl border border-[#1e293b] overflow-hidden rounded-lg">
+                   <CountryPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />
+                </div>
              </div>
           </div>
         )}

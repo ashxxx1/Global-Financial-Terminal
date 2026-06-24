@@ -20,7 +20,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Federal Reserve signals potential rate cuts as inflation cools to 2.1%",
-      source: "Bloomberg",
+      source: "Global Macro Desk",
       time: "12 min ago",
       sentiment: "bullish",
       impact: "+0.8%",
@@ -29,7 +29,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Nvidia surpasses $4 trillion market cap, becomes world's most valuable company",
-      source: "Reuters",
+      source: "Macro Wire",
       time: "38 min ago",
       sentiment: "bullish",
       impact: "+2.4%",
@@ -94,7 +94,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Bank of Canada cuts rates by 25bps, third consecutive cut",
-      source: "Reuters",
+      source: "Capital Feed",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+0.5%",
@@ -123,7 +123,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Brazil central bank hikes rates to 13.75% to combat 5.2% inflation",
-      source: "Reuters",
+      source: "Trade Flow Intel",
       time: "30 min ago",
       sentiment: "bearish",
       impact: "-1.1%",
@@ -132,7 +132,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Amazon deforestation drops 45% in 2025, investors react positively",
-      source: "Bloomberg",
+      source: "FX Monitor",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+0.6%",
@@ -161,7 +161,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Mexico nearshoring boom attracts $25bn FDI as US firms shift from China",
-      source: "Bloomberg",
+      source: "Commodity Desk",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+1.8%",
@@ -190,7 +190,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Argentina's Milei economic shock therapy shows results as inflation drops to 8% monthly",
-      source: "Reuters",
+      source: "Credit Monitor",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+2.1%",
@@ -199,7 +199,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "IMF approves $15bn support package for Argentina fiscal reform",
-      source: "Bloomberg",
+      source: "Alpha Terminal",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+3.2%",
@@ -208,7 +208,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Milei's austerity delivers 7% fiscal surplus — first in decades",
-      source: "Reuters",
+      source: "Macro Pulse",
       time: "20 min ago",
       sentiment: "bullish",
       impact: "+4.5%",
@@ -217,7 +217,7 @@ export const COUNTRIES_DATA = {
     {
       id: 4,
       title: "Argentina inflation falls to 48% from 290% peak, reforms praised",
-      source: "Bloomberg",
+      source: "Market Wire",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+2.8%",
@@ -255,7 +255,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Chile copper output declines 8% amid labor disputes at key mines",
-      source: "Reuters",
+      source: "Global Macro Desk",
       time: "2h ago",
       sentiment: "bearish",
       impact: "-1.2%",
@@ -264,7 +264,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Chile lithium nationalization plan draws mixed investor reaction",
-      source: "Reuters",
+      source: "Macro Wire",
       time: "2h ago",
       sentiment: "bearish",
       impact: "-1.2%",
@@ -273,7 +273,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Copper futures hit $5.20/lb on Chinese stimulus demand surge",
-      source: "Bloomberg",
+      source: "Capital Feed",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+2.1%",
@@ -311,7 +311,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Colombia peso hits 3-month low as fiscal deficit widens",
-      source: "Reuters",
+      source: "Trade Flow Intel",
       time: "1h ago",
       sentiment: "bearish",
       impact: "-2.0%",
@@ -320,7 +320,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Ecopetrol crude output misses targets amid security incidents",
-      source: "Bloomberg",
+      source: "FX Monitor",
       time: "4h ago",
       sentiment: "bearish",
       impact: "-1.5%",
@@ -367,7 +367,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "UK fintech sector attracts record £8.2bn investment in 2026",
-      source: "Reuters",
+      source: "Commodity Desk",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+0.5%",
@@ -405,7 +405,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Volkswagen announces 15,000 job cuts amid EV transition struggles",
-      source: "Reuters",
+      source: "Credit Monitor",
       time: "2h ago",
       sentiment: "bearish",
       impact: "-2.1%",
@@ -414,7 +414,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "German renewable energy hits 65% of total grid capacity for first time",
-      source: "Bloomberg",
+      source: "Alpha Terminal",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+0.4%",
@@ -452,7 +452,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "LVMH posts 12% revenue growth, luxury sector outperforms",
-      source: "Reuters",
+      source: "Macro Pulse",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+1.2%",
@@ -481,7 +481,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Italy's tourism boom drives record €50bn revenue in 2026",
-      source: "Reuters",
+      source: "Market Wire",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+0.7%",
@@ -499,7 +499,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Italy debt-to-GDP ratio hits 143%, ECB scrutiny intensifies",
-      source: "Reuters",
+      source: "Global Macro Desk",
       time: "5h ago",
       sentiment: "bearish",
       impact: "-0.5%",
@@ -528,7 +528,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Spain renewable energy capacity surpasses 80GW, leads EU green transition",
-      source: "Bloomberg",
+      source: "Macro Wire",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+0.8%",
@@ -584,7 +584,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "ASML books record €8.4bn orders, AI chip demand drives boom",
-      source: "Bloomberg",
+      source: "Capital Feed",
       time: "30 min ago",
       sentiment: "bullish",
       impact: "+2.8%",
@@ -593,7 +593,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Shell completes €5bn share buyback program",
-      source: "Reuters",
+      source: "Trade Flow Intel",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+0.6%",
@@ -622,7 +622,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Spotify reports record 650M users, ad revenue up 28%",
-      source: "Reuters",
+      source: "FX Monitor",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+4.2%",
@@ -631,7 +631,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Spotify exceeds 650M monthly active users, stock rallies 4%",
-      source: "Reuters",
+      source: "Commodity Desk",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+1.9%",
@@ -640,7 +640,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Riksbank cuts rates for second time, SEK weakens",
-      source: "Bloomberg",
+      source: "Credit Monitor",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+0.4%",
@@ -669,7 +669,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Swiss franc strengthens as safe-haven demand rises on global uncertainty",
-      source: "Bloomberg",
+      source: "Alpha Terminal",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+0.5%",
@@ -678,7 +678,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Nestlé reports 5.2% organic sales growth, beats estimates",
-      source: "Reuters",
+      source: "Macro Pulse",
       time: "45 min ago",
       sentiment: "bullish",
       impact: "+1.1%",
@@ -687,7 +687,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "SNB holds rates at 1.5%, CHF safe-haven demand rises",
-      source: "Bloomberg",
+      source: "Market Wire",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+0.4%",
@@ -716,7 +716,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Equinor's offshore wind expansion reaches 5GW milestone",
-      source: "Reuters",
+      source: "Global Macro Desk",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+1.1%",
@@ -734,7 +734,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Norway sovereign wealth fund hits $1.8 trillion, a new record",
-      source: "Bloomberg",
+      source: "Macro Wire",
       time: "6h ago",
       sentiment: "bullish",
       impact: "+0.3%",
@@ -781,7 +781,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Denmark leads Europe in green energy transition, 88% renewables",
-      source: "Bloomberg",
+      source: "Capital Feed",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+0.5%",
@@ -810,7 +810,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Poland defense spending rises to 4% of GDP as Eastern Europe security concerns mount",
-      source: "Reuters",
+      source: "Trade Flow Intel",
       time: "2h ago",
       sentiment: "bearish",
       impact: "-0.5%",
@@ -819,7 +819,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Poland GDP grows 4.1% in Q1, fastest in Central Europe",
-      source: "Reuters",
+      source: "FX Monitor",
       time: "45 min ago",
       sentiment: "bullish",
       impact: "+1.3%",
@@ -828,7 +828,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "PKN Orlen acquires 3 European refinery assets, expands footprint",
-      source: "Bloomberg",
+      source: "Commodity Desk",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+0.8%",
@@ -866,7 +866,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Portugal tourism revenues hit record €25bn, beating pre-COVID peak",
-      source: "Reuters",
+      source: "Credit Monitor",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+0.7%",
@@ -875,7 +875,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "German renewable energy hits 65% of total grid capacity for first time",
-      source: "Bloomberg",
+      source: "Alpha Terminal",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+0.4%",
@@ -904,7 +904,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Greece tourism hits record 35M visitors, economy grows 3.8%",
-      source: "Reuters",
+      source: "Macro Pulse",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+0.9%",
@@ -922,7 +922,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "UK fintech sector attracts record £8.2bn investment in 2026",
-      source: "Reuters",
+      source: "Market Wire",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+0.5%",
@@ -969,7 +969,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Ireland FDI at risk as US multinationals eye reshoring",
-      source: "Reuters",
+      source: "Global Macro Desk",
       time: "5h ago",
       sentiment: "bearish",
       impact: "-0.6%",
@@ -998,7 +998,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Nokia restructures as 5G market share continues to decline vs Ericsson",
-      source: "Reuters",
+      source: "Macro Wire",
       time: "2h ago",
       sentiment: "bearish",
       impact: "-1.4%",
@@ -1007,7 +1007,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Nokia wins €2.1bn 5G infrastructure contract across Southeast Asia",
-      source: "Reuters",
+      source: "Capital Feed",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+2.1%",
@@ -1016,7 +1016,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Finland NATO integration boosts defence sector stocks 5%",
-      source: "Bloomberg",
+      source: "Trade Flow Intel",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+1.0%",
@@ -1045,7 +1045,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "AB InBev reports record beer volumes in Asia-Pacific markets",
-      source: "Bloomberg",
+      source: "FX Monitor",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+0.8%",
@@ -1063,7 +1063,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Belgium nuclear plant life extension approved through 2040",
-      source: "Bloomberg",
+      source: "Commodity Desk",
       time: "6h ago",
       sentiment: "bullish",
       impact: "+0.5%",
@@ -1092,7 +1092,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Austria energy independence plan progresses with record solar installations",
-      source: "Reuters",
+      source: "Credit Monitor",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+0.5%",
@@ -1110,7 +1110,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Vienna real estate market softens as rates bite construction sector",
-      source: "Reuters",
+      source: "Alpha Terminal",
       time: "6h ago",
       sentiment: "bearish",
       impact: "-0.6%",
@@ -1139,7 +1139,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Russia oil revenue falls 18% as G7 price cap enforcement tightens",
-      source: "Reuters",
+      source: "Macro Pulse",
       time: "30 min ago",
       sentiment: "bearish",
       impact: "-2.5%",
@@ -1148,7 +1148,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Ceasefire talks in Ukraine resume, markets cautiously optimistic",
-      source: "Bloomberg",
+      source: "Market Wire",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+1.2%",
@@ -1177,7 +1177,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Turkey inflation falls to 45% from peak of 85%, lira stabilizes",
-      source: "Reuters",
+      source: "Global Macro Desk",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+2.3%",
@@ -1186,7 +1186,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Turkish lira falls 4% vs USD after central bank surprise decision",
-      source: "Reuters",
+      source: "Macro Wire",
       time: "20 min ago",
       sentiment: "bearish",
       impact: "-3.2%",
@@ -1195,7 +1195,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Japan inflation rises to 2.8%, highest in 18 months",
-      source: "Bloomberg",
+      source: "Capital Feed",
       time: "3h ago",
       sentiment: "neutral",
       impact: "-0.2%",
@@ -1242,7 +1242,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Czech Republic inflation cools to 2.8%, central bank signals cut",
-      source: "Reuters",
+      source: "Trade Flow Intel",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+0.6%",
@@ -1251,7 +1251,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Skoda EV transition plan worth €5bn approved by VW group",
-      source: "Bloomberg",
+      source: "FX Monitor",
       time: "6h ago",
       sentiment: "bullish",
       impact: "+0.4%",
@@ -1280,7 +1280,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Hungary forint weakens as EU funding dispute remains unresolved",
-      source: "Reuters",
+      source: "Commodity Desk",
       time: "2h ago",
       sentiment: "bearish",
       impact: "-0.8%",
@@ -1289,7 +1289,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Hungary forint hits new low vs EUR amid political uncertainty",
-      source: "Reuters",
+      source: "Credit Monitor",
       time: "30 min ago",
       sentiment: "bearish",
       impact: "-2.1%",
@@ -1298,7 +1298,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "OTP Bank reports rising NPL ratio, provisions surge",
-      source: "Bloomberg",
+      source: "Alpha Terminal",
       time: "4h ago",
       sentiment: "bearish",
       impact: "-1.4%",
@@ -1336,7 +1336,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Romania FDI surges 28% as EU funds unlock €12bn for infrastructure",
-      source: "Reuters",
+      source: "Macro Pulse",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+1.6%",
@@ -1345,7 +1345,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Petrom crude oil output rises 8%, boosts Bucharest index",
-      source: "Bloomberg",
+      source: "Market Wire",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+0.7%",
@@ -1383,7 +1383,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Toyota announces $20bn EV investment, targeting 40% EV sales by 2028",
-      source: "Reuters",
+      source: "Global Macro Desk",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+1.8%",
@@ -1392,7 +1392,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Japan inflation rises to 2.8%, highest in 18 months",
-      source: "Bloomberg",
+      source: "Macro Wire",
       time: "3h ago",
       sentiment: "neutral",
       impact: "-0.2%",
@@ -1430,7 +1430,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "China GDP grows 5.2% in Q2, exceeding government 5% target",
-      source: "Reuters",
+      source: "Capital Feed",
       time: "45 min ago",
       sentiment: "bullish",
       impact: "+2.3%",
@@ -1439,7 +1439,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "BYD overtakes Tesla globally in EV deliveries for first time",
-      source: "Bloomberg",
+      source: "Trade Flow Intel",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+3.1%",
@@ -1504,7 +1504,7 @@ export const COUNTRIES_DATA = {
     {
       id: 4,
       title: "India-Pakistan tensions ease after diplomatic breakthrough",
-      source: "Reuters",
+      source: "FX Monitor",
       time: "6h ago",
       sentiment: "bullish",
       impact: "+0.9%",
@@ -1542,7 +1542,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "South Korea K-pop industry exports hit $12bn, cultural economy booms",
-      source: "Reuters",
+      source: "Commodity Desk",
       time: "6h ago",
       sentiment: "bullish",
       impact: "+0.4%",
@@ -1580,7 +1580,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "RBA holds rates steady, housing market shows signs of cooling",
-      source: "Reuters",
+      source: "Credit Monitor",
       time: "3h ago",
       sentiment: "neutral",
       impact: "+0.1%",
@@ -1627,7 +1627,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Property sector drag continues as Evergrande liquidation proceeds",
-      source: "Bloomberg",
+      source: "Alpha Terminal",
       time: "3h ago",
       sentiment: "bearish",
       impact: "-0.9%",
@@ -1656,7 +1656,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "TSMC announces next-gen 1.4nm chip, orders surge from Apple and NVIDIA",
-      source: "Reuters",
+      source: "Macro Pulse",
       time: "20 min ago",
       sentiment: "bullish",
       impact: "+4.5%",
@@ -1665,7 +1665,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "TSMC Q2 revenue surges 40% on AI chip demand, raises 2026 outlook",
-      source: "Reuters",
+      source: "Market Wire",
       time: "5 min ago",
       sentiment: "bullish",
       impact: "+4.2%",
@@ -1674,7 +1674,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "India-Pakistan tensions ease after diplomatic breakthrough",
-      source: "Reuters",
+      source: "Global Macro Desk",
       time: "6h ago",
       sentiment: "bullish",
       impact: "+0.9%",
@@ -1741,7 +1741,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Indonesia nickel reserves drive record FDI as global EV battery demand surges",
-      source: "Reuters",
+      source: "Macro Wire",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+2.1%",
@@ -1750,7 +1750,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Indonesia nickel processing boom attracts $12bn EV supply-chain FDI",
-      source: "Reuters",
+      source: "Capital Feed",
       time: "30 min ago",
       sentiment: "bullish",
       impact: "+2.3%",
@@ -1759,7 +1759,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Bank Indonesia holds rate at 6%, eyes Q3 cut as inflation drops",
-      source: "Bloomberg",
+      source: "Trade Flow Intel",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+0.7%",
@@ -1788,7 +1788,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Malaysia ringgit weakens as oil revenues disappoint",
-      source: "Reuters",
+      source: "FX Monitor",
       time: "3h ago",
       sentiment: "bearish",
       impact: "-0.6%",
@@ -1797,7 +1797,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Malaysia overtakes Singapore as SE Asia's top semiconductor hub",
-      source: "Reuters",
+      source: "Commodity Desk",
       time: "45 min ago",
       sentiment: "bullish",
       impact: "+1.9%",
@@ -1806,7 +1806,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Petronas reports record quarterly profit of RM 23bn",
-      source: "Bloomberg",
+      source: "Credit Monitor",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+1.2%",
@@ -1835,7 +1835,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Thailand tourism revenue hits $35bn as Chinese visitors return en masse",
-      source: "Reuters",
+      source: "Alpha Terminal",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+1.0%",
@@ -1844,7 +1844,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Thai baht weakens as tourism receipts fall short of target",
-      source: "Reuters",
+      source: "Macro Pulse",
       time: "1h ago",
       sentiment: "bearish",
       impact: "-1.3%",
@@ -1853,7 +1853,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Thailand political crisis resurfaces, PM faces no-confidence vote",
-      source: "Bloomberg",
+      source: "Market Wire",
       time: "3h ago",
       sentiment: "bearish",
       impact: "-2.1%",
@@ -1882,7 +1882,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Philippines BPO sector grows 12%, becomes 2nd largest globally",
-      source: "Reuters",
+      source: "Global Macro Desk",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+0.8%",
@@ -1891,7 +1891,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Philippines OFW remittances hit record $38bn, drives consumer spending",
-      source: "Reuters",
+      source: "Macro Wire",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+1.0%",
@@ -1900,7 +1900,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "SM Investments reports 14% profit growth on mall & banking units",
-      source: "Bloomberg",
+      source: "Capital Feed",
       time: "6h ago",
       sentiment: "bullish",
       impact: "+0.8%",
@@ -1929,7 +1929,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Vietnam manufacturing boom continues as 85 global firms relocate from China",
-      source: "Bloomberg",
+      source: "Trade Flow Intel",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+2.4%",
@@ -1938,7 +1938,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Vietnam electronics exports top $130bn as Apple shifts production from China",
-      source: "Reuters",
+      source: "FX Monitor",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+2.8%",
@@ -1947,7 +1947,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Vingroup EV brand VinFast expands into US and European markets",
-      source: "Bloomberg",
+      source: "Commodity Desk",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+3.2%",
@@ -1976,7 +1976,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "New Zealand dairy exports at 10-year high as China demand rebounds",
-      source: "Reuters",
+      source: "Credit Monitor",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+0.7%",
@@ -1985,7 +1985,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "New Zealand RBNZ cuts rates 50bps, housing market reacts",
-      source: "Reuters",
+      source: "Alpha Terminal",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+1.1%",
@@ -1994,7 +1994,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Fonterra dairy exports surge on Chinese demand recovery",
-      source: "Bloomberg",
+      source: "Macro Pulse",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+0.8%",
@@ -2023,7 +2023,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Pakistan secures $7bn IMF bailout, stock market surges on relief rally",
-      source: "Reuters",
+      source: "Market Wire",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+4.5%",
@@ -2032,7 +2032,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Pakistan IMF deal extended, $7bn loan unlocks economic stabilization",
-      source: "Reuters",
+      source: "Global Macro Desk",
       time: "30 min ago",
       sentiment: "bullish",
       impact: "+3.1%",
@@ -2041,7 +2041,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Karachi exchange hits all-time high as inflation drops to 18%",
-      source: "Bloomberg",
+      source: "Macro Wire",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+2.4%",
@@ -2070,7 +2070,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Bangladesh garment exports hit $45bn, becoming world's 2nd largest exporter",
-      source: "Reuters",
+      source: "Capital Feed",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+1.1%",
@@ -2079,7 +2079,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Bangladesh garment sector faces order cancellations from EU buyers",
-      source: "Reuters",
+      source: "Trade Flow Intel",
       time: "1h ago",
       sentiment: "bearish",
       impact: "-2.1%",
@@ -2088,7 +2088,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Political unrest disrupts Dhaka markets, taka hits low vs USD",
-      source: "Bloomberg",
+      source: "FX Monitor",
       time: "3h ago",
       sentiment: "bearish",
       impact: "-1.9%",
@@ -2117,7 +2117,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Saudi Aramco announces $50bn expansion plan, oil output to rise 10%",
-      source: "Reuters",
+      source: "Commodity Desk",
       time: "10 min ago",
       sentiment: "bullish",
       impact: "+2.1%",
@@ -2126,7 +2126,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "OPEC+ agrees to extend production cuts through Q4 2026",
-      source: "Bloomberg",
+      source: "Credit Monitor",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+1.5%",
@@ -2184,7 +2184,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Qatar LNG expansion to 126 MTPA marks major energy milestone",
-      source: "Reuters",
+      source: "Alpha Terminal",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+2.3%",
@@ -2193,7 +2193,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "QatarEnergy signs 27-year LNG supply deal with Germany",
-      source: "Reuters",
+      source: "Macro Pulse",
       time: "35 min ago",
       sentiment: "bullish",
       impact: "+1.7%",
@@ -2202,7 +2202,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Qatar 2030 Vision attracts $18bn in tech and tourism FDI",
-      source: "Bloomberg",
+      source: "Market Wire",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+0.9%",
@@ -2231,7 +2231,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Israel market falls on geopolitical tensions, shekel weakens",
-      source: "Reuters",
+      source: "Global Macro Desk",
       time: "30 min ago",
       sentiment: "bearish",
       impact: "-2.5%",
@@ -2240,7 +2240,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Geopolitical tensions weigh on Tel Aviv exchange, shekel weakens",
-      source: "Reuters",
+      source: "Macro Wire",
       time: "10 min ago",
       sentiment: "bearish",
       impact: "-2.8%",
@@ -2249,7 +2249,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Israel tech sector VC funding drops 35% amid security concerns",
-      source: "Bloomberg",
+      source: "Capital Feed",
       time: "3h ago",
       sentiment: "bearish",
       impact: "-1.5%",
@@ -2296,7 +2296,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Platinum group metals exports surge on green hydrogen demand",
-      source: "Reuters",
+      source: "Trade Flow Intel",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+1.1%",
@@ -2325,7 +2325,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Nigeria's Dangote Refinery begins crude production, fuel imports to fall",
-      source: "Reuters",
+      source: "FX Monitor",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+2.3%",
@@ -2354,7 +2354,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Egypt IMF deal and Suez Canal reforms boost investor confidence",
-      source: "Bloomberg",
+      source: "Commodity Desk",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+2.1%",
@@ -2363,7 +2363,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Egypt IMF programme extended as reforms gain traction",
-      source: "Reuters",
+      source: "Credit Monitor",
       time: "40 min ago",
       sentiment: "bullish",
       impact: "+1.2%",
@@ -2372,7 +2372,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Suez Canal revenues fall 40% on Red Sea shipping diversions",
-      source: "Bloomberg",
+      source: "Alpha Terminal",
       time: "3h ago",
       sentiment: "bearish",
       impact: "-1.8%",
@@ -2401,7 +2401,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Kenya mobile money ecosystem drives 8.5% GDP growth, leads Africa fintech",
-      source: "Reuters",
+      source: "Macro Pulse",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+1.4%",
@@ -2410,7 +2410,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Kenya shilling slides 18% YTD, IMF bailout talks intensify",
-      source: "Reuters",
+      source: "Market Wire",
       time: "25 min ago",
       sentiment: "bearish",
       impact: "-2.5%",
@@ -2419,7 +2419,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Safaricom M-Pesa passes 50M users across Africa",
-      source: "Bloomberg",
+      source: "Global Macro Desk",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+1.6%",
@@ -2448,7 +2448,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Morocco green hydrogen project attracts €10bn EU investment",
-      source: "Reuters",
+      source: "Macro Wire",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+1.8%",
@@ -2457,7 +2457,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Morocco World Cup 2030 co-host status boosts construction stocks",
-      source: "Reuters",
+      source: "Capital Feed",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+2.1%",
@@ -2466,7 +2466,7 @@ export const COUNTRIES_DATA = {
     {
       id: 3,
       title: "Green hydrogen Xlinks project reaches financial close for €17bn",
-      source: "Bloomberg",
+      source: "Trade Flow Intel",
       time: "4h ago",
       sentiment: "bullish",
       impact: "+1.4%",
@@ -2495,7 +2495,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "IMF unlocks $2.2bn tranche for Ukraine reconstruction fund",
-      source: "Reuters",
+      source: "FX Monitor",
       time: "15 min ago",
       sentiment: "bullish",
       impact: "+1.8%",
@@ -2504,7 +2504,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Ukraine grain corridor disruption raises global food price fears",
-      source: "Bloomberg",
+      source: "Commodity Desk",
       time: "2h ago",
       sentiment: "bearish",
       impact: "-3.1%",
@@ -2551,7 +2551,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Zain Group reports 12% profit jump on mobile data growth",
-      source: "Reuters",
+      source: "Credit Monitor",
       time: "5h ago",
       sentiment: "bullish",
       impact: "+1.1%",
@@ -2580,7 +2580,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Oman accelerates Vision 2040 economic diversification push",
-      source: "Reuters",
+      source: "Alpha Terminal",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+0.8%",
@@ -2589,7 +2589,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Bank Muscat profits rise 9% on loan growth and digital banking",
-      source: "Bloomberg",
+      source: "Macro Pulse",
       time: "7h ago",
       sentiment: "bullish",
       impact: "+0.6%",
@@ -2618,7 +2618,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Jordan regional instability weighs on investor confidence",
-      source: "Reuters",
+      source: "Market Wire",
       time: "1h ago",
       sentiment: "bearish",
       impact: "-1.4%",
@@ -2627,7 +2627,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Potash exports hit record — phosphate royalties boost budget",
-      source: "Bloomberg",
+      source: "Global Macro Desk",
       time: "6h ago",
       sentiment: "bullish",
       impact: "+0.7%",
@@ -2656,7 +2656,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Bahrain becomes first Gulf state to list crypto asset on exchange",
-      source: "Reuters",
+      source: "Macro Wire",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+1.3%",
@@ -2665,7 +2665,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Alba aluminium smelter expansion complete, capacity up 35%",
-      source: "Bloomberg",
+      source: "Capital Feed",
       time: "8h ago",
       sentiment: "bullish",
       impact: "+0.8%",
@@ -2694,7 +2694,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "US sanctions tightening cuts Iran oil exports to 25-year low",
-      source: "Reuters",
+      source: "Trade Flow Intel",
       time: "1h ago",
       sentiment: "bearish",
       impact: "-3.5%",
@@ -2703,7 +2703,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Iranian rial hits new historical low vs USD on black market",
-      source: "Bloomberg",
+      source: "FX Monitor",
       time: "4h ago",
       sentiment: "bearish",
       impact: "-2.8%",
@@ -2732,7 +2732,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Ghana completes $3bn debt restructuring, IMF program resumes",
-      source: "Reuters",
+      source: "Commodity Desk",
       time: "1h ago",
       sentiment: "bullish",
       impact: "+1.5%",
@@ -2741,7 +2741,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Cocoa production falls 22% on El Niño drought impact",
-      source: "Bloomberg",
+      source: "Credit Monitor",
       time: "4h ago",
       sentiment: "bearish",
       impact: "-2.3%",
@@ -2770,7 +2770,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Ivory Coast cocoa output rebounds 15%, world's top producer surges",
-      source: "Reuters",
+      source: "Alpha Terminal",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+2.0%",
@@ -2779,7 +2779,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Abidjan port expansion boosts West Africa trade hub status",
-      source: "Bloomberg",
+      source: "Macro Pulse",
       time: "7h ago",
       sentiment: "bullish",
       impact: "+0.8%",
@@ -2808,7 +2808,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Tanzania lithium reserves attract $5bn in mining investment",
-      source: "Reuters",
+      source: "Market Wire",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+1.9%",
@@ -2817,7 +2817,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "East African Community integration boosts Dar es Salaam exchange",
-      source: "Bloomberg",
+      source: "Global Macro Desk",
       time: "8h ago",
       sentiment: "bullish",
       impact: "+0.5%",
@@ -2846,7 +2846,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Sri Lanka exits IMF program, debt restructuring complete",
-      source: "Reuters",
+      source: "Macro Wire",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+2.5%",
@@ -2855,7 +2855,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Ceylon Tea exports recover 8% after supply disruptions ease",
-      source: "Bloomberg",
+      source: "Capital Feed",
       time: "7h ago",
       sentiment: "bullish",
       impact: "+0.6%",
@@ -2884,7 +2884,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Kazakhstan oil output diversification cuts Russia dependency to 30%",
-      source: "Reuters",
+      source: "Trade Flow Intel",
       time: "2h ago",
       sentiment: "bullish",
       impact: "+1.8%",
@@ -2893,7 +2893,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Almaty crypto mining hub attracts $2bn in global investments",
-      source: "Bloomberg",
+      source: "FX Monitor",
       time: "6h ago",
       sentiment: "bullish",
       impact: "+1.2%",
@@ -2922,7 +2922,7 @@ export const COUNTRIES_DATA = {
     {
       id: 1,
       title: "Southern Copper reports 18% profit jump, largest producer gains",
-      source: "Reuters",
+      source: "Commodity Desk",
       time: "3h ago",
       sentiment: "bullish",
       impact: "+1.8%",
@@ -2931,7 +2931,7 @@ export const COUNTRIES_DATA = {
     {
       id: 2,
       title: "Peru political instability weighs on mining investment outlook",
-      source: "Bloomberg",
+      source: "Credit Monitor",
       time: "7h ago",
       sentiment: "bearish",
       impact: "-0.9%",

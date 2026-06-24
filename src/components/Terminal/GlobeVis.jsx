@@ -155,6 +155,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
         if (controls) {
           controls.autoRotate = true;
           controls.autoRotateSpeed = 0.2;
+          globeRef.current.pointOfView({ lat: 20, lng: 0, altitude: 1.7 });
           clearInterval(interval);
         }
       }
@@ -225,12 +226,6 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden" ref={containerRef}>
       
-      {/* Globe Header Metadata Overlay */}
-      <div className="absolute top-4 left-6 z-10 flex items-center gap-2 text-sm font-semibold tracking-widest text-[#94a3b8]">
-         <span className="font-bold text-[11px] text-white tracking-widest">GLOBAL MARKET MAP</span>
-         <Info className="h-4 w-4 ml-1 opacity-70" />
-      </div>
-
       {/* The Globe Canvas Container */}
       <div className="absolute inset-0 flex items-center justify-center opacity-100 drop-shadow-[0_0_80px_rgba(30,58,138,0.3)]">
         <Globe
@@ -301,7 +296,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
       <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
         <button 
            className="w-10 h-10 rounded-md bg-[#131b2f] border border-[#1e293b] text-slate-400 hover:text-white flex items-center justify-center hover:bg-[#1a233a] transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] cursor-pointer"
-           onClick={() => globeRef.current?.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 1000)}
+           onClick={() => globeRef.current?.pointOfView({ lat: 20, lng: 0, altitude: 1.7 }, 1000)}
            aria-label="Reset view"
         >
           <Target className="w-5 h-5" />

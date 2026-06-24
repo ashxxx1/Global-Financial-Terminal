@@ -62,10 +62,10 @@ function TerminalApp() {
   const closeMobileSidebar = useCallback(() => setMobileSidebarOpen(false), []);
   const toggleMobileSidebar = useCallback(() => setMobileSidebarOpen((v) => !v), []);
 
-  // Desktop collapsible panel states
-  const [leftCollapsed, setLeftCollapsed] = useState(false);
-  const [rightCollapsed, setRightCollapsed] = useState(false);
-  const [bottomCollapsed, setBottomCollapsed] = useState(false);
+  // Desktop collapsible panel states — start collapsed so globe fills screen
+  const [leftCollapsed, setLeftCollapsed] = useState(true);
+  const [rightCollapsed, setRightCollapsed] = useState(true);
+  const [bottomCollapsed, setBottomCollapsed] = useState(true);
 
   const anySheetOpen = mobileSidebarOpen || isNewsPanelOpen || isStockPanelOpen;
 
@@ -112,64 +112,68 @@ function TerminalApp() {
               {/* Globe centerpiece container */}
               <div className="flex-1 w-full relative">
                 {/* Floating Workspace & Control Overlay */}
-                <div className="absolute top-4 left-4 right-4 z-20 flex flex-col md:flex-row gap-3 justify-between items-center pointer-events-none">
-                  {/* Left: View title & Timeframe selector */}
-                  <div className="pointer-events-auto flex items-center gap-3.5 bg-[#0c1220]/95 backdrop-blur-md border border-[#1e293b] px-3.5 py-1.5 rounded shadow-2xl">
-                    <span className="font-bold text-[10px] text-white tracking-widest">GLOBAL MARKET MAP</span>
-                    <div className="h-3.5 w-px bg-slate-800" />
-                    <div className="flex items-center bg-black/40 border border-white/5 p-0.5 rounded">
-                      {["1D", "1W", "1M", "YTD"].map((tf) => (
-                        <button 
-                          key={tf}
-                          onClick={() => setTimeframe(tf)}
-                          className={`px-2.5 py-1 text-[9px] font-bold font-mono uppercase tracking-wider rounded transition-colors cursor-pointer ${timeframe === tf ? 'bg-indigo-500 text-white shadow-[0_0_8px_rgba(99,102,241,0.4)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                        >
-                          {tf}
-                        </button>
-                      ))}
-                    </div>
+                {/* Top-left: View title & Timeframe */}
+                <div className="absolute top-4 left-8 z-20 pointer-events-auto flex items-center gap-3 bg-[#080f1e]/90 backdrop-blur-md border border-[#1e293b] px-4 py-2 rounded-lg shadow-2xl">
+                  <span className="font-bold text-[11px] text-white tracking-widest">🌍 GLOBAL MARKET MAP</span>
+                  <div className="h-4 w-px bg-slate-700" />
+                  <div className="flex items-center bg-black/40 border border-white/10 p-0.5 rounded">
+                    {["1D", "1W", "1M", "YTD"].map((tf) => (
+                      <button 
+                        key={tf}
+                        onClick={() => setTimeframe(tf)}
+                        className={`px-3 py-1 text-[10px] font-bold font-mono uppercase tracking-wider rounded transition-all cursor-pointer ${timeframe === tf ? 'bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                      >
+                        {tf}
+                      </button>
+                    ))}
                   </div>
+                </div>
 
-                  {/* Right: Panel Toggles */}
-                  <div className="pointer-events-auto flex items-center gap-2 bg-[#0c1220]/95 backdrop-blur-md border border-[#1e293b] px-3 py-1.5 rounded shadow-2xl">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest px-1">WORKSPACE PANELS:</span>
-                    
-                    <button
-                      onClick={() => setLeftCollapsed(!leftCollapsed)}
-                      className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded transition-all border cursor-pointer flex items-center gap-1.5 ${
-                        !leftCollapsed 
-                          ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40 shadow-[0_0_8px_rgba(99,102,241,0.2)] font-bold' 
-                          : 'bg-black/40 text-slate-500 border-white/5 hover:text-slate-300'
-                      }`}
-                      title={leftCollapsed ? "Expand Markets (Left)" : "Collapse Markets (Left)"}
-                    >
-                      <span className="text-[10px]">📊</span> Markets
-                    </button>
+                {/* Bottom-center: Panel Toggles — large, clearly labeled */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto flex items-center gap-3 bg-[#080f1e]/95 backdrop-blur-xl border border-[#1e293b] px-5 py-2.5 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+                  <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mr-1">PANELS</span>
+                  
+                  <button
+                    onClick={() => setLeftCollapsed(!leftCollapsed)}
+                    className={`px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all border cursor-pointer flex items-center gap-2 ${
+                      !leftCollapsed 
+                        ? 'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
+                        : 'bg-white/5 text-slate-400 border-white/10 hover:border-indigo-500/50 hover:text-indigo-300'
+                    }`}
+                  >
+                    📊 <span>Markets</span>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${!leftCollapsed ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-500'}`}>
+                      {leftCollapsed ? 'OFF' : 'ON'}
+                    </span>
+                  </button>
 
-                    <button
-                      onClick={() => setRightCollapsed(!rightCollapsed)}
-                      className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded transition-all border cursor-pointer flex items-center gap-1.5 ${
-                        !rightCollapsed 
-                          ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40 shadow-[0_0_8px_rgba(99,102,241,0.2)] font-bold' 
-                          : 'bg-black/40 text-slate-500 border-white/5 hover:text-slate-300'
-                      }`}
-                      title={rightCollapsed ? "Expand Intelligence (Right)" : "Collapse Intelligence (Right)"}
-                    >
-                      <span className="text-[10px]">🧠</span> Intel
-                    </button>
+                  <button
+                    onClick={() => setRightCollapsed(!rightCollapsed)}
+                    className={`px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all border cursor-pointer flex items-center gap-2 ${
+                      !rightCollapsed 
+                        ? 'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
+                        : 'bg-white/5 text-slate-400 border-white/10 hover:border-indigo-500/50 hover:text-indigo-300'
+                    }`}
+                  >
+                    🧠 <span>Intel</span>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${!rightCollapsed ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-500'}`}>
+                      {rightCollapsed ? 'OFF' : 'ON'}
+                    </span>
+                  </button>
 
-                    <button
-                      onClick={() => setBottomCollapsed(!bottomCollapsed)}
-                      className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded transition-all border cursor-pointer flex items-center gap-1.5 ${
-                        !bottomCollapsed 
-                          ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40 shadow-[0_0_8px_rgba(99,102,241,0.2)] font-bold' 
-                          : 'bg-black/40 text-slate-500 border-white/5 hover:text-slate-300'
-                      }`}
-                      title={bottomCollapsed ? "Expand News Feed (Bottom)" : "Collapse News Feed (Bottom)"}
-                    >
-                      <span className="text-[10px]">📡</span> News
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => setBottomCollapsed(!bottomCollapsed)}
+                    className={`px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all border cursor-pointer flex items-center gap-2 ${
+                      !bottomCollapsed 
+                        ? 'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
+                        : 'bg-white/5 text-slate-400 border-white/10 hover:border-indigo-500/50 hover:text-indigo-300'
+                    }`}
+                  >
+                    📡 <span>News</span>
+                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${!bottomCollapsed ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-500'}`}>
+                      {bottomCollapsed ? 'OFF' : 'ON'}
+                    </span>
+                  </button>
                 </div>
 
                 <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">

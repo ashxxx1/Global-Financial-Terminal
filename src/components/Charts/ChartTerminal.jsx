@@ -727,92 +727,123 @@ export function ChartTerminal() {
           {/* Asset Search Button */}
           <div className="relative" ref={activeSearchRef}>
             <button
-              onClick={() => { setActiveSearchOpen(true); setTimeout(() => activeSearchRef.current?.querySelector("input")?.focus(), 50); }}
-              className="flex items-center gap-1.5 bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/50 rounded px-2 py-1 cursor-pointer transition-all min-w-[150px] md:min-w-[180px]"
+              onClick={() => { setActiveSearchOpen(true); }}
+              className="flex items-center gap-2 bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/50 rounded px-2.5 py-1.5 cursor-pointer transition-all min-w-[160px] md:min-w-[190px]"
             >
-              <Search size={11} className="text-slate-500" />
+              <Search size={14} className="text-slate-400 shrink-0" />
               <span className="text-[12px] font-bold text-white">{activeAsset.symbol}</span>
-              <span className="text-[10px] text-slate-400 truncate max-w-[80px] hidden sm:inline">{activeAsset.name}</span>
+              <span className="text-[10px] text-slate-400 truncate max-w-[90px] hidden sm:inline">{activeAsset.name}</span>
               <span className={`ml-auto text-[8px] px-1 py-0.2 rounded border font-bold uppercase tracking-wider hidden sm:inline ${typeColor}`}>{activeAsset.type}</span>
-              <ChevronDown size={10} className="text-slate-500 ml-0.5" />
+              <ChevronDown size={13} className="text-slate-500 ml-0.5 shrink-0" />
             </button>
 
             {activeSearchOpen && (
-              <div className="absolute top-full left-0 mt-1 w-[320px] bg-[#080f1e] border border-[#1e293b] rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col">
-                {/* Tabs */}
-                <div className="flex gap-1 p-1 bg-[#050a14] border-b border-white/5 overflow-x-auto scrollbar-none">
-                  {["All", "India", "USA", "Crypto", "Indices", "Commodities", "Forex"].map(tab => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveSearchTab(tab)}
-                      className={`px-2 py-0.8 rounded text-[9.5px] font-bold whitespace-nowrap cursor-pointer transition-all ${
-                        activeSearchTab === tab
-                          ? "bg-indigo-500 text-white"
-                          : "text-slate-500 hover:text-slate-300"
-                      }`}
+              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4" onClick={(e) => { if (e.target === e.currentTarget) { setActiveSearchOpen(false); setActiveSearch(""); } }}>
+                <div className="bg-[#080f1e] border border-slate-800 rounded-2xl w-full max-w-3xl h-[600px] max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative">
+                  
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#0a1020]">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs">🌐</span>
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Select Asset</span>
+                    </div>
+                    <button 
+                      onClick={() => { setActiveSearchOpen(false); setActiveSearch(""); }}
+                      className="text-slate-400 hover:text-white p-1 hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
                     >
-                      {tab === "All" ? "All"
-                       : tab === "India" ? "🇮🇳 India"
-                       : tab === "USA" ? "🇺🇸 USA"
-                       : tab === "Crypto" ? "🪙 Crypto"
-                       : tab === "Indices" ? "📈 Indices"
-                       : tab === "Commodities" ? "🌻 Commodities"
-                       : tab === "Forex" ? "💱 Forex" : tab}
+                      <X size={16} />
                     </button>
-                  ))}
-                </div>
+                  </div>
 
-                {/* Input Search */}
-                <div className="flex items-center gap-2 px-3 py-1.5 border-b border-white/5 bg-[#080f1e]">
-                  <Search size={11} className="text-slate-500" />
-                  <input
-                    autoFocus
-                    value={activeSearch}
-                    onChange={e => setActiveSearch(e.target.value)}
-                    placeholder="Search symbol or name..."
-                    className="flex-1 bg-transparent text-[12px] text-white placeholder-slate-600 outline-none"
-                  />
-                  {activeSearch && <button onClick={() => setActiveSearch("")}><X size={10} className="text-slate-500" /></button>}
-                </div>
+                  {/* Search Input Bar */}
+                  <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1020] border-b border-white/5">
+                    <Search size={16} className="text-slate-400 shrink-0" />
+                    <input
+                      autoFocus
+                      value={activeSearch}
+                      onChange={e => setActiveSearch(e.target.value)}
+                      placeholder="Search asset symbol, name, or sector (e.g. Reliance, HDFC, IT, Banking)..."
+                      className="flex-1 bg-transparent text-[13px] text-white placeholder-slate-500 outline-none"
+                    />
+                    {activeSearch && (
+                      <button onClick={() => setActiveSearch("")} className="text-slate-400 hover:text-white p-1 cursor-pointer">
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
 
-                {/* Results List */}
-                <div className="max-h-[250px] overflow-y-auto bg-[#080f1e]">
-                  {Object.keys(searchGroups).length === 0 ? (
-                    <div className="text-[10px] text-slate-500 text-center py-4 select-none">No assets found</div>
-                  ) : (
-                    Object.entries(searchGroups).map(([groupName, assets]) => (
-                      <div key={groupName} className="mb-1.5">
-                        <div className="text-[8.5px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 bg-[#0c1220]/50 border-y border-white/5 select-none">
-                          {groupName}
-                        </div>
-                        <div className="flex flex-col">
-                          {assets.map(a => {
-                            const isIndian = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
-                            const currency = isIndian ? "₹" : "$";
-                            return (
-                              <button key={a.symbol}
-                                onClick={() => { setCurrentSymbol(a.symbol); setActiveSearchOpen(false); setActiveSearch(""); }}
-                                className={`w-full flex items-center justify-between px-3 py-1.5 hover:bg-white/5 transition-colors cursor-pointer text-left ${a.symbol === currentSymbol ? "bg-indigo-500/10 text-indigo-400" : ""}`}
-                              >
-                                <div className="flex items-center gap-2 truncate">
-                                  <span className="text-[11px] font-mono font-bold text-white w-14 shrink-0">{a.symbol}</span>
-                                  <span className="text-[10px] text-slate-400 truncate max-w-[140px]">{a.name}</span>
-                                </div>
-                                <span className="text-[9.5px] font-mono text-slate-500 text-right font-medium">
-                                  {currency}{fmt(a.basePrice, a.basePrice < 10 ? 4 : 2)}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
+                  {/* Modal Body */}
+                  <div className="flex flex-col md:flex-row flex-1 min-h-0">
+                    {/* Left Sidebar Navigation (only shown when not searching) */}
+                    {!activeSearch && (
+                      <div className="w-full md:w-48 bg-[#050a14] border-b md:border-b-0 md:border-r border-white/5 flex flex-row md:flex-col p-1.5 gap-1 shrink-0 overflow-x-auto md:overflow-y-auto scrollbar-none">
+                        {[
+                          { id: "All",         label: "All Markets",     icon: "🌐" },
+                          { id: "India",       label: "Indian Equities", icon: "🇮🇳" },
+                          { id: "USA",         label: "US Equities",     icon: "🇺🇸" },
+                          { id: "Crypto",      label: "Crypto Assets",   icon: "🪙" },
+                          { id: "Indices",     label: "Stock Indices",   icon: "📈" },
+                          { id: "Commodities", label: "Commodities",     icon: "🌻" },
+                          { id: "Forex",       label: "Forex Pairs",     icon: "💱" },
+                        ].map(tab => (
+                          <button
+                            key={tab.id}
+                            onClick={() => setActiveSearchTab(tab.id)}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[10.5px] font-bold text-left cursor-pointer transition-all whitespace-nowrap shrink-0 ${
+                              activeSearchTab === tab.id
+                                ? "bg-indigo-500 text-white shadow-lg"
+                                : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+                            }`}
+                          >
+                            <span className="text-sm shrink-0">{tab.icon}</span>
+                            <span className="truncate">{tab.label}</span>
+                          </button>
+                        ))}
                       </div>
-                    ))
-                  )}
+                    )}
+
+                    {/* Right Scrolling Content Area */}
+                    <div className="flex-1 overflow-y-auto p-4 bg-[#080f1e]">
+                      {Object.keys(searchGroups).length === 0 ? (
+                        <div className="text-[11px] text-slate-500 text-center py-10 select-none">No matching assets found</div>
+                      ) : (
+                        Object.entries(searchGroups).map(([groupName, assets]) => (
+                          <div key={groupName} className="mb-5">
+                            <div className="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest px-1 py-1 mb-2 border-b border-white/5 select-none">
+                              {groupName}
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {assets.map(a => {
+                                const isIndian = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
+                                const currency = isIndian ? "₹" : "$";
+                                return (
+                                  <button
+                                    key={a.symbol}
+                                    onClick={() => { setCurrentSymbol(a.symbol); setActiveSearchOpen(false); setActiveSearch(""); }}
+                                    className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-left bg-[#0c1220]/40 border-white/5 hover:border-indigo-500/50 hover:bg-[#0c1220]/80 group ${
+                                      a.symbol === currentSymbol ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-400" : "text-slate-300"
+                                    }`}
+                                  >
+                                    <div className="flex flex-col min-w-0 pr-2">
+                                      <span className="text-[12px] font-mono font-bold text-white group-hover:text-indigo-400 transition-colors">{a.symbol}</span>
+                                      <span className="text-[10px] text-slate-500 truncate max-w-[170px]">{a.name}</span>
+                                    </div>
+                                    <span className="text-[11px] font-mono font-bold text-indigo-300 text-right shrink-0">
+                                      {currency}{fmt(a.basePrice, a.basePrice < 10 ? 4 : 2)}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
           </div>
-          {activeSearchOpen && <div className="fixed inset-0 z-40" onClick={() => { setActiveSearchOpen(false); setActiveSearch(""); }} />}
 
           {/* Quick Comparison Presets */}
           <div className="hidden sm:flex items-center gap-1 ml-1 select-none">
@@ -858,35 +889,115 @@ export function ChartTerminal() {
             )}
 
             {compareSearchOpen && (
-              <div className="absolute top-full left-0 mt-1 w-[220px] bg-[#080f1e] border border-[#1e293b] rounded-xl shadow-2xl z-50 overflow-hidden">
-                <div className="flex items-center gap-2 px-3 py-1.5 border-b border-white/5">
-                  <Search size={11} className="text-slate-500" />
-                  <input
-                    autoFocus
-                    value={compareSearch}
-                    onChange={e => setCompareSearch(e.target.value)}
-                    placeholder="Compare with..."
-                    className="flex-1 bg-transparent text-[12px] text-white placeholder-slate-600 outline-none"
-                  />
-                </div>
-                <div className="max-h-[160px] overflow-y-auto">
-                  {ASSET_CATALOG.filter(a => a.symbol !== currentSymbol)
-                    .filter(a => !compareSearch || a.symbol.toLowerCase().includes(compareSearch.toLowerCase()) || a.name.toLowerCase().includes(compareSearch.toLowerCase()))
-                    .slice(0, 10)
-                    .map(a => (
-                      <button key={a.symbol}
-                        onClick={() => { setCompareSymbol(a.symbol); setCompareSearchOpen(false); setCompareSearch(""); }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 hover:bg-white/5 transition-colors cursor-pointer text-left"
-                      >
-                        <span className="text-[11px] font-bold text-amber-400 w-12">{a.symbol}</span>
-                        <span className="text-[10px] text-slate-500 truncate flex-1">{a.name}</span>
+              <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4" onClick={(e) => { if (e.target === e.currentTarget) { setCompareSearchOpen(false); setCompareSearch(""); } }}>
+                <div className="bg-[#080f1e] border border-slate-800 rounded-2xl w-full max-w-3xl h-[600px] max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative">
+                  
+                  {/* Modal Header */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-[#0a1020]">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs">⚖️</span>
+                      <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">Compare Benchmark Overlay</span>
+                    </div>
+                    <button 
+                      onClick={() => { setCompareSearchOpen(false); setCompareSearch(""); }}
+                      className="text-slate-400 hover:text-white p-1 hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  {/* Search Input Bar */}
+                  <div className="flex items-center gap-3 px-4 py-3 bg-[#0a1020] border-b border-white/5">
+                    <Search size={16} className="text-slate-400 shrink-0" />
+                    <input
+                      autoFocus
+                      value={compareSearch}
+                      onChange={e => setCompareSearch(e.target.value)}
+                      placeholder="Type symbol or name to overlay..."
+                      className="flex-1 bg-transparent text-[13px] text-white placeholder-slate-500 outline-none"
+                    />
+                    {compareSearch && (
+                      <button onClick={() => setCompareSearch("")} className="text-slate-400 hover:text-white p-1 cursor-pointer">
+                        <X size={12} />
                       </button>
-                    ))}
+                    )}
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="flex-1 overflow-y-auto p-4 bg-[#080f1e]">
+                    {(() => {
+                      const compareFiltered = ASSET_CATALOG.filter(a => a.symbol !== currentSymbol)
+                        .filter(a => !compareSearch || a.symbol.toLowerCase().includes(compareSearch.toLowerCase()) || a.name.toLowerCase().includes(compareSearch.toLowerCase()));
+
+                      const compareGroups = {};
+                      compareFiltered.forEach(a => {
+                        let gName = "";
+                        if (a.type === "Indian Stock") {
+                          gName = `🇮🇳 Indian - ${a.sector}`;
+                        } else if (a.type === "Stock") {
+                          gName = "🇺🇸 US Stocks";
+                        } else if (a.type === "Crypto") {
+                          gName = "🪙 Cryptocurrencies";
+                        } else if (a.type === "Index") {
+                          if (["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol)) {
+                            gName = "🇮🇳 Indian Indices";
+                          } else {
+                            gName = "📈 Global Indices";
+                          }
+                        } else if (a.type === "Forex") {
+                          gName = "💱 Forex Pairs";
+                        } else if (a.type === "Commodity") {
+                          gName = "🌻 Commodities";
+                        } else {
+                          gName = "Other";
+                        }
+
+                        if (!compareGroups[gName]) {
+                          compareGroups[gName] = [];
+                        }
+                        compareGroups[gName].push(a);
+                      });
+
+                      if (Object.keys(compareGroups).length === 0) {
+                        return <div className="text-[11px] text-slate-500 text-center py-10 select-none">No matching assets found</div>;
+                      }
+
+                      return Object.entries(compareGroups).map(([groupName, assets]) => (
+                        <div key={groupName} className="mb-5">
+                          <div className="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest px-1 py-1 mb-2 border-b border-white/5 select-none">
+                            {groupName}
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {assets.map(a => {
+                              const isIndian = a.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
+                              const currency = isIndian ? "₹" : "$";
+                              return (
+                                <button
+                                  key={a.symbol}
+                                  onClick={() => { setCompareSymbol(a.symbol); setCompareSearchOpen(false); setCompareSearch(""); }}
+                                  className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-left bg-[#0c1220]/40 border-white/5 hover:border-amber-500/50 hover:bg-[#0c1220]/80 group ${
+                                    a.symbol === compareSymbol ? "border-amber-500/50 bg-amber-500/10 text-amber-400" : "text-slate-300"
+                                  }`}
+                                >
+                                  <div className="flex flex-col min-w-0 pr-2">
+                                    <span className="text-[12px] font-mono font-bold text-white group-hover:text-amber-400 transition-colors">{a.symbol}</span>
+                                    <span className="text-[10px] text-slate-500 truncate max-w-[170px]">{a.name}</span>
+                                  </div>
+                                  <span className="text-[11px] font-mono font-bold text-amber-300 text-right shrink-0">
+                                    {currency}{fmt(a.basePrice, a.basePrice < 10 ? 4 : 2)}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
                 </div>
               </div>
             )}
           </div>
-          {compareSearchOpen && <div className="fixed inset-0 z-40" onClick={() => { setCompareSearchOpen(false); setCompareSearch(""); }} />}
 
           {/* Price details */}
           <div className="flex items-baseline gap-1.5">
@@ -1262,7 +1373,7 @@ export function ChartTerminal() {
               });
             }}
               className={`flex items-center gap-1.5 px-3 py-1.5 bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/50 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition-all cursor-pointer`}>
-              <LayoutPanelTop size={12} className={layout === 'split' ? "text-indigo-400" : ""} />
+              <LayoutPanelTop size={15} className={layout === 'split' ? "text-indigo-400" : ""} />
               <span>{layout === 'split' ? 'Single View' : 'Split View'}</span>
             </button>
 
@@ -1270,7 +1381,7 @@ export function ChartTerminal() {
             <div className="relative">
               <button onClick={() => setIndicatorOpen(!indicatorOpen)}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0c1220] border border-[#1e293b] hover:border-indigo-500/50 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition-all cursor-pointer">
-                <Activity size={12} />Indicators
+                <Activity size={15} />Indicators
                 {indicators.filter(i=>i.enabled).length > 0 && (
                   <span className="ml-1 px-1.5 py-0.2 rounded-full bg-indigo-500 text-white text-[8px] font-bold">
                     {indicators.filter(i=>i.enabled).length}
@@ -1360,30 +1471,30 @@ export function ChartTerminal() {
             {DRAWING_TOOLS.map(tool => (
               <button key={tool.id} onClick={() => setDrawTool(tool.id)}
                 title={tool.label}
-                className={`h-8 rounded-lg flex items-center transition-all cursor-pointer ${
-                  sidebarHover ? "w-full justify-start px-2.5 gap-2" : "w-8 justify-center"
+                className={`h-9 rounded-lg flex items-center transition-all cursor-pointer ${
+                  sidebarHover ? "w-full justify-start px-2.5 gap-2.5" : "w-8 justify-center"
                 } ${drawTool===tool.id ? "bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.4)]" : "text-slate-600 hover:text-slate-300 hover:bg-white/5"}`}>
-                <tool.icon size={13} className="shrink-0" />
-                {sidebarHover && <span className="text-[10px] font-bold tracking-wide truncate">{tool.label}</span>}
+                <tool.icon size={17} className="shrink-0" />
+                {sidebarHover && <span className="text-[10.5px] font-bold tracking-wide truncate">{tool.label}</span>}
               </button>
             ))}
             <div className="h-px w-6 bg-white/10 my-1 self-center" />
             {selectedDrawingId && (
               <button onClick={deleteSelectedDrawing} title="Delete selected drawing"
-                className={`h-8 rounded-lg flex items-center text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer animate-pulse border border-rose-500/20 ${
-                  sidebarHover ? "w-full justify-start px-2.5 gap-2" : "w-8 justify-center"
+                className={`h-9 rounded-lg flex items-center text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer animate-pulse border border-rose-500/20 ${
+                  sidebarHover ? "w-full justify-start px-2.5 gap-2.5" : "w-8 justify-center"
                 }`}>
-                <Trash2 size={13} className="shrink-0" />
-                {sidebarHover && <span className="text-[9px] font-bold uppercase tracking-wider">Delete Line</span>}
+                <Trash2 size={17} className="shrink-0" />
+                {sidebarHover && <span className="text-[10px] font-bold uppercase tracking-wider">Delete Line</span>}
               </button>
             )}
             {(drawings.length > 0 || drawings2.length > 0) && (
               <button onClick={clearAllDrawings} title="Clear all drawings"
-                className={`h-8 rounded-lg flex items-center text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer ${
-                  sidebarHover ? "w-full justify-start px-2.5 gap-2" : "w-8 justify-center"
+                className={`h-9 rounded-lg flex items-center text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer ${
+                  sidebarHover ? "w-full justify-start px-2.5 gap-2.5" : "w-8 justify-center"
                 }`}>
-                <Eraser size={13} className="shrink-0" />
-                {sidebarHover && <span className="text-[9px] font-bold uppercase tracking-wider">Clear All</span>}
+                <Eraser size={17} className="shrink-0" />
+                {sidebarHover && <span className="text-[10px] font-bold uppercase tracking-wider">Clear All</span>}
               </button>
             )}
           </div>

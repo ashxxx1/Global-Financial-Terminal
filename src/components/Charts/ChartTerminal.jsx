@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
-  ComposedChart, CandlestickChart, Line, Bar, Area, XAxis, YAxis,
+  ComposedChart, Line, Bar, Area, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Brush
 } from "recharts";
 import {

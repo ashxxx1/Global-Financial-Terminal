@@ -1286,3 +1286,294 @@ html, body {
   color: var(--text-primary);
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE  (≤ 768 px)
+   ══════════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── Root variables override for mobile ── */
+  :root {
+    --header-h: 52px;
+    --ticker-h: 30px;
+    --sidebar-w: 0px;
+    --footer-h: 0px;
+    --mobile-nav-h: 56px;
+  }
+
+  html, body {
+    font-size: 12px;
+    /* prevent zoom on input focus */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* ── Shell: single-column, no sidebar column ── */
+  .app-shell {
+    grid-template-rows: var(--header-h) var(--ticker-h) 1fr;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "ticker"
+      "globe";
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 0 14px;
+    gap: 10px;
+  }
+
+  /* Hide the mid-section price chips and dividers on mobile — keep logo + status + user */
+  .header__divider,
+  .header__clock,
+  .header__date {
+    display: none;
+  }
+  /* Hide the inline price widgets (BTC, GOLD, WTI, EUR, VIX) */
+  .header > div:not(.header__logo):not(.header__market-status):not(.header__user) {
+    display: none;
+  }
+
+  .header__logo-text {
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+  .header__logo-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .header__market-status span {
+    font-size: 9px !important;
+  }
+
+  .header__user {
+    margin-left: auto;
+  }
+  .header__user-avatar {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* ── Ticker ── */
+  .ticker__track {
+    gap: 24px;
+    animation-duration: 40s;
+  }
+  .ticker__item {
+    gap: 5px;
+    font-size: 9px;
+  }
+  .ticker__name { font-size: 8px; }
+  .ticker__value { font-size: 10px; }
+  .ticker__change { font-size: 8px; padding: 1px 4px; }
+
+  /* ── Sidebar — hidden off-screen on mobile, shown as bottom sheet ── */
+  .sidebar {
+    grid-area: unset;
+    position: fixed;
+    inset: auto 0 0 0;
+    width: 100%;
+    height: 65vh;
+    max-height: 65vh;
+    border-right: none;
+    border-top: 1px solid var(--border-accent);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    z-index: 300;
+    transform: translateY(100%);
+    transition: transform var(--transition-slow);
+    overflow-y: auto;
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.7);
+  }
+  .sidebar.mobile-open {
+    transform: translateY(0);
+  }
+  /* drag handle */
+  .sidebar::before {
+    content: "";
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: var(--border-mid);
+    border-radius: 2px;
+    margin: 10px auto 6px;
+    flex-shrink: 0;
+  }
+  .sidebar__section {
+    padding: 10px 16px 6px;
+  }
+
+  /* ── Globe area ── */
+  .globe-area {
+    /* fill the remaining viewport */
+    touch-action: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* hint text bigger touch target */
+  .globe-overlay-hint {
+    bottom: calc(var(--mobile-nav-h) + 14px);
+    font-size: 11px;
+    background: rgba(0,0,0,0.45);
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+  }
+
+  /* ── News Panel — full-screen bottom sheet ── */
+  .news-panel {
+    position: fixed;
+    inset: auto 0 0 0;
+    top: auto;
+    width: 100%;
+    height: 88vh;
+    max-height: 88vh;
+    border-left: none;
+    border-top: 1px solid var(--border-accent);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: 0 -8px 60px rgba(0,0,0,0.8);
+    transform: translateY(100%);
+    z-index: 400;
+    overflow: hidden;
+  }
+  .news-panel.open {
+    transform: translateY(0);
+  }
+  /* drag handle */
+  .news-panel::before {
+    content: "";
+    display: block;
+    width: 36px;
+    height: 4px;
+    background: rgba(0,232,122,0.3);
+    border-radius: 2px;
+    margin: 10px auto 0;
+    flex-shrink: 0;
+  }
+
+  .news-panel__header {
+    padding: 10px 16px 10px;
+  }
+  .news-panel__country-name { font-size: 16px; }
+  .news-panel__index-value  { font-size: 18px; }
+
+  /* Sparkline fills full width */
+  .sparkline-wrapper { padding: 8px 0 0; }
+
+  /* Tabs */
+  .panel-tabs { position: sticky; top: 0; z-index: 10; }
+  .panel-tab   { padding: 9px 4px; font-size: 9px; }
+  .panel-tab__icon { font-size: 10px; }
+
+  /* News cards */
+  .news-card { padding: 10px 14px; }
+  .news-card__title { font-size: 11.5px; }
+
+  /* Stocks */
+  .stocks-header { padding: 7px 14px; }
+  .stock-row     { padding: 8px 14px; }
+  .stock-row__ticker { font-size: 10px; }
+  .stock-row__name   { font-size: 9px; }
+  .stock-row__price  { font-size: 11px; }
+
+  /* ── Mobile bottom navigation bar ── */
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--mobile-nav-h);
+    background: rgba(6, 6, 16, 0.97);
+    border-top: 1px solid var(--border-subtle);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 350;
+    align-items: stretch;
+  }
+  .mobile-nav__btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--text-mono);
+    font-size: 8.5px;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: var(--transition);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-nav__btn:active { background: rgba(255,255,255,0.04); }
+  .mobile-nav__btn.active { color: var(--accent-green); }
+  .mobile-nav__btn-icon { font-size: 18px; line-height: 1; }
+
+  /* ── Overlay backdrop ── */
+  .mobile-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 290;
+    backdrop-filter: blur(2px);
+  }
+  .mobile-backdrop.visible { display: block; }
+
+  /* ── Footer hidden on mobile (bottom nav replaces it) ── */
+  .footer { display: none; }
+
+  /* ── Sentence banner ── */
+  .sentiment-banner { margin: 10px 12px; }
+  .geo-risk-badge   { margin: 0 12px 8px; }
+  .analysis-section { margin: 8px 12px; }
+
+  /* ── User dropdown mobile ── */
+  .header__user-dropdown {
+    right: 0;
+    left: auto;
+    min-width: 200px;
+  }
+
+  /* ── Tooltip bubble — larger touch target ── */
+  .globe-tooltip {
+    font-size: 10px;
+    padding: 6px 10px;
+    max-width: 180px;
+  }
+}
+
+/* ── Tablet tweaks (769–1024 px) ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --sidebar-w: 190px;
+    --header-h: 54px;
+  }
+
+  .header {
+    gap: 14px;
+    padding: 0 16px;
+  }
+  /* hide some price chips on tablet too */
+  .header > div:nth-child(n+6):not(.header__user) {
+    display: none;
+  }
+
+  .news-panel {
+    width: 360px;
+  }
+
+  .mobile-nav { display: none; }
+  .sidebar { transform: none !important; }
+}
+
+/* ── Large desktop only ── */
+@media (min-width: 769px) {
+  .mobile-nav       { display: none; }
+  .mobile-backdrop  { display: none !important; }
+}

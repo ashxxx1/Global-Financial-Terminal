@@ -2,94 +2,87 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import {
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
 import {
   doc,
-  updateDoc,
+  setDoc,
   serverTimestamp,
   onSnapshot,
   runTransaction,
 } from "firebase/firestore";
 import { auth, db, googleProvider } from "../services/firebase";
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "aarushkapoor23@gmail.com";
+const ADMIN_EMAILS = ["aarushkapoor23@gmail.com", "anchitaduggal7@gmail.com", "anchitaduggal@7gmail.com"];
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userProfileData, setUserProfileData] = useState(null);
-  const [userStatus, setUserStatus] = useState(null); // "pending" | "approved" | "rejected"
-  const [loading, setLoading] = useState(true);
+// Detect mobile browsers (Safari on iOS blocks popups)
+function isMobileBrowser() {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
 
-  const isAdmin = currentUser?.email === ADMIN_EMAIL;
+// Shared function to create/update the user Firestore doc after sign-in
+async function upsertUserDoc(user) {
+  const userRef = doc(db, "users", user.uid);
+  const counterRef = doc(db, "counters", "users");
 
-  // Sign in with Google
-  async function signInWithGoogle() {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-
-    const userRef = doc(db, "users", user.uid);
-    const counterRef = doc(db, "counters", "users");
-
-    await runTransaction(db, async (transaction) => {
-      const snap = await transaction.get(userRef);
-      if (!snap.exists()) {
-        // New user — create their document as pending
+  await runTransaction(db, async (transaction) => {
+    const snap = await transaction.get(userRef);
+    if (!snap.exists()) {
+      // Do not create document here, let SetupUsername handle creation
+    } else {
+      const data = snap.data();
+      const updateData = {
+        lastLogin: serverTimestamp(),
+        bio: data.bio || "Institutional macro research & active swing trading.",
+        reputation: data.reputation || "Analyst",
+        friendsList: data.friendsList || [],
+        friendRequests: data.friendRequests || [],
+      };
+      if (data.idNum === undefined) {
         const counterSnap = await transaction.get(counterRef);
         let nextId = 1;
         if (counterSnap.exists()) {
           nextId = (counterSnap.data().count || 0) + 1;
         }
         transaction.set(counterRef, { count: nextId });
-        transaction.set(userRef, {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          idNum: nextId,
-          photoURL: user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.uid}`,
-          status: user.email === ADMIN_EMAIL ? "approved" : "pending",
-          requestedAt: serverTimestamp(),
-          approvedAt: user.email === ADMIN_EMAIL ? serverTimestamp() : null,
-          approvedBy: user.email === ADMIN_EMAIL ? ADMIN_EMAIL : null,
-          lastLogin: serverTimestamp(),
-          bio: "Institutional macro research & active swing trading.",
-          reputation: "Analyst",
-          friendsList: [],
-          friendRequests: []
-        });
-      } else {
-        // Existing user — update last login & ensure they have idNum
-        const data = snap.data();
-        const updateData = {
-          lastLogin: serverTimestamp(),
-          bio: data.bio || "Institutional macro research & active swing trading.",
-          reputation: data.reputation || "Analyst",
-          friendsList: data.friendsList || [],
-          friendRequests: data.friendRequests || []
-        };
-        if (data.idNum === undefined) {
-          const counterSnap = await transaction.get(counterRef);
-          let nextId = 1;
-          if (counterSnap.exists()) {
-            nextId = (counterSnap.data().count || 0) + 1;
-          }
-          transaction.set(counterRef, { count: nextId });
-          updateData.idNum = nextId;
-        }
-        transaction.update(userRef, updateData);
+        updateData.idNum = nextId;
       }
-    });
+      transaction.update(userRef, updateData);
+    }
+  });
+}
 
+export function AuthProvider({ children }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userProfileData, setUserProfileData] = useState(null);
+  const [userStatus, setUserStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const isAdmin = currentUser?.email && ADMIN_EMAILS.includes(currentUser.email);
+
+  // Sign in — use redirect on mobile (popup blocked by iOS Safari)
+  async function signInWithGoogle() {
+    if (isMobileBrowser()) {
+      // Redirect flow: stores intent and redirects to Google,
+      // then getRedirectResult() below picks up the result on return.
+      await signInWithRedirect(auth, googleProvider);
+      return; // page will redirect away — no further code runs
+    }
+    // Desktop: popup is fine
+    const result = await signInWithPopup(auth, googleProvider);
+    await upsertUserDoc(result.user);
     return result;
   }
 
   async function updateUserProfile(fields) {
     if (!currentUser) return;
     const userRef = doc(db, "users", currentUser.uid);
-    await updateDoc(userRef, fields);
+    await setDoc(userRef, fields, { merge: true });
   }
 
   async function logout() {
@@ -98,6 +91,18 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
+    // Handle the redirect result when returning from Google on mobile
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (result?.user) {
+          await upsertUserDoc(result.user);
+        }
+      })
+      .catch((err) => {
+        console.warn("Redirect result error:", err.code, err.message);
+      });
+
+    // Listen to auth state
     const unsubAuth = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       if (!user) {
@@ -107,23 +112,58 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      // Listen to this user's Firestore doc in real-time
-      const userRef = doc(db, "users", user.uid);
-      const unsubFirestore = onSnapshot(userRef, (snap) => {
-        if (snap.exists()) {
-          const data = snap.data();
-          setUserStatus(data.status || (user.email === ADMIN_EMAIL ? "approved" : "pending"));
+      const loadProfile = (snapData) => {
+        let data = snapData;
+        const localProfileStr = localStorage.getItem("gf_user_profile_" + user.uid);
+        if (localProfileStr) {
+          try {
+            const localData = JSON.parse(localProfileStr);
+            data = { ...(data || {}), ...localData };
+          } catch (e) {
+            console.error("Local profile parse error:", e);
+          }
+        }
+        if (data) {
+          setUserStatus(
+            data.status || (ADMIN_EMAILS.includes(user.email) ? "approved" : "pending")
+          );
           setUserProfileData(data);
         } else {
           setUserProfileData(null);
-          if (user.email === ADMIN_EMAIL) {
+          if (ADMIN_EMAILS.includes(user.email)) {
             setUserStatus("approved");
+          } else {
+            setUserStatus("pending");
           }
         }
-        setLoading(false);
-      });
+      };
 
-      return () => unsubFirestore();
+      // Listen to this user's Firestore doc in real-time
+      const userRef = doc(db, "users", user.uid);
+      const unsubFirestore = onSnapshot(
+        userRef,
+        (snap) => {
+          loadProfile(snap.exists() ? snap.data() : null);
+          setLoading(false);
+        },
+        (err) => {
+          console.error("Firestore snapshot error:", err);
+          // Fallback if snap fails (e.g. permission-denied)
+          loadProfile(null);
+          setLoading(false);
+        }
+      );
+
+      // Listen for local profile updates
+      const handleLocalUpdate = () => {
+        loadProfile(null); // reload from local storage / cache
+      };
+      window.addEventListener("localProfileUpdated", handleLocalUpdate);
+
+      return () => {
+        unsubFirestore();
+        window.removeEventListener("localProfileUpdated", handleLocalUpdate);
+      };
     });
 
     return () => unsubAuth();

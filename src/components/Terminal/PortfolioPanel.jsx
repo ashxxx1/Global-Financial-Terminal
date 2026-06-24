@@ -603,4 +603,5 @@ export default function PortfolioPanel({ onClose }) {
     </div>
   );
 }
-export { PortfolioPanel };
+
+

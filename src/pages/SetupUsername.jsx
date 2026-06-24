@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../services/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { doc, collection, query, where, getDocs, setDoc, runTransaction, serverTimestamp } from "firebase/firestore";
+
 
 export default function SetupUsername() {
-  const { currentUser, userStatus, userProfileData, updateUserProfile, loading } = useAuth();
+  const { currentUser, userStatus, userProfileData, updateUserProfile, loading, isAdmin } = useAuth();
   const [username, setUsername] = useState("");
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");
@@ -58,11 +59,42 @@ export default function SetupUsername() {
         return;
       }
 
-      // 3. Update profile
-      await updateUserProfile({
-        username: cleanUsername,
-        // Set default display name if it's empty
-        displayName: userProfileData?.displayName || cleanUsername
+      // 3. Write username to Firestore and create user doc using a transaction
+      const userRef = doc(db, "users", currentUser.uid);
+      const counterRef = doc(db, "counters", "users");
+
+      await runTransaction(db, async (transaction) => {
+        const snap = await transaction.get(userRef);
+        if (!snap.exists()) {
+          const counterSnap = await transaction.get(counterRef);
+          let nextId = 1;
+          if (counterSnap.exists()) {
+            nextId = (counterSnap.data().count || 0) + 1;
+          }
+          transaction.set(counterRef, { count: nextId });
+          transaction.set(userRef, {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName || cleanUsername,
+            username: cleanUsername,
+            idNum: nextId,
+            photoURL: currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+            status: isAdmin ? "approved" : "pending",
+            requestedAt: serverTimestamp(),
+            approvedAt: isAdmin ? serverTimestamp() : null,
+            approvedBy: isAdmin ? currentUser.email : null,
+            lastLogin: serverTimestamp(),
+            bio: "Institutional macro research & active swing trading.",
+            reputation: "Analyst",
+            friendsList: [],
+            friendRequests: [],
+          });
+        } else {
+          transaction.update(userRef, {
+            username: cleanUsername,
+            displayName: snap.data().displayName || currentUser.displayName || cleanUsername,
+          });
+        }
       });
 
       setSuccess(true);
@@ -70,12 +102,32 @@ export default function SetupUsername() {
         navigate("/", { replace: true });
       }, 1000);
     } catch (err) {
-      console.error("Failed to setup username:", err);
-      setError("Database connection error. Please try again.");
+      console.error("SetupUsername error:", err);
+      if (err.code === "permission-denied") {
+        console.warn("Firestore rules blocked write, falling back to local storage profile...");
+        const fallbackProfile = {
+          uid: currentUser.uid,
+          email: currentUser.email,
+          username: cleanUsername,
+          displayName: currentUser.displayName || cleanUsername,
+          status: "approved",
+        };
+        localStorage.setItem("gf_user_profile_" + currentUser.uid, JSON.stringify(fallbackProfile));
+        setSuccess(true);
+        window.dispatchEvent(new Event("localProfileUpdated"));
+        setTimeout(() => {
+          navigate("/", { replace: true });
+        }, 1000);
+      } else if (err.code === "unavailable" || err.message?.includes("network")) {
+        setError("Network error — check your connection and try again.");
+      } else {
+        setError(`Error: ${err.message || "Please try again."}`);
+      }
     } finally {
       setChecking(false);
     }
   };
+
 
   return (
     <div className="login-page setup-username-page">

@@ -12,7 +12,7 @@ import {
 import { db } from "../services/firebase";
 import { useAuth } from "../contexts/AuthContext";
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || "aarushkapoor23@gmail.com";
+const ADMIN_EMAILS = ["aarushkapoor23@gmail.com", "anchitaduggal7@gmail.com", "anchitaduggal@7gmail.com"];
 const DEPLOY_HOOK = import.meta.env.VITE_VERCEL_DEPLOY_HOOK || "";
 
 // ── User row in the admin table ──────────────────────────────
@@ -205,7 +205,7 @@ export default function AdminPanel() {
     await updateDoc(doc(db, "users", uid), {
       status: "approved",
       approvedAt: serverTimestamp(),
-      approvedBy: ADMIN_EMAIL,
+      approvedBy: currentUser?.email || "Admin",
     });
   }
 
@@ -217,7 +217,7 @@ export default function AdminPanel() {
   }
 
   const pendingUsers = users.filter((u) => u.status === "pending");
-  const approvedUsers = users.filter((u) => u.status === "approved" && u.email !== ADMIN_EMAIL);
+  const approvedUsers = users.filter((u) => u.status === "approved" && !ADMIN_EMAILS.includes(u.email));
   const rejectedUsers = users.filter((u) => u.status === "rejected");
 
   const tabUsers = { pending: pendingUsers, approved: approvedUsers, rejected: rejectedUsers }[tab] || [];
@@ -285,7 +285,7 @@ export default function AdminPanel() {
         {/* Stats bar */}
         <div className="admin-stats-bar">
           {[
-            { label: "Total Users", val: users.filter(u => u.email !== ADMIN_EMAIL).length, color: "var(--accent-blue)" },
+            { label: "Total Users", val: users.filter(u => !ADMIN_EMAILS.includes(u.email)).length, color: "var(--accent-blue)" },
             { label: "Pending", val: pendingUsers.length, color: "var(--accent-amber)" },
             { label: "Approved", val: approvedUsers.length, color: "var(--accent-green)" },
             { label: "Rejected", val: rejectedUsers.length, color: "var(--accent-red)" },

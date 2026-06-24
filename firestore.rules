@@ -11,14 +11,17 @@ service cloud.firestore {
         && request.resource.data.uid == uid
         && request.resource.data.email == request.auth.token.email;
 
-      // Users can only update their own lastLogin field
+      // Users can only update their own lastLogin field, or initialize their username and displayName
       allow update: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLogin']);
+        && (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLogin']) ||
+          (!resource.data.keys().hasAll(['username']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['username', 'displayName']))
+        );
 
       // Admin can read and write any user doc
       allow read, write: if request.auth != null
-        && request.auth.token.email == "aarushkapoor23@gmail.com";
+        && (request.auth.token.email == "aarushkapoor23@gmail.com" || request.auth.token.email == "anchitaduggal7@gmail.com" || request.auth.token.email == "anchitaduggal@7gmail.com");
     }
   }
 }

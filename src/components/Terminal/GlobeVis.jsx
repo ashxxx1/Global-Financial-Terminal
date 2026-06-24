@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import Globe from "react-globe.gl";
 import { Info, Target, RotateCcw, Plus, Minus } from "lucide-react";
 import { getCountryStats } from "./data";
+import * as THREE from "three";
 
 export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
   const [countries, setCountries] = useState({ features: [] });
@@ -68,22 +69,25 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
   }, []);
 
   useEffect(() => {
-    if (containerRef.current) {
-      const { clientWidth, clientHeight } = containerRef.current;
-      setDimensions({ width: clientWidth, height: clientHeight });
-    }
-    
-    const handleResize = () => {
-      if (containerRef.current) {
-         setDimensions({
-           width: containerRef.current.clientWidth,
-           height: containerRef.current.clientHeight
-         });
-      }
+    const container = containerRef.current;
+    if (!container) return;
+
+    const updateSize = () => {
+      const w = container.clientWidth || 800;
+      const h = container.clientHeight || 800;
+      setDimensions({ width: w, height: h });
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    updateSize();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateSize();
+    });
+
+    resizeObserver.observe(container);
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -99,38 +103,37 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
         const camera = currentGlobe.camera();
         
         // Remove default directional lights attached to camera
-        camera.children = camera.children.filter((c) => c.type !== 'DirectionalLight');
+        const dirLights = camera.children.filter((c) => c.isDirectionalLight || c.type === 'DirectionalLight');
+        dirLights.forEach((light) => camera.remove(light));
 
-        import('three').then(THREE => {
-           sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
-           scene.add(sunLight);
-           ambientLight = new THREE.AmbientLight(0xffffff, 0.4); 
-           scene.add(ambientLight);
+        sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
+        scene.add(sunLight);
+        ambientLight = new THREE.AmbientLight(0xffffff, 0.4); 
+        scene.add(ambientLight);
 
-           const globeMaterial = currentGlobe.globeMaterial();
-           globeMaterial.bumpScale = 10;
-           new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-water.png', texture => {
-              globeMaterial.specularMap = texture;
-              globeMaterial.specular = new THREE.Color('grey');
-              globeMaterial.shininess = 20;
-           });
-
-           const updateSunPosition = () => {
-             const now = new Date();
-             const start = new Date(now.getFullYear(), 0, 0);
-             const diff = Math.floor((now.getTime() - start.getTime()) / 86400000);
-             const sunLat = 23.44 * Math.sin(2 * Math.PI * (diff - 81) / 365);
-             const sunLng = 180 - (now.getUTCHours() + now.getUTCMinutes() / 60) * 15;
-             
-             if (currentGlobe) {
-                const coords = currentGlobe.getCoords(sunLat, sunLng, 2);
-                sunLight.position.set(coords.x, coords.y, coords.z);
-             }
-           };
-           
-           updateSunPosition();
-           intervalSet = setInterval(updateSunPosition, 60000); // update every minute
+        const globeMaterial = currentGlobe.globeMaterial();
+        globeMaterial.bumpScale = 10;
+        new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-water.png', texture => {
+           globeMaterial.specularMap = texture;
+           globeMaterial.specular = new THREE.Color('grey');
+           globeMaterial.shininess = 20;
         });
+
+        const updateSunPosition = () => {
+          const now = new Date();
+          const start = new Date(now.getFullYear(), 0, 0);
+          const diff = Math.floor((now.getTime() - start.getTime()) / 86400000);
+          const sunLat = 23.44 * Math.sin(2 * Math.PI * (diff - 81) / 365);
+          const sunLng = 180 - (now.getUTCHours() + now.getUTCMinutes() / 60) * 15;
+          
+          if (currentGlobe) {
+             const coords = currentGlobe.getCoords(sunLat, sunLng, 2);
+             sunLight.position.set(coords.x, coords.y, coords.z);
+          }
+        };
+        
+        updateSunPosition();
+        intervalSet = setInterval(updateSunPosition, 60000); // update every minute
       }
     }, 1000);
 

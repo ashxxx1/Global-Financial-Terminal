@@ -587,6 +587,20 @@ export function ChartTerminal() {
     const macdResult = calcMACD(activeRawData, indicatorSettings.macd.fast, indicatorSettings.macd.slow, indicatorSettings.macd.signal);
     const vwapData   = calcVWAP(activeRawData);
 
+    const byTime = {};
+    activeRawData.forEach(b => { byTime[b.time] = { ...b }; });
+    if (isEnabled("sma20"))  sma20Data.forEach(p => { if (byTime[p.time]) byTime[p.time].sma20 = p.value; });
+    if (isEnabled("sma50"))  sma50Data.forEach(p => { if (byTime[p.time]) byTime[p.time].sma50 = p.value; });
+    if (isEnabled("sma200")) sma200Data.forEach(p => { if (byTime[p.time]) byTime[p.time].sma200 = p.value; });
+    if (isEnabled("ema12"))  ema12Data.forEach(p => { if (byTime[p.time]) byTime[p.time].ema12 = p.value; });
+    if (isEnabled("ema26"))  ema26Data.forEach(p => { if (byTime[p.time]) byTime[p.time].ema26 = p.value; });
+    if (isEnabled("vwap"))   vwapData.forEach(p => { if (byTime[p.time]) byTime[p.time].vwap = p.value; });
+    if (isEnabled("bb")) {
+      bbData.upper.forEach(p => { if (byTime[p.time]) byTime[p.time].bbUpper = p.value; });
+      bbData.middle.forEach(p => { if (byTime[p.time]) byTime[p.time].bbMiddle = p.value; });
+      bbData.lower.forEach(p => { if (byTime[p.time]) byTime[p.time].bbLower = p.value; });
+    }
+
     // Generate comparison data if active
     const compareRawData = compareSymbol ? generateOHLCV(compareSymbol, currentTimeframe) : [];
     const compareMap = {};
@@ -595,10 +609,11 @@ export function ChartTerminal() {
     });
 
     const mergedChartData = Object.values(byTime).map(bar => {
+      const newBar = { ...bar };
       if (compareSymbol) {
-        bar.compareClose = compareMap[bar.time] || null;
+        newBar.compareClose = compareMap[bar.time] || null;
       }
-      return bar;
+      return newBar;
     });
 
     const byTimeRsi = {};

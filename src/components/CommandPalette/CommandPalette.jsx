@@ -11,7 +11,7 @@ const QUICK_COMMANDS = [
   { id: "calendar", icon: "🗓️", label: "Economic Calendar", desc: "Upcoming macro events", action: "view:calendar" },
   { id: "portfolio", icon: "📊", label: "Portfolio Simulator", desc: "Virtual trading portfolio", action: "view:portfolio" },
   { id: "fx", icon: "🌐", label: "FX Dashboard", desc: "Currency cross-rates", action: "view:fx" },
-  { id: "correlation", icon: "🔍", label: "Correlation Matrix", desc: "Cross-asset correlations", action: "view:correlation" },
+  { id: "charts", icon: "📈", label: "Chart Terminal", desc: "Interactive charts & indicators", action: "view:charts" },
   { id: "alerts", icon: "🔔", label: "Alert Center", desc: "Price alerts & notifications", action: "view:alerts" },
 ];
 

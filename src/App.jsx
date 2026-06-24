@@ -26,7 +26,7 @@ import { AlertSystem, AlertPanel } from "./components/Alerts/AlertSystem";
 import CommandPalette            from "./components/CommandPalette/CommandPalette";
 import MacroHeatmap              from "./components/MacroHeatmap/MacroHeatmap";
 import EconomicCalendar          from "./components/EconomicCalendar/EconomicCalendar";
-import CorrelationMatrix         from "./components/Correlation/CorrelationMatrix";
+import ChartTerminal             from "./components/Charts/ChartTerminal";
 import FXDashboard               from "./components/FXDashboard/FXDashboard";
 
 // ── Pages ────────────────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ function TerminalApp() {
             {activeView === "heatmap"     && <MacroHeatmap />}
             {activeView === "calendar"    && <EconomicCalendar />}
             {activeView === "fx"          && <FXDashboard />}
-            {activeView === "correlation" && <CorrelationMatrix />}
+            {activeView === "charts"      && <ChartTerminal />}
           </>
         )}
 

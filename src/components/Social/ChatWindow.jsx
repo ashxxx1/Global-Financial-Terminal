@@ -27,22 +27,35 @@ const MOCK_CHAT_LOGS = {
 
 export default function ChatWindow({ activeFriend }) {
   const { currentUser } = useAuth();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => {
+    if (!currentUser && activeFriend) {
+      return MOCK_CHAT_LOGS[activeFriend.name] || [];
+    }
+    return [];
+  });
+  const [prevFriendId, setPrevFriendId] = useState(activeFriend ? (activeFriend.uid || activeFriend.name) : null);
+  const [prevUserUid, setPrevUserUid] = useState(currentUser?.uid || null);
   const [inputText, setInputText] = useState("");
   const [imageURL, setImageURL] = useState("");
   const [showImgInput, setShowImgInput] = useState(false);
   const bottomRef = useRef(null);
 
+  const currentFriendId = activeFriend ? (activeFriend.uid || activeFriend.name) : null;
+  const currentUserUid = currentUser?.uid || null;
+  if (currentFriendId !== prevFriendId || currentUserUid !== prevUserUid) {
+    setPrevFriendId(currentFriendId);
+    setPrevUserUid(currentUserUid);
+    if (!currentUser && activeFriend) {
+      setMessages(MOCK_CHAT_LOGS[activeFriend.name] || []);
+    } else {
+      setMessages([]);
+    }
+  }
+
   // Load chat messages
   useEffect(() => {
     if (!activeFriend) return;
-    setMessages([]);
-
-    if (!currentUser) {
-      // Offline fallback
-      setMessages(MOCK_CHAT_LOGS[activeFriend.name] || []);
-      return;
-    }
+    if (!currentUser) return;
 
     // Firestore query for mutual chat messages
     const q = query(

@@ -18,12 +18,10 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
     { name: "ASIA", lat: 35, lng: 100, val: "+0.68%", col: "emerald" },
   ];
 
-  const [trafficArcs, setTrafficArcs] = useState([]);
-
-  useEffect(() => {
+  const [trafficArcs] = useState(() => {
     // Generate mock traffic arcs for trade routes, aircraft, etc
     const N = 40;
-    const arcs = [...Array(N).keys()].map(() => {
+    return [...Array(N).keys()].map(() => {
       const type = Math.random();
       let color = ['rgba(16, 185, 129, 0.8)', 'rgba(16, 185, 129, 0.1)']; // Trade (Emerald)
       if (type > 0.6) color = ['rgba(99, 102, 241, 0.8)', 'rgba(99, 102, 241, 0.1)']; // Internet (Indigo)
@@ -37,8 +35,7 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
         color
       };
     });
-    setTrafficArcs(arcs);
-  }, []);
+  });
 
   useEffect(() => {
     fetch('https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
@@ -94,11 +91,12 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
     let sunLight;
     let ambientLight;
     let intervalSet;
+    const currentGlobe = globeRef.current;
     
     const initTimer = setTimeout(() => {
-      if (globeRef.current) {
-        const scene = globeRef.current.scene();
-        const camera = globeRef.current.camera();
+      if (currentGlobe) {
+        const scene = currentGlobe.scene();
+        const camera = currentGlobe.camera();
         
         // Remove default directional lights attached to camera
         camera.children = camera.children.filter((c) => c.type !== 'DirectionalLight');
@@ -109,7 +107,7 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
            ambientLight = new THREE.AmbientLight(0xffffff, 0.4); 
            scene.add(ambientLight);
 
-           const globeMaterial = globeRef.current.globeMaterial();
+           const globeMaterial = currentGlobe.globeMaterial();
            globeMaterial.bumpScale = 10;
            new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-water.png', texture => {
               globeMaterial.specularMap = texture;
@@ -124,8 +122,8 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
              const sunLat = 23.44 * Math.sin(2 * Math.PI * (diff - 81) / 365);
              const sunLng = 180 - (now.getUTCHours() + now.getUTCMinutes() / 60) * 15;
              
-             if (globeRef.current) {
-                const coords = globeRef.current.getCoords(sunLat, sunLng, 2);
+             if (currentGlobe) {
+                const coords = currentGlobe.getCoords(sunLat, sunLng, 2);
                 sunLight.position.set(coords.x, coords.y, coords.z);
              }
            };
@@ -139,8 +137,8 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
     return () => {
        clearTimeout(initTimer);
        if (intervalSet) clearInterval(intervalSet);
-       if (globeRef.current) {
-          const scene = globeRef.current.scene();
+       if (currentGlobe) {
+          const scene = currentGlobe.scene();
           if (sunLight) scene.remove(sunLight);
           if (ambientLight) scene.remove(ambientLight);
        }

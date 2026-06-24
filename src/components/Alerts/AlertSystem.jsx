@@ -1,29 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import useTerminalStore from "../../store/terminalStore";
 
-export const ALERT_TONES = { hit: "🔔", info: "ℹ️", warn: "⚠️" };
-
-// Simulated price ticker - slightly moves prices over time
-function useLivePrice(stock) {
-  const [price, setPrice] = useState(stock?.price || 0);
-  const baseRef = useRef(stock?.price || 0);
-  
-  useEffect(() => {
-    if (!stock) return;
-    baseRef.current = stock.price;
-    setPrice(stock.price);
-    const interval = setInterval(() => {
-      const drift = (Math.random() - 0.5) * 0.003 * baseRef.current;
-      baseRef.current = Math.max(0.01, baseRef.current + drift);
-      setPrice(parseFloat(baseRef.current.toFixed(2)));
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [stock?.symbol]);
-  return price;
-}
-
 export function AlertBell() {
-  const { alerts, unreadAlertCount, setAlertPanelOpen, alertPanelOpen } = useTerminalStore();
+  const { unreadAlertCount, setAlertPanelOpen, alertPanelOpen } = useTerminalStore();
   
   return (
     <button
@@ -43,7 +22,7 @@ export function AlertBell() {
 export function AlertPanel() {
   const {
     alerts, notifications, alertPanelOpen, setAlertPanelOpen,
-    removeAlert, clearNotifications, selectedStock, addAlert,
+    removeAlert, clearNotifications, addAlert,
   } = useTerminalStore();
   const [newSymbol, setNewSymbol] = useState("");
   const [newPrice, setNewPrice] = useState("");

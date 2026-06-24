@@ -28,41 +28,30 @@ function fuzzyMatch(str, query) {
 
 export default function CommandPalette() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
   const [activeIdx, setActiveIdx] = useState(0);
   const { commandPaletteOpen, setCommandPaletteOpen, setSelectedStock, setSelectedCountry, setActiveView } = useTerminalStore();
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Global keyboard shortcut
-  useEffect(() => {
-    function handler(e) {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setCommandPaletteOpen(!commandPaletteOpen);
-      }
-      if (e.key === "Escape" && commandPaletteOpen) {
-        setCommandPaletteOpen(false);
-      }
-    }
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [commandPaletteOpen, setCommandPaletteOpen]);
-
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(commandPaletteOpen);
+  if (commandPaletteOpen !== prevOpen) {
+    setPrevOpen(commandPaletteOpen);
     if (commandPaletteOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
       setQuery("");
-      setResults([]);
       setActiveIdx(0);
     }
-  }, [commandPaletteOpen]);
+  }
 
-  useEffect(() => {
+  const [prevQuery, setPrevQuery] = useState(query);
+  if (query !== prevQuery) {
+    setPrevQuery(query);
+    setActiveIdx(0);
+  }
+
+  // Calculate results during render
+  const results = (() => {
     if (!query.trim()) {
-      setResults(QUICK_COMMANDS.map((c) => ({ ...c, type: "command" })));
-      setActiveIdx(0);
-      return;
+      return QUICK_COMMANDS.map((c) => ({ ...c, type: "command" }));
     }
 
     const q = query.trim();
@@ -104,9 +93,29 @@ export default function CommandPalette() {
       .filter((c) => fuzzyMatch(c.label, q))
       .forEach((c) => items.push({ id: "fc_" + c.id, icon: c.icon, label: c.label, desc: "Forum category", type: "forum-cat", data: c }));
 
-    setResults(items);
-    setActiveIdx(0);
-  }, [query]);
+    return items;
+  })();
+
+  // Global keyboard shortcut
+  useEffect(() => {
+    function handler(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen(!commandPaletteOpen);
+      }
+      if (e.key === "Escape" && commandPaletteOpen) {
+        setCommandPaletteOpen(false);
+      }
+    }
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [commandPaletteOpen, setCommandPaletteOpen]);
+
+  useEffect(() => {
+    if (commandPaletteOpen) {
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [commandPaletteOpen]);
 
   const handleSelect = useCallback((item) => {
     setCommandPaletteOpen(false);

@@ -195,9 +195,16 @@ function UserMenu() {
 function CalendarChip() {
   const nextEvent = getNextHighImpactEvent();
   const { setActiveView } = useTerminalStore();
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(id);
+  }, []);
+
   if (!nextEvent) return null;
   const dt = new Date(`${nextEvent.date}T${nextEvent.time}`);
-  const hoursUntil = Math.floor((dt - Date.now()) / 3600000);
+  const hoursUntil = Math.floor((dt - now) / 3600000);
   return (
     <button className="header__calendar-chip" onClick={() => setActiveView("calendar")} title="Economic Calendar">
       <span>🗓️</span>

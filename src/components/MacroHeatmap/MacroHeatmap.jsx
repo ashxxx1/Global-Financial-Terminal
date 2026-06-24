@@ -23,7 +23,6 @@ function darken(hex, amount = 0.3) {
 
 // Simple treemap layout algorithm
 function computeTreemap(items, width, height) {
-  const total = items.reduce((s, i) => s + i.weight, 0);
   function slice(items, x, y, w, h) {
     const totalW = items.reduce((s, i) => s + i.weight, 0);
     let result = [];

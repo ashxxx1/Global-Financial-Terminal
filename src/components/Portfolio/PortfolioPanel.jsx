@@ -4,28 +4,31 @@ import useTerminalStore from "../../store/terminalStore";
 const STARTING_CAPITAL = 100000;
 
 function PieChart({ slices }) {
-  let cumulativeAngle = -Math.PI / 2;
   const cx = 80, cy = 80, r = 65, inner = 40;
-  const paths = slices.map((s) => {
-    if (s.pct <= 0) return null;
+  let currentAngle = -Math.PI / 2;
+  const paths = [];
+
+  for (let i = 0; i < slices.length; i++) {
+    const s = slices[i];
+    if (s.pct <= 0) continue;
     const angle = (s.pct / 100) * 2 * Math.PI;
-    const x1 = cx + r * Math.cos(cumulativeAngle);
-    const y1 = cy + r * Math.sin(cumulativeAngle);
-    const x2 = cx + r * Math.cos(cumulativeAngle + angle);
-    const y2 = cy + r * Math.sin(cumulativeAngle + angle);
+    const x1 = cx + r * Math.cos(currentAngle);
+    const y1 = cy + r * Math.sin(currentAngle);
+    const x2 = cx + r * Math.cos(currentAngle + angle);
+    const y2 = cy + r * Math.sin(currentAngle + angle);
     const largeArc = angle > Math.PI ? 1 : 0;
-    const xi1 = cx + inner * Math.cos(cumulativeAngle);
-    const yi1 = cy + inner * Math.sin(cumulativeAngle);
-    const xi2 = cx + inner * Math.cos(cumulativeAngle + angle);
-    const yi2 = cy + inner * Math.sin(cumulativeAngle + angle);
+    const xi1 = cx + inner * Math.cos(currentAngle);
+    const yi1 = cy + inner * Math.sin(currentAngle);
+    const xi2 = cx + inner * Math.cos(currentAngle + angle);
+    const yi2 = cy + inner * Math.sin(currentAngle + angle);
     const d = `M ${xi1} ${yi1} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} L ${xi2} ${yi2} A ${inner} ${inner} 0 ${largeArc} 0 ${xi1} ${yi1} Z`;
-    cumulativeAngle += angle;
-    return { d, color: s.color, symbol: s.symbol };
-  });
+    paths.push({ d, color: s.color, symbol: s.symbol });
+    currentAngle += angle;
+  }
 
   return (
     <svg width={160} height={160} viewBox="0 0 160 160">
-      {paths.filter(Boolean).map((p, i) => (
+      {paths.map((p, i) => (
         <path key={i} d={p.d} fill={p.color} stroke="rgba(0,0,0,0.3)" strokeWidth={1} />
       ))}
       <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle" fill="var(--text-secondary)" fontSize={9} fontFamily="JetBrains Mono, monospace">PORTFOLIO</text>
@@ -136,7 +139,7 @@ export default function PortfolioPanel({ onClose }) {
       } else {
         setConnectError("Invalid credentials provided. Check your Alpaca API Keys.");
       }
-    } catch (err) {
+    } catch {
       setConnectError("Connection timed out. Using sandbox override.");
     } finally {
       setConnecting(false);
@@ -437,7 +440,7 @@ export default function PortfolioPanel({ onClose }) {
                 {brokerPositions.length === 0 ? (
                   <div className="portfolio-panel__empty">No holdings found on connected account. Add assets via Alpaca Dashboard.</div>
                 ) : (
-                  positionList.map((p, idx) => (
+                  positionList.map((p) => (
                     <div key={p.symbol} className="portfolio-panel__position-row">
                       <div className="portfolio-panel__pos-info">
                         <div className="portfolio-panel__pos-sym" style={{ color: p.color }}>{p.symbol}</div>

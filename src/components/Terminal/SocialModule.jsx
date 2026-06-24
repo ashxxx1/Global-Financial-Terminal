@@ -17,7 +17,7 @@ import {
   orderBy,
   serverTimestamp
 } from 'firebase/firestore';
-import { Hash, Search, Bell, Mail, User, Settings, Plus, Compass, Edit3, Check, X, Send, Image } from 'lucide-react';
+import { Hash, Mail, User, Plus, Compass, Check, Send, Image } from 'lucide-react';
 
 const INITIAL_MOCK_FRIENDS = [
   { uid: "uf1", name: "AlexTrade", avatar: "AT", role: "Senior Analyst", reputation: "Analyst", online: true },
@@ -42,33 +42,43 @@ export function SocialModule() {
 
   // Private messages state
   const [messages, setMessages] = useState([]);
+  const [prevFriendId, setPrevFriendId] = useState(activeFriend ? (activeFriend.uid || activeFriend.name) : null);
   const [chatInputText, setChatInputText] = useState("");
   const [chatImageURL, setChatImageURL] = useState("");
   const [showChatImgInput, setShowChatImgInput] = useState(false);
   const chatBottomRef = useRef(null);
 
+  const currentFriendId = activeFriend ? (activeFriend.uid || activeFriend.name) : null;
+  if (currentFriendId !== prevFriendId) {
+    setPrevFriendId(currentFriendId);
+    setMessages([]);
+  }
+
   // Profile Edit State
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [profileName, setProfileName] = useState("");
-  const [profileBio, setProfileBio] = useState("");
-  const [profileRep, setProfileRep] = useState("Analyst");
-  const [profileAvatar, setProfileAvatar] = useState("");
+  const [profileName, setProfileName] = useState(() => userProfileData?.displayName || currentUser?.displayName || "Trader");
+  const [profileBio, setProfileBio] = useState(() => userProfileData?.bio || "Institutional macro research & active swing trading.");
+  const [profileRep, setProfileRep] = useState(() => userProfileData?.reputation || "Analyst");
+  const [profileAvatar, setProfileAvatar] = useState(() => userProfileData?.photoURL || currentUser?.photoURL || "");
+
+  const [prevUserUid, setPrevUserUid] = useState(currentUser?.uid || null);
+  const [prevUserProfile, setPrevUserProfile] = useState(userProfileData);
+
+  const currentUserUid = currentUser?.uid || null;
+  if (currentUserUid !== prevUserUid || userProfileData !== prevUserProfile) {
+    setPrevUserUid(currentUserUid);
+    setPrevUserProfile(userProfileData);
+    setProfileName(userProfileData?.displayName || currentUser?.displayName || "Trader");
+    setProfileBio(userProfileData?.bio || "Institutional macro research & active swing trading.");
+    setProfileRep(userProfileData?.reputation || "Analyst");
+    setProfileAvatar(userProfileData?.photoURL || currentUser?.photoURL || "");
+  }
 
   const servers = [
     { id: 's1', name: 'Macro Trading', initials: 'MT', color: 'bg-emerald-600' },
     { id: 's2', name: 'Crypto Alpha', initials: 'CA', color: 'bg-indigo-600' },
     { id: 's3', name: 'Quant Network', initials: 'QN', color: 'bg-purple-600' },
   ];
-
-  // Initialize profile input values
-  useEffect(() => {
-    if (userProfileData) {
-      setProfileName(userProfileData.displayName || currentUser?.displayName || "Trader");
-      setProfileBio(userProfileData.bio || "Institutional macro research & active swing trading.");
-      setProfileRep(userProfileData.reputation || "Analyst");
-      setProfileAvatar(userProfileData.photoURL || currentUser?.photoURL || "");
-    }
-  }, [userProfileData, currentUser]);
 
   // Load Friends details in real time
   useEffect(() => {
@@ -142,12 +152,7 @@ export function SocialModule() {
 
   // Load Mutual Chat Messages
   useEffect(() => {
-    if (!activeFriend) {
-      setMessages([]);
-      return;
-    }
-    setMessages([]);
-
+    if (!activeFriend) return;
     if (!currentUser) return;
 
     const q = query(
@@ -242,7 +247,7 @@ export function SocialModule() {
         setSearchResult(null);
         setSearchMsg("No trader found with that email address.");
       }
-    } catch (err) {
+    } catch {
       setSearchMsg("Lookup error. Try again.");
     }
   };

@@ -176,7 +176,7 @@ export default function SocialPage() {
         setSearchResult(null);
         setSearchMsg("No trader found with that email address.");
       }
-    } catch (err) {
+    } catch {
       setSearchMsg("Lookup error. Try again.");
     }
   };

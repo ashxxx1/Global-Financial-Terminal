@@ -7,9 +7,14 @@ import { getLocalNewsOutlets, getLocalHeadlines, generateGeopoliticalSummary } f
 function TypewriterSummary({ text, speed = 10 }) {
   const [displayed, setDisplayed] = useState("");
   const idx = useRef(0);
+  const [prevText, setPrevText] = useState(text);
+
+  if (text !== prevText) {
+    setPrevText(text);
+    setDisplayed("");
+  }
 
   useEffect(() => {
-    setDisplayed("");
     idx.current = 0;
     if (!text) return;
     const interval = setInterval(() => {

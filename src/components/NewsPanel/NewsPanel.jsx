@@ -82,9 +82,14 @@ function MarketMeta({ country }) {
 function TypewriterSummary({ text, speed = 12 }) {
   const [displayed, setDisplayed] = useState("");
   const idx = useRef(0);
+  const [prevText, setPrevText] = useState(text);
+
+  if (text !== prevText) {
+    setPrevText(text);
+    setDisplayed("");
+  }
 
   useEffect(() => {
-    setDisplayed("");
     idx.current = 0;
     if (!text) return;
     const interval = setInterval(() => {
@@ -111,9 +116,11 @@ export default function NewsPanel() {
   const isUp = selectedCountry?.indexChangePct != null && selectedCountry.indexChangePct >= 0;
 
   // Reset tab on country switch
-  useEffect(() => {
+  const [prevCountryCode, setPrevCountryCode] = useState(selectedCountry?.code);
+  if (selectedCountry?.code !== prevCountryCode) {
+    setPrevCountryCode(selectedCountry?.code);
     setActiveTab("overview");
-  }, [selectedCountry?.code]);
+  }
 
   if (!isNewsPanelOpen || !selectedCountry) return null;
 

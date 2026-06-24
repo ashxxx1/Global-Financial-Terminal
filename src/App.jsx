@@ -110,7 +110,7 @@ function TerminalApp() {
                   </div> 
                   
                   {/* Bottom Panel: Global News / Flows */}
-                  <div className="h-[240px] w-full border-t border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 flex flex-col shadow-[0_-40px_100px_rgba(0,0,0,0.5)]">
+                  <div className="relative h-[240px] w-full border-t border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 flex flex-col shadow-[0_-40px_100px_rgba(0,0,0,0.5)]">
                     <GlobalNews />
                   </div>
                 </div>

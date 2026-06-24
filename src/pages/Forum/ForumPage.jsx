@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FORUM_CATEGORIES, FORUM_THREADS, getTrendingThreads, getUserById } from "../../data/forumData";
+import { Link } from "react-router-dom";
+import { FORUM_CATEGORIES, FORUM_THREADS } from "../../data/forumData";
 import ThreadCard from "../../components/Forum/ThreadCard";
 import ForumSidebar from "../../components/Forum/ForumSidebar";
 import CreateThreadModal from "../../components/Forum/CreateThreadModal";
@@ -8,7 +8,6 @@ import CreateThreadModal from "../../components/Forum/CreateThreadModal";
 export default function ForumPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [threads, setThreads] = useState(FORUM_THREADS);
-  const trending = getTrendingThreads(5);
 
   function handleNewThread(thread) {
     setThreads((prev) => [thread, ...prev]);

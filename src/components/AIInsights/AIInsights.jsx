@@ -5,10 +5,15 @@ function TypewriterText({ text, speed = 18 }) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
   const idxRef = useRef(0);
+  const [prevText, setPrevText] = useState(text);
 
-  useEffect(() => {
+  if (text !== prevText) {
+    setPrevText(text);
     setDisplayed("");
     setDone(false);
+  }
+
+  useEffect(() => {
     idxRef.current = 0;
     if (!text) return;
     const interval = setInterval(() => {
@@ -35,9 +40,17 @@ export default function AIInsights({ country, stock }) {
   const [narrative, setNarrative] = useState("");
   const [key, setKey] = useState(0);
 
+  const [prevCountry, setPrevCountry] = useState(country);
+  const [prevStock, setPrevStock] = useState(stock);
+
+  if (country !== prevCountry || stock !== prevStock) {
+    setPrevCountry(country);
+    setPrevStock(stock);
+    setVisible(false);
+  }
+
   useEffect(() => {
     if (country) {
-      setVisible(false);
       const timer = setTimeout(() => {
         const text = generateNarrative(country.code, country.sentiment || "neutral");
         setNarrative(text);
@@ -46,7 +59,6 @@ export default function AIInsights({ country, stock }) {
       }, 600);
       return () => clearTimeout(timer);
     } else if (stock) {
-      setVisible(false);
       const timer = setTimeout(() => {
         const text = generateStockNarrative(stock);
         setNarrative(text);
@@ -55,7 +67,7 @@ export default function AIInsights({ country, stock }) {
       }, 400);
       return () => clearTimeout(timer);
     }
-  }, [country?.code, stock?.symbol]);
+  }, [country, stock]);
 
   if (!visible || !narrative) return null;
 

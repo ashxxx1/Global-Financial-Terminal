@@ -4,13 +4,11 @@ import { Filter, ChevronLeft, ChevronRight, Globe, TrendingUp, ShieldAlert, Cpu 
 const mockNews = Array.from({ length: 50 }, (_, i) => {
   const types = ['Financial', 'Geopolitics', 'Technology', 'Energy'];
   const type = types[i % 4];
-  let title = '';
   let priority = i % 3 === 0 ? 'HIGH' : i % 2 === 0 ? 'MEDIUM' : 'LOW';
-  
-  if (type === 'Financial') title = `Global Markets React to New Interest Rate Policies in Region ${i+1}`;
-  else if (type === 'Geopolitics') title = `Diplomatic Tensions Rise Over Trade Tariffs Announcement ${i+1}`;
-  else if (type === 'Technology') title = `New Autonomous AI Framework Disclosures Impact Semiconductor Stocks ${i+1}`;
-  else title = `OPEC+ Consortium Discusses Output Adjustments for Next Quarter ${i+1}`;
+  const title = type === 'Financial' ? `Global Markets React to New Interest Rate Policies in Region ${i+1}`
+    : type === 'Geopolitics' ? `Diplomatic Tensions Rise Over Trade Tariffs Announcement ${i+1}`
+    : type === 'Technology' ? `New Autonomous AI Framework Disclosures Impact Semiconductor Stocks ${i+1}`
+    : `OPEC+ Consortium Discusses Output Adjustments for Next Quarter ${i+1}`;
 
   return {
     id: i,

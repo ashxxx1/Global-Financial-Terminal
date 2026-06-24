@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MessageSquare, Heart, Repeat2, CheckCircle2, ChevronRight, Hash, MoreHorizontal, Image, Video, ThumbsDown } from "lucide-react";
+import { MessageSquare, Heart, Repeat2, MoreHorizontal, Image, ThumbsDown } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { db } from "../../services/firebase";
 import {
@@ -18,7 +18,7 @@ import {
   where
 } from "firebase/firestore";
 import StockMention from "../Forum/StockMention";
-
+ 
 export function SocialFeed() {
   const { currentUser, userProfileData } = useAuth();
   const [activeTab, setActiveTab] = useState('For You');
@@ -28,11 +28,17 @@ export function SocialFeed() {
   const [imageURL, setImageURL] = useState("");
   const [videoURL, setVideoURL] = useState("");
   const [showMediaFields, setShowMediaFields] = useState(false);
-
+ 
   // Comments state
   const [openCommentsPostId, setOpenCommentsPostId] = useState(null);
   const [comments, setComments] = useState([]);
+  const [prevCommentsPostId, setPrevCommentsPostId] = useState(null);
   const [commentInput, setCommentInput] = useState("");
+ 
+  if (openCommentsPostId !== prevCommentsPostId) {
+    setPrevCommentsPostId(openCommentsPostId);
+    setComments([]);
+  }
 
   // Load Feed Posts
   useEffect(() => {
@@ -79,10 +85,7 @@ export function SocialFeed() {
 
   // Load Comments for Open Post
   useEffect(() => {
-    if (!openCommentsPostId) {
-      setComments([]);
-      return;
-    }
+    if (!openCommentsPostId) return;
 
     const q = query(
       collection(db, "post_comments"),

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Activity, Bell, Search, Terminal, LogOut } from "lucide-react";
+import { Activity, Bell, Terminal, LogOut } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
 export function TopBar({ currentView, onSetView }) {
-  const { currentUser, userProfileData, logout } = useAuth();
+  const { userProfileData, logout } = useAuth();
   const [timeStr, setTimeStr] = useState("");
   const [dateStr, setDateStr] = useState("");
 

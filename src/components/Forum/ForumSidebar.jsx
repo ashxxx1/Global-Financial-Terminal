@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { getTrendingThreads, FORUM_CATEGORIES, FORUM_USERS } from "../../data/forumData";
 
@@ -11,7 +10,7 @@ function formatTimeAgo(dateStr) {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-export default function ForumSidebar({ threads }) {
+export default function ForumSidebar() {
   const trending = getTrendingThreads(5);
 
   return (

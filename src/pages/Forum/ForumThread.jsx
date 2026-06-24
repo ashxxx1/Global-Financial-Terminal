@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getThreadById, getUserById, FORUM_CATEGORIES } from "../../data/forumData";
 import { useAuth } from "../../contexts/AuthContext";
-import useTerminalStore from "../../store/terminalStore";
 import ReplyBlock from "../../components/Forum/ReplyBlock";
 import StockMention from "../../components/Forum/StockMention";
 

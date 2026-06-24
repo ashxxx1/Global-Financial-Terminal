@@ -29,7 +29,13 @@ export default function PostsFeed() {
   // Comments state
   const [openCommentsPostId, setOpenCommentsPostId] = useState(null);
   const [comments, setComments] = useState([]);
+  const [prevCommentsPostId, setPrevCommentsPostId] = useState(null);
   const [commentInput, setCommentInput] = useState("");
+
+  if (openCommentsPostId !== prevCommentsPostId) {
+    setPrevCommentsPostId(openCommentsPostId);
+    setComments([]);
+  }
 
   // Load Feed Posts
   useEffect(() => {
@@ -76,10 +82,7 @@ export default function PostsFeed() {
 
   // Load Comments for Open Post
   useEffect(() => {
-    if (!openCommentsPostId) {
-      setComments([]);
-      return;
-    }
+    if (!openCommentsPostId) return;
 
     const q = query(
       collection(db, "post_comments"),

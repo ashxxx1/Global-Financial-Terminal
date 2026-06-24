@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from "react";
-import useTerminalStore from "../../store/terminalStore";
+import { useState, useEffect } from "react";
 
 // FX Rate data
 const BASE_RATES = {

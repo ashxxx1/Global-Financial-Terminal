@@ -1,7 +1,5 @@
 import { useState, useMemo } from "react";
 import useTerminalStore from "../../store/terminalStore";
-import { getStocksForCountry } from "../../data/stocksData";
-import { COUNTRIES_DATA } from "../../data/mockData";
 
 // Generate a deterministic correlation value based on two stock symbols
 function correlation(sym1, sym2) {

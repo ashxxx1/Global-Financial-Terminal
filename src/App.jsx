@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { X } from "lucide-react";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import "./styles/index.css";
@@ -61,6 +62,7 @@ function TerminalApp() {
 
   // Mobile sidebar sheet state
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [mobileViewsOpen, setMobileViewsOpen] = useState(false);
   const [timeframe, setTimeframe] = useState("1D");
   const closeMobileSidebar = useCallback(() => setMobileSidebarOpen(false), []);
   const toggleMobileSidebar = useCallback(() => setMobileSidebarOpen((v) => !v), []);
@@ -92,7 +94,11 @@ function TerminalApp() {
       <LeftNav currentView={activeView} onSetView={setActiveView} />
 
       {/* Main content area */}
-      <main className="globe-area" style={{ position: "relative", overflow: "hidden" }}>
+      <main className="globe-area" style={{ 
+        position: "relative", 
+        overflow: activeView === "globe" ? "hidden" : "auto",
+        touchAction: activeView === "globe" ? "none" : "auto"
+      }}>
         {activeView === "globe" ? (
           <div className="flex w-full h-full">
             {/* Left Panel: Market overview & Risk radar OR Country Info */}
@@ -276,7 +282,7 @@ function TerminalApp() {
       <nav className="mobile-nav" aria-label="Mobile navigation">
         <button
           className={`mobile-nav__btn${activeView === "globe" ? " active" : ""}`}
-          onClick={() => setActiveView("globe")}
+          onClick={() => { setActiveView("globe"); setMobileViewsOpen(false); }}
           aria-label="Globe"
         >
           <span className="mobile-nav__btn-icon">🌍</span>
@@ -285,7 +291,7 @@ function TerminalApp() {
 
         <button
           className={`mobile-nav__btn${mobileSidebarOpen ? " active" : ""}`}
-          style={{ borderLeft: "1px solid rgba(255,255,255,0.04)", borderRight: "1px solid rgba(255,255,255,0.04)" }}
+          style={{ borderLeft: "1px solid rgba(255,255,255,0.04)" }}
           onClick={toggleMobileSidebar}
           aria-label="Markets"
         >
@@ -295,13 +301,64 @@ function TerminalApp() {
 
         <button
           className={`mobile-nav__btn${activeView === "news" ? " active" : ""}`}
-          onClick={() => setActiveView("news")}
+          style={{ borderRight: "1px solid rgba(255,255,255,0.04)" }}
+          onClick={() => { setActiveView("news"); setMobileViewsOpen(false); }}
           aria-label="News"
         >
           <span className="mobile-nav__btn-icon">📡</span>
           NEWS
         </button>
+
+        <button
+          className={`mobile-nav__btn${mobileViewsOpen ? " active" : ""}`}
+          onClick={() => setMobileViewsOpen(true)}
+          aria-label="More views"
+        >
+          <span className="mobile-nav__btn-icon">☰</span>
+          VIEWS
+        </button>
       </nav>
+      {/* Mobile Views Menu Sheet */}
+      {mobileViewsOpen && (
+        <div className="fixed inset-0 z-[400] flex flex-col justify-end bg-black/60 backdrop-blur-sm pointer-events-auto" onClick={() => setMobileViewsOpen(false)}>
+          <div className="bg-[#080f1e] border-t border-[#1e293b] rounded-t-2xl p-5 max-h-[80vh] overflow-y-auto w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/5">
+              <span className="font-bold text-[10px] uppercase tracking-widest text-slate-400">Terminal Modules</span>
+              <button onClick={() => setMobileViewsOpen(false)} className="text-slate-500 hover:text-white p-1 cursor-pointer">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pb-8">
+              {[
+                { label: "Terminal Map", val: "globe", icon: "🌍" },
+                { label: "Candle Charts", val: "charts", icon: "📊" },
+                { label: "FX Dashboard", val: "fx", icon: "💱" },
+                { label: "Global News", val: "news", icon: "📡" },
+                { label: "Social Intel", val: "social", icon: "💬" },
+                { label: "Portfolio Dev", val: "portfolio", icon: "💼" },
+                { label: "Economic Calendar", val: "calendar", icon: "📅" },
+                { label: "Macro Heatmap", val: "heatmap", icon: "🔥" }
+              ].map(view => (
+                <button
+                  key={view.val}
+                  onClick={() => {
+                    setActiveView(view.val);
+                    setMobileViewsOpen(false);
+                  }}
+                  className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all cursor-pointer ${
+                    activeView === view.val
+                      ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 font-bold"
+                      : "bg-[#0c1220] border-[#1e293b]/70 text-slate-300 hover:border-slate-700"
+                  }`}
+                >
+                  <span className="text-2xl mb-1.5">{view.icon}</span>
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-center">{view.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -22,6 +22,13 @@ export const ASSET_CATALOG = [
   { symbol: "ASML",  name: "ASML Holding NV",        type: "Stock",     basePrice: 876.40, color: "#6366f1" },
   { symbol: "TSM",   name: "Taiwan Semiconductor",   type: "Stock",     basePrice: 168.20, color: "#6366f1" },
   { symbol: "NVO",   name: "Novo Nordisk A/S",       type: "Stock",     basePrice: 115.40, color: "#6366f1" },
+  { symbol: "INTC",  name: "Intel Corp.",            type: "Stock",     basePrice: 30.50,  color: "#6366f1" },
+  { symbol: "KO",    name: "Coca-Cola Company",      type: "Stock",     basePrice: 62.40,  color: "#6366f1" },
+  { symbol: "PEP",   name: "PepsiCo Inc.",           type: "Stock",     basePrice: 168.20, color: "#6366f1" },
+  { symbol: "PG",    name: "Procter & Gamble Co.",   type: "Stock",     basePrice: 162.80, color: "#6366f1" },
+  { symbol: "CVX",   name: "Chevron Corp.",          type: "Stock",     basePrice: 154.60, color: "#6366f1" },
+  { symbol: "LLY",   name: "Eli Lilly & Co.",        type: "Stock",     basePrice: 780.40, color: "#6366f1" },
+  { symbol: "COST",  name: "Costco Wholesale Corp.", type: "Stock",     basePrice: 725.10, color: "#6366f1" },
   // ── Crypto ───────────────────────────────────────────────────────────────────
   { symbol: "BTC",   name: "Bitcoin",                type: "Crypto",    basePrice: 67234,  color: "#f59e0b" },
   { symbol: "ETH",   name: "Ethereum",               type: "Crypto",    basePrice: 3542,   color: "#f59e0b" },
@@ -60,6 +67,12 @@ export const ASSET_CATALOG = [
   { symbol: "COPPER",name: "Copper Futures",         type: "Commodity", basePrice: 4.424,  color: "#fbbf24" },
   { symbol: "WHEAT", name: "Wheat Futures",          type: "Commodity", basePrice: 572.4,  color: "#fbbf24" },
   { symbol: "CORN",  name: "Corn Futures",           type: "Commodity", basePrice: 448.0,  color: "#fbbf24" },
+  { symbol: "COFFEE",name: "Coffee Futures",         type: "Commodity", basePrice: 2.24,   color: "#fbbf24" },
+  { symbol: "COCOA", name: "Cocoa Futures",          type: "Commodity", basePrice: 9820.0, color: "#fbbf24" },
+  { symbol: "SUGAR", name: "Sugar Futures",          type: "Commodity", basePrice: 0.1870, color: "#fbbf24" },
+  { symbol: "COTTON",name: "Cotton Futures",         type: "Commodity", basePrice: 0.7320, color: "#fbbf24" },
+  { symbol: "PLATINUM",name: "Platinum Futures",     type: "Commodity", basePrice: 985.40, color: "#fbbf24" },
+  { symbol: "GASOLINE",name: "RBOB Gasoline Futures",type: "Commodity", basePrice: 2.45,   color: "#fbbf24" },
 ];
 
 // Seeded deterministic random

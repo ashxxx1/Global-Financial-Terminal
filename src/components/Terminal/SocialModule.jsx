@@ -19,11 +19,7 @@ import {
 } from 'firebase/firestore';
 import { Hash, Mail, User, Plus, Compass, Check, Send, Image, X } from 'lucide-react';
 
-const INITIAL_MOCK_FRIENDS = [
-  { uid: "uf1", name: "AlexTrade", avatar: "AT", role: "Senior Analyst", reputation: "Analyst", online: true },
-  { uid: "uf2", name: "MarketWatcher", avatar: "MarketWatcher", role: "Quant Researcher", reputation: "Bull", online: true },
-  { uid: "uf3", name: "GlobeMacro", avatar: "GlobeMacro", role: "Macro Strategist", reputation: "Bear", online: false }
-];
+const INITIAL_MOCK_FRIENDS = [];
 
 export function SocialModule() {
   const { currentUser, userProfileData, updateUserProfile } = useAuth();
@@ -31,7 +27,7 @@ export function SocialModule() {
   const [activeHomeTab, setActiveHomeTab] = useState('home');
 
   // Friends Roster State
-  const [friends, setFriends] = useState(INITIAL_MOCK_FRIENDS);
+  const [friends, setFriends] = useState([]);
   const [activeFriend, setActiveFriend] = useState(null);
   const [friendRequests, setFriendRequests] = useState([]);
 
@@ -127,8 +123,7 @@ export function SocialModule() {
     }
     const q = query(
       collection(db, "social_channels"),
-      where("serverId", "==", activeWorkspace),
-      orderBy("createdAt", "asc")
+      where("serverId", "==", activeWorkspace)
     );
     const unsub = onSnapshot(q, (snap) => {
       if (!snap.empty) {
@@ -136,6 +131,11 @@ export function SocialModule() {
           id: doc.id,
           ...doc.data()
         }));
+        list.sort((a, b) => {
+          const tA = a.createdAt?.seconds || 0;
+          const tB = b.createdAt?.seconds || 0;
+          return tA - tB;
+        });
         setChannels(list);
         if (!list.some(c => c.id === activeChannelId)) {
           setActiveChannelId(list[0].id);
@@ -169,8 +169,7 @@ export function SocialModule() {
     }
     const q = query(
       collection(db, "channel_messages"),
-      where("channelId", "==", activeChannelId),
-      orderBy("createdAt", "asc")
+      where("channelId", "==", activeChannelId)
     );
     const unsub = onSnapshot(q, (snap) => {
       if (!snap.empty) {
@@ -179,100 +178,50 @@ export function SocialModule() {
           ...doc.data(),
           time: doc.data().createdAt ? new Date(doc.data().createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Sending..."
         }));
+        list.sort((a, b) => {
+          const tA = a.createdAt?.seconds || 0;
+          const tB = b.createdAt?.seconds || 0;
+          return tA - tB;
+        });
         setChannelMessages(list);
       } else {
         setChannelMessages([]);
       }
     }, (err) => {
       console.warn("Firestore channel messages error, using local fallback:", err);
-      // Fallback initial conversations
-      setChannelMessages([
-        {
-          id: "m1",
-          senderName: "TraderJoe",
-          senderIdNum: 23,
-          senderAvatar: "https://api.dicebear.com/7.x/identicon/svg?seed=tj",
-          text: "Anyone looking at the yen right now? Intervention levels definitely hit.",
-          time: "10:42 AM"
-        },
-        {
-          id: "m2",
-          senderName: "QuantAlgo",
-          senderIdNum: 42,
-          senderAvatar: "https://api.dicebear.com/7.x/identicon/svg?seed=qa",
-          text: "Yeah, my flow models are showing massive BoJ selling. Booked some profit on USDJPY shorts.",
-          time: "10:45 AM"
-        }
-      ]);
+      setChannelMessages([]);
     });
     return () => unsub();
   }, [activeChannelId]);
 
-  // Load Friends details in real time
+  // Load registered users dynamically in real time
   useEffect(() => {
     if (!currentUser) return;
 
-    const unsub = onSnapshot(doc(db, "users", currentUser.uid), (snap) => {
-      if (snap.exists()) {
-        const data = snap.data();
-        
-        // Load Friends Details
-        if (data.friendsList && data.friendsList.length > 0) {
-          const fetchFriends = async () => {
-            const list = [];
-            for (const fUid of data.friendsList) {
-              try {
-                const fSnap = await getDoc(doc(db, "users", fUid));
-                if (fSnap.exists()) {
-                  const fData = fSnap.data();
-                  list.push({
-                    uid: fUid,
-                    name: fData.displayName || fData.username || `Trader_${fUid.slice(0, 4)}`,
-                    avatar: fData.photoURL || (fData.displayName || "T")[0],
-                    role: fData.bio || "Quantitative Analyst",
-                    reputation: fData.reputation || "Analyst",
-                    online: true
-                  });
-                }
-              } catch (e) {
-                console.error("Failed to load friend detail", e);
-              }
-            }
-            setFriends([...INITIAL_MOCK_FRIENDS, ...list]);
-          };
-          fetchFriends();
-        } else {
-          setFriends(INITIAL_MOCK_FRIENDS);
-        }
-
-        // Load Friend Requests
-        if (data.friendRequests && data.friendRequests.length > 0) {
-          const fetchRequests = async () => {
-            const reqs = [];
-            for (const req of data.friendRequests) {
-              try {
-                const rUid = typeof req === "string" ? req : req.uid;
-                const rSnap = await getDoc(doc(db, "users", rUid));
-                if (rSnap.exists()) {
-                  const rData = rSnap.data();
-                  reqs.push({
-                     uid: rUid,
-                     name: rData.displayName || rData.username || "New Trader",
-                     avatar: rData.photoURL || (rData.displayName || "N")[0],
-                     reputation: rData.reputation || "Analyst"
-                  });
-                }
-              } catch (e) {
-                console.error("Failed to load request detail", e);
-              }
-            }
-            setFriendRequests(reqs);
-          };
-          fetchRequests();
-        } else {
-          setFriendRequests([]);
-        }
+    const q = query(collection(db, "users"), limit(100));
+    const unsub = onSnapshot(q, (snap) => {
+      if (!snap.empty) {
+        const list = snap.docs
+          .map((doc) => {
+            const data = doc.data();
+            return {
+              uid: doc.id,
+              name: data.displayName || data.username || "Trader",
+              avatar: data.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${doc.id}`,
+              role: data.bio || "Quantitative Analyst",
+              reputation: data.reputation || "Analyst",
+              idNum: data.idNum || null,
+              online: true
+            };
+          })
+          .filter((u) => u.uid !== currentUser.uid); // exclude self
+        setFriends(list);
+      } else {
+        setFriends([]);
       }
+    }, (err) => {
+      console.error("Failed to load registered users:", err);
+      setFriends([]);
     });
 
     return () => unsub();
@@ -288,8 +237,7 @@ export function SocialModule() {
       where("chatId", "in", [
         `${currentUser.uid}_${activeFriend.uid}`,
         `${activeFriend.uid}_${currentUser.uid}`
-      ]),
-      orderBy("createdAt", "asc")
+      ])
     );
 
     const unsub = onSnapshot(q, (snap) => {
@@ -299,12 +247,21 @@ export function SocialModule() {
           senderId: doc.data().senderId === currentUser.uid ? "me" : "other",
           text: doc.data().text,
           imageURL: doc.data().imageURL,
+          createdAt: doc.data().createdAt,
           time: doc.data().createdAt ? new Date(doc.data().createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Sending..."
         }));
+        // Sort in memory to bypass composite index requirement
+        list.sort((a, b) => {
+          const tA = a.createdAt?.seconds || 0;
+          const tB = b.createdAt?.seconds || 0;
+          return tA - tB;
+        });
         setMessages(list);
       } else {
         setMessages([]);
       }
+    }, (err) => {
+      console.error("DMs query error:", err);
     });
 
     return () => unsub();
@@ -561,6 +518,10 @@ export function SocialModule() {
     channelBottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [channelMessages]);
 
+  const filteredFriends = friends.filter(f => 
+    f.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex h-full w-full bg-[#020617] text-slate-200">
       {/* Server List Column */}
@@ -697,29 +658,19 @@ export function SocialModule() {
                      <div className="w-[240px] border-r border-white/5 flex flex-col items-stretch shrink-0">
                        <div className="p-4 border-b border-white/5">
                          <h3 className="font-bold text-base mb-2">Direct Messages</h3>
-                         <form onSubmit={handleSearchUser} className="bg-white/5 rounded px-2.5 py-1.5 flex items-center gap-1.5 border border-white/5">
+                         <div className="bg-white/5 rounded px-2.5 py-1.5 flex items-center gap-1.5 border border-white/5">
                             <input 
                               type="text" 
                               value={searchQuery}
                               onChange={(e) => setSearchQuery(e.target.value)}
-                              placeholder="Add friend email..." 
+                              placeholder="Filter traders by name..." 
                               className="bg-transparent border-none outline-none text-xs w-full text-slate-200 placeholder:text-slate-500" 
                             />
-                            <button type="submit" className="text-slate-400 hover:text-indigo-400 cursor-pointer">
-                              <Plus className="w-4 h-4" />
-                            </button>
-                         </form>
-                         {searchResult && (
-                           <div className="mt-3 p-2 bg-indigo-500/10 border border-indigo-500/20 rounded flex items-center justify-between text-xs">
-                             <div className="truncate font-bold text-slate-300">{searchResult.name}</div>
-                             <button onClick={sendFriendRequest} className="px-2 py-0.5 bg-indigo-500 text-white rounded hover:bg-indigo-600 cursor-pointer">Add</button>
-                           </div>
-                         )}
-                         {searchMsg && <p className="text-[10px] text-rose-400 mt-2">{searchMsg}</p>}
+                         </div>
                        </div>
 
                        <div className="flex-1 overflow-y-auto">
-                         {friends.map((friend) => {
+                         {filteredFriends.map((friend) => {
                            const active = activeFriend?.uid === friend.uid;
                            return (
                              <div 

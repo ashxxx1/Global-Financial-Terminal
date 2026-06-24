@@ -89,8 +89,7 @@ export function SocialFeed() {
 
     const q = query(
       collection(db, "post_comments"),
-      where("postId", "==", openCommentsPostId),
-      orderBy("createdAt", "asc")
+      where("postId", "==", openCommentsPostId)
     );
 
     const unsub = onSnapshot(q, (snap) => {
@@ -102,8 +101,14 @@ export function SocialFeed() {
           authorAvatar: doc.data().authorAvatar,
           authorIdNum: doc.data().authorIdNum || null,
           text: doc.data().text,
+          createdAt: doc.data().createdAt,
           time: doc.data().createdAt ? new Date(doc.data().createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now"
         }));
+        list.sort((a, b) => {
+          const tA = a.createdAt?.seconds || 0;
+          const tB = b.createdAt?.seconds || 0;
+          return tA - tB;
+        });
         setComments(list);
       } else {
         setComments([]);

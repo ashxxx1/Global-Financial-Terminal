@@ -80,10 +80,10 @@ const ScoreGauge = ({ val, label, invert = false }) => {
   }
 
   return (
-    <div className="flex flex-col items-center gap-1 w-full relative">
-       <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">{label}</div>
-       <div className={`text-[18px] font-bold font-mono ${textColor}`}>{val}</div>
-       <div className="w-full h-1.5 bg-[#0f172a] rounded overflow-hidden">
+    <div className="flex flex-col items-center gap-0.5 w-full relative">
+       <div className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{label}</div>
+       <div className={`text-[14px] font-bold font-mono ${textColor}`}>{val}</div>
+       <div className="w-full h-1 bg-[#0f172a] rounded overflow-hidden">
          <div className={`h-full ${color}`} style={{ width: `${val}%` }} />
        </div>
     </div>
@@ -128,20 +128,20 @@ export function IntelligenceFeed() {
 
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
         {filteredEvents.map(event => (
-          <div key={event.id} className="border-b border-white/5 hover:bg-white/5 transition-colors p-4 group relative cursor-pointer">
+          <div key={event.id} className="border-b border-white/5 hover:bg-white/5 transition-colors p-3.5 group relative cursor-pointer">
             {event.isAlert && (
                <div className="absolute top-0 right-0 w-8 h-8 pointer-events-none overflow-hidden">
                   <div className="absolute top-[-16px] right-[-16px] w-8 h-8 bg-rose-500/80 rotate-45 shadow-[0_0_10px_rgba(244,63,94,0.5)]" />
                </div>
             )}
             
-            <div className="flex items-center justify-between mb-2 pr-6">
+            <div className="flex items-center justify-between mb-1.5 pr-6">
                <div className="flex items-center gap-2">
                   {event.type === 'GEOPOLITICAL' && <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />}
                   {event.type === 'SUPPLY CHAIN' && <Zap className="w-3.5 h-3.5 text-amber-500" />}
                   {event.type === 'MACROECONOMIC' && <LineChart className="w-3.5 h-3.5 text-indigo-500" />}
                   {event.type === 'REGULATORY' && <Cpu className="w-3.5 h-3.5 text-sky-500" />}
-                  <span className={`text-[11px] font-bold tracking-widest uppercase ${
+                  <span className={`text-[10px] font-bold tracking-widest uppercase ${
                      event.type === 'GEOPOLITICAL' ? 'text-rose-500' :
                      event.type === 'SUPPLY CHAIN' ? 'text-amber-500' :
                      event.type === 'MACROECONOMIC' ? 'text-indigo-500' : 'text-sky-500'
@@ -149,44 +149,44 @@ export function IntelligenceFeed() {
                     {event.type}
                   </span>
                </div>
-               <span className="text-[11px] text-slate-500 font-mono tracking-wider">{event.time}</span>
+               <span className="text-[10px] text-slate-500 font-mono tracking-wider">{event.time}</span>
             </div>
 
-            <h3 className="text-[15px] font-bold text-slate-100 mb-2 leading-snug group-hover:text-white transition-colors">
+            <h3 className="text-[13px] font-bold text-slate-100 mb-1.5 leading-snug group-hover:text-white transition-colors">
               {event.title}
             </h3>
 
-            <p className="text-[13px] text-slate-400 font-medium leading-relaxed mb-4 line-clamp-3">
+            <p className="text-[11.5px] text-slate-400 font-medium leading-relaxed mb-3 line-clamp-2">
               {event.summary}
             </p>
 
-            <div className="flex gap-5 mb-4 p-3 bg-black/40 rounded border border-white/5">
+            <div className="flex gap-3 mb-3 p-2 bg-black/40 rounded border border-white/5">
                <ScoreGauge val={event.impact} label="IMPACT" invert />
                <ScoreGauge val={event.sentiment} label="SENTIMENT" />
                <ScoreGauge val={event.confidence} label="CONFID." />
             </div>
 
             <div className="flex items-center justify-between">
-               <div className="flex flex-wrap gap-2">
+               <div className="flex flex-wrap gap-1.5">
                  {event.assets.map(asset => (
-                   <span key={asset} className="px-2 py-0.5 bg-sky-900/40 border border-sky-800 text-sky-400 text-[11px] font-bold font-mono tracking-widest uppercase rounded">
+                   <span key={asset} className="px-1.5 py-0.5 bg-sky-900/40 border border-sky-800 text-sky-400 text-[10px] font-bold font-mono tracking-wider uppercase rounded">
                      {asset}
                    </span>
                  ))}
                </div>
                <button 
-                 className="text-[11px] font-bold text-slate-400 hover:text-indigo-400 transition-colors uppercase tracking-widest flex items-center gap-1.5"
+                 className="text-[10px] font-bold text-slate-400 hover:text-indigo-400 transition-colors uppercase tracking-widest flex items-center gap-1 cursor-pointer"
                  onClick={(e) => {
                    e.stopPropagation();
                    alert(`Analysis for: ${event.title}\nGeopolitical risk impact models indicate moderate correlation shifts.`);
                  }}
                >
-                 <Target className="w-3.5 h-3.5" />
+                 <Target className="w-3 h-3" />
                  ANALYZE
                </button>
             </div>
             
-            <div className="mt-3 text-[10px] text-slate-500 font-mono tracking-wider uppercase whitespace-nowrap overflow-hidden text-ellipsis">
+            <div className="mt-2.5 text-[9px] text-slate-500 font-mono tracking-wider uppercase whitespace-nowrap overflow-hidden text-ellipsis">
                SRC: {event.source}
             </div>
           </div>

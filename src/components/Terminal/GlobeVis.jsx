@@ -155,6 +155,7 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
         if (controls) {
           controls.autoRotate = true;
           controls.autoRotateSpeed = 0.2;
+          globeRef.current.pointOfView({ lat: 20, lng: 0, altitude: 1.7 });
           clearInterval(interval);
         }
       }
@@ -242,7 +243,7 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
       <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
         <button 
            className="w-10 h-10 rounded-md bg-[#131b2f] border border-[#1e293b] text-slate-400 hover:text-white flex items-center justify-center hover:bg-[#1a233a] transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] cursor-pointer"
-           onClick={() => globeRef.current?.pointOfView({ lat: 0, lng: 0, altitude: 2.5 }, 1000)}
+           onClick={() => globeRef.current?.pointOfView({ lat: 20, lng: 0, altitude: 1.7 }, 1000)}
            aria-label="Reset view"
         >
           <Target className="w-5 h-5" />

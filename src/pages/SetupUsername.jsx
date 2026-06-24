@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../services/firebase";
-import { doc, collection, query, where, getDocs, setDoc, runTransaction, serverTimestamp } from "firebase/firestore";
+import { doc, collection, query, where, getDocs, runTransaction, serverTimestamp } from "firebase/firestore";
 
 
 export default function SetupUsername() {
-  const { currentUser, userStatus, userProfileData, updateUserProfile, loading, isAdmin } = useAuth();
+  const { currentUser, userStatus, userProfileData, loading, isAdmin } = useAuth();
   const [username, setUsername] = useState("");
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");

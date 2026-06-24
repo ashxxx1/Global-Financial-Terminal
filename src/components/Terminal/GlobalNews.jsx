@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { Filter, ChevronLeft, ChevronRight, Globe, TrendingUp, ShieldAlert, Cpu } from 'lucide-react';
 
+const newsSources = [
+  'Market Wire', 'Global Macro Desk', 'Macro Wire', 'Capital Feed',
+  'Trade Flow Intel', 'FX Monitor', 'Commodity Desk', 'Credit Monitor'
+];
+
 const mockNews = Array.from({ length: 50 }, (_, i) => {
   const types = ['Financial', 'Geopolitics', 'Technology', 'Energy'];
   const type = types[i % 4];
@@ -15,8 +20,8 @@ const mockNews = Array.from({ length: 50 }, (_, i) => {
     title,
     type,
     priority,
-    time: `${Math.floor(Math.random() * 12 + 1)}h ago`,
-    source: i % 2 === 0 ? 'Reuters' : 'Bloomberg'
+    time: `${Math.floor(i * 0.5 + 1)}h ago`,
+    source: newsSources[i % newsSources.length]
   };
 });
 

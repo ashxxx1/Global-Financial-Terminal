@@ -12,6 +12,7 @@ import { Sidebar }      from "./components/Terminal/Sidebar";
 import { RightSidebar } from "./components/Terminal/RightSidebar";
 import { GlobeVis }     from "./components/Terminal/GlobeVis";
 import { GlobalNews }   from "./components/Terminal/GlobalNews";
+import { MarketBrief }  from "./components/Terminal/MarketBrief";
 import { CountryPanel } from "./components/Terminal/CountryPanel";
 import { SocialModule } from "./components/Terminal/SocialModule";
 import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
@@ -181,8 +182,13 @@ function TerminalApp() {
                 </div>
               </div>
               
-              {/* Bottom Panel: Global News / Flows */}
-              <div className={`hidden md:flex relative ${bottomCollapsed ? "h-[44px]" : "h-[220px]"} w-full border-t border-indigo-500/10 glass-panel flex-shrink-0 flex flex-col transition-all duration-300 overflow-hidden shadow-[0_-40px_100px_rgba(0,0,0,0.5)]`}>
+              {/* Bottom Panel: AI Brief + Global News */}
+              <div className={`hidden md:flex relative ${bottomCollapsed ? "h-[44px]" : "h-auto max-h-[320px]"} w-full border-t border-indigo-500/10 glass-panel flex-shrink-0 flex flex-col transition-all duration-300 overflow-hidden shadow-[0_-40px_100px_rgba(0,0,0,0.5)]`}>
+                {!bottomCollapsed && (
+                  <div className="p-3 border-b border-white/5">
+                    <MarketBrief />
+                  </div>
+                )}
                 <GlobalNews isCollapsed={bottomCollapsed} onToggle={() => setBottomCollapsed(!bottomCollapsed)} />
               </div>
             </div>

@@ -62,6 +62,11 @@ function TerminalApp() {
   const closeMobileSidebar = useCallback(() => setMobileSidebarOpen(false), []);
   const toggleMobileSidebar = useCallback(() => setMobileSidebarOpen((v) => !v), []);
 
+  // Desktop collapsible panel states
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
+  const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [bottomCollapsed, setBottomCollapsed] = useState(false);
+
   const anySheetOpen = mobileSidebarOpen || isNewsPanelOpen || isStockPanelOpen;
 
   return (
@@ -80,12 +85,30 @@ function TerminalApp() {
         {activeView === "globe" ? (
           <div className="flex w-full h-full">
             {/* Left Panel: Market overview & Risk radar */}
-            <div className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""} w-[300px] h-full flex flex-col border-r border-indigo-500/10 glass-panel flex-shrink-0 shadow-[40px_0_100px_rgba(0,0,0,0.5)]`}>
+            <div className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""} ${leftCollapsed ? "w-0 border-r-0" : "w-[280px]"} h-full flex flex-col border-r border-indigo-500/10 glass-panel flex-shrink-0 transition-all duration-300 overflow-hidden shadow-[40px_0_100px_rgba(0,0,0,0.5)]`}>
               <Sidebar />
             </div>
 
             {/* Center Content Space & Bottom Dashboard */}
             <div className="flex-1 flex flex-col min-w-0 h-full relative">
+              {/* Floating Left Sidebar Toggle */}
+              <button 
+                onClick={() => setLeftCollapsed(!leftCollapsed)}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-30 w-4 h-12 bg-[#020617]/90 border border-l-0 border-[#1e293b]/70 hover:border-indigo-500 text-indigo-400 hover:text-white rounded-r flex items-center justify-center cursor-pointer transition-colors shadow-2xl"
+                title={leftCollapsed ? "Expand Markets" : "Collapse Markets"}
+              >
+                <span className="text-[9px] font-bold">{leftCollapsed ? "▶" : "◀"}</span>
+              </button>
+
+              {/* Floating Right Sidebar Toggle */}
+              <button 
+                onClick={() => setRightCollapsed(!rightCollapsed)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-4 h-12 bg-[#020617]/90 border border-r-0 border-[#1e293b]/70 hover:border-indigo-500 text-indigo-400 hover:text-white rounded-l flex items-center justify-center cursor-pointer transition-colors shadow-2xl"
+                title={rightCollapsed ? "Expand Intelligence" : "Collapse Intelligence"}
+              >
+                <span className="text-[9px] font-bold">{rightCollapsed ? "◀" : "▶"}</span>
+              </button>
+
               {/* Globe centerpiece container */}
               <div className="flex-1 w-full relative">
                 <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">
@@ -109,13 +132,13 @@ function TerminalApp() {
               </div>
               
               {/* Bottom Panel: Global News / Flows */}
-              <div className="hidden md:flex relative h-[240px] w-full border-t border-indigo-500/10 glass-panel flex-shrink-0 flex flex-col shadow-[0_-40px_100px_rgba(0,0,0,0.5)]">
-                <GlobalNews />
+              <div className={`hidden md:flex relative ${bottomCollapsed ? "h-[44px]" : "h-[220px]"} w-full border-t border-indigo-500/10 glass-panel flex-shrink-0 flex flex-col transition-all duration-300 overflow-hidden shadow-[0_-40px_100px_rgba(0,0,0,0.5)]`}>
+                <GlobalNews isCollapsed={bottomCollapsed} onToggle={() => setBottomCollapsed(!bottomCollapsed)} />
               </div>
             </div>
 
             {/* Right Panel: Intelligence / Social */}
-            <div className="hidden md:flex w-[360px] h-full flex-col border-l border-indigo-500/10 glass-panel flex-shrink-0 shadow-[-40px_0_100px_rgba(0,0,0,0.5)]">
+            <div className={`hidden md:flex ${rightCollapsed ? "w-0 border-l-0" : "w-[320px]"} h-full flex-col border-l border-indigo-500/10 glass-panel flex-shrink-0 transition-all duration-300 overflow-hidden shadow-[-40px_0_100px_rgba(0,0,0,0.5)]`}>
               <RightSidebar onSetView={setActiveView} />
             </div>
           </div>

@@ -130,6 +130,11 @@ function TerminalApp() {
                   </div>
                 </div>
 
+                {/* Top-right: AI Market Brief floating card */}
+                <div className="absolute top-4 right-8 z-20 pointer-events-auto w-72">
+                  <MarketBrief />
+                </div>
+
                 {/* Bottom-center: Panel Toggles — large, clearly labeled */}
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto flex items-center gap-3 bg-[#080f1e]/95 backdrop-blur-xl border border-[#1e293b] px-5 py-2.5 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8)]">
                   <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mr-1">PANELS</span>
@@ -182,13 +187,8 @@ function TerminalApp() {
                 </div>
               </div>
               
-              {/* Bottom Panel: AI Brief + Global News */}
-              <div className={`hidden md:flex relative ${bottomCollapsed ? "h-[44px]" : "h-auto max-h-[320px]"} w-full border-t border-indigo-500/10 glass-panel flex-shrink-0 flex flex-col transition-all duration-300 overflow-hidden shadow-[0_-40px_100px_rgba(0,0,0,0.5)]`}>
-                {!bottomCollapsed && (
-                  <div className="p-3 border-b border-white/5">
-                    <MarketBrief />
-                  </div>
-                )}
+              {/* Bottom Panel: Global News */}
+              <div className={`hidden md:flex relative ${bottomCollapsed ? "h-[44px]" : "h-[220px]"} w-full border-t border-indigo-500/10 glass-panel flex-shrink-0 flex flex-col transition-all duration-300 overflow-hidden shadow-[0_-40px_100px_rgba(0,0,0,0.5)]`}>
                 <GlobalNews isCollapsed={bottomCollapsed} onToggle={() => setBottomCollapsed(!bottomCollapsed)} />
               </div>
             </div>

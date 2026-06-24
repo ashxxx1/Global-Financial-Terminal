@@ -24,20 +24,42 @@ const fmtTime = (ts, tf) => {
 const pct = (a, b) => b ? (((a - b) / b) * 100).toFixed(2) : "0.00";
 
 // ─── Candlestick Shape ────────────────────────────────────────────────────────
+// ─── Candlestick Shape ────────────────────────────────────────────────────────
 const CandlestickBar = (props) => {
-  const { x, y, width, height, open, close, high, low, index, data } = props;
-  if (data == null || data[index] == null) return null;
-  const bar = data[index];
+  const { x, width, payload, yAxis, index } = props;
+  const bar = payload || props;
+  if (!bar || bar.high == null) return null;
+  
+  const cy = (v) => {
+    if (yAxis?.scale) return yAxis.scale(v);
+    const domain = yAxis?.domain;
+    const height = yAxis?.height;
+    const y = yAxis?.y;
+    if (domain && height && y != null) {
+      const [min, max] = domain;
+      return y + height - ((v - min) / (max - min)) * height;
+    }
+    return props.y || 0;
+  };
+
   const isUp = bar.close >= bar.open;
   const color = isUp ? "#22c55e" : "#ef4444";
   const wickX = x + width / 2;
+  const bw = Math.max(width - 2, 1);
+  const bx = x + 1;
+
+  const yHigh = cy(bar.high);
+  const yLow = cy(bar.low);
+  const yOpen = cy(bar.open);
+  const yClose = cy(bar.close);
+
   return (
-    <g>
-      <line x1={wickX} y1={props.highY} x2={wickX} y2={props.lowY} stroke={color} strokeWidth={1} />
+    <g key={index}>
+      <line x1={wickX} y1={yHigh} x2={wickX} y2={yLow} stroke={color} strokeWidth={1} />
       <rect
-        x={x + 1} y={Math.min(props.openY, props.closeY)}
-        width={Math.max(width - 2, 1)} height={Math.max(Math.abs(props.openY - props.closeY), 1)}
-        fill={color} stroke={color} strokeWidth={0.5}
+        x={bx} y={Math.min(yOpen, yClose)}
+        width={bw} height={Math.max(Math.abs(yOpen - yClose), 1)}
+        fill={color}
       />
     </g>
   );
@@ -104,22 +126,37 @@ export function ChartTerminal() {
   const chartAreaRef = useRef(null);
   const searchRef = useRef(null);
 
+  const [selectedDrawingId, setSelectedDrawingId] = useState(null);
+  const [editingIndicator, setEditingIndicator] = useState(null);
+  const [indicatorSettings, setIndicatorSettings] = useState({
+    sma20: { period: 20, color: "#f59e0b" },
+    sma50: { period: 50, color: "#a78bfa" },
+    sma200: { period: 200, color: "#38bdf8" },
+    ema12: { period: 12, color: "#fb923c" },
+    ema26: { period: 26, color: "#34d399" },
+    bb: { period: 20, stdDev: 2, color: "#e879f9" },
+    vwap: { color: "#67e8f9" },
+    volume: { color: "#6366f1" },
+    rsi: { period: 14, color: "#f472b6" },
+    macd: { fast: 12, slow: 26, signal: 9, color: "#22d3ee" },
+  });
+
   const asset = ASSET_CATALOG.find(a => a.symbol === symbol) || ASSET_CATALOG[0];
   const rawData = useMemo(() => generateOHLCV(symbol, timeframe), [symbol, timeframe]);
 
   // Merge indicator data into bars
-  const sma20Data  = useMemo(() => calcSMA(rawData, 20), [rawData]);
-  const sma50Data  = useMemo(() => calcSMA(rawData, 50), [rawData]);
-  const sma200Data = useMemo(() => calcSMA(rawData, 200), [rawData]);
-  const ema12Data  = useMemo(() => calcEMA(rawData, 12), [rawData]);
-  const ema26Data  = useMemo(() => calcEMA(rawData, 26), [rawData]);
-  const bbData     = useMemo(() => calcBollingerBands(rawData, 20, 2), [rawData]);
-  const rsiData    = useMemo(() => calcRSI(rawData, 14), [rawData]);
-  const macdResult = useMemo(() => calcMACD(rawData, 12, 26, 9), [rawData]);
+  const sma20Data  = useMemo(() => calcSMA(rawData, indicatorSettings.sma20.period), [rawData, indicatorSettings.sma20.period]);
+  const sma50Data  = useMemo(() => calcSMA(rawData, indicatorSettings.sma50.period), [rawData, indicatorSettings.sma50.period]);
+  const sma200Data = useMemo(() => calcSMA(rawData, indicatorSettings.sma200.period), [rawData, indicatorSettings.sma200.period]);
+  const ema12Data  = useMemo(() => calcEMA(rawData, indicatorSettings.ema12.period), [rawData, indicatorSettings.ema12.period]);
+  const ema26Data  = useMemo(() => calcEMA(rawData, indicatorSettings.ema26.period), [rawData, indicatorSettings.ema26.period]);
+  const bbData     = useMemo(() => calcBollingerBands(rawData, indicatorSettings.bb.period, indicatorSettings.bb.stdDev), [rawData, indicatorSettings.bb.period, indicatorSettings.bb.stdDev]);
+  const rsiData    = useMemo(() => calcRSI(rawData, indicatorSettings.rsi.period), [rawData, indicatorSettings.rsi.period]);
+  const macdResult = useMemo(() => calcMACD(rawData, indicatorSettings.macd.fast, indicatorSettings.macd.slow, indicatorSettings.macd.signal), [rawData, indicatorSettings.macd.fast, indicatorSettings.macd.slow, indicatorSettings.macd.signal]);
   const vwapData   = useMemo(() => calcVWAP(rawData), [rawData]);
 
   const isEnabled = (id) => indicators.find(i => i.id === id)?.enabled;
-  const getColor  = (id) => indicators.find(i => i.id === id)?.color || "#fff";
+  const getColor  = (id) => indicatorSettings[id]?.color || "#fff";
 
   // Merge all overlay indicators into bar data
   const chartData = useMemo(() => {
@@ -187,17 +224,26 @@ export function ChartTerminal() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawings.forEach(d => renderDrawing(ctx, d, canvas));
+    drawings.forEach(d => renderDrawing(ctx, d, canvas, d.id === selectedDrawingId));
     if (drawing) renderDrawing(ctx, drawing, canvas, true);
-  }, [drawings, drawing]);
+  }, [drawings, drawing, selectedDrawingId]);
 
   function renderDrawing(ctx, d, canvas, isActive = false) {
-    ctx.strokeStyle = isActive ? "#818cf8" : "#6366f1";
-    ctx.fillStyle = "#6366f144";
-    ctx.lineWidth = isActive ? 1.5 : 1;
-    ctx.setLineDash(isActive ? [4, 4] : []);
+    ctx.strokeStyle = isActive ? "#22d3ee" : "#6366f1";
+    ctx.fillStyle = isActive ? "#22d3ee44" : "#6366f122";
+    ctx.lineWidth = isActive ? 2 : 1;
+    ctx.setLineDash(isActive ? [4, 2] : []);
     ctx.font = "11px Inter, sans-serif";
     ctx.fillStyle = "#a5b4fc";
+
+    // Draw grab handle circles on active selection
+    if (isActive) {
+      ctx.fillStyle = "#22d3ee";
+      ctx.beginPath(); ctx.arc(d.x1, d.y1, 4, 0, Math.PI * 2); ctx.fill();
+      if (d.x2 != null) {
+        ctx.beginPath(); ctx.arc(d.x2, d.y2, 4, 0, Math.PI * 2); ctx.fill();
+      }
+    }
 
     if (d.type === "trendline" && d.x2 != null) {
       ctx.setLineDash([]);
@@ -271,8 +317,63 @@ export function ChartTerminal() {
   const [textInput, setTextInput] = useState({ visible: false, x: 0, y: 0 });
 
   const handleCanvasMouseDown = useCallback((e) => {
-    if (drawTool === "cursor") return;
     const pos = getCanvasPos(e);
+    if (drawTool === "cursor") {
+      let foundId = null;
+      for (let i = drawings.length - 1; i >= 0; i--) {
+        const d = drawings[i];
+        let hit = false;
+        if (d.type === "hline") {
+          hit = Math.abs(pos.y - d.y1) < 8;
+        } else if (d.type === "vline") {
+          hit = Math.abs(pos.x - d.x1) < 8;
+        } else if (d.type === "trendline" && d.x2 != null) {
+          const A = pos.x - d.x1;
+          const B = pos.y - d.y1;
+          const C = d.x2 - d.x1;
+          const D = d.y2 - d.y1;
+          const dot = A * C + B * D;
+          const lenSq = C * C + D * D;
+          let param = -1;
+          if (lenSq !== 0) param = dot / lenSq;
+          let xx, yy;
+          if (param < 0) {
+            xx = d.x1; yy = d.y1;
+          } else if (param > 1) {
+            xx = d.x2; yy = d.y2;
+          } else {
+            xx = d.x1 + param * C;
+            yy = d.y1 + param * D;
+          }
+          const dist = Math.sqrt((pos.x - xx) ** 2 + (pos.y - yy) ** 2);
+          hit = dist < 8;
+        } else if (d.type === "rect" && d.x2 != null) {
+          const minX = Math.min(d.x1, d.x2);
+          const maxX = Math.max(d.x1, d.x2);
+          const minY = Math.min(d.y1, d.y2);
+          const maxY = Math.max(d.y1, d.y2);
+          const nearLeft = Math.abs(pos.x - minX) < 8 && pos.y >= minY && pos.y <= maxY;
+          const nearRight = Math.abs(pos.x - maxX) < 8 && pos.y >= minY && pos.y <= maxY;
+          const nearTop = Math.abs(pos.y - minY) < 8 && pos.x >= minX && pos.x <= maxX;
+          const nearBottom = Math.abs(pos.y - maxY) < 8 && pos.x >= minX && pos.x <= maxX;
+          hit = nearLeft || nearRight || nearTop || nearBottom;
+        } else if (d.type === "fib" && d.x2 != null) {
+          const minX = Math.min(d.x1, d.x2);
+          const maxX = Math.max(d.x1, d.x2);
+          if (pos.x >= minX - 8 && pos.x <= maxX + 8) {
+            const totalY = d.y2 - d.y1;
+            const levels = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
+            hit = levels.some(lvl => Math.abs(pos.y - (d.y1 + totalY * lvl)) < 8);
+          }
+        } else if (d.type === "text") {
+          hit = Math.sqrt((pos.x - d.x1) ** 2 + (pos.y - d.y1) ** 2) < 15;
+        }
+        if (hit) { foundId = d.id; break; }
+      }
+      setSelectedDrawingId(foundId);
+      return;
+    }
+    
     if (drawTool === "hline") {
       setDrawings(prev => [...prev, { id: Date.now(), type: "hline", y1: pos.y, price: last?.close || 0 }]);
     } else if (drawTool === "vline") {
@@ -282,7 +383,7 @@ export function ChartTerminal() {
     } else {
       setDrawing({ id: Date.now(), type: drawTool, x1: pos.x, y1: pos.y });
     }
-  }, [drawTool, last]);
+  }, [drawTool, drawings, last]);
 
   const handleCanvasMouseMove = useCallback((e) => {
     if (!drawing) return;
@@ -298,6 +399,21 @@ export function ChartTerminal() {
   }, [drawing]);
 
   const clearDrawings = () => setDrawings([]);
+
+  // Keyboard shortcut to delete selected drawing
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (selectedDrawingId && (e.key === "Delete" || e.key === "Backspace")) {
+        if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") {
+          return;
+        }
+        setDrawings(prev => prev.filter(d => d.id !== selectedDrawingId));
+        setSelectedDrawingId(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedDrawingId]);
 
   // ── Price domain ────────────────────────────────────────────────────────────
   const prices = chartData.flatMap(b => [b.high, b.low].filter(Boolean));
@@ -499,8 +615,17 @@ export function ChartTerminal() {
             </button>
           ))}
           <div className="h-px w-6 bg-white/10 my-1" />
+          {selectedDrawingId && (
+            <button onClick={() => {
+              setDrawings(prev => prev.filter(d => d.id !== selectedDrawingId));
+              setSelectedDrawingId(null);
+            }} title="Delete selected"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all cursor-pointer">
+              <X size={13} />
+            </button>
+          )}
           {drawings.length > 0 && (
-            <button onClick={clearDrawings} title="Clear drawings"
+            <button onClick={clearDrawings} title="Clear all drawings"
               className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer">
               <Trash2 size={13} />
             </button>
@@ -509,6 +634,27 @@ export function ChartTerminal() {
 
         {/* Charts Column */}
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative" ref={chartAreaRef}>
+
+          {/* Active Indicators Overlay List (TradingView style) */}
+          <div className="absolute top-3 left-12 z-20 flex flex-col gap-1 pointer-events-auto select-none">
+            {indicators.filter(ind => ind.enabled).map(ind => {
+              const settings = indicatorSettings[ind.id];
+              let desc = ind.label;
+              if (settings?.period) desc += ` (${settings.period})`;
+              else if (settings?.fast) desc += ` (${settings.fast}, ${settings.slow}, ${settings.signal})`;
+              
+              return (
+                <div key={ind.id} className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#080f1e]/85 backdrop-blur-sm border border-[#1e293b]/50 text-[10px] font-mono text-slate-300 shadow-md">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: settings?.color || '#fff' }} />
+                  <span className="font-bold">{desc}</span>
+                  <button onClick={() => toggleIndicator(ind.id)} title="Remove" className="hover:text-rose-400 cursor-pointer pl-1"><X size={10} /></button>
+                  {ind.id !== 'volume' && (
+                    <button onClick={() => setEditingIndicator(ind.id)} title="Settings" className="hover:text-indigo-400 cursor-pointer"><Settings size={10} /></button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
           {/* Text input for drawing labels */}
           {textInput.visible && (
@@ -581,29 +727,7 @@ export function ChartTerminal() {
                 })}
                 {chartType === "candle" && (
                   <Bar dataKey="high" fill="transparent" isAnimationActive={false}
-                    shape={(props) => {
-                      const { x, width, index } = props;
-                      const bar = chartData[index];
-                      if (!bar) return null;
-                      const isBarUp = bar.close >= bar.open;
-                      const color = isBarUp ? "#22c55e" : "#ef4444";
-                      const { yAxis } = props;
-                      if (!yAxis) return null;
-                      const yScale = yAxis.scale;
-                      if (!yScale) return null;
-                      const cy = v => yScale(v);
-                      const bw = Math.max(width - 2, 1);
-                      const bx = x + 1;
-                      const wickX = x + width / 2;
-                      return (
-                        <g key={index}>
-                          <line x1={wickX} y1={cy(bar.high)} x2={wickX} y2={cy(bar.low)} stroke={color} strokeWidth={1} />
-                          <rect x={bx} y={Math.min(cy(bar.open), cy(bar.close))}
-                            width={bw} height={Math.max(Math.abs(cy(bar.open) - cy(bar.close)), 1)}
-                            fill={color} />
-                        </g>
-                      );
-                    }}
+                    shape={<CandlestickBar />}
                   />
                 )}
               </ComposedChart>
@@ -700,6 +824,135 @@ export function ChartTerminal() {
           {drawTool !== "cursor" ? `✏ ${DRAWING_TOOLS.find(t=>t.id===drawTool)?.label}` : ""}
         </span>
       </div>
+      {/* Indicator Settings Modal */}
+      {editingIndicator && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm pointer-events-auto">
+          <div className="bg-[#080f1e] border border-[#1e293b] rounded-xl p-5 w-80 shadow-2xl">
+            <h3 className="text-sm font-bold uppercase tracking-wider mb-4 text-white">
+              Edit Settings: {indicators.find(i => i.id === editingIndicator)?.label}
+            </h3>
+            
+            <div className="space-y-4">
+              {indicatorSettings[editingIndicator]?.period !== undefined && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] text-slate-400">Period</label>
+                  <input
+                    type="number"
+                    value={indicatorSettings[editingIndicator].period}
+                    onChange={e => {
+                      const val = parseInt(e.target.value) || 1;
+                      setIndicatorSettings(prev => ({
+                        ...prev,
+                        [editingIndicator]: { ...prev[editingIndicator], period: val }
+                      }));
+                    }}
+                    className="bg-[#0c1220] border border-[#1e293b] rounded px-3 py-1.5 text-xs text-white outline-none focus:border-indigo-500"
+                  />
+                </div>
+              )}
+              
+              {editingIndicator === 'bb' && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] text-slate-400">StdDev</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={indicatorSettings.bb.stdDev}
+                    onChange={e => {
+                      const val = parseFloat(e.target.value) || 0.1;
+                      setIndicatorSettings(prev => ({
+                        ...prev,
+                        bb: { ...prev.bb, stdDev: val }
+                      }));
+                    }}
+                    className="bg-[#0c1220] border border-[#1e293b] rounded px-3 py-1.5 text-xs text-white outline-none focus:border-indigo-500"
+                  />
+                </div>
+              )}
+              
+              {editingIndicator === 'macd' && (
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] text-slate-400">Fast</label>
+                    <input
+                      type="number"
+                      value={indicatorSettings.macd.fast}
+                      onChange={e => {
+                        const val = parseInt(e.target.value) || 1;
+                        setIndicatorSettings(prev => ({
+                          ...prev,
+                          macd: { ...prev.macd, fast: val }
+                        }));
+                      }}
+                      className="bg-[#0c1220] border border-[#1e293b] rounded px-2 py-1 text-xs text-white outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] text-slate-400">Slow</label>
+                    <input
+                      type="number"
+                      value={indicatorSettings.macd.slow}
+                      onChange={e => {
+                        const val = parseInt(e.target.value) || 1;
+                        setIndicatorSettings(prev => ({
+                          ...prev,
+                          macd: { ...prev.macd, slow: val }
+                        }));
+                      }}
+                      className="bg-[#0c1220] border border-[#1e293b] rounded px-2 py-1 text-xs text-white outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[9px] text-slate-400">Signal</label>
+                    <input
+                      type="number"
+                      value={indicatorSettings.macd.signal}
+                      onChange={e => {
+                        const val = parseInt(e.target.value) || 1;
+                        setIndicatorSettings(prev => ({
+                          ...prev,
+                          macd: { ...prev.macd, signal: val }
+                        }));
+                      }}
+                      className="bg-[#0c1220] border border-[#1e293b] rounded px-2 py-1 text-xs text-white outline-none focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {indicatorSettings[editingIndicator]?.color !== undefined && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[11px] text-slate-400">Color</label>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="color"
+                      value={indicatorSettings[editingIndicator].color}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setIndicatorSettings(prev => ({
+                          ...prev,
+                          [editingIndicator]: { ...prev[editingIndicator], color: val }
+                        }));
+                      }}
+                      className="w-8 h-8 rounded border border-[#1e293b] bg-transparent cursor-pointer"
+                    />
+                    <span className="text-xs font-mono text-slate-300 uppercase">{indicatorSettings[editingIndicator].color}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setEditingIndicator(null)}
+                className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg cursor-pointer transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -25,11 +25,11 @@ const pct = (a, b) => b ? (((a - b) / b) * 100).toFixed(2) : "0.00";
 
 // ─── Candlestick Shape ────────────────────────────────────────────────────────
 const CandlestickBar = (props) => {
-  const { x, width, payload, pMin, index } = props;
+  const { x, width, payload, pMin, index, y, height } = props;
   const bar = payload || props;
-  if (!bar || bar.high == null || pMin == null) return null;
+  if (!bar || bar.high == null || pMin == null || y == null || height == null || isNaN(y) || isNaN(height)) return null;
 
-  const yHigh = props.y;
+  const yHigh = y;
   const yHeight = props.height;
   const highVal = bar.high;
 
@@ -207,11 +207,66 @@ export function ChartTerminal() {
   const [showHelp, setShowHelp] = useState(true);
   const [sidebarHover, setSidebarHover] = useState(false);
   const [simpleMode, setSimpleMode] = useState(true);
-  const [simpleCategory, setSimpleCategory] = useState("India");
+  const [marketFilter, setMarketFilter] = useState("all");
+  const [classFilter, setClassFilter] = useState("all");
   const [simpleSidebarOpen, setSimpleSidebarOpen] = useState(true);
   const [simpleSearch, setSimpleSearch] = useState("");
   const [searchTab, setSearchTab] = useState("All");
   const [searchTab2, setSearchTab2] = useState("All");
+
+  // Drag-to-pan states
+  const defaultWindow = 140;
+  const [visibleStartIndex, setVisibleStartIndex] = useState(150);
+  const [visibleStartIndex2, setVisibleStartIndex2] = useState(150);
+
+  // Pane 1 reset
+  useEffect(() => {
+    const activeData = generateOHLCV(symbol, timeframe);
+    setVisibleStartIndex(Math.max(0, activeData.length - defaultWindow));
+  }, [symbol, timeframe]);
+
+  // Pane 2 reset
+  useEffect(() => {
+    const activeData = generateOHLCV(symbol2, timeframe2);
+    setVisibleStartIndex2(Math.max(0, activeData.length - defaultWindow));
+  }, [symbol2, timeframe2]);
+
+  const dragStartRef = useRef(null);
+
+  const handleChartDragStart = (e, paneId) => {
+    if (drawTool !== "cursor") return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const startIndex = paneId === 1 ? visibleStartIndex : visibleStartIndex2;
+    dragStartRef.current = {
+      clientX,
+      startIndex,
+      paneId
+    };
+  };
+
+  const handleChartDragMove = (e) => {
+    if (!dragStartRef.current) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const deltaX = clientX - dragStartRef.current.clientX;
+    const barsMoved = Math.round(deltaX / 7);
+    if (barsMoved !== 0) {
+      const paneId = dragStartRef.current.paneId;
+      const setIndex = paneId === 1 ? setVisibleStartIndex : setVisibleStartIndex2;
+      const activeSym = paneId === 1 ? symbol : symbol2;
+      const activeTf = paneId === 1 ? timeframe : timeframe2;
+      const totalBars = generateOHLCV(activeSym, activeTf).length;
+      const maxIndex = Math.max(0, totalBars - defaultWindow);
+      
+      setIndex(() => {
+        const nextIndex = dragStartRef.current.startIndex - barsMoved;
+        return Math.max(0, Math.min(nextIndex, maxIndex));
+      });
+    }
+  };
+
+  const handleChartDragEnd = () => {
+    dragStartRef.current = null;
+  };
 
   const isEnabled = (id) => indicators.find(i => i.id === id)?.enabled;
   const getColor  = (id) => indicatorSettings[id]?.color || "#fff";
@@ -442,6 +497,7 @@ export function ChartTerminal() {
     if (drawTool === "cursor") {
       setSelectedDrawingId(null);
       setSelectedDrawingPane(null);
+      handleChartDragStart(e, chartNum);
       return;
     }
 
@@ -462,6 +518,10 @@ export function ChartTerminal() {
   };
 
   const handleCanvasMouseMove = (e, chartNum) => {
+    if (dragStartRef.current) {
+      handleChartDragMove(e);
+      return;
+    }
     const isChart1 = chartNum === 1;
     const canvas = isChart1 ? canvasRef.current : canvasRef2.current;
     if (!canvas) return;
@@ -527,6 +587,7 @@ export function ChartTerminal() {
   };
 
   const handleCanvasMouseUp = () => {
+    handleChartDragEnd();
     if (drawing) {
       if (drawing.paneId === 1) {
         setDrawings(prev => [...prev, drawing]);
@@ -550,6 +611,10 @@ export function ChartTerminal() {
 
   const handleCanvasTouchMove = (e, chartNum) => {
     if (drawTool !== "cursor") e.preventDefault();
+    if (dragStartRef.current) {
+      handleChartDragMove(e);
+      return;
+    }
     if (!drawing || drawing.paneId !== chartNum) return;
     const canvas = chartNum === 1 ? canvasRef.current : canvasRef2.current;
     if (!canvas) return;
@@ -558,6 +623,7 @@ export function ChartTerminal() {
   };
 
   const handleCanvasTouchEnd = (e, chartNum) => {
+    handleChartDragEnd();
     if (drawing && drawing.paneId === chartNum) {
       if (chartNum === 1) {
         setDrawings(prev => [...prev, drawing]);
@@ -868,14 +934,20 @@ export function ChartTerminal() {
 
   // ─── Render Simple Sidebar ──────────────────────────────────────────────────
   const renderSimpleSidebar = () => {
-    // Categories: India, US, Crypto, Commodities, Forex
-    const categories = [
-      { id: "India",       label: "🇮🇳 India",       icon: "🇮🇳" },
-      { id: "USA",         label: "🇺🇸 US Stocks",   icon: "🇺🇸" },
-      { id: "Crypto",      label: "🪙 Crypto",      icon: "🪙" },
-      { id: "Indices",     label: "📈 Indices",     icon: "📈" },
-      { id: "Commodities", label: "🌻 Commodities", icon: "🌻" },
-      { id: "Forex",       label: "💱 Forex",       icon: "💱" }
+    const marketOptions = [
+      { id: "all",     label: "🌐 All" },
+      { id: "india",   label: "🇮🇳 India" },
+      { id: "us",      label: "🇺🇸 US" },
+      { id: "global",  label: "🌍 Global" }
+    ];
+
+    const classOptions = [
+      { id: "all",       label: "📁 All" },
+      { id: "stock",     label: "📈 Stocks" },
+      { id: "crypto",    label: "🪙 Crypto" },
+      { id: "index",     label: "📊 Indices" },
+      { id: "forex",     label: "💱 Forex" },
+      { id: "commodity", label: "🌻 Commodities" }
     ];
 
     // Filter and group assets
@@ -883,20 +955,39 @@ export function ChartTerminal() {
       // First, filter by search term if active
       if (simpleSearch) {
         const q = simpleSearch.toLowerCase();
-        const matches = a.symbol.toLowerCase().includes(q) || a.name.toLowerCase().includes(q) || (a.sector && a.sector.toLowerCase().includes(q));
-        if (!matches) return false;
+        return a.symbol.toLowerCase().includes(q) || a.name.toLowerCase().includes(q) || (a.sector && a.sector.toLowerCase().includes(q));
       }
       
-      // Category filter (if search is empty)
-      if (!simpleSearch) {
-        if (simpleCategory === "India") return a.type === "Indian Stock";
-        if (simpleCategory === "USA") return a.type === "Stock";
-        if (simpleCategory === "Crypto") return a.type === "Crypto";
-        if (simpleCategory === "Indices") return a.type === "Index";
-        if (simpleCategory === "Commodities") return a.type === "Commodity";
-        if (simpleCategory === "Forex") return a.type === "Forex";
-        return false;
+      // Region/Market Filter
+      if (marketFilter !== "all") {
+        if (marketFilter === "india") {
+          const isIndIndex = a.type === "Index" && ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
+          if (a.type !== "Indian Stock" && !isIndIndex) return false;
+        } else if (marketFilter === "us") {
+          const isUsIndex = a.type === "Index" && ["SPX", "NDX", "DJI"].includes(a.symbol);
+          if (a.type !== "Stock" && !isUsIndex) return false;
+        } else if (marketFilter === "global") {
+          const isIndIndex = a.type === "Index" && ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(a.symbol);
+          const isUsIndex = a.type === "Index" && ["SPX", "NDX", "DJI"].includes(a.symbol);
+          if (a.type === "Indian Stock" || a.type === "Stock" || isIndIndex || isUsIndex) return false;
+        }
       }
+
+      // Asset Class Filter
+      if (classFilter !== "all") {
+        if (classFilter === "stock") {
+          if (a.type !== "Stock" && a.type !== "Indian Stock") return false;
+        } else if (classFilter === "crypto") {
+          if (a.type !== "Crypto") return false;
+        } else if (classFilter === "index") {
+          if (a.type !== "Index") return false;
+        } else if (classFilter === "forex") {
+          if (a.type !== "Forex") return false;
+        } else if (classFilter === "commodity") {
+          if (a.type !== "Commodity") return false;
+        }
+      }
+
       return true;
     });
 
@@ -928,7 +1019,7 @@ export function ChartTerminal() {
         {/* Sidebar Search Bar */}
         <div className="p-3 border-b border-[#1e293b] bg-[#080f1e] shrink-0">
           <div className="flex items-center gap-2 bg-[#0c1220] border border-[#1e293b] rounded-xl px-3 py-2 focus-within:border-indigo-500/60 transition-all">
-            <Search size={15} className="text-slate-400 shrink-0" />
+            <Search size={16} className="text-slate-400 shrink-0" />
             <input
               type="text"
               value={simpleSearch}
@@ -944,22 +1035,48 @@ export function ChartTerminal() {
           </div>
         </div>
 
-        {/* Category Tabs (only shown when not searching) */}
+        {/* Category Filters */}
         {!simpleSearch && (
-          <div className="flex items-center gap-1.5 p-2 bg-[#080f1e] border-b border-[#1e293b] overflow-x-auto scrollbar-none shrink-0">
-            {categories.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setSimpleCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap cursor-pointer transition-all ${
-                  simpleCategory === cat.id
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
+          <div className="bg-[#080f1e] border-b border-[#1e293b] p-3 space-y-2.5 shrink-0">
+            {/* Market Region Filter */}
+            <div className="space-y-1">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-1">Region:</div>
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+                {marketOptions.map(opt => (
+                  <button
+                    key={opt.id}
+                    onClick={() => setMarketFilter(opt.id)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap cursor-pointer transition-all ${
+                      marketFilter === opt.id
+                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-white/5"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Asset Class Filter */}
+            <div className="space-y-1">
+              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-1">Asset Class:</div>
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+                {classOptions.map(opt => (
+                  <button
+                    key={opt.id}
+                    onClick={() => setClassFilter(opt.id)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap cursor-pointer transition-all ${
+                      classFilter === opt.id
+                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-white/5"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
@@ -1002,21 +1119,21 @@ export function ChartTerminal() {
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 select-none ${badgeClass}`}>
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 select-none ${badgeClass}`}>
                             {a.symbol.slice(0, 2)}
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[12px] font-mono font-bold text-white group-hover:text-indigo-400 transition-colors flex items-center gap-1">
+                            <span className="text-[13.5px] font-mono font-bold text-white group-hover:text-indigo-400 transition-colors flex items-center gap-1">
                               {a.symbol}
                             </span>
-                            <span className="text-[10px] text-slate-500 truncate max-w-[130px]">{a.name}</span>
+                            <span className="text-[11px] text-slate-500 truncate max-w-[130px]">{a.name}</span>
                           </div>
                         </div>
                         <div className="flex flex-col items-end shrink-0">
-                          <span className="text-[12px] font-mono font-extrabold text-white">
+                          <span className="text-[13.5px] font-mono font-extrabold text-white">
                             {curSym}{fmt(lastB?.close || a.basePrice, a.basePrice < 10 ? 4 : 2)}
                           </span>
-                          <span className={`text-[9.5px] font-bold font-mono flex items-center gap-0.5 ${isUpStock ? "text-emerald-400" : "text-rose-400"}`}>
+                          <span className={`text-[10.5px] font-bold font-mono flex items-center gap-0.5 ${isUpStock ? "text-emerald-400" : "text-rose-400"}`}>
                             {isUpStock ? "▲ +" : "▼ "}{chgPct}%
                           </span>
                         </div>
@@ -1032,7 +1149,6 @@ export function ChartTerminal() {
     );
   };
 
-  // ─── Render Simple Chart Area ───────────────────────────────────────────────
   const renderSimpleChartArea = () => {
     const activeAsset = ASSET_CATALOG.find(a => a.symbol === symbol) || ASSET_CATALOG[0];
     const activeRawData = generateOHLCV(symbol, timeframe);
@@ -1060,21 +1176,35 @@ export function ChartTerminal() {
       return newBar;
     });
 
+    // Slice dataset for visible view (pan)
+    const visibleChartData = mergedChartData.slice(visibleStartIndex, visibleStartIndex + defaultWindow);
+
     const last = activeRawData[activeRawData.length - 1];
     const first = activeRawData[0];
     const change = last && first ? last.close - first.close : 0;
     const changePct = first ? pct(last?.close, first.close) : "0.00";
     const isUp = change >= 0;
 
-    const prices = mergedChartData.flatMap(b => [b.high, b.low].filter(Boolean));
-    const pMin = Math.min(...prices) * 0.998;
-    const pMax = Math.max(...prices) * 1.002;
+    // Y-Axis bounds calculated on visible range for auto-scaling
+    const prices = visibleChartData.flatMap(b => [b.high, b.low].filter(Boolean));
+    const pMin = prices.length ? Math.min(...prices) * 0.998 : 0;
+    const pMax = prices.length ? Math.max(...prices) * 1.002 : 100;
 
     const isIndian = activeAsset.type === "Indian Stock" || ["NIFTY", "SENSEX", "BANKNIFTY", "CNXIT"].includes(activeAsset.symbol);
     const currency = isIndian ? "₹" : "$";
 
+    const maxVolume = Math.max(...visibleChartData.map(b => b.volume || 0)) || 1;
+
     return (
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-[#03070e] overflow-hidden relative">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-[#03070e] overflow-hidden relative cursor-grab active:cursor-grabbing select-none"
+        onMouseDown={(e) => handleChartDragStart(e, 1)}
+        onMouseMove={handleChartDragMove}
+        onMouseUp={handleChartDragEnd}
+        onMouseLeave={handleChartDragEnd}
+        onTouchStart={(e) => handleChartDragStart(e, 1)}
+        onTouchMove={handleChartDragMove}
+        onTouchEnd={handleChartDragEnd}
+      >
         
         {/* Sub-header / Asset details and timeframe selector */}
         <div className="flex items-center gap-4 px-5 py-3 border-b border-[#1e293b] bg-[#06091a] flex-shrink-0 flex-wrap z-20 justify-between">
@@ -1095,20 +1225,20 @@ export function ChartTerminal() {
             {/* Asset Symbol & Name */}
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
-                <span className="text-[16px] font-mono font-black text-white">{activeAsset.symbol}</span>
-                <span className="text-[10px] uppercase px-1.5 py-0.2 rounded font-bold border bg-slate-500/10 text-slate-400 border-slate-700/30">
+                <span className="text-[18px] font-mono font-black text-white">{activeAsset.symbol}</span>
+                <span className="text-[11px] uppercase px-1.5 py-0.2 rounded font-bold border bg-slate-500/10 text-slate-400 border-slate-700/30">
                   {activeAsset.type === "Stock" ? "US Stock" : activeAsset.type}
                 </span>
               </div>
-              <span className="text-[11px] text-slate-400 font-medium">{activeAsset.name}</span>
+              <span className="text-[12px] text-slate-400 font-medium">{activeAsset.name}</span>
             </div>
 
             {/* Price Details - Large and beautiful */}
             <div className="flex items-baseline gap-2 ml-4 pl-4 border-l border-white/10">
-              <span className="text-[20px] font-black font-mono text-white tracking-tight">
+              <span className="text-[22px] font-black font-mono text-white tracking-tight">
                 {currency}{fmt(last?.close, activeAsset.basePrice < 10 ? 4 : 2)}
               </span>
-              <span className={`text-[12px] font-bold font-mono flex items-center gap-0.5 ${isUp ? "text-emerald-400":"text-rose-400"}`}>
+              <span className={`text-[13px] font-bold font-mono flex items-center gap-0.5 ${isUp ? "text-emerald-400":"text-rose-400"}`}>
                 {isUp ? "▲ +" : "▼ "}{currency}{fmt(Math.abs(change), activeAsset.basePrice < 10 ? 4 : 2)} ({isUp ? "+" : ""}{changePct}%)
               </span>
             </div>
@@ -1121,7 +1251,7 @@ export function ChartTerminal() {
                 <button 
                   key={tfObj.label} 
                   onClick={() => setTimeframe(tfObj.label)}
-                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold font-mono transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
                     timeframe === tfObj.label 
                       ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30" 
                       : "text-slate-400 hover:text-white"
@@ -1142,7 +1272,7 @@ export function ChartTerminal() {
                 <button 
                   key={item.type} 
                   onClick={() => setChartType(item.type)}
-                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
                     chartType === item.type 
                       ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30" 
                       : "text-slate-400 hover:text-white"
@@ -1159,7 +1289,7 @@ export function ChartTerminal() {
         {/* Main Chart Canvas Area */}
         <div className="flex-1 min-h-0 select-none p-4 relative bg-[#03070e]">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={mergedChartData} margin={{ top: 10, right: 35, left: 0, bottom: 5 }}>
+            <ComposedChart data={visibleChartData} margin={{ top: 10, right: 35, left: 0, bottom: 5 }}>
               <defs>
                 <linearGradient id="simpleColorArea" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={isUp ? "#10b981" : "#ef4444"} stopOpacity={0.2}/>
@@ -1170,7 +1300,7 @@ export function ChartTerminal() {
               <XAxis 
                 dataKey="time" 
                 tickFormatter={t => fmtTime(t, timeframe)}
-                tick={{ fill: "#475569", fontSize: 8 }} 
+                tick={{ fill: "#94a3b8", fontSize: 12, fontWeight: 500 }} 
                 axisLine={false} 
                 tickLine={false} 
                 minTickGap={45}
@@ -1180,7 +1310,7 @@ export function ChartTerminal() {
                 orientation="right" 
                 width={40}
                 tickFormatter={v => fmt(v, activeAsset.basePrice < 10 ? 4 : 1)}
-                tick={{ fill: "#475569", fontSize: 8 }} 
+                tick={{ fill: "#94a3b8", fontSize: 12, fontWeight: 500 }} 
                 axisLine={false} 
                 tickLine={false} 
               />
@@ -1191,11 +1321,12 @@ export function ChartTerminal() {
                   orientation="left" 
                   width={45}
                   tickFormatter={v => fmt(v, ASSET_CATALOG.find(a => a.symbol === compareSymbol)?.basePrice < 10 ? 4 : 1)}
-                  tick={{ fill: "#fbbf24", fontSize: 8 }} 
+                  tick={{ fill: "#fbbf24", fontSize: 12, fontWeight: 500 }} 
                   axisLine={false} 
                   tickLine={false} 
                 />
               )}
+              <YAxis yAxisId="volume" hide domain={[0, maxVolume * 6]} />
               <Tooltip content={<ChartTooltip timeframe={timeframe} />} />
 
               {/* Indicators */}
@@ -1213,19 +1344,16 @@ export function ChartTerminal() {
               {/* Volume Overlay */}
               {isEnabled("volume") && (
                 <Bar 
+                  yAxisId="volume"
                   dataKey="volume" 
                   isAnimationActive={false}
                   shape={(props) => {
-                    const { x, y, width, height, index } = props;
-                    const bar = mergedChartData[index];
-                    if (!bar) return null;
+                    const { x, y, width, height } = props;
+                    const bar = props.payload;
+                    if (!bar || y == null || height == null || isNaN(y) || isNaN(height)) return null;
                     const color = bar.close >= bar.open ? "#10b98115" : "#ef444415";
                     const stroke = bar.close >= bar.open ? "#10b98125" : "#ef444425";
-                    // scale height to fit in bottom 15% of chart
-                    const maxH = 50;
-                    const scaledH = Math.min(height, maxH);
-                    const scaledY = y + (height - scaledH);
-                    return <rect x={x} y={scaledY} width={Math.max(width-1,1)} height={scaledH} fill={color} stroke={stroke} strokeWidth={0.5} />;
+                    return <rect x={x} y={y} width={Math.max(width-1,1)} height={height} fill={color} stroke={stroke} strokeWidth={0.5} />;
                   }}
                 />
               )}
@@ -1488,9 +1616,16 @@ export function ChartTerminal() {
     const changePct = first ? pct(last?.close, first.close) : "0.00";
     const isUp = change >= 0;
 
-    const prices = mergedChartData.flatMap(b => [b.high, b.low].filter(Boolean));
-    const pMin = Math.min(...prices) * 0.998;
-    const pMax = Math.max(...prices) * 1.002;
+    // Slice dataset for visible view (pan)
+    const startIndex = paneId === 1 ? visibleStartIndex : visibleStartIndex2;
+    const visibleChartData = mergedChartData.slice(startIndex, startIndex + defaultWindow);
+    const visibleRsiData = mergedRsiChartData.slice(startIndex, startIndex + defaultWindow);
+    const visibleMacdData = mergedMacdChartData.slice(startIndex, startIndex + defaultWindow);
+
+    // Y-Axis bounds calculated on visible range for auto-scaling
+    const prices = visibleChartData.flatMap(b => [b.high, b.low].filter(Boolean));
+    const pMin = prices.length ? Math.min(...prices) * 0.998 : 0;
+    const pMax = prices.length ? Math.max(...prices) * 1.002 : 100;
 
     const selectedDrawing = activeDrawings.find(d => d.id === selectedDrawingId);
 
@@ -1760,12 +1895,12 @@ export function ChartTerminal() {
               else if (settings?.fast) desc += ` (${settings.fast}, ${settings.slow}, ${settings.signal})`;
               
               return (
-                <div key={ind.id} className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#080f1e]/85 backdrop-blur-sm border border-[#1e293b]/50 text-[9px] font-mono text-slate-300 shadow-md">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: settings?.color || '#fff' }} />
+                <div key={ind.id} className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#080f1e]/90 backdrop-blur-sm border border-[#1e293b]/50 text-[11px] font-mono text-slate-300 shadow-md">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: settings?.color || '#fff' }} />
                   <span className="font-bold">{desc}</span>
-                  <button onClick={() => toggleIndicator(ind.id)} title="Remove" className="hover:text-rose-400 cursor-pointer pl-0.5"><X size={8} /></button>
+                  <button onClick={() => toggleIndicator(ind.id)} title="Remove" className="hover:text-rose-400 cursor-pointer pl-0.5"><X size={11} /></button>
                   {ind.id !== 'volume' && (
-                    <button onClick={() => setEditingIndicator(ind.id)} title="Settings" className="hover:text-indigo-400 cursor-pointer"><Settings size={8} /></button>
+                    <button onClick={() => setEditingIndicator(ind.id)} title="Settings" className="hover:text-indigo-400 cursor-pointer"><Settings size={11} /></button>
                   )}
                 </div>
               );
@@ -1791,18 +1926,18 @@ export function ChartTerminal() {
         <div className="flex-1 flex flex-col min-h-0 select-none bg-[#03070e]">
           <div style={{ height: `${mainHeightPct}%`, minHeight: 150 }} className="w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart syncId="shared-terminal-charts" data={mergedChartData} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
+              <ComposedChart syncId="shared-terminal-charts" data={visibleChartData} margin={{ top: 8, right: 40, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="2 4" stroke="#1e293b" vertical={false} />
                 <XAxis dataKey="time" tickFormatter={t => fmtTime(t, currentTimeframe)}
-                  tick={{ fill: "#475569", fontSize: 8 }} axisLine={false} tickLine={false}
+                  tick={{ fill: "#94a3b8", fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false}
                   interval="preserveStartEnd" minTickGap={50} />
                 <YAxis domain={[pMin, pMax]} orientation="right" width={40}
                   tickFormatter={v => fmt(v, activeAsset.basePrice < 10 ? 4 : 1)}
-                  tick={{ fill: "#475569", fontSize: 8 }} axisLine={false} tickLine={false} />
+                  tick={{ fill: "#94a3b8", fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} />
                 {compareSymbol && (
                   <YAxis yAxisId="compare" domain={['auto', 'auto']} orientation="left" width={45}
                     tickFormatter={v => fmt(v, ASSET_CATALOG.find(a => a.symbol === compareSymbol)?.basePrice < 10 ? 4 : 1)}
-                    tick={{ fill: "#fbbf24", fontSize: 8 }} axisLine={false} tickLine={false} />
+                    tick={{ fill: "#fbbf24", fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} />
                 )}
                 <Tooltip content={<ChartTooltip timeframe={currentTimeframe} />} />
 
@@ -1849,17 +1984,17 @@ export function ChartTerminal() {
           {isEnabled("volume") && (
             <div className="border-t border-[#1e293b]" style={{ height: `${subPanels.length === 1 ? 32 : 22}%` }}>
               <div className="h-4 flex items-center px-3 border-b border-white/5 bg-black/10 select-none">
-                <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Volume</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Volume</span>
               </div>
               <ResponsiveContainer width="100%" height="calc(100% - 16px)">
-                <ComposedChart data={mergedChartData} margin={{ top: 2, right: 40, left: 0, bottom: 0 }}>
+                <ComposedChart data={visibleChartData} margin={{ top: 2, right: 40, left: 0, bottom: 0 }}>
                   <XAxis dataKey="time" hide />
-                  <YAxis orientation="right" width={40} tickFormatter={v => (v/1000).toFixed(0)+"K"} tick={{ fill: "#475569", fontSize: 7 }} axisLine={false} tickLine={false} />
+                  <YAxis orientation="right" width={40} tickFormatter={v => (v/1000).toFixed(0)+"K"} tick={{ fill: "#94a3b8", fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} />
                   <Bar dataKey="volume" isAnimationActive={false}
                     shape={(props) => {
-                      const { x, y, width, height, index } = props;
-                      const bar = mergedChartData[index];
-                      if (!bar) return null;
+                      const { x, y, width, height } = props;
+                      const bar = props.payload;
+                      if (!bar || y == null || height == null || isNaN(y) || isNaN(height)) return null;
                       const color = bar.close >= bar.open ? "#22c55e33" : "#ef444433";
                       const stroke = bar.close >= bar.open ? "#22c55e" : "#ef4444";
                       return <rect x={x} y={y} width={Math.max(width-1,1)} height={height} fill={color} stroke={stroke} strokeWidth={0.5} />;
@@ -1874,14 +2009,14 @@ export function ChartTerminal() {
           {isEnabled("rsi") && (
             <div className="border-t border-[#1e293b]" style={{ height: "22%" }}>
               <div className="h-4 flex items-center px-3 border-b border-white/5 bg-black/10 select-none">
-                <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">RSI (14)</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">RSI (14)</span>
               </div>
               <ResponsiveContainer width="100%" height="calc(100% - 16px)">
-                <ComposedChart data={mergedRsiChartData} margin={{ top: 2, right: 40, left: 0, bottom: 0 }}>
+                <ComposedChart data={visibleRsiData} margin={{ top: 2, right: 40, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="2 4" stroke="#1e293b" vertical={false} />
                   <XAxis dataKey="time" hide />
                   <YAxis domain={[0, 100]} orientation="right" width={40}
-                    ticks={[30, 50, 70]} tick={{ fill: "#475569", fontSize: 7 }} axisLine={false} tickLine={false} />
+                    ticks={[30, 50, 70]} tick={{ fill: "#94a3b8", fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} />
                   <ReferenceLine y={70} stroke="#ef4444" strokeDasharray="3 3" strokeWidth={0.8} />
                   <ReferenceLine y={30} stroke="#22c55e" strokeDasharray="3 3" strokeWidth={0.8} />
                   <ReferenceLine y={50} stroke="#475569" strokeDasharray="1 3" strokeWidth={0.8} />
@@ -1895,19 +2030,19 @@ export function ChartTerminal() {
           {isEnabled("macd") && (
             <div className="border-t border-[#1e293b]" style={{ height: "22%" }}>
               <div className="h-4 flex items-center px-3 border-b border-white/5 bg-black/10 select-none">
-                <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">MACD</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">MACD</span>
               </div>
               <ResponsiveContainer width="100%" height="calc(100% - 16px)">
-                <ComposedChart data={mergedMacdChartData} margin={{ top: 2, right: 40, left: 0, bottom: 0 }}>
+                <ComposedChart data={visibleMacdData} margin={{ top: 2, right: 40, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="2 4" stroke="#1e293b" vertical={false} />
                   <XAxis dataKey="time" hide />
-                  <YAxis orientation="right" width={40} tickFormatter={v => v.toFixed(1)} tick={{ fill: "#475569", fontSize: 7 }} axisLine={false} tickLine={false} />
+                  <YAxis orientation="right" width={40} tickFormatter={v => v.toFixed(1)} tick={{ fill: "#94a3b8", fontSize: 12, fontWeight: 500 }} axisLine={false} tickLine={false} />
                   <ReferenceLine y={0} stroke="#475569" strokeWidth={0.8} />
                   <Bar dataKey="hist" isAnimationActive={false}
                     shape={(props) => {
-                      const { x, y, width, height, index } = props;
-                      const bar = mergedMacdChartData[index];
-                      if (!bar) return null;
+                      const { x, y, width, height } = props;
+                      const bar = props.payload;
+                      if (!bar || y == null || height == null || isNaN(y) || isNaN(height)) return null;
                       const pos = (bar.hist || 0) >= 0;
                       return <rect x={x} y={y} width={Math.max(width-1,1)} height={Math.max(height,1)} fill={pos ? "#22c55e33" : "#ef444433"} stroke={pos ? "#22c55e" : "#ef4444"} strokeWidth={0.5} />;
                     }}
@@ -1970,7 +2105,7 @@ export function ChartTerminal() {
                 return next;
               });
             }}
-            className={`flex items-center gap-1 px-2.5 py-0.8 rounded-full text-[10px] font-bold transition-all border cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold transition-all border cursor-pointer ${
               simpleMode 
                 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20" 
                 : "bg-indigo-500/10 border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20"
@@ -1981,7 +2116,7 @@ export function ChartTerminal() {
         </div>
 
         {/* Watchlist Quick Switch */}
-        <div className="flex items-center gap-1 overflow-x-auto max-w-full md:max-w-none scrollbar-none shrink-0 py-0.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full md:max-w-none scrollbar-none shrink-0 py-0.5">
           {watchlist.slice(0, 8).map(sym => {
             const isSelected = symbol === sym || (layout === 'split' && symbol2 === sym);
             return (
@@ -1995,8 +2130,8 @@ export function ChartTerminal() {
                     setSymbol(sym);
                   }
                 }}
-                className={`px-2 py-0.8 rounded text-[10px] font-bold font-mono transition-all border cursor-pointer ${
-                  isSelected ? 'bg-indigo-500/15 border-indigo-500/50 text-indigo-300' : 'border-transparent text-slate-500 hover:text-white hover:border-slate-800'
+                className={`px-3 py-1 rounded-lg text-xs font-bold font-mono transition-all border cursor-pointer ${
+                  isSelected ? 'bg-indigo-500/15 border-indigo-500/50 text-indigo-300' : 'border-[#1e293b] text-slate-400 hover:text-white hover:border-slate-700'
                 }`}
               >
                 {sym}
@@ -2118,8 +2253,8 @@ export function ChartTerminal() {
                 className={`h-9 rounded-lg flex items-center transition-all cursor-pointer ${
                   sidebarHover ? "w-full justify-start px-2.5 gap-2.5" : "w-8 justify-center"
                 } ${drawTool===tool.id ? "bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.4)]" : "text-slate-600 hover:text-slate-300 hover:bg-white/5"}`}>
-                <tool.icon size={17} className="shrink-0" />
-                {sidebarHover && <span className="text-[10.5px] font-bold tracking-wide truncate">{tool.label}</span>}
+                <tool.icon size={19} className="shrink-0" />
+                {sidebarHover && <span className="text-[12px] font-bold tracking-wide truncate">{tool.label}</span>}
               </button>
             ))}
             <div className="h-px w-6 bg-white/10 my-1 self-center" />
@@ -2128,8 +2263,8 @@ export function ChartTerminal() {
                 className={`h-9 rounded-lg flex items-center text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer animate-pulse border border-rose-500/20 ${
                   sidebarHover ? "w-full justify-start px-2.5 gap-2.5" : "w-8 justify-center"
                 }`}>
-                <Trash2 size={17} className="shrink-0" />
-                {sidebarHover && <span className="text-[10px] font-bold uppercase tracking-wider">Delete Line</span>}
+                <Trash2 size={19} className="shrink-0" />
+                {sidebarHover && <span className="text-[11px] font-bold uppercase tracking-wider">Delete Line</span>}
               </button>
             )}
             {(drawings.length > 0 || drawings2.length > 0) && (
@@ -2137,8 +2272,8 @@ export function ChartTerminal() {
                 className={`h-9 rounded-lg flex items-center text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all cursor-pointer ${
                   sidebarHover ? "w-full justify-start px-2.5 gap-2.5" : "w-8 justify-center"
                 }`}>
-                <Eraser size={17} className="shrink-0" />
-                {sidebarHover && <span className="text-[10px] font-bold uppercase tracking-wider">Clear All</span>}
+                <Eraser size={19} className="shrink-0" />
+                {sidebarHover && <span className="text-[11px] font-bold uppercase tracking-wider">Clear All</span>}
               </button>
             )}
           </div>

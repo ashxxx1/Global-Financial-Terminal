@@ -112,14 +112,17 @@ export const countryStats = {
 const _seed = (str) => { let h=0; for(let i=0;i<str.length;i++) h=Math.imul(31,h)+str.charCodeAt(i)|0; return h; };
 const _rnd = (str, seedOffset) => { const s=Math.sin(_seed(str)+seedOffset)*10000; return s-Math.floor(s); };
 
+const statsCache = {};
+
 export function getCountryStats(iso) {
   if (countryStats[iso]) return countryStats[iso];
+  if (statsCache[iso]) return statsCache[iso];
   
   // Deterministic fallback for unknown ISOs
   const riskScore = Math.floor(_rnd(iso, 5) * 100);
   const mockScore = Math.floor(_rnd(iso, 8) * 3);
   
-  return {
+  const stats = {
     gdp: (_rnd(iso, 1) * 5 + 0.1).toFixed(1),
     inflation: (_rnd(iso, 2) * 15 - 2).toFixed(1),
     rate: (Math.max(0, _rnd(iso, 3) * 12)).toFixed(2),
@@ -137,4 +140,8 @@ export function getCountryStats(iso) {
       "1M": _rnd(iso, 22)*20-10
     }
   };
+  
+  statsCache[iso] = stats;
+  return stats;
 }
+

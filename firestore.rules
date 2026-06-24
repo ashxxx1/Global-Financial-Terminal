@@ -2,8 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{uid} {
-      // Users can read their own doc
-      allow read: if request.auth != null && request.auth.uid == uid;
+      // Users can read any user profile (needed for social feeds and friends lists)
+      allow read: if request.auth != null;
 
       // New users can create their own doc (only with pending/approved status)
       allow create: if request.auth != null
@@ -16,12 +16,37 @@ service cloud.firestore {
         && request.auth.uid == uid
         && (
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastLogin']) ||
-          (!resource.data.keys().hasAll(['username']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['username', 'displayName']))
+          (!resource.data.keys().hasAll(['username']) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['username', 'displayName'])) ||
+          request.resource.data.diff(resource.data).affectedKeys().hasAny(['bio', 'photoURL', 'reputation', 'friendsList', 'friendRequests'])
         );
 
       // Admin can read and write any user doc
       allow read, write: if request.auth != null
         && (request.auth.token.email == "aarushkapoor23@gmail.com" || request.auth.token.email == "anchitaduggal7@gmail.com" || request.auth.token.email == "anchitaduggal@7gmail.com");
     }
+
+    // Counters (for generating sequential user ID numbers)
+    match /counters/{counterId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Social Posts
+    match /social_posts/{postId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Post Comments
+    match /post_comments/{commentId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // Direct Messages
+    match /messages/{messageId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
   }
 }
+

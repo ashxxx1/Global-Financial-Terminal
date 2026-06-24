@@ -15,6 +15,8 @@ import { GlobalNews }   from "./components/Terminal/GlobalNews";
 import { CountryPanel } from "./components/Terminal/CountryPanel";
 import { SocialModule } from "./components/Terminal/SocialModule";
 import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
+import { CountryLeftPanel } from "./components/Terminal/CountryLeftPanel";
+import { CountryRightPanel } from "./components/Terminal/CountryRightPanel";
 import Ticker           from "./components/Ticker/Ticker";
 import Footer           from "./components/Footer/Footer";
 
@@ -81,15 +83,19 @@ function TerminalApp() {
           <>
             {/* Globe is the omnipresent centerpiece */}
             <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">
-              <GlobeVis onCountryClick={setSelectedCountry} timeframe={timeframe} />
+              <GlobeVis selectedCountry={selectedCountry} onCountryClick={setSelectedCountry} timeframe={timeframe} />
             </div>
 
             {/* Glassmorphism Overlays */}
             <div className="absolute inset-0 z-10 flex pointer-events-none w-full h-full">
               
               {/* Left Panel: Market overview & Risk radar */}
-              <div className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""} w-[300px] h-full flex flex-col border-r border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[40px_0_100px_rgba(0,0,0,0.5)]`}>
-                <Sidebar />
+              <div className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""} w-[350px] h-full flex flex-col border-r border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[40px_0_100px_rgba(0,0,0,0.5)] overflow-y-auto`}>
+                {selectedCountry ? (
+                  <CountryLeftPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />
+                ) : (
+                  <Sidebar />
+                )}
               </div>
 
               {/* Center Content Space & Bottom Dashboard */}
@@ -117,13 +123,17 @@ function TerminalApp() {
               </div>
 
               {/* Right Panel: Intelligence / Social */}
-              <div className="hidden md:flex w-[360px] h-full flex-col border-l border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[-40px_0_100px_rgba(0,0,0,0.5)]">
-                <RightSidebar onSetView={setActiveView} />
+              <div className="hidden md:flex w-[380px] h-full flex-col border-l border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[-40px_0_100px_rgba(0,0,0,0.5)] overflow-y-auto">
+                {selectedCountry ? (
+                  <CountryRightPanel country={selectedCountry} timeframe={timeframe} />
+                ) : (
+                  <RightSidebar onSetView={setActiveView} />
+                )}
               </div>
             </div>
           </>
         ) : (
-          <>
+          <div className="absolute inset-0 z-10 flex flex-col w-full h-full bg-[#020617] overflow-hidden">
             {activeView === "news"        && <GlobalNews />}
             {activeView === "social"      && <SocialModule />}
             {activeView === "portfolio"   && <PortfolioPanel onClose={() => setActiveView('globe')} />}
@@ -131,12 +141,12 @@ function TerminalApp() {
             {activeView === "calendar"    && <EconomicCalendar />}
             {activeView === "fx"          && <FXDashboard />}
             {activeView === "correlation" && <CorrelationMatrix />}
-          </>
+          </div>
         )}
 
         {/* Selected Country Panel Overlay */}
         {selectedCountry && (
-          <div className="absolute inset-0 z-50 pointer-events-none flex justify-center items-center bg-black/50 backdrop-blur-sm">
+          <div className="absolute inset-0 z-50 pointer-events-none flex justify-center items-center bg-black/50 backdrop-blur-sm md:hidden">
              <div className="pointer-events-auto w-full max-w-[640px] px-4 md:px-0 shadow-[0_0_80px_rgba(30,58,138,0.3)]">
                <div className="bg-[#020617]/95 backdrop-blur-xl border border-[#1e293b] overflow-hidden rounded-lg">
                   <CountryPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />

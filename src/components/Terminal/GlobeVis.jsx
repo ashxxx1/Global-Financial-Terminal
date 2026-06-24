@@ -4,7 +4,7 @@ import { Info, Target, RotateCcw, Plus, Minus } from "lucide-react";
 import { getCountryStats } from "./data";
 import * as THREE from "three";
 
-export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
+export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) {
   const [countries, setCountries] = useState({ features: [] });
   const [hoverD, setHoverD] = useState(null);
   const containerRef = useRef(null);
@@ -163,6 +163,65 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (!selectedCountry && globeRef.current) {
+      const controls = globeRef.current.controls();
+      if (controls) {
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.2;
+      }
+    }
+  }, [selectedCountry]);
+
+  const getPolygonCenter = (polygon) => {
+    if (!polygon || !polygon.geometry) return { lat: 0, lng: 0 };
+    const { type, coordinates } = polygon.geometry;
+    let lats = [];
+    let lngs = [];
+    
+    const processCoords = (coords) => {
+      coords.forEach(coord => {
+        if (Array.isArray(coord[0])) {
+          processCoords(coord);
+        } else {
+          lngs.push(coord[0]);
+          lats.push(coord[1]);
+        }
+      });
+    };
+    
+    processCoords(coordinates);
+    
+    if (lats.length === 0 || lngs.length === 0) return { lat: 0, lng: 0 };
+    
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+    
+    return {
+      lat: (minLat + maxLat) / 2,
+      lng: (minLng + maxLng) / 2
+    };
+  };
+
+  const handlePolygonClick = (polygon, event) => {
+    if (globeRef.current) {
+      const controls = globeRef.current.controls();
+      if (controls) {
+        controls.autoRotate = false;
+      }
+      
+      const { lat, lng } = getPolygonCenter(polygon);
+      globeRef.current.pointOfView({ lat, lng, altitude: 1.8 }, 1000);
+    }
+    
+    if (onCountryClick) {
+      onCountryClick(polygon);
+    }
+  };
+
+
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden" ref={containerRef}>
       
@@ -208,7 +267,7 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
             </div>
           `}}
           onPolygonHover={setHoverD}
-          onPolygonClick={onCountryClick}
+          onPolygonClick={handlePolygonClick}
           htmlElementsData={regionsData}
           arcsData={trafficArcs}
           arcStroke={0.5}

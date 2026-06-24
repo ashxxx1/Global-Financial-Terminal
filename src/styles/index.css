@@ -36,6 +36,8 @@
 
   --header-h: 60px;
   --ticker-h: 34px;
+  --footer-h: 30px;
+  --leftnav-w: 72px;
   --sidebar-w: 264px;
   --news-panel-w: 540px;
 
@@ -98,14 +100,18 @@ html, body {
 .app-shell {
   display: grid;
   grid-template-rows: var(--header-h) var(--ticker-h) 1fr var(--footer-h);
-  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-columns: var(--leftnav-w) 1fr;
   grid-template-areas:
     "header  header"
     "ticker  ticker"
-    "sidebar globe"
+    "leftnav globe"
     "footer  footer";
   height: 100dvh;
   overflow: hidden;
+}
+
+.left-nav {
+  grid-area: leftnav;
 }
 
 /* ══════════════════════════════════════════
@@ -1316,6 +1322,10 @@ html, body {
       "globe";
     height: 100dvh;
     overflow: hidden;
+  }
+
+  .left-nav {
+    display: none;
   }
 
   /* ── Header ── */

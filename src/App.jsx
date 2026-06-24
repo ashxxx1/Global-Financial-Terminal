@@ -15,6 +15,8 @@ import { GlobalNews }   from "./components/Terminal/GlobalNews";
 import { CountryPanel } from "./components/Terminal/CountryPanel";
 import { SocialModule } from "./components/Terminal/SocialModule";
 import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
+import Ticker           from "./components/Ticker/Ticker";
+import Footer           from "./components/Footer/Footer";
 
 // ── Global overlays ──────────────────────────────────────────────────────────
 import StockPanel               from "./components/StockPanel/StockPanel";
@@ -67,6 +69,9 @@ function TerminalApp() {
       {/* Top bar — header with nav, search, alerts, user */}
       <TopBar currentView={activeView} onSetView={setActiveView} />
 
+      {/* Ticker scrolling strip */}
+      <Ticker />
+
       {/* Left nav — icon sidebar for view switching */}
       <LeftNav currentView={activeView} onSetView={setActiveView} />
 
@@ -83,7 +88,7 @@ function TerminalApp() {
             <div className="absolute inset-0 z-10 flex pointer-events-none w-full h-full">
               
               {/* Left Panel: Market overview & Risk radar */}
-              <div className="w-[300px] h-full flex flex-col border-r border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[40px_0_100px_rgba(0,0,0,0.5)]">
+              <div className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""} w-[300px] h-full flex flex-col border-r border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[40px_0_100px_rgba(0,0,0,0.5)]`}>
                 <Sidebar />
               </div>
 
@@ -106,13 +111,13 @@ function TerminalApp() {
                 </div> 
                 
                 {/* Bottom Panel: Global News / Flows */}
-                <div className="relative h-[240px] w-full border-t border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 flex flex-col shadow-[0_-40px_100px_rgba(0,0,0,0.5)]">
+                <div className="hidden md:flex relative h-[240px] w-full border-t border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 flex flex-col shadow-[0_-40px_100px_rgba(0,0,0,0.5)]">
                   <GlobalNews />
                 </div>
               </div>
 
               {/* Right Panel: Intelligence / Social */}
-              <div className="w-[360px] h-full flex flex-col border-l border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[-40px_0_100px_rgba(0,0,0,0.5)]">
+              <div className="hidden md:flex w-[360px] h-full flex-col border-l border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[-40px_0_100px_rgba(0,0,0,0.5)]">
                 <RightSidebar onSetView={setActiveView} />
               </div>
             </div>
@@ -132,7 +137,7 @@ function TerminalApp() {
         {/* Selected Country Panel Overlay */}
         {selectedCountry && (
           <div className="absolute inset-0 z-50 pointer-events-none flex justify-center items-center bg-black/50 backdrop-blur-sm">
-             <div className="pointer-events-auto w-[640px] shadow-[0_0_80px_rgba(30,58,138,0.3)]">
+             <div className="pointer-events-auto w-full max-w-[640px] px-4 md:px-0 shadow-[0_0_80px_rgba(30,58,138,0.3)]">
                <div className="bg-[#020617]/95 backdrop-blur-xl border border-[#1e293b] overflow-hidden rounded-lg">
                   <CountryPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />
                </div>
@@ -140,6 +145,9 @@ function TerminalApp() {
           </div>
         )}
       </main>
+
+      {/* Footer — disclaimer strip at bottom */}
+      <Footer />
 
       {/* Stock detail panel */}
       {isStockPanelOpen && selectedStock && (

@@ -14,7 +14,7 @@ export function LeftNav({ currentView, onSetView }) {
   ];
 
   return (
-    <div className="flex flex-col w-[72px] border-r border-[#1e293b]/50 bg-black/20 py-4 items-center justify-between z-10 shrink-0">
+    <div className="left-nav flex flex-col w-[72px] border-r border-[#1e293b]/50 bg-black/20 py-4 items-center justify-between z-10 shrink-0">
       <div className="flex flex-col gap-6 w-full items-center">
         {navItems.map((item, idx) => {
           const active = currentView === item.val || (item.val === 'globe' && currentView === 'home');

@@ -78,50 +78,47 @@ function TerminalApp() {
       {/* Main content area */}
       <main className="globe-area" style={{ position: "relative", overflow: "hidden" }}>
         {activeView === "globe" ? (
-          <>
-            {/* Globe is the omnipresent centerpiece */}
-            <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">
-              <GlobeVis onCountryClick={setSelectedCountry} timeframe={timeframe} />
+          <div className="flex w-full h-full">
+            {/* Left Panel: Market overview & Risk radar */}
+            <div className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""} w-[300px] h-full flex flex-col border-r border-indigo-500/10 glass-panel flex-shrink-0 shadow-[40px_0_100px_rgba(0,0,0,0.5)]`}>
+              <Sidebar />
             </div>
 
-            {/* Glassmorphism Overlays */}
-            <div className="absolute inset-0 z-10 flex pointer-events-none w-full h-full">
-              
-              {/* Left Panel: Market overview & Risk radar */}
-              <div className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""} w-[300px] h-full flex flex-col border-r border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[40px_0_100px_rgba(0,0,0,0.5)]`}>
-                <Sidebar />
-              </div>
-
-              {/* Center Content Space & Bottom Dashboard */}
-              <div className="flex-1 flex flex-col min-w-0 h-full relative">
-                <div className="flex-1 w-full pointer-events-none flex flex-col justify-end">
-                    <div className="w-full flex justify-center mb-6 pointer-events-auto">
-                      <div className="flex items-center bg-[#0c1220]/90 backdrop-blur-md border border-[#1e293b] p-1 rounded shadow-2xl">
-                        {["1D", "1W", "1M", "YTD"].map((tf) => (
-                            <button 
-                              key={tf}
-                              onClick={() => setTimeframe(tf)}
-                              className={`px-4 py-1.5 text-[11px] font-bold font-mono uppercase tracking-widest rounded transition-colors cursor-pointer ${timeframe === tf ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
-                            >
-                              {tf}
-                            </button>
-                        ))}
-                      </div>
-                    </div>
-                </div> 
+            {/* Center Content Space & Bottom Dashboard */}
+            <div className="flex-1 flex flex-col min-w-0 h-full relative">
+              {/* Globe centerpiece container */}
+              <div className="flex-1 w-full relative">
+                <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">
+                  <GlobeVis onCountryClick={setSelectedCountry} timeframe={timeframe} />
+                </div>
                 
-                {/* Bottom Panel: Global News / Flows */}
-                <div className="hidden md:flex relative h-[240px] w-full border-t border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 flex flex-col shadow-[0_-40px_100px_rgba(0,0,0,0.5)]">
-                  <GlobalNews />
+                {/* Timeframe Selector Overlay */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+                  <div className="flex items-center bg-[#0c1220]/90 backdrop-blur-md border border-[#1e293b] p-1 rounded shadow-2xl">
+                    {["1D", "1W", "1M", "YTD"].map((tf) => (
+                        <button 
+                          key={tf}
+                          onClick={() => setTimeframe(tf)}
+                          className={`px-4 py-1.5 text-[11px] font-bold font-mono uppercase tracking-widest rounded transition-colors cursor-pointer ${timeframe === tf ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                        >
+                          {tf}
+                        </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-
-              {/* Right Panel: Intelligence / Social */}
-              <div className="hidden md:flex w-[360px] h-full flex-col border-l border-indigo-500/10 glass-panel pointer-events-auto flex-shrink-0 shadow-[-40px_0_100px_rgba(0,0,0,0.5)]">
-                <RightSidebar onSetView={setActiveView} />
+              
+              {/* Bottom Panel: Global News / Flows */}
+              <div className="hidden md:flex relative h-[240px] w-full border-t border-indigo-500/10 glass-panel flex-shrink-0 flex flex-col shadow-[0_-40px_100px_rgba(0,0,0,0.5)]">
+                <GlobalNews />
               </div>
             </div>
-          </>
+
+            {/* Right Panel: Intelligence / Social */}
+            <div className="hidden md:flex w-[360px] h-full flex-col border-l border-indigo-500/10 glass-panel flex-shrink-0 shadow-[-40px_0_100px_rgba(0,0,0,0.5)]">
+              <RightSidebar onSetView={setActiveView} />
+            </div>
+          </div>
         ) : (
           <>
             {activeView === "news"        && <GlobalNews />}

@@ -167,12 +167,6 @@ export function GlobeVis({ onCountryClick, timeframe = "1D" }) {
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden" ref={containerRef}>
       
-      {/* Globe Header Metadata Overlay */}
-      <div className="absolute top-4 left-6 z-10 flex items-center gap-2 text-sm font-semibold tracking-widest text-[#94a3b8]">
-         <span className="font-bold text-[11px] text-white tracking-widest">GLOBAL MARKET MAP</span>
-         <Info className="h-4 w-4 ml-1 opacity-70" />
-      </div>
-
       {/* The Globe Canvas Container */}
       <div className="absolute inset-0 flex items-center justify-center opacity-100 drop-shadow-[0_0_80px_rgba(30,58,138,0.3)]">
         <Globe

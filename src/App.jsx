@@ -94,40 +94,86 @@ function TerminalApp() {
               {/* Floating Left Sidebar Toggle */}
               <button 
                 onClick={() => setLeftCollapsed(!leftCollapsed)}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-30 w-4 h-12 bg-[#020617]/90 border border-l-0 border-[#1e293b]/70 hover:border-indigo-500 text-indigo-400 hover:text-white rounded-r flex items-center justify-center cursor-pointer transition-colors shadow-2xl"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-30 w-5 h-16 bg-[#0c1220]/95 border border-l-0 border-[#1e293b]/70 hover:border-indigo-500 text-indigo-400 hover:text-white rounded-r flex items-center justify-center cursor-pointer transition-colors shadow-2xl"
                 title={leftCollapsed ? "Expand Markets" : "Collapse Markets"}
               >
-                <span className="text-[9px] font-bold">{leftCollapsed ? "▶" : "◀"}</span>
+                <span className="text-[10px] font-bold">{leftCollapsed ? "▶" : "◀"}</span>
               </button>
 
               {/* Floating Right Sidebar Toggle */}
               <button 
                 onClick={() => setRightCollapsed(!rightCollapsed)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-4 h-12 bg-[#020617]/90 border border-r-0 border-[#1e293b]/70 hover:border-indigo-500 text-indigo-400 hover:text-white rounded-l flex items-center justify-center cursor-pointer transition-colors shadow-2xl"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-5 h-16 bg-[#0c1220]/95 border border-r-0 border-[#1e293b]/70 hover:border-indigo-500 text-indigo-400 hover:text-white rounded-l flex items-center justify-center cursor-pointer transition-colors shadow-2xl"
                 title={rightCollapsed ? "Expand Intelligence" : "Collapse Intelligence"}
               >
-                <span className="text-[9px] font-bold">{rightCollapsed ? "◀" : "▶"}</span>
+                <span className="text-[10px] font-bold">{rightCollapsed ? "◀" : "▶"}</span>
               </button>
 
               {/* Globe centerpiece container */}
               <div className="flex-1 w-full relative">
-                <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">
-                  <GlobeVis onCountryClick={setSelectedCountry} timeframe={timeframe} />
-                </div>
-                
-                {/* Timeframe Selector Overlay */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
-                  <div className="flex items-center bg-[#0c1220]/90 backdrop-blur-md border border-[#1e293b] p-1 rounded shadow-2xl">
-                    {["1D", "1W", "1M", "YTD"].map((tf) => (
+                {/* Floating Workspace & Control Overlay */}
+                <div className="absolute top-4 left-4 right-4 z-20 flex flex-col md:flex-row gap-3 justify-between items-center pointer-events-none">
+                  {/* Left: View title & Timeframe selector */}
+                  <div className="pointer-events-auto flex items-center gap-3.5 bg-[#0c1220]/95 backdrop-blur-md border border-[#1e293b] px-3.5 py-1.5 rounded shadow-2xl">
+                    <span className="font-bold text-[10px] text-white tracking-widest">GLOBAL MARKET MAP</span>
+                    <div className="h-3.5 w-px bg-slate-800" />
+                    <div className="flex items-center bg-black/40 border border-white/5 p-0.5 rounded">
+                      {["1D", "1W", "1M", "YTD"].map((tf) => (
                         <button 
                           key={tf}
                           onClick={() => setTimeframe(tf)}
-                          className={`px-4 py-1.5 text-[11px] font-bold font-mono uppercase tracking-widest rounded transition-colors cursor-pointer ${timeframe === tf ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                          className={`px-2.5 py-1 text-[9px] font-bold font-mono uppercase tracking-wider rounded transition-colors cursor-pointer ${timeframe === tf ? 'bg-indigo-500 text-white shadow-[0_0_8px_rgba(99,102,241,0.4)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                         >
                           {tf}
                         </button>
-                    ))}
+                      ))}
+                    </div>
                   </div>
+
+                  {/* Right: Panel Toggles */}
+                  <div className="pointer-events-auto flex items-center gap-2 bg-[#0c1220]/95 backdrop-blur-md border border-[#1e293b] px-3 py-1.5 rounded shadow-2xl">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest px-1">WORKSPACE PANELS:</span>
+                    
+                    <button
+                      onClick={() => setLeftCollapsed(!leftCollapsed)}
+                      className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded transition-all border cursor-pointer flex items-center gap-1.5 ${
+                        !leftCollapsed 
+                          ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40 shadow-[0_0_8px_rgba(99,102,241,0.2)] font-bold' 
+                          : 'bg-black/40 text-slate-500 border-white/5 hover:text-slate-300'
+                      }`}
+                      title={leftCollapsed ? "Expand Markets (Left)" : "Collapse Markets (Left)"}
+                    >
+                      <span className="text-[10px]">📊</span> Markets
+                    </button>
+
+                    <button
+                      onClick={() => setRightCollapsed(!rightCollapsed)}
+                      className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded transition-all border cursor-pointer flex items-center gap-1.5 ${
+                        !rightCollapsed 
+                          ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40 shadow-[0_0_8px_rgba(99,102,241,0.2)] font-bold' 
+                          : 'bg-black/40 text-slate-500 border-white/5 hover:text-slate-300'
+                      }`}
+                      title={rightCollapsed ? "Expand Intelligence (Right)" : "Collapse Intelligence (Right)"}
+                    >
+                      <span className="text-[10px]">🧠</span> Intel
+                    </button>
+
+                    <button
+                      onClick={() => setBottomCollapsed(!bottomCollapsed)}
+                      className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded transition-all border cursor-pointer flex items-center gap-1.5 ${
+                        !bottomCollapsed 
+                          ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/40 shadow-[0_0_8px_rgba(99,102,241,0.2)] font-bold' 
+                          : 'bg-black/40 text-slate-500 border-white/5 hover:text-slate-300'
+                      }`}
+                      title={bottomCollapsed ? "Expand News Feed (Bottom)" : "Collapse News Feed (Bottom)"}
+                    >
+                      <span className="text-[10px]">📡</span> News
+                    </button>
+                  </div>
+                </div>
+
+                <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">
+                  <GlobeVis onCountryClick={setSelectedCountry} timeframe={timeframe} />
                 </div>
               </div>
               
@@ -156,11 +202,17 @@ function TerminalApp() {
 
         {/* Selected Country Panel Overlay */}
         {selectedCountry && (
-          <div className="absolute inset-0 z-50 pointer-events-none flex justify-center items-center bg-black/50 backdrop-blur-sm">
-             <div className="pointer-events-auto w-full max-w-[640px] px-4 md:px-0 shadow-[0_0_80px_rgba(30,58,138,0.3)]">
-               <div className="bg-[#020617]/95 backdrop-blur-xl border border-[#1e293b] overflow-hidden rounded-lg">
-                  <CountryPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />
-               </div>
+          <div 
+            onClick={() => setSelectedCountry(null)}
+            className="absolute inset-0 z-50 flex justify-center items-center bg-black/60 backdrop-blur-sm cursor-pointer"
+          >
+             <div 
+               onClick={(e) => e.stopPropagation()}
+               className="w-full max-w-[640px] px-4 md:px-0 shadow-[0_0_80px_rgba(30,58,138,0.3)] cursor-default"
+             >
+                <div className="bg-[#020617]/95 backdrop-blur-xl border border-[#1e293b] overflow-hidden rounded-lg">
+                   <CountryPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />
+                </div>
              </div>
           </div>
         )}

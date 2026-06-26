@@ -60,7 +60,7 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
   useEffect(() => {
     const q = query(
       collection(db, "social_posts"),
-      orderBy("createdAt", "desc"),
+      orderBy("createdAtMs", "desc"),
       limit(100)
     );
 
@@ -542,7 +542,7 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
 
       {/* Compose Box (Hidden on profile unless it's own profile) */}
       {(!userIdFilter || userIdFilter === currentUser?.uid) && (
-        <form onSubmit={(e) => handlePostSubmit(e)} className="p-4 border-b border-white/5 flex gap-3 flex-col bg-[#050915]/30 shrink-0">
+        <form onSubmit={(e) => handlePostSubmit(e)} className="premium-compose-container mb-4 flex gap-3 flex-col shrink-0">
           <div className="flex gap-3">
             <div 
               onClick={() => onViewProfile(currentUser?.uid)}
@@ -559,7 +559,7 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
                  value={inputText}
                  onChange={(e) => setInputText(e.target.value)}
                  placeholder="Share analysis, charts, or macro thesis... Use $TICKER, @username, #tag" 
-                 className="w-full bg-transparent border-none text-[14px] outline-none placeholder:text-slate-500 font-medium py-1.5 resize-none text-slate-200"
+                 className="premium-textarea"
                  rows={2}
                  maxLength={280}
                />
@@ -625,7 +625,7 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
             <button 
               type="submit"
               disabled={!inputText.trim() && !imageURL.trim()}
-              className="px-4 py-1.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-bold rounded-full text-[12px] font-mono uppercase tracking-wider transition-colors shadow-[0_0_10px_rgba(99,102,241,0.3)] cursor-pointer"
+              className="uiverse-btn-primary"
             >
               Post
             </button>
@@ -658,7 +658,7 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
           const isEditing = editingPostId === post.id;
 
           return (
-            <div key={post.id} className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors flex gap-3 flex-col bg-[#080d19]/10">
+            <div key={post.id} className="social-card-premium mb-4 flex gap-3 flex-col">
               <div className="flex gap-3">
                 <div 
                   onClick={() => onViewProfile(post.authorId)}
@@ -793,43 +793,40 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
                     <div className="flex justify-between items-center mt-4 text-slate-500 max-w-[85%]">
                       <button 
                         onClick={() => setOpenCommentsPostId(openCommentsPostId === post.id ? null : post.id)}
-                        className={`flex items-center gap-1.5 transition-colors group cursor-pointer ${openCommentsPostId === post.id ? "text-indigo-400 font-bold" : "hover:text-indigo-400"}`}
+                        className={`card-action-btn comment ${openCommentsPostId === post.id ? "active" : ""}`}
+                        title="Comment"
                       >
-                        <div className="p-1.5 rounded-full group-hover:bg-indigo-500/10 transition-colors">
-                          <MessageSquare className="w-4 h-4" />
-                        </div>
+                        <MessageSquare className="w-4 h-4" />
                         <span className="text-[12px]">{post.commentCount}</span>
                       </button>
+                      
                       <button 
                         onClick={() => handleRepost(post)}
-                        className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors group cursor-pointer"
+                        className="card-action-btn repost"
+                        title="Repost"
                       >
-                        <div className="p-1.5 rounded-full group-hover:bg-emerald-500/10 transition-colors">
-                          <Repeat2 className="w-4 h-4" />
-                        </div>
+                        <Repeat2 className="w-4 h-4" />
                         <span className="text-[12px]">{post.repostCount}</span>
                       </button>
+                      
                       <button 
                         onClick={() => handleLike(post)}
-                        className={`flex items-center gap-1.5 transition-colors group cursor-pointer ${isLiked ? "text-rose-400 font-bold" : "hover:text-rose-400"}`}
+                        className={`card-action-btn like ${isLiked ? "active" : ""}`}
+                        title="Like"
                       >
-                        <div className="p-1.5 rounded-full group-hover:bg-rose-500/10 transition-colors">
-                          <Heart className="w-4 h-4" />
-                        </div>
+                        <Heart className="w-4 h-4" />
                         <span className="text-[12px]">{post.likes}</span>
                       </button>
+                      
                       <button 
                         onClick={() => handleDislike(post)}
-                        className={`flex items-center gap-1.5 transition-colors group cursor-pointer ${post.dislikedBy?.includes(currentUser?.uid) ? "text-amber-500 font-bold" : "hover:text-amber-500"}`}
-                        title="Dislike Post"
+                        className={`card-action-btn dislike ${post.dislikedBy?.includes(currentUser?.uid) ? "active" : ""}`}
+                        title="Dislike"
                       >
-                        <div className="p-1.5 rounded-full group-hover:bg-amber-500/10 transition-colors">
-                          <ThumbsDown className="w-4 h-4" />
-                        </div>
+                        <ThumbsDown className="w-4 h-4" />
                         <span className="text-[12px]">{post.dislikes || 0}</span>
                       </button>
                       
-                      {/* Quote action button */}
                       <button 
                         type="button"
                         onClick={() => {
@@ -839,12 +836,10 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
                             handleQuoteSubmit(post);
                           }
                         }}
-                        className="flex items-center gap-1.5 hover:text-indigo-400 transition-colors group cursor-pointer"
+                        className="card-action-btn quote"
                         title="Quote Post"
                       >
-                        <div className="p-1.5 rounded-full group-hover:bg-indigo-500/10 transition-colors">
-                          <Bookmark className="w-4 h-4" />
-                        </div>
+                        <Bookmark className="w-4 h-4" />
                         <span className="text-[10px] font-mono uppercase tracking-widest">Quote</span>
                       </button>
                     </div>

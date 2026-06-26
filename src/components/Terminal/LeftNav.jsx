@@ -18,7 +18,7 @@ export function LeftNav({ currentView, onSetView }) {
 
   return (
     <div className="left-nav flex flex-col w-[72px] border-r border-[#1e293b]/50 bg-black/20 py-3.5 items-center justify-between z-10 shrink-0">
-      <div className="flex flex-col gap-4.5 w-full items-center">
+      <div className="flex flex-col gap-4 w-full items-center">
         {navItems.map((item, idx) => {
           const active = currentView === item.val || (item.val === 'globe' && currentView === 'home');
           return (
@@ -26,22 +26,21 @@ export function LeftNav({ currentView, onSetView }) {
               key={idx} 
               disabled={item.disabled}
               onClick={() => !item.disabled && onSetView(item.val)}
-              className={`flex flex-col items-center gap-1 w-full py-0.5 transition-colors relative group cursor-pointer ${
-                active ? 'text-indigo-400 font-bold' : item.disabled ? 'text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:text-slate-300'
+              className={`left-nav-btn group cursor-pointer ${
+                active ? 'active text-indigo-400 font-bold' : item.disabled ? 'text-slate-700 cursor-not-allowed' : 'text-slate-500 hover:text-slate-300'
               }`}
               title={item.label}
             >
-              <item.icon className={`h-4.5 w-4.5 ${active ? 'opacity-100' : 'opacity-70'}`} />
+              <item.icon className={`h-4.5 w-4.5 transition-transform duration-200 group-hover:scale-110 ${active ? 'opacity-100 text-indigo-400' : 'opacity-70'}`} />
               <span className="text-[8.5px] uppercase font-bold tracking-wider">{item.label}</span>
-              {active && <div className="absolute left-0 top-[10%] w-1 h-[80%] bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)] rounded-r-md"></div>}
             </button>
           )
         })}
       </div>
       
-      <div className="flex flex-col gap-4 w-full items-center mb-1">
+      <div className="flex flex-col gap-3 w-full items-center mb-1">
         <button 
-          className="flex flex-col items-center gap-1 w-full py-0.5 transition-colors text-slate-700 cursor-not-allowed group relative"
+          className="left-nav-btn text-slate-700 cursor-not-allowed group relative"
           aria-label="System Operations"
         >
           <Cpu className="h-4.5 w-4.5 opacity-70" />
@@ -56,10 +55,10 @@ export function LeftNav({ currentView, onSetView }) {
             setIsSyncing(true);
             setTimeout(() => setIsSyncing(false), 1000);
           }}
-          className="flex flex-col items-center gap-1 w-full py-0.5 transition-colors text-indigo-500 hover:text-indigo-400 mt-1 cursor-pointer"
+          className="left-nav-btn text-indigo-500 hover:text-indigo-400 cursor-pointer"
           aria-label="Synchronize Data"
         >
-          <RefreshCw className={`h-4.5 w-4.5 opacity-100 object-contain ${isSyncing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4.5 w-4.5 opacity-100 object-contain transition-transform duration-200 group-hover:rotate-180 ${isSyncing ? 'animate-spin' : ''}`} />
           <span className="text-[8.5px] uppercase font-bold tracking-wider text-indigo-400">SYNC</span>
         </button>
       </div>

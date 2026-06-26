@@ -1576,3 +1576,349 @@ html, body {
   .mobile-nav       { display: none; }
   .mobile-backdrop  { display: none !important; }
 }
+
+/* ─── Uiverse & Premium Social Styles ─── */
+.uiverse-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  color: #ffffff;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.uiverse-btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+  transition: all 0.6s ease;
+}
+
+.uiverse-btn-primary:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.uiverse-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5), 0 0 20px rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, #5a52e6 0%, #8b4bf0 100%);
+}
+
+.uiverse-btn-primary:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.uiverse-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.uiverse-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #94a3b8;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.uiverse-btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(99, 102, 241, 0.45);
+  color: #f8fafc;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
+  transform: translateY(-1px);
+}
+
+.uiverse-btn-secondary:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.uiverse-btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.uiverse-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 9999px;
+  color: #f87171;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.uiverse-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+  transform: translateY(-1.5px) scale(1.02);
+}
+
+.uiverse-btn-danger:active {
+  transform: scale(0.96);
+}
+
+/* Glassmorphic Cards */
+.social-card-premium {
+  background: rgba(13, 14, 21, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.social-card-premium:hover {
+  background: rgba(17, 19, 30, 0.6);
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Action buttons inside card */
+.card-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: transparent;
+  border: none;
+}
+
+.card-action-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.card-action-btn:active {
+  transform: scale(0.9);
+}
+
+.card-action-btn.like:hover {
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.08);
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.2);
+}
+.card-action-btn.like.active {
+  color: #f43f5e;
+  text-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+}
+
+.card-action-btn.dislike:hover {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+.card-action-btn.dislike.active {
+  color: #f59e0b;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.card-action-btn.comment:hover {
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+}
+
+.card-action-btn.repost:hover {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.card-action-btn.quote:hover {
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.08);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+}
+
+/* Compose Box Container */
+.premium-compose-container {
+  background: rgba(8, 10, 18, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 22px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.premium-compose-container:focus-within {
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 15px rgba(99, 102, 241, 0.05);
+  background: rgba(8, 10, 18, 0.55);
+}
+
+.premium-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #f1f5f9;
+  line-height: 1.5;
+}
+
+.premium-textarea::placeholder {
+  color: #475569;
+}
+
+/* Discord channel list items */
+.discord-channel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11.5px;
+  color: #94a3b8;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.discord-channel-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: #e2e8f0;
+  transform: translateX(2px);
+}
+
+.discord-channel-btn:active {
+  transform: scale(0.98);
+}
+
+.discord-channel-btn.active {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.25);
+  color: #818cf8;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.1);
+  text-shadow: 0 0 6px rgba(129, 140, 248, 0.4);
+}
+
+/* Cyber Server Buttons */
+.cyber-server-btn {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.cyber-server-btn:hover {
+  border-radius: 12px;
+  transform: scale(1.05);
+}
+
+.cyber-server-btn:active {
+  transform: scale(0.93);
+}
+
+.cyber-server-btn.active {
+  border-radius: 12px;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+}
+
+.cyber-server-btn.active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 15%;
+  height: 70%;
+  width: 4px;
+  background: #ffffff;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 10px #ffffff;
+}
+
+/* Left Navigation glow button */
+.left-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 8px 0;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.left-nav-btn:hover {
+  transform: translateY(-1px);
+}
+
+.left-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.left-nav-btn.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15%;
+  width: 3.5px;
+  height: 70%;
+  background: #6366f1;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 12px #6366f1, 0 0 6px #6366f1;
+}

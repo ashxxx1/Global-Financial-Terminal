@@ -41,7 +41,7 @@ export default function PostsFeed() {
   useEffect(() => {
     const q = query(
       collection(db, "social_posts"),
-      orderBy("createdAt", "desc"),
+      orderBy("createdAtMs", "desc"),
       limit(20)
     );
 

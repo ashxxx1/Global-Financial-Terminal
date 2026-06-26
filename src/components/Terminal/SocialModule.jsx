@@ -717,10 +717,10 @@ export function SocialModule() {
   return (
     <div className="flex h-full w-full bg-[#020617] text-slate-200" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
       {/* Server List Column */}
-      <div className="w-[72px] shrink-0 bg-black flex flex-col items-center py-3 gap-3 border-r border-white/5 z-20">
+      <div className="w-[72px] shrink-0 bg-black flex flex-col items-center py-4 gap-3 border-r border-white/5 z-20">
         <button 
           onClick={() => setActiveWorkspace('home')}
-          className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all cursor-pointer ${activeWorkspace === 'home' ? 'bg-indigo-500 text-white rounded-xl' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:rounded-xl'}`}
+          className={`cyber-server-btn ${activeWorkspace === 'home' ? 'active bg-indigo-500/10 text-indigo-400 border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'bg-slate-800/50 text-slate-400 border-white/5 hover:bg-slate-700/50'}`}
           title="Social Core Feed"
         >
           <Hash className="w-6 h-6" />
@@ -730,7 +730,7 @@ export function SocialModule() {
           <button 
             key={s.id}
             onClick={() => setActiveWorkspace(s.id)}
-            className={`w-12 h-12 flex items-center justify-center font-bold text-lg transition-all cursor-pointer ${activeWorkspace === s.id ? `${s.color} text-white justify-center rounded-xl animate-none` : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:rounded-xl rounded-2xl'}`}
+            className={`cyber-server-btn ${activeWorkspace === s.id ? `active ${s.color} text-white` : 'bg-slate-800/50 text-slate-300 border-white/5 hover:bg-slate-700/50'}`}
             title={s.name}
           >
             {s.initials}
@@ -738,7 +738,7 @@ export function SocialModule() {
         ))}
         <button 
           onClick={() => setShowCreateServerModal(true)}
-          className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-slate-800 text-emerald-400 hover:bg-emerald-500 hover:text-white hover:rounded-xl group cursor-pointer"
+          className="cyber-server-btn bg-slate-800/50 text-emerald-400 border-white/5 hover:bg-emerald-500 hover:text-white"
           title="Create a Server"
         >
           <Plus className="w-6 h-6" />
@@ -758,13 +758,21 @@ export function SocialModule() {
                     setActiveHomeTab('home');
                     setProfileUserId(currentUser?.uid);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-[13px] font-bold uppercase tracking-wider rounded-xl transition-all border cursor-pointer ${activeHomeTab === 'home' ? 'bg-indigo-500 text-white border-indigo-400 shadow-lg' : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 text-[11.5px] font-bold uppercase tracking-widest rounded-xl transition-all border cursor-pointer font-mono ${
+                     activeHomeTab === 'home' 
+                       ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/25 shadow-[0_0_15px_rgba(99,102,241,0.15)] text-shadow-[0_0_6px_rgba(129,140,248,0.4)]' 
+                       : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200'
+                  }`}
                 >
                   <Hash className="w-4 h-4" /> Global Feed
                 </button>
                 <button 
                   onClick={() => setActiveHomeTab('messages')}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-[13px] font-bold uppercase tracking-wider rounded-xl transition-all border cursor-pointer ${activeHomeTab === 'messages' ? 'bg-indigo-500 text-white border-indigo-400 shadow-lg' : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 text-[11.5px] font-bold uppercase tracking-widest rounded-xl transition-all border cursor-pointer font-mono ${
+                     activeHomeTab === 'messages' 
+                       ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/25 shadow-[0_0_15px_rgba(99,102,241,0.15)] text-shadow-[0_0_6px_rgba(129,140,248,0.4)]' 
+                       : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200'
+                  }`}
                 >
                   <Mail className="w-4 h-4" /> Direct Logs
                 </button>
@@ -773,7 +781,11 @@ export function SocialModule() {
                     setProfileUserId(currentUser?.uid);
                     setActiveHomeTab('profile');
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-[13px] font-bold uppercase tracking-wider rounded-xl transition-all border cursor-pointer ${activeHomeTab === 'profile' && profileUserId === currentUser?.uid ? 'bg-indigo-500 text-white border-indigo-400 shadow-lg' : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 text-[11.5px] font-bold uppercase tracking-widest rounded-xl transition-all border cursor-pointer font-mono ${
+                     activeHomeTab === 'profile' && profileUserId === currentUser?.uid 
+                       ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/25 shadow-[0_0_15px_rgba(99,102,241,0.15)] text-shadow-[0_0_6px_rgba(129,140,248,0.4)]' 
+                       : 'bg-transparent text-slate-400 border-transparent hover:bg-white/5 hover:text-slate-200'
+                  }`}
                 >
                   <User className="w-4 h-4" /> My Profile
                 </button>
@@ -924,7 +936,7 @@ export function SocialModule() {
                            {(!profileUserId || profileUserId === currentUser?.uid) ? (
                              <button 
                                onClick={() => setIsEditingProfile(!isEditingProfile)}
-                               className="px-4 py-1.5 rounded-full border border-slate-600 font-bold text-xs hover:bg-white/5 cursor-pointer bg-slate-900 text-slate-200 font-mono uppercase tracking-wider"
+                               className="uiverse-btn-secondary"
                              >
                                {isEditingProfile ? 'Cancel' : 'Edit Profile'}
                              </button>
@@ -932,13 +944,13 @@ export function SocialModule() {
                              <div className="flex gap-2">
                                <button 
                                  onClick={handleFollowToggle}
-                                 className={`px-4 py-1.5 rounded-full font-bold text-xs cursor-pointer font-mono uppercase tracking-wider ${isFollowing ? 'border border-slate-600 bg-slate-900 text-slate-300' : 'bg-white text-black hover:bg-slate-200'}`}
+                                 className={isFollowing ? 'uiverse-btn-secondary active' : 'uiverse-btn-secondary'}
                                >
                                  {isFollowing ? 'Following' : 'Follow'}
                                </button>
                                <button 
                                  onClick={handleBlockToggle}
-                                 className={`px-4 py-1.5 rounded-full border border-rose-500/30 font-bold text-xs cursor-pointer font-mono uppercase tracking-wider ${isBlocked ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-900 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10'}`}
+                                 className="uiverse-btn-danger"
                                >
                                  {isBlocked ? 'Blocked' : 'Block'}
                                </button>
@@ -1065,7 +1077,7 @@ export function SocialModule() {
                              
                              {profileError && <span className="text-rose-400 font-mono text-[10px] font-bold">{profileError}</span>}
                              
-                             <button type="submit" className="px-4 py-2 bg-indigo-500 text-white rounded font-bold text-xs hover:bg-indigo-600 transition-colors cursor-pointer mt-2 font-mono uppercase">Save Profile</button>
+                              <button type="submit" className="uiverse-btn-primary mt-2">Save Profile</button>
                           </form>
                         ) : (
                           <div className="mt-16">
@@ -1215,7 +1227,7 @@ export function SocialModule() {
                                <button 
                                  key={ch.id}
                                  onClick={() => setActiveChannelId(ch.id)}
-                                 className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer ${activeChannelId === ch.id ? 'bg-indigo-500/20 text-indigo-400 font-bold border border-indigo-500/30' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200 border border-transparent'}`}
+                                 className={`discord-channel-btn ${activeChannelId === ch.id ? 'active' : ''}`}
                                >
                                  <span># {ch.name}</span>
                                </button>
@@ -1245,7 +1257,7 @@ export function SocialModule() {
                                   <button 
                                     key={ch.id}
                                     onClick={() => setActiveChannelId(ch.id)}
-                                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-mono transition-all cursor-pointer ${activeChannelId === ch.id ? 'bg-indigo-500/20 text-indigo-400 font-bold border border-indigo-500/30' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200 border border-transparent'}`}
+                                    className={`discord-channel-btn ${activeChannelId === ch.id ? 'active' : ''}`}
                                   >
                                     <span># {ch.name}</span>
                                   </button>
@@ -1438,7 +1450,7 @@ export function SocialModule() {
               </div>
               <button 
                 type="submit" 
-                className="mt-2 w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-bold text-xs transition-colors cursor-pointer shadow-[0_0_10px_rgba(99,102,241,0.3)] font-mono uppercase"
+                className="uiverse-btn-primary mt-2 w-full"
               >
                 Create
               </button>
@@ -1483,7 +1495,7 @@ export function SocialModule() {
               </div>
               <button 
                 type="submit" 
-                className="mt-2 w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-bold text-xs transition-colors cursor-pointer shadow-[0_0_10px_rgba(99,102,241,0.3)] font-mono uppercase"
+                className="uiverse-btn-primary mt-2 w-full"
               >
                 Create Topic
               </button>
@@ -1517,7 +1529,7 @@ export function SocialModule() {
               </div>
               <button 
                 type="submit" 
-                className="mt-2 w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-bold text-xs transition-colors cursor-pointer shadow-[0_0_10px_rgba(99,102,241,0.3)] font-mono uppercase"
+                className="uiverse-btn-primary mt-2 w-full"
               >
                 Create Category
               </button>
@@ -1564,7 +1576,7 @@ export function SocialModule() {
               </div>
               <button 
                 type="submit" 
-                className="mt-2 w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-bold text-xs transition-colors cursor-pointer shadow-[0_0_10px_rgba(99,102,241,0.3)] font-mono uppercase"
+                className="uiverse-btn-primary mt-2 w-full"
               >
                 Create Channel
               </button>

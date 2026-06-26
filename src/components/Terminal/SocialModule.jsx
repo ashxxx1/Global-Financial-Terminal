@@ -58,6 +58,7 @@ export function SocialModule() {
   const [hasBlockedMe, setHasBlockedMe] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [followingList, setFollowingList] = useState([]); // List of uids currentUser is following
 
   // Servers and Channels state
   const [servers, setServers] = useState([]);
@@ -153,8 +154,26 @@ export function SocialModule() {
     };
   }, [profileUserId, currentUser]);
 
+  // Real-time listener for current user's following list (used for Suggested Voices dynamic follows)
+  useEffect(() => {
+    if (!currentUser) {
+      setFollowingList([]);
+      return;
+    }
+    const q = query(collection(db, "follows"), where("followerId", "==", currentUser.uid));
+    const unsub = onSnapshot(q, (snap) => {
+      const list = snap.docs.map(doc => doc.data().followingId);
+      setFollowingList(list);
+    }, (err) => {
+      console.error("Following list query failed:", err);
+      setFollowingList([]);
+    });
+    return () => unsub();
+  }, [currentUser]);
+
   // Fetch servers in real-time
   useEffect(() => {
+    if (!currentUser) return;
     const q = query(collection(db, "social_servers"), orderBy("createdAt", "asc"));
     const unsub = onSnapshot(q, (snap) => {
       if (!snap.empty) {
@@ -164,25 +183,17 @@ export function SocialModule() {
         }));
         setServers(list);
       } else {
-        setServers([
-          { id: 's1', name: 'Macro Trading', initials: 'MT', color: 'bg-emerald-600' },
-          { id: 's2', name: 'Crypto Alpha', initials: 'CA', color: 'bg-indigo-600' },
-          { id: 's3', name: 'Quant Network', initials: 'QN', color: 'bg-purple-600' },
-        ]);
+        setServers([]);
       }
     }, () => {
-      setServers([
-        { id: 's1', name: 'Macro Trading', initials: 'MT', color: 'bg-emerald-600' },
-        { id: 's2', name: 'Crypto Alpha', initials: 'CA', color: 'bg-indigo-600' },
-        { id: 's3', name: 'Quant Network', initials: 'QN', color: 'bg-purple-600' },
-      ]);
+      setServers([]);
     });
     return () => unsub();
-  }, []);
+  }, [currentUser]);
 
   // Fetch channels for selected server
   useEffect(() => {
-    if (activeWorkspace === 'home') {
+    if (activeWorkspace === 'home' || !currentUser) {
       setChannels([]);
       setActiveChannelId(null);
       return;
@@ -208,22 +219,16 @@ export function SocialModule() {
         setActiveChannelId(defaultCh.id);
       }
     }, () => {
-      const defaultChList = [
-        { id: `ch_gen_${activeWorkspace}`, serverId: activeWorkspace, name: "general" },
-        { id: `ch_ideas_${activeWorkspace}`, serverId: activeWorkspace, name: "trade-ideas" },
-        { id: `ch_news_${activeWorkspace}`, serverId: activeWorkspace, name: "macro-news" }
-      ];
-      setChannels(defaultChList);
-      if (!defaultChList.some(c => c.id === activeChannelId)) {
-        setActiveChannelId(defaultChList[0].id);
-      }
+      const defaultCh = { id: `ch_gen_${activeWorkspace}`, serverId: activeWorkspace, name: "general" };
+      setChannels([defaultCh]);
+      setActiveChannelId(defaultCh.id);
     });
     return () => unsub();
-  }, [activeWorkspace]);
+  }, [activeWorkspace, currentUser]);
 
   // Fetch channel messages
   useEffect(() => {
-    if (!activeChannelId) {
+    if (!activeChannelId || !currentUser) {
       setChannelMessages([]);
       return;
     }
@@ -247,7 +252,7 @@ export function SocialModule() {
       setChannelMessages([]);
     });
     return () => unsub();
-  }, [activeChannelId]);
+  }, [activeChannelId, currentUser]);
 
   // Load active friends list
   useEffect(() => {
@@ -344,24 +349,24 @@ export function SocialModule() {
     }
   };
 
-  // Follow/Unfollow toggle
-  const handleFollowToggle = async () => {
-    if (!currentUser || !profileUserId) return;
+  // Follow/Unfollow toggle for any user
+  const toggleFollowUser = async (targetUid) => {
+    if (!currentUser || !targetUid) return;
     try {
       const qSnap = await getDocs(
-        query(collection(db, "follows"), where("followerId", "==", currentUser.uid), where("followingId", "==", profileUserId))
+        query(collection(db, "follows"), where("followerId", "==", currentUser.uid), where("followingId", "==", targetUid))
       );
       if (!qSnap.empty) {
         await deleteDoc(doc(db, "follows", qSnap.docs[0].id));
       } else {
         await addDoc(collection(db, "follows"), {
           followerId: currentUser.uid,
-          followingId: profileUserId,
+          followingId: targetUid,
           createdAt: Date.now()
         });
         
         await addDoc(collection(db, "notifications"), {
-          userId: profileUserId,
+          userId: targetUid,
           type: "follow",
           sourceId: currentUser.uid,
           isRead: false,
@@ -371,6 +376,11 @@ export function SocialModule() {
     } catch (err) {
       console.error("Follow toggle failed:", err);
     }
+  };
+
+  // Follow/Unfollow toggle
+  const handleFollowToggle = async () => {
+    await toggleFollowUser(profileUserId);
   };
 
   // Block/Unblock toggle
@@ -637,24 +647,19 @@ export function SocialModule() {
 
   // Fetch public topics in real-time
   useEffect(() => {
+    if (!currentUser) return;
     const q = query(collection(db, "social_topics"), orderBy("createdAt", "desc"));
     const unsub = onSnapshot(q, (snap) => {
       if (!snap.empty) {
         setTopics(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       } else {
-        setTopics([
-          { id: 't1', name: 'inflation', description: 'CPI & monetary policies', postCount: 15 },
-          { id: 't2', name: 'quanttrading', description: 'Algorithmic strategy discussions', postCount: 8 }
-        ]);
+        setTopics([]);
       }
     }, () => {
-      setTopics([
-        { id: 't1', name: 'inflation', description: 'CPI & monetary policies', postCount: 15 },
-        { id: 't2', name: 'quanttrading', description: 'Algorithmic strategy discussions', postCount: 8 }
-      ]);
+      setTopics([]);
     });
     return () => unsub();
-  }, []);
+  }, [currentUser]);
 
   const handleCreateTopic = async (e) => {
     e.preventDefault();
@@ -887,6 +892,11 @@ export function SocialModule() {
                                    <div className={`flex flex-col gap-1 ${msg.senderId === 'me' ? 'items-end' : 'items-start'}`}>
                                       <div className={`rounded-xl px-3.5 py-2 text-[13px] ${msg.senderId === 'me' ? 'bg-indigo-600 text-white rounded-tr-sm' : 'bg-[#1e293b] text-slate-200 rounded-tl-sm'}`}>
                                          {msg.text}
+                                         {msg.imageURL && (
+                                            <div className="mt-2 rounded-lg overflow-hidden border border-white/10 max-w-[260px] max-h-[180px]">
+                                               <img src={msg.imageURL} alt="" className="w-full h-full object-cover" />
+                                            </div>
+                                         )}
                                       </div>
                                       <span className="text-[8px] text-slate-600 font-mono">{msg.time}</span>
                                    </div>
@@ -895,16 +905,51 @@ export function SocialModule() {
                               <div ref={chatBottomRef} />
                            </div>
 
-                           <form onSubmit={handleSendMessage} className="p-4 border-t border-white/5 flex flex-col gap-2 bg-black/20">
-                              <div className="bg-white/5 border border-white/10 rounded-full flex items-center px-4 py-2">
+                           <form onSubmit={handleSendMessage} className="p-4 border-t border-white/5 flex flex-col gap-2.5 bg-black/25">
+                              {showChatImgInput && (
+                                 <div className="bg-[#070d19]/80 border border-white/10 rounded-xl px-3 py-2 flex items-center gap-2 animate-in slide-in-from-bottom-2 duration-200">
+                                    <input 
+                                      type="text" 
+                                      value={chatImageURL}
+                                      onChange={(e) => setChatImageURL(e.target.value)}
+                                      placeholder="Paste chart URL or base64..." 
+                                      className="bg-transparent border-none outline-none text-xs w-full text-slate-200 font-mono" 
+                                    />
+                                    <label className="px-3 py-1 bg-slate-800 border border-white/10 rounded-lg text-[9px] font-bold font-mono hover:bg-slate-700 cursor-pointer flex items-center justify-center text-indigo-400 transition-colors uppercase shrink-0">
+                                      Upload
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => setChatImageURL(reader.result);
+                                            reader.readAsDataURL(file);
+                                          }
+                                        }}
+                                      />
+                                    </label>
+                                 </div>
+                              )}
+                              <div className="bg-[#070d19]/80 border border-white/10 rounded-xl flex items-center px-4 py-2.5 focus-within:border-indigo-500/50 transition-all duration-200">
+                                 <button 
+                                   type="button" 
+                                   onClick={() => setShowChatImgInput(!showChatImgInput)} 
+                                   className={`p-1 mr-2 rounded hover:bg-white/5 cursor-pointer text-slate-400 hover:text-white ${showChatImgInput ? 'text-indigo-400' : ''}`}
+                                   title="Add Media / Chart"
+                                 >
+                                    <Image className="w-4 h-4" />
+                                 </button>
                                  <input 
                                    type="text" 
                                    value={chatInputText}
                                    onChange={(e) => setChatInputText(e.target.value)}
                                    placeholder={`Secure line message to @${activeFriend.name.toLowerCase()}...`} 
-                                   className="bg-transparent border-none outline-none text-xs w-full text-slate-200" 
+                                   className="bg-transparent border-none outline-none text-xs w-full text-slate-200 font-mono" 
                                  />
-                                 <button type="submit" className="text-indigo-400 hover:text-white cursor-pointer ml-2">
+                                 <button type="submit" className="text-indigo-400 hover:text-white cursor-pointer ml-2 shrink-0">
                                     <Send className="w-4 h-4" />
                                  </button>
                               </div>
@@ -964,121 +1009,130 @@ export function SocialModule() {
                         </div>
 
                         {/* Profile Viewer / Form */}
-                        {isEditingProfile ? (
-                          <form onSubmit={handleSaveProfile} className="mt-16 flex flex-col gap-3.5 max-w-md bg-white/5 border border-white/5 p-4 rounded-xl">
-                             <div className="flex flex-col gap-1">
-                                <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono">Display Name</label>
-                                <input 
-                                  type="text" 
-                                  value={profileName}
-                                  onChange={(e) => setProfileName(e.target.value)}
-                                  className="bg-black/40 border border-white/10 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:border-indigo-500 outline-none" 
-                                  maxLength={50}
-                                />
-                             </div>
-                             <div className="flex flex-col gap-1">
-                                 <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono">Avatar Seed Link / File</label>
-                                 <div className="flex gap-2">
-                                    <input 
-                                      type="text" 
-                                      value={profileAvatar}
-                                      onChange={(e) => setProfileAvatar(e.target.value)}
-                                      placeholder="Avatar URL or Base64 data..."
-                                      className="flex-1 bg-black/40 border border-white/10 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:border-indigo-500 outline-none" 
-                                    />
-                                    <label className="px-3 py-1.5 bg-slate-800 border border-white/10 rounded text-[10px] font-bold font-mono hover:bg-slate-700 cursor-pointer flex items-center justify-center text-indigo-400">
-                                      UPLOAD
-                                      <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={(e) => {
-                                          const file = e.target.files?.[0];
-                                          if (file) {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => setProfileAvatar(reader.result);
-                                            reader.readAsDataURL(file);
-                                          }
-                                        }}
-                                      />
-                                    </label>
-                                 </div>
-                              </div>
-                              <div className="flex flex-col gap-1">
-                                 <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono">Banner Link / File</label>
-                                 <div className="flex gap-2">
-                                    <input 
-                                      type="text" 
-                                      value={profileBanner}
-                                      onChange={(e) => setProfileBanner(e.target.value)}
-                                      placeholder="Banner URL or Base64 data..."
-                                      className="flex-1 bg-black/40 border border-white/10 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:border-indigo-500 outline-none" 
-                                    />
-                                    <label className="px-3 py-1.5 bg-slate-800 border border-white/10 rounded text-[10px] font-bold font-mono hover:bg-slate-700 cursor-pointer flex items-center justify-center text-indigo-400">
-                                      UPLOAD
-                                      <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        onChange={(e) => {
-                                          const file = e.target.files?.[0];
-                                          if (file) {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => setProfileBanner(reader.result);
-                                            reader.readAsDataURL(file);
-                                          }
-                                        }}
-                                      />
-                                    </label>
-                                 </div>
-                              </div>
-                             <div className="flex flex-col gap-1">
-                                <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono">Username Handle</label>
-                                <input 
-                                  type="text" 
-                                  value={profileUsername}
-                                  onChange={(e) => setProfileUsername(e.target.value)}
-                                  className="bg-black/40 border border-white/10 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:border-indigo-500 outline-none" 
-                                  maxLength={20}
-                                />
-                             </div>
-                             <div className="flex flex-col gap-1">
-                                <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono">Avatar Seed Link</label>
-                                <input 
-                                  type="text" 
-                                  value={profileAvatar}
-                                  onChange={(e) => setProfileAvatar(e.target.value)}
-                                  className="bg-black/40 border border-white/10 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:border-indigo-500 outline-none" 
-                                />
-                             </div>
-                             <div className="flex flex-col gap-1">
-                                <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono">Profile Bio</label>
-                                <textarea 
-                                  value={profileBio}
-                                  onChange={(e) => setProfileBio(e.target.value)}
-                                  rows={2}
-                                  className="bg-black/40 border border-white/10 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:border-indigo-500 outline-none resize-none" 
-                                  maxLength={280}
-                                />
-                             </div>
-                             <div className="flex flex-col gap-1">
-                                <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest font-mono">Reputation Rank</label>
-                                <select 
-                                  value={profileRep}
-                                  onChange={(e) => setProfileRep(e.target.value)}
-                                  className="bg-black border border-white/10 rounded px-2 py-1.5 text-xs text-slate-200 focus:border-indigo-500 outline-none"
-                                >
-                                   <option value="Analyst">Analyst</option>
-                                   <option value="Bull">Bull</option>
-                                   <option value="Bear">Bear</option>
-                                   <option value="Wizard">Wizard</option>
-                                </select>
-                             </div>
-                             
-                             {profileError && <span className="text-rose-400 font-mono text-[10px] font-bold">{profileError}</span>}
-                             
-                              <button type="submit" className="uiverse-btn-primary mt-2">Save Profile</button>
-                          </form>
+                         {isEditingProfile ? (
+                            <form onSubmit={handleSaveProfile} className="mt-16 flex flex-col gap-4 max-w-lg bg-[#070d19]/80 border border-indigo-500/20 p-6 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.05)] backdrop-blur-xl">
+                               <div className="grid grid-cols-2 gap-4">
+                                  <div className="flex flex-col gap-1.5">
+                                     <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">Display Name</label>
+                                     <input 
+                                       type="text" 
+                                       value={profileName}
+                                       onChange={(e) => setProfileName(e.target.value)}
+                                       placeholder="e.g. Aarush Kapoor"
+                                       className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:shadow-[0_0_10px_rgba(99,102,241,0.2)] outline-none transition-all duration-200 font-mono" 
+                                       maxLength={50}
+                                     />
+                                  </div>
+                                  <div className="flex flex-col gap-1.5">
+                                     <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">Username Handle</label>
+                                     <input 
+                                       type="text" 
+                                       value={profileUsername}
+                                       onChange={(e) => setProfileUsername(e.target.value)}
+                                       placeholder="e.g. aarush"
+                                       className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:shadow-[0_0_10px_rgba(99,102,241,0.2)] outline-none transition-all duration-200 font-mono" 
+                                       maxLength={20}
+                                     />
+                                  </div>
+                               </div>
+
+                               <div className="flex flex-col gap-1.5">
+                                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">Avatar Image (URL or Upload)</label>
+                                  <div className="flex gap-2.5">
+                                     <input 
+                                       type="text" 
+                                       value={profileAvatar}
+                                       onChange={(e) => setProfileAvatar(e.target.value)}
+                                       placeholder="Avatar URL or base64..."
+                                       className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:shadow-[0_0_10px_rgba(99,102,241,0.2)] outline-none transition-all duration-200 font-mono" 
+                                     />
+                                     <label className="px-4 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-[10px] font-bold font-mono hover:bg-slate-700/80 hover:text-white cursor-pointer flex items-center justify-center text-indigo-400 transition-all duration-200 shrink-0 uppercase tracking-wider">
+                                       Upload
+                                       <input
+                                         type="file"
+                                         accept="image/*"
+                                         className="hidden"
+                                         onChange={(e) => {
+                                           const file = e.target.files?.[0];
+                                           if (file) {
+                                             const reader = new FileReader();
+                                             reader.onloadend = () => setProfileAvatar(reader.result);
+                                             reader.readAsDataURL(file);
+                                           }
+                                         }}
+                                       />
+                                     </label>
+                                  </div>
+                               </div>
+
+                               <div className="flex flex-col gap-1.5">
+                                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">Banner Image (URL or Upload)</label>
+                                  <div className="flex gap-2.5">
+                                     <input 
+                                       type="text" 
+                                       value={profileBanner}
+                                       onChange={(e) => setProfileBanner(e.target.value)}
+                                       placeholder="Banner URL or base64..."
+                                       className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:shadow-[0_0_10px_rgba(99,102,241,0.2)] outline-none transition-all duration-200 font-mono" 
+                                     />
+                                     <label className="px-4 py-2 bg-slate-800/80 border border-white/10 rounded-xl text-[10px] font-bold font-mono hover:bg-slate-700/80 hover:text-white cursor-pointer flex items-center justify-center text-indigo-400 transition-all duration-200 shrink-0 uppercase tracking-wider">
+                                       Upload
+                                       <input
+                                         type="file"
+                                         accept="image/*"
+                                         className="hidden"
+                                         onChange={(e) => {
+                                           const file = e.target.files?.[0];
+                                           if (file) {
+                                             const reader = new FileReader();
+                                             reader.onloadend = () => setProfileBanner(reader.result);
+                                             reader.readAsDataURL(file);
+                                           }
+                                         }}
+                                       />
+                                     </label>
+                                  </div>
+                               </div>
+
+                               <div className="grid grid-cols-3 gap-4 items-center">
+                                  <div className="col-span-2 flex flex-col gap-1.5">
+                                     <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">Reputation Rank</label>
+                                     <select 
+                                       value={profileRep}
+                                       onChange={(e) => setProfileRep(e.target.value)}
+                                       className="bg-black/45 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:shadow-[0_0_10px_rgba(99,102,241,0.2)] outline-none transition-all duration-200 font-mono"
+                                     >
+                                        <option value="Analyst">Analyst</option>
+                                        <option value="Bull">Bull</option>
+                                        <option value="Bear">Bear</option>
+                                        <option value="Wizard">Wizard</option>
+                                     </select>
+                                  </div>
+                                  <div className="flex flex-col items-center justify-center mt-4">
+                                     {profileAvatar && (
+                                        <div className="w-12 h-12 rounded-full border border-indigo-500/30 overflow-hidden shadow-[0_0_12px_rgba(99,102,241,0.15)]">
+                                           <img src={profileAvatar} alt="" className="w-full h-full object-cover" />
+                                        </div>
+                                     )}
+                                  </div>
+                               </div>
+
+                               <div className="flex flex-col gap-1.5">
+                                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest font-mono">Profile Bio</label>
+                                  <textarea 
+                                    value={profileBio}
+                                    onChange={(e) => setProfileBio(e.target.value)}
+                                    rows={2}
+                                    placeholder="Write a bio..."
+                                    className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:shadow-[0_0_10px_rgba(99,102,241,0.2)] outline-none resize-none transition-all duration-200 font-sans" 
+                                    maxLength={280}
+                                  />
+                               </div>
+                               
+                               {profileError && <span className="text-rose-400 font-mono text-[10px] font-bold">{profileError}</span>}
+                               
+                               <button type="submit" className="uiverse-btn-primary mt-2 w-full">Save Profile</button>
+                            </form>
                         ) : (
                           <div className="mt-16">
                              <h2 className="text-xl font-bold flex items-center gap-2 text-slate-100">
@@ -1179,20 +1233,41 @@ export function SocialModule() {
                <div className="bg-[#070b14]/60 border border-white/5 rounded-2xl p-4">
                   <h3 className="font-bold text-[10px] mb-3.5 text-slate-500 uppercase tracking-widest font-mono">Suggested Voices</h3>
                   <div className="flex flex-col gap-3">
-                     <div className="flex items-center gap-2 font-mono">
-                        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white shrink-0 text-xs">CB</div>
-                        <div className="flex-1 min-w-0">
-                           <div className="font-bold text-slate-200 text-xs truncate">Central Bank Watch</div>
-                           <div className="text-[9px] text-slate-500 truncate">@cb_watcher</div>
-                        </div>
-                     </div>
-                     <div className="flex items-center gap-2 font-mono">
-                        <div className="w-8 h-8 rounded-full bg-rose-600 flex items-center justify-center font-bold text-white shrink-0 text-xs">MD</div>
-                        <div className="flex-1 min-w-0">
-                           <div className="font-bold text-slate-200 text-xs truncate">Macro Daily</div>
-                           <div className="text-[9px] text-slate-500 truncate">@macrodaily</div>
-                        </div>
-                     </div>
+                     {friends.slice(0, 3).map((f) => {
+                        const isFollowingVoice = followingList.includes(f.uid);
+                        return (
+                           <div key={f.uid} className="flex items-center justify-between gap-2 font-mono">
+                              <div 
+                                 onClick={() => {
+                                    setProfileUserId(f.uid);
+                                    setActiveHomeTab('profile');
+                                 }}
+                                 className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer group"
+                              >
+                                 <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-white/5 group-hover:border-indigo-500/50 transition-all duration-200">
+                                    <img src={f.avatar} alt="" className="w-full h-full object-cover" />
+                                 </div>
+                                 <div className="flex-1 min-w-0">
+                                    <div className="font-bold text-slate-200 text-xs truncate group-hover:text-indigo-400 transition-colors">{f.name}</div>
+                                    <div className="text-[9px] text-slate-500 truncate">@{f.name.toLowerCase().replace(/\s+/g, '')}</div>
+                                 </div>
+                              </div>
+                              <button
+                                 onClick={() => toggleFollowUser(f.uid)}
+                                 className={`px-2 py-1 text-[8.5px] font-bold uppercase font-mono tracking-widest rounded-md border transition-all cursor-pointer ${
+                                    isFollowingVoice
+                                       ? 'bg-transparent text-indigo-400 border-indigo-500/25 shadow-[0_0_8px_rgba(99,102,241,0.1)]'
+                                       : 'bg-indigo-600 text-white border-transparent hover:bg-indigo-500 hover:shadow-[0_0_12px_rgba(99,102,241,0.3)]'
+                                 }`}
+                              >
+                                 {isFollowingVoice ? 'Following' : 'Follow'}
+                              </button>
+                           </div>
+                        );
+                     })}
+                     {friends.length === 0 && (
+                        <span className="text-[9.5px] text-slate-600 italic">No other users found</span>
+                     )}
                   </div>
                </div>
             </div>
@@ -1343,6 +1418,11 @@ export function SocialModule() {
                                <span className="text-[9px] text-slate-500 font-mono">{msg.time}</span>
                             </div>
                             <p className="text-[#e2e8f0] leading-relaxed mt-1 text-[13.5px] break-words">{msg.text}</p>
+                            {msg.imageURL && (
+                               <div className="mt-2.5 rounded-xl overflow-hidden border border-white/10 max-w-[320px] max-h-[220px]">
+                                  <img src={msg.imageURL} alt="" className="w-full h-full object-cover" />
+                               </div>
+                            )}
                          </div>
                       </div>
                    ))}
@@ -1356,19 +1436,35 @@ export function SocialModule() {
                 </div>
                 
                 {/* Send message form */}
-                <form onSubmit={handleSendChannelMessage} className="p-4 shrink-0 flex flex-col gap-2 border-t border-white/5 bg-black/35">
+                <form onSubmit={handleSendChannelMessage} className="p-4 shrink-0 flex flex-col gap-2.5 border-t border-white/5 bg-black/35">
                    {showChannelImgInput && (
-                      <div className="bg-white/5 border border-white/10 rounded px-3 py-1 flex items-center">
+                      <div className="bg-[#070d19]/80 border border-white/10 rounded-xl px-3 py-2 flex items-center gap-2 animate-in slide-in-from-bottom-2 duration-200">
                          <input 
                            type="text" 
                            value={channelImageURL}
                            onChange={(e) => setChannelImageURL(e.target.value)}
-                           placeholder="Paste image link..." 
-                           className="bg-transparent border-none outline-none text-xs w-full text-slate-200" 
+                           placeholder="Paste chart URL or base64..." 
+                           className="bg-transparent border-none outline-none text-xs w-full text-slate-200 font-mono" 
                          />
+                         <label className="px-3 py-1 bg-slate-800 border border-white/10 rounded-lg text-[9px] font-bold font-mono hover:bg-slate-700 cursor-pointer flex items-center justify-center text-indigo-400 transition-colors uppercase shrink-0">
+                           Upload
+                           <input
+                             type="file"
+                             accept="image/*"
+                             className="hidden"
+                             onChange={(e) => {
+                               const file = e.target.files?.[0];
+                               if (file) {
+                                 const reader = new FileReader();
+                                 reader.onloadend = () => setChannelImageURL(reader.result);
+                                 reader.readAsDataURL(file);
+                               }
+                             }}
+                           />
+                         </label>
                       </div>
                    )}
-                   <div className="bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 flex items-center shadow-inner">
+                   <div className="bg-[#070d19]/80 border border-white/10 rounded-xl px-4 py-2.5 flex items-center shadow-inner focus-within:border-indigo-500/50 transition-all duration-200">
                       <button 
                         type="button" 
                         onClick={() => setShowChannelImgInput(!showChannelImgInput)} 
@@ -1381,9 +1477,12 @@ export function SocialModule() {
                         value={channelInputText}
                         onChange={(e) => setChannelInputText(e.target.value)}
                         placeholder={`Message #${channels.find(c => c.id === activeChannelId)?.name || 'general'}`} 
-                        className="bg-transparent flex-1 outline-none font-medium placeholder:text-slate-500 text-slate-200 text-xs font-mono" 
+                        className="bg-transparent flex-1 outline-none placeholder:text-slate-500 text-slate-200 text-xs font-mono" 
                       />
-                      <button type="submit" className="text-indigo-400 hover:text-white cursor-pointer ml-2">
+                      <button 
+                        type="submit" 
+                        className="text-indigo-400 hover:text-white cursor-pointer ml-2 shrink-0"
+                      >
                          <Send className="w-4 h-4" />
                       </button>
                    </div>

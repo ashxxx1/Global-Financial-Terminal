@@ -3,11 +3,14 @@ import { IntelligenceFeed } from './IntelligenceFeed';
 import { Globe2, Hash, MessageSquare, Heart } from 'lucide-react';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '../../services/firebase';
+import { useAuth } from '../../contexts/AuthContext';
 
 function SocialFeedPreview({ onSetView }) {
+  const { currentUser } = useAuth();
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
+    if (!currentUser) return;
     const q = query(
       collection(db, "social_posts"),
       orderBy("createdAtMs", "desc"),
@@ -34,7 +37,7 @@ function SocialFeedPreview({ onSetView }) {
     });
 
     return () => unsub();
-  }, []);
+  }, [currentUser]);
 
   return (
     <div className="flex flex-col h-full bg-transparent">

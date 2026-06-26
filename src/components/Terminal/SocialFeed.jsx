@@ -58,6 +58,7 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
 
   // Load Feed Posts
   useEffect(() => {
+    if (!currentUser) return;
     const q = query(
       collection(db, "social_posts"),
       orderBy("createdAtMs", "desc"),
@@ -101,11 +102,11 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
     });
 
     return () => unsub();
-  }, []);
+  }, [currentUser]);
 
   // Load Comments for Open Post
   useEffect(() => {
-    if (!openCommentsPostId) return;
+    if (!openCommentsPostId || !currentUser) return;
 
     const q = query(
       collection(db, "post_comments"),
@@ -139,7 +140,7 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
     });
 
     return () => unsub();
-  }, [openCommentsPostId]);
+  }, [openCommentsPostId, currentUser]);
 
   // Handle Post Submit with Mentions, Hashtags, Reposts & Quotes
   const handlePostSubmit = async (e, repostOfId = null, quotedPostId = null, quotedPostData = null) => {
@@ -875,23 +876,22 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
                        <p className="text-xs text-slate-600 italic pl-6">No replies yet.</p>
                      )}
                    </div>
-
-                   <form onSubmit={(e) => handleCommentSubmit(e, post.id, post.authorId)} className="flex gap-2 items-center">
-                     <input 
-                       type="text"
-                       value={commentInput}
-                       onChange={(e) => setCommentInput(e.target.value)}
-                       placeholder="Write a reply..."
-                       className="flex-1 bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-xs outline-none text-slate-200 font-mono"
-                     />
-                     <button 
-                       type="submit" 
-                       disabled={!commentInput.trim()}
-                       className="px-3 py-1 bg-indigo-500 text-white rounded-full text-[11px] font-bold hover:bg-indigo-600 disabled:opacity-50 cursor-pointer font-mono uppercase"
-                     >
-                       Reply
-                     </button>
-                   </form>
+                    <form onSubmit={(e) => handleCommentSubmit(e, post.id, post.authorId)} className="flex gap-2.5 items-center mt-1">
+                      <input 
+                        type="text"
+                        value={commentInput}
+                        onChange={(e) => setCommentInput(e.target.value)}
+                        placeholder="Write a reply..."
+                        className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3.5 py-2 text-xs outline-none text-slate-200 focus:border-indigo-500 focus:shadow-[0_0_10px_rgba(99,102,241,0.2)] transition-all duration-200 font-mono"
+                      />
+                      <button 
+                        type="submit" 
+                        disabled={!commentInput.trim()}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-[10px] font-bold hover:shadow-[0_0_12px_rgba(99,102,241,0.4)] disabled:opacity-50 transition-all duration-200 cursor-pointer font-mono uppercase tracking-wider shrink-0"
+                      >
+                        Reply
+                      </button>
+                    </form>
                 </div>
               )}
             </div>

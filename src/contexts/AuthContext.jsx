@@ -124,9 +124,13 @@ export function AuthProvider({ children }) {
           }
         }
         if (data) {
-          setUserStatus(
-            data.status || (ADMIN_EMAILS.includes(user.email) ? "approved" : "pending")
-          );
+          if (data.isSuspended) {
+            setUserStatus("suspended");
+          } else {
+            setUserStatus(
+              data.status || (ADMIN_EMAILS.includes(user.email) ? "approved" : "pending")
+            );
+          }
           setUserProfileData(data);
         } else {
           setUserProfileData(null);

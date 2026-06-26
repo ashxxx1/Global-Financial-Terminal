@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Globe2, Activity, Calendar, Zap, Cpu, RefreshCw, Hash, Newspaper, Coins, BarChart2 } from 'lucide-react';
+import { Globe2, Activity, Calendar, Zap, Cpu, RefreshCw, Hash, Newspaper, Coins, BarChart2, Grid } from 'lucide-react';
 
 export function LeftNav({ currentView, onSetView }) {
   const [isSyncing, setIsSyncing] = useState(false);
@@ -13,6 +13,7 @@ export function LeftNav({ currentView, onSetView }) {
     { icon: Calendar, label: 'Calendar', val: 'calendar', disabled: false },
     { icon: BarChart2, label: 'Charts', val: 'charts', disabled: false },
     { icon: Activity, label: 'Macro', val: 'heatmap', disabled: false },
+    { icon: Grid, label: 'Contagion', val: 'correlation', disabled: false },
   ];
 
   return (

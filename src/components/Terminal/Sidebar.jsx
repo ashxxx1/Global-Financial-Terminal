@@ -1,14 +1,25 @@
-import { useState } from "react";
-import { RefreshCcw, Radar, Gauge, Droplets, LineChart } from "lucide-react";
+import { useState, useMemo } from "react";
+import { RefreshCcw, Radar, Gauge, Droplets, LineChart, BookOpen } from "lucide-react";
 import { indicesData } from "./data";
+import useTerminalStore from "../../store/terminalStore";
 
 export function Sidebar() {
   const [isSyncing, setIsSyncing] = useState(false);
+  const { watchlist } = useTerminalStore();
 
   const handleSync = () => {
     setIsSyncing(true);
     setTimeout(() => setIsSyncing(false), 1000);
   };
+
+  // Auto-generated morning briefing with citations
+  const briefText = useMemo(() => {
+    if (!watchlist || watchlist.length === 0) {
+      return "S&P 500 index margins expand on tech capital injection `[S&P 500]`. High-yield sovereign spreads indicate stabilizing credit conditions across European banking nodes `[DAX 40]`. Yield dynamics signal delayed Fed policy adjustments `[NASDAQ]`.";
+    }
+    const names = watchlist.slice(0, 3).map(s => s.symbol || s.name);
+    return `Watchlist highlights: ${names.join(", ")} show sticky pricing parameters. Momentum support remains resilient for holdings \`[${names[0]}]\`. Risk exposures are elevated across regional channels \`[${names[1] || 'Markets'}]\`.`;
+  }, [watchlist]);
 
   return (
     <aside className="flex w-full h-full flex-col bg-transparent shrink-0 z-10 transition-all duration-300">
@@ -31,6 +42,43 @@ export function Sidebar() {
       </div>
 
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        
+        {/* Morning Briefing Daily Digest */}
+        <div className="p-4 border-b border-white/5 bg-gradient-to-b from-indigo-500/5 to-transparent relative">
+           <div className="flex items-center gap-2 mb-2.5">
+             <BookOpen className="w-4 h-4 text-amber-400" />
+             <h3 className="text-[12px] font-bold tracking-widest text-[#94a3b8] font-mono">MORNING BRIEFING</h3>
+             <span className="text-[8px] font-mono text-slate-500 bg-slate-800 px-1 rounded ml-auto">DAILY DIGEST</span>
+           </div>
+           
+           <div className="text-[11.5px] text-slate-300 font-sans leading-relaxed bg-[#060a16] border border-[#1e293b] p-3 rounded-lg relative overflow-hidden">
+             {/* Glowing side accent */}
+             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500/40" />
+             
+             {(() => {
+               const parts = briefText.split(/(`\[.*?\]`)/);
+               return (
+                 <p className="m-0 leading-relaxed">
+                   {parts.map((p, pidx) => {
+                     if (p.startsWith("`[") && p.endsWith("]`")) {
+                       const label = p.slice(2, -2);
+                       return (
+                         <span 
+                           key={pidx} 
+                           className="inline-block px-1 py-px bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 font-mono text-[8px] rounded mx-0.5 uppercase cursor-pointer hover:bg-indigo-500 hover:text-white transition-all font-bold"
+                           onClick={() => alert(`Navigating to citation: ${label}`)}
+                         >
+                           {label}
+                         </span>
+                       );
+                     }
+                     return p;
+                   })}
+                 </p>
+               );
+             })()}
+           </div>
+        </div>
         
         {/* Market Overview Module */}
         <div className="p-4 border-b border-white/5 bg-black/10">

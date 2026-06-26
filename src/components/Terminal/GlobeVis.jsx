@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Globe from "react-globe.gl";
 import { Info, Target, RotateCcw, Plus, Minus } from "lucide-react";
 import { getCountryStats } from "./data";
 import * as THREE from "three";
+import useTerminalStore from "../../store/terminalStore";
 
 export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) {
   const [countries, setCountries] = useState({ features: [] });
@@ -10,6 +11,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
   const containerRef = useRef(null);
   const globeRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 800 });
+  const { annotations } = useTerminalStore();
 
   const regionsData = [
     { name: "NORTH AMERICA", lat: 45, lng: -100, val: "+0.85%", col: "emerald" },
@@ -18,6 +20,19 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
     { name: "AFRICA", lat: 0, lng: 20, val: "+0.21%", col: "emerald" },
     { name: "ASIA", lat: 35, lng: 100, val: "+0.68%", col: "emerald" },
   ];
+
+  const combinedHtmlData = useMemo(() => {
+    return [
+      ...regionsData,
+      ...(annotations || []).map((ann) => ({
+        ...ann,
+        name: ann.text,
+        isAnnotation: true,
+        val: "",
+        col: "amber"
+      }))
+    ];
+  }, [annotations]);
 
   const [trafficArcs] = useState(() => {
     // Generate mock traffic arcs for trade routes, aircraft, etc
@@ -218,7 +233,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
     }
     
     if (onCountryClick) {
-      onCountryClick(polygon);
+      onCountryClick(polygon, event);
     }
   };
 
@@ -263,7 +278,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           `}}
           onPolygonHover={setHoverD}
           onPolygonClick={handlePolygonClick}
-          htmlElementsData={regionsData}
+          htmlElementsData={combinedHtmlData}
           arcsData={trafficArcs}
           arcStroke={0.5}
           arcStartLat={(d) => d.startLat}
@@ -277,16 +292,29 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           arcAltitudeAutoScale={0.25}
           htmlElement={(d) => {
             const el = document.createElement('div');
-            el.innerHTML = `
-              <div class="flex flex-col items-center pointer-events-none translate-x-[-50%] translate-y-[-50%]">
-                 <div class="bg-[#0c1220]/80 border border-[#1e293b] backdrop-blur-md rounded px-2 py-1 shadow-lg text-center min-w-[100px]">
-                    <div class="text-[10px] font-bold text-[#cbd5e1] tracking-widest">${d.name}</div>
-                    <div class="text-[11px] font-bold tracking-widest ${d.col === 'emerald' ? 'text-emerald-400' : 'text-rose-500'}">${d.val}</div>
-                 </div>
-                 <div class="w-1 h-8 bg-gradient-to-b from-[#1e293b] to-transparent"></div>
-                 <div class="w-2 h-2 rounded-full ${d.col === 'emerald' ? 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]' : 'bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.8)]'}"></div>
-              </div>
-            `;
+            if (d.isAnnotation) {
+              el.innerHTML = `
+                <div class="flex flex-col items-center pointer-events-none translate-x-[-50%] translate-y-[-50%]">
+                   <div class="bg-[#0b1329]/95 border border-amber-500/40 backdrop-blur-md rounded px-2.5 py-1.5 shadow-2xl text-center max-w-[130px]">
+                      <div class="text-[8px] font-mono font-bold text-amber-400 tracking-wider">📌 NOTE BY ${d.author}</div>
+                      <div class="text-[9.5px] text-slate-300 font-sans mt-0.5 leading-snug">${d.text}</div>
+                   </div>
+                   <div class="w-[1px] h-4 bg-gradient-to-b from-amber-500/80 to-transparent"></div>
+                   <span class="text-xs">🚩</span>
+                </div>
+              `;
+            } else {
+              el.innerHTML = `
+                <div class="flex flex-col items-center pointer-events-none translate-x-[-50%] translate-y-[-50%]">
+                   <div class="bg-[#0c1220]/80 border border-[#1e293b] backdrop-blur-md rounded px-2 py-1 shadow-lg text-center min-w-[100px]">
+                      <div class="text-[10px] font-bold text-[#cbd5e1] tracking-widest">${d.name}</div>
+                      <div class="text-[11px] font-bold tracking-widest ${d.col === 'emerald' ? 'text-emerald-400' : 'text-rose-500'}">${d.val}</div>
+                   </div>
+                   <div class="w-1 h-8 bg-gradient-to-b from-[#1e293b] to-transparent"></div>
+                   <div class="w-2 h-2 rounded-full ${d.col === 'emerald' ? 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]' : 'bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.8)]'}"></div>
+                </div>
+              `;
+            }
             return el;
           }}
         />

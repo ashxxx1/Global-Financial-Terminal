@@ -14,6 +14,7 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
 
   if (!currentUser) return <Navigate to="/login" replace />;
   if (adminOnly && !isAdmin) return <Navigate to="/" replace />;
+  if (userStatus === "suspended") return <Navigate to="/rejected" replace />;
   if (!isAdmin && userStatus === "pending") return <Navigate to="/pending" replace />;
   if (!isAdmin && userStatus === "rejected") return <Navigate to="/rejected" replace />;
   if (userStatus === "approved" && !userProfileData?.username) return <Navigate to="/setup-username" replace />;

@@ -31,6 +31,11 @@ import MacroHeatmap              from "./components/MacroHeatmap/MacroHeatmap";
 import EconomicCalendar          from "./components/EconomicCalendar/EconomicCalendar";
 import ChartTerminal             from "./components/Charts/ChartTerminal";
 import FXDashboard               from "./components/FXDashboard/FXDashboard";
+import CorrelationMatrix         from "./components/Correlation/CorrelationMatrix";
+import CausalChainMap            from "./components/Terminal/CausalChainMap";
+import SignalDesk                from "./components/Terminal/SignalDesk";
+import GravityFieldGrid          from "./components/Terminal/GravityFieldGrid";
+import ComparePanel              from "./components/Terminal/ComparePanel";
 
 // ── Pages ────────────────────────────────────────────────────────────────────
 import LoginPage      from "./pages/LoginPage";
@@ -58,7 +63,28 @@ function TerminalApp() {
     closeStockPanel,
     alertPanelOpen,
     setAlertPanelOpen,
+    causalChainEventId,
+    causalChainEventTitle,
+    closeCausalChain,
+    scrubStep,
+    isScrubPlaying,
+    setScrubStep,
+    setScrubPlaying,
+    compareCountry,
+    setCompareCountry,
+    closeCompareMode,
   } = useTerminalStore();
+
+  // Time-scrub playback tick
+  useEffect(() => {
+    let interval = null;
+    if (isScrubPlaying) {
+      interval = setInterval(() => {
+        setScrubStep((scrubStep + 4) % 104);
+      }, 350);
+    }
+    return () => clearInterval(interval);
+  }, [isScrubPlaying, scrubStep, setScrubStep]);
 
   // Mobile sidebar sheet state
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -79,6 +105,18 @@ function TerminalApp() {
       setRightCollapsed(false);
     }
   }, [selectedCountry]);
+
+  const handleCountryClick = useCallback((country, event) => {
+    if (event && event.shiftKey && selectedCountry) {
+      if (compareCountry && compareCountry.properties?.ISO_A2 === country.properties?.ISO_A2) {
+        closeCompareMode();
+      } else {
+        setCompareCountry(country);
+      }
+    } else {
+      setSelectedCountry(country);
+    }
+  }, [selectedCountry, compareCountry, setSelectedCountry, setCompareCountry, closeCompareMode]);
 
   const anySheetOpen = mobileSidebarOpen || isNewsPanelOpen || isStockPanelOpen;
 
@@ -133,9 +171,9 @@ function TerminalApp() {
               {/* Globe centerpiece container */}
               <div className="flex-1 w-full relative">
                 {/* Floating Workspace & Control Overlay */}
-                {/* Top-left: View title & Timeframe */}
+                {/* Top-left: View title, Timeframe & Scrubber */}
                 <div className="absolute top-4 left-8 z-20 pointer-events-auto flex items-center gap-3 bg-[#080f1e]/90 backdrop-blur-md border border-[#1e293b] px-4 py-2 rounded-lg shadow-2xl">
-                  <span className="font-bold text-[11px] text-white tracking-widest">🌍 GLOBAL MARKET MAP</span>
+                  <span className="font-bold text-[11px] text-white tracking-widest">🌍 GLOBAL MAP</span>
                   <div className="h-4 w-px bg-slate-700" />
                   <div className="flex items-center bg-black/40 border border-white/10 p-0.5 rounded">
                     {["1D", "1W", "1M", "YTD"].map((tf) => (
@@ -203,8 +241,18 @@ function TerminalApp() {
                 </div>
 
                 <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">
-                  <GlobeVis selectedCountry={selectedCountry} onCountryClick={setSelectedCountry} timeframe={timeframe} />
+                  <GlobeVis selectedCountry={selectedCountry} onCountryClick={handleCountryClick} timeframe={timeframe} />
                 </div>
+
+                {/* Gravity Grid Layer */}
+                <GravityFieldGrid />
+
+                {/* Central AI Signal Desk (hub of Vector Bloom panels) */}
+                {selectedCountry && (
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-auto">
+                    <SignalDesk country={selectedCountry} />
+                  </div>
+                )}
               </div>
               
               {/* Bottom Panel: Global News */}
@@ -250,6 +298,18 @@ function TerminalApp() {
                 </div>
              </div>
           </div>
+        )}
+
+        {causalChainEventId && (
+          <CausalChainMap 
+            eventId={causalChainEventId} 
+            eventTitle={causalChainEventTitle} 
+            onClose={closeCausalChain} 
+          />
+        )}
+
+        {compareCountry && (
+          <ComparePanel />
         )}
       </main>
 

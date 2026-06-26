@@ -1,3 +1,5 @@
+import { getCountrySignalMetrics } from "../../lib/quantFeed";
+
 export const indicesData = [
   { name: "S&P 500", value: "5,487.23", change: "+1.24%", isPositive: true },
   { name: "DOW JONES", value: "43,218.45", change: "+0.87%", isPositive: true },
@@ -408,44 +410,56 @@ const _rnd = (str, seedOffset) => { const s=Math.sin(_seed(str)+seedOffset)*1000
 const statsCache = {};
 
 export function getCountryStats(iso) {
-  if (countryStats[iso]) return countryStats[iso];
-  if (statsCache[iso]) return statsCache[iso];
+  let stats = null;
+  if (countryStats[iso]) {
+    stats = countryStats[iso];
+  } else if (statsCache[iso]) {
+    stats = statsCache[iso];
+  } else {
+    // ── Safe deterministic fallback for unlisted countries ────────────────────
+    const riskScore = Math.floor(_rnd(iso, 5) * 60 + 20); // 20–80
+    const mockScore = Math.floor(_rnd(iso, 8) * 3);
 
-  // ── Safe deterministic fallback for unlisted countries ────────────────────
-  // Capped to realistic small-economy ranges — no absurd multi-trillion GDPs
-  const riskScore = Math.floor(_rnd(iso, 5) * 60 + 20); // 20–80
-  const mockScore = Math.floor(_rnd(iso, 8) * 3);
+    // Small economies: GDP $3B–$80B → 0.003T–0.080T
+    const gdpVal = (_rnd(iso, 1) * 0.077 + 0.003).toFixed(3);
+    // Inflation: 2%–18%
+    const inflVal = (_rnd(iso, 2) * 16 + 2).toFixed(1);
+    // Rate: 2%–15%
+    const rateVal = (_rnd(iso, 3) * 13 + 2).toFixed(2);
+    // Generic FX vs USD
+    const fxVal = (10 + _rnd(iso, 4) * 490).toFixed(1);
 
-  // Small economies: GDP $3B–$80B → 0.003T–0.080T
-  const gdpVal = (_rnd(iso, 1) * 0.077 + 0.003).toFixed(3);
-  // Inflation: 2%–18%
-  const inflVal = (_rnd(iso, 2) * 16 + 2).toFixed(1);
-  // Rate: 2%–15%
-  const rateVal = (_rnd(iso, 3) * 13 + 2).toFixed(2);
-  // Generic FX vs USD
-  const fxVal = (10 + _rnd(iso, 4) * 490).toFixed(1);
+    stats = {
+      gdp: gdpVal,
+      inflation: inflVal,
+      rate: rateVal,
+      currency: fxVal,
+      riskScore,
+      companies: [
+        { name: "National Bank", returns: { "1D": _rnd(iso, 10)*4-2, "1W": _rnd(iso, 11)*10-5, "1M": _rnd(iso, 12)*20-10 } },
+        { name: "State Telecom", returns: { "1D": _rnd(iso, 13)*4-2, "1W": _rnd(iso, 14)*10-5, "1M": _rnd(iso, 15)*20-10 } },
+        { name: "Energy Corp",   returns: { "1D": _rnd(iso, 16)*4-2, "1W": _rnd(iso, 17)*10-5, "1M": _rnd(iso, 18)*20-10 } }
+      ],
+      aiAnalysis: `${mockScore === 2 ? 'Positive' : mockScore === 0 ? 'Cautious' : 'Neutral'} outlook based on regional macro trends. Limited public market data available — analysis based on comparable-economy models.`,
+      marketReturns: {
+        "1D": _rnd(iso, 20)*4-2,
+        "1W": _rnd(iso, 21)*10-5,
+        "1M": _rnd(iso, 22)*20-10,
+        "YTD": _rnd(iso, 23)*30-15
+      }
+    };
+    statsCache[iso] = stats;
+  }
 
-  const stats = {
-    gdp: gdpVal,
-    inflation: inflVal,
-    rate: rateVal,
-    currency: fxVal,
-    riskScore,
-    companies: [
-      { name: "National Bank", returns: { "1D": _rnd(iso, 10)*4-2, "1W": _rnd(iso, 11)*10-5, "1M": _rnd(iso, 12)*20-10 } },
-      { name: "State Telecom", returns: { "1D": _rnd(iso, 13)*4-2, "1W": _rnd(iso, 14)*10-5, "1M": _rnd(iso, 15)*20-10 } },
-      { name: "Energy Corp",   returns: { "1D": _rnd(iso, 16)*4-2, "1W": _rnd(iso, 17)*10-5, "1M": _rnd(iso, 18)*20-10 } }
-    ],
-    aiAnalysis: `${mockScore === 2 ? 'Positive' : mockScore === 0 ? 'Cautious' : 'Neutral'} outlook based on regional macro trends. Limited public market data available — analysis based on comparable-economy models.`,
-    marketReturns: {
-      "1D": _rnd(iso, 20)*4-2,
-      "1W": _rnd(iso, 21)*10-5,
-      "1M": _rnd(iso, 22)*20-10,
-      "YTD": _rnd(iso, 23)*30-15
-    }
-  };
-
-  statsCache[iso] = stats;
-  return stats;
+  // Inject computed instability risk score
+  try {
+    const metrics = getCountrySignalMetrics(iso);
+    return {
+      ...stats,
+      riskScore: metrics.instability
+    };
+  } catch (err) {
+    return stats;
+  }
 }
 

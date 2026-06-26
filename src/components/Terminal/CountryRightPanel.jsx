@@ -3,6 +3,8 @@ import { Cpu, Globe, Activity } from "lucide-react";
 import { getCountryStats } from "./data";
 import { getLocalNewsOutlets, getLocalHeadlines, generateGeopoliticalSummary } from "../NewsPanel/localNewsData";
 
+import useTerminalStore from "../../store/terminalStore";
+
 function TypewriterSummary({ text, speed = 10 }) {
   const [displayed, setDisplayed] = useState("");
   const idx = useRef(0);
@@ -34,6 +36,38 @@ function TypewriterSummary({ text, speed = 10 }) {
   );
 }
 
+function getSupplyChainExposure(iso) {
+  if (iso === "US") {
+    return [
+      { name: "Semiconductors", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+      { name: "Neon Supply", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+      { name: "SaaS Compliance", eventId: 4, eventTitle: "AI Regulatory Framework Draft Leaked" },
+      { name: "Crude Energy", eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" }
+    ];
+  }
+  if (iso === "CN" || iso === "TW" || iso === "JP" || iso === "KR") {
+    return [
+      { name: "Wafer Shipping", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+      { name: "Rare Earths", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+      { name: "Lithium Cells", eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" },
+      { name: "AI Regulations", eventId: 4, eventTitle: "AI Regulatory Framework Draft Leaked" }
+    ];
+  }
+  if (iso === "DE" || iso === "FR" || iso === "NL" || iso === "GB") {
+    return [
+      { name: "Liquidity Buffers", eventId: 3, eventTitle: "ECB Emergency Liquidity Injection" },
+      { name: "ASML Gas Imports", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+      { name: "AI Copilots", eventId: 4, eventTitle: "AI Regulatory Framework Draft Leaked" },
+      { name: "Jet Fuel Spot", eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" }
+    ];
+  }
+  return [
+    { name: "Energy Inputs", eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" },
+    { name: "Technology Hardware", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+    { name: "Sovereign Bonds", eventId: 3, eventTitle: "ECB Emergency Liquidity Injection" }
+  ];
+}
+
 export function CountryRightPanel({ country, timeframe = "1D" }) {
   if (!country) return null;
 
@@ -43,6 +77,32 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
   const localOutlets = getLocalNewsOutlets(iso);
   const localHeadlines = getLocalHeadlines(iso);
   const geoSummary = generateGeopoliticalSummary(iso, stats.sentiment || "neutral");
+  const setCausalChainEvent = useTerminalStore(state => state.setCausalChainEvent);
+  
+  const [noteText, setNoteText] = useState("");
+  const addAnnotation = useTerminalStore(state => state.addAnnotation);
+
+  const handlePinNote = () => {
+    if (!noteText.trim()) return;
+    let lat = 0, lng = 0;
+    if (iso === "US") { lat = 40; lng = -97; }
+    else if (iso === "CN") { lat = 35; lng = 105; }
+    else if (iso === "JP") { lat = 36; lng = 138; }
+    else if (iso === "DE") { lat = 51; lng = 9; }
+    else {
+      lat = (iso.charCodeAt(0) % 60) - 20;
+      lng = (iso.charCodeAt(1) % 180) - 90;
+    }
+
+    addAnnotation({
+      id: "a_" + Date.now(),
+      lat,
+      lng,
+      text: noteText.trim(),
+      author: "Trader #1"
+    });
+    setNoteText("");
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#020617]/95 border-l border-[#1e293b]/50 text-slate-200">
@@ -68,6 +128,28 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
              <span className="text-[11px] font-bold text-indigo-300 tracking-wider uppercase font-mono">AI Geopolitical Synthesis</span>
           </div>
           <TypewriterSummary text={geoSummary || stats.aiAnalysis} speed={10} />
+        </div>
+
+        {/* Box 4b: Flow Trajectory / Supply Chain Exposure Map */}
+        <div className="bg-[#0c1220]/80 border border-[#1e293b] p-4 rounded flex flex-col shadow-md">
+           <div className="text-[11px] font-bold text-slate-300 tracking-wider uppercase mb-2.5 flex items-center gap-2 font-mono">
+              <span className="text-indigo-400">🌊</span>
+              Flow Trajectory & Supply Chain
+           </div>
+           <span className="text-[9px] text-slate-500 font-mono mb-2 block">
+             Click any dependency node below to trace its causal propagation chain.
+           </span>
+           <div className="flex flex-wrap gap-2">
+              {getSupplyChainExposure(iso).map((item, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCausalChainEvent(item.eventId, item.eventTitle)}
+                  className="px-2.5 py-1.5 bg-indigo-500/10 border border-indigo-500/30 hover:border-indigo-400 hover:bg-indigo-500/20 text-indigo-300 hover:text-white transition-all text-[10px] font-mono tracking-wider rounded-lg cursor-pointer uppercase font-bold"
+                >
+                  {item.name} ↗
+                </button>
+              ))}
+           </div>
         </div>
 
         {/* Box 5: Connected Channels */}
@@ -99,6 +181,27 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
                   <span className="text-[8px] font-bold font-mono text-indigo-400 uppercase tracking-widest self-end">{headline.source}</span>
                 </div>
               ))}
+           </div>
+        </div>
+
+        {/* Box 7: Collaborative Annotations Pinning */}
+        <div className="bg-[#0c1220]/80 border border-white/5 p-4 rounded flex flex-col gap-3 shadow-md">
+           <div className="text-[11.5px] font-bold text-slate-300 tracking-wider uppercase flex items-center gap-2 font-mono">
+              <span>📌</span> Pin Geopolitical Note
+           </div>
+           <div className="flex gap-2">
+             <input
+               className="flex-1 px-3 py-1.5 bg-black/40 border border-white/10 rounded font-sans text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
+               placeholder="Add collaborative note..."
+               value={noteText}
+               onChange={(e) => setNoteText(e.target.value)}
+             />
+             <button 
+               onClick={handlePinNote}
+               className="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded font-mono font-bold text-[10px] uppercase cursor-pointer"
+             >
+               PIN
+             </button>
            </div>
         </div>
 

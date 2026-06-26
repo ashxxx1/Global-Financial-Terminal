@@ -34,8 +34,8 @@ export default function SetupUsername() {
     const cleanUsername = username.trim().toLowerCase();
 
     // 1. Validation checks
-    if (cleanUsername.length < 3 || cleanUsername.length > 15) {
-      setError("Username must be between 3 and 15 characters.");
+    if (cleanUsername.length < 3 || cleanUsername.length > 20) {
+      setError("Username must be between 3 and 20 characters.");
       return;
     }
     if (!/^[a-z0-9_]+$/.test(cleanUsername)) {
@@ -72,27 +72,42 @@ export default function SetupUsername() {
             nextId = (counterSnap.data().count || 0) + 1;
           }
           transaction.set(counterRef, { count: nextId });
+          
+          const now = Date.now();
           transaction.set(userRef, {
+            id: currentUser.uid,
             uid: currentUser.uid,
             email: currentUser.email,
-            displayName: currentUser.displayName || cleanUsername,
             username: cleanUsername,
+            displayName: currentUser.displayName || cleanUsername,
             idNum: nextId,
             photoURL: currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+            avatarUrl: currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+            bannerUrl: null,
+            bio: "Institutional macro research & active swing trading.",
+            location: null,
+            websiteUrl: null,
+            isVerified: false,
             status: isAdmin ? "approved" : "pending",
+            customStatusText: null,
+            createdAt: now,
+            lastSeenAt: now,
+            isSuspended: false,
+            isDeleted: false,
+            usernameChangedAt: now,
+            reputation: "Analyst",
+            friendsList: [],
+            friendRequests: [],
             requestedAt: serverTimestamp(),
             approvedAt: isAdmin ? serverTimestamp() : null,
             approvedBy: isAdmin ? currentUser.email : null,
             lastLogin: serverTimestamp(),
-            bio: "Institutional macro research & active swing trading.",
-            reputation: "Analyst",
-            friendsList: [],
-            friendRequests: [],
           });
         } else {
           transaction.update(userRef, {
             username: cleanUsername,
             displayName: snap.data().displayName || currentUser.displayName || cleanUsername,
+            usernameChangedAt: Date.now(),
           });
         }
       });

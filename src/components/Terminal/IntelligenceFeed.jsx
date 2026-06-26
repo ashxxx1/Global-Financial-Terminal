@@ -7,6 +7,7 @@ import {
   Globe2,
   LineChart
 } from "lucide-react";
+import useTerminalStore from "../../store/terminalStore";
 
 const events = [
   {
@@ -92,6 +93,7 @@ const ScoreGauge = ({ val, label, invert = false }) => {
 
 export function IntelligenceFeed() {
   const [activeTab, setActiveTab] = useState('ALL EVENTS');
+  const setCausalChainEvent = useTerminalStore(state => state.setCausalChainEvent);
   
   const filteredEvents = activeTab === 'ALL EVENTS' 
     ? events 
@@ -175,14 +177,14 @@ export function IntelligenceFeed() {
                  ))}
                </div>
                <button 
-                 className="text-[10px] font-bold text-slate-400 hover:text-indigo-400 transition-colors uppercase tracking-widest flex items-center gap-1 cursor-pointer"
+                 className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 transition-colors uppercase tracking-widest flex items-center gap-1 cursor-pointer"
                  onClick={(e) => {
                    e.stopPropagation();
-                   alert(`Analysis for: ${event.title}\nGeopolitical risk impact models indicate moderate correlation shifts.`);
+                   setCausalChainEvent(event.id, event.title);
                  }}
                >
-                 <Target className="w-3 h-3" />
-                 ANALYZE
+                 <Target className="w-3 h-3 text-indigo-400" />
+                 TRACE IMPACT
                </button>
             </div>
             

@@ -72,6 +72,9 @@ const useTerminalStore = create((set, get) => ({
       price: alertData.price,
       direction: alertData.direction || "above",
       createdAt: new Date().toISOString(),
+      isSmart: alertData.isSmart || false,
+      text: alertData.text || null,
+      status: alertData.status || "Monitoring",
     };
     set({ alerts: [...get().alerts, newAlert] });
   },
@@ -93,6 +96,35 @@ const useTerminalStore = create((set, get) => ({
   },
 
   clearNotifications: () => set({ notifications: [], unreadAlertCount: 0 }),
+
+  // ─── Causal Chain ───
+  causalChainEventId: null,
+  causalChainEventTitle: null,
+  setCausalChainEvent: (id, title) => set({ causalChainEventId: id, causalChainEventTitle: title }),
+  closeCausalChain: () => set({ causalChainEventId: null, causalChainEventTitle: null }),
+
+  // ─── What-If Scenario ───
+  whatIfScenario: null, // null | Partial<FactorVector> representing overrides
+  setWhatIfScenario: (scenario) => set({ whatIfScenario: scenario }),
+  clearWhatIfScenario: () => set({ whatIfScenario: null }),
+
+  // ─── Compare Mode ───
+  compareCountry: null, // null | country object
+  setCompareCountry: (country) => set({ compareCountry: country }),
+  closeCompareMode: () => set({ compareCountry: null }),
+
+  // ─── Time-Scrub Playback ───
+  scrubStep: 0, // 0 - 100 representing timeline progress
+  isScrubPlaying: false,
+  setScrubStep: (step) => set({ scrubStep: step }),
+  setScrubPlaying: (val) => set({ isScrubPlaying: val }),
+
+  // ─── Collaborative Annotations ───
+  annotations: [
+    { id: "a_1", lat: 35, lng: 105, text: "Yuan moves monitored closely post PBOC cut.", author: "User #1" },
+    { id: "a_2", lat: 40, lng: -97, text: "Treasury auctions show sticky bid-to-cover.", author: "User #2" }
+  ],
+  addAnnotation: (ann) => set({ annotations: [...get().annotations, ann] }),
 }));
 
 export default useTerminalStore;

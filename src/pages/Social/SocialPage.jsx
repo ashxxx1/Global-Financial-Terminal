@@ -81,6 +81,25 @@ export default function SocialPage() {
                   Mentions
                 </button>
              </div>
+             <div className="mt-4 px-6 text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                 Explore
+             </div>
+             <div className="p-3 flex flex-col gap-1">
+                <button 
+                  onClick={() => setFeedType('communities')}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${feedType === 'communities' ? 'bg-white/10 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+                >
+                  <Users className={`w-5 h-5 ${feedType === 'communities' ? 'text-indigo-400' : ''}`} />
+                  Communities
+                </button>
+                <button 
+                  onClick={() => setFeedType('lists')}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${feedType === 'lists' ? 'bg-white/10 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
+                >
+                  <Hash className={`w-5 h-5 ${feedType === 'lists' ? 'text-indigo-400' : ''}`} />
+                  Custom Lists
+                </button>
+             </div>
            </div>
          ) : activeMode === "dm" ? (
              <DirectMessageList activeDmUser={activeDmUser} setActiveDmUser={setActiveDmUser} />
@@ -109,7 +128,12 @@ export default function SocialPage() {
       <main className="flex-1 h-full flex flex-col bg-[#0b0c10] relative z-0 min-w-0">
         <div className="h-14 px-6 flex items-center border-b border-white/5 shadow-sm bg-[#0b0c10]/80 backdrop-blur-md sticky top-0 z-10 flex-shrink-0 justify-between">
            <div className="flex items-center gap-2 text-white font-medium">
-             {activeMode === "feed" ? (feedType === 'foryou' ? "For You" : feedType === 'following' ? "Following" : "Mentions") : 
+             {activeMode === "feed" ? (
+                 feedType === 'foryou' ? "For You" : 
+                 feedType === 'following' ? "Following" : 
+                 feedType === 'mentions' ? "Mentions" :
+                 feedType === 'communities' ? "Communities" : "Custom Lists"
+             ) : 
               activeMode === "dm" ? (activeDmUser ? `@${activeDmUser.username}` : "Direct Messages") : (
                  activeChannel ? <><Hash className="w-5 h-5 text-slate-400"/> {activeChannel.name}</> : "No Channel Selected"
              )}

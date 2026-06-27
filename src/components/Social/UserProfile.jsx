@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from "../../contexts/AuthContext";
 import { db } from "../../services/firebase";
 import { doc, updateDoc, onSnapshot, setDoc, deleteDoc } from "firebase/firestore";
-import { Settings, Check, X, Camera, BadgeCheck, MapPin, Link as LinkIcon, Circle, ShieldAlert, Clock, UserX } from "lucide-react";
+import { Settings, Check, X, Camera, BadgeCheck, MapPin, Link as LinkIcon, Circle, ShieldAlert, Clock, UserX, Wallet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function UserProfile({ activeProfileId, onReset, activeServer }) {
@@ -233,8 +233,14 @@ export default function UserProfile({ activeProfileId, onReset, activeServer }) 
               )}
 
               {/* Status Indicator */}
-              <div className="mt-4 flex items-center gap-2 text-xs font-medium text-slate-300 bg-white/5 border border-white/10 rounded-full px-3 py-1 w-fit">
-                 <Circle size={10} className="text-emerald-500 fill-emerald-500" /> Online
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                 <div className="flex items-center gap-2 text-xs font-medium text-slate-300 bg-white/5 border border-white/10 rounded-full px-3 py-1 w-fit">
+                    <Circle size={10} className="text-emerald-500 fill-emerald-500" /> Online
+                 </div>
+                 {/* Portfolio Verification Placeholder */}
+                 <div className="flex items-center gap-2 text-xs font-medium text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-3 py-1 w-fit cursor-pointer hover:bg-indigo-500/20 transition-colors" title="Verified Portfolio">
+                    <Wallet size={12} /> $10k+ Verified
+                 </div>
               </div>
 
               {/* Profile Tabs */}

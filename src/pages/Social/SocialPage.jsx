@@ -22,6 +22,7 @@ export default function SocialPage() {
   const { setActiveView } = useTerminalStore();
   const [activeMode, setActiveMode] = useState("feed"); // 'feed' | 'servers' | 'dm'
   const [activeServer, setActiveServer] = useState(null); // null means no server selected
+  const [activeChannel, setActiveChannel] = useState(null); // currently active server channel
   const [activeDmUser, setActiveDmUser] = useState(null); // currently active DM conversation
   const [showSettings, setShowSettings] = useState(false);
   const [activeProfileId, setActiveProfileId] = useState(null); // UserProfile target

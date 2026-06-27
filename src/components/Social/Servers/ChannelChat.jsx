@@ -90,7 +90,7 @@ export default function ChannelChat({ activeChannel }) {
   
   const addReaction = async (msgId, currentReactions, emoji) => {
       if (!currentUser) return;
-      const newReactions = { ...currentReactions };
+      const newReactions = { ...(currentReactions || {}) };
       if (!newReactions[emoji]) newReactions[emoji] = [];
       
       if (newReactions[emoji].includes(currentUser.uid)) {
@@ -116,6 +116,7 @@ export default function ChannelChat({ activeChannel }) {
   };
 
   const renderMarkdown = (text) => {
+      if (!text) return null;
       let parsed = text
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/\*(.*?)\*/g, '<em>$1</em>')

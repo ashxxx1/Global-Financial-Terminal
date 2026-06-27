@@ -57,7 +57,7 @@ export default function ServerSidebar({ activeServer, setActiveServer, setActive
               bannerUrl: null,
               ownerId: currentUser.uid,
               isDiscoverable: false,
-              createdAt: serverTimestamp(),
+              createdAtMs: serverTimestamp(),
               memberCount: 1,
               everyoneRoleId: roleRef.id,
               isDeleted: false
@@ -77,7 +77,7 @@ export default function ServerSidebar({ activeServer, setActiveServer, setActive
               position: 0,
               slowModeSeconds: 0,
               isNsfw: false,
-              createdAt: serverTimestamp(),
+              createdAtMs: serverTimestamp(),
               isArchived: false
           });
 

@@ -68,7 +68,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
               position: channels.length,
               slowModeSeconds: 0,
               isNsfw: false,
-              createdAt: serverTimestamp(),
+              createdAtMs: serverTimestamp(),
               isArchived: false
           });
           setNewChannelName("");

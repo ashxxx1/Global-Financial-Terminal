@@ -64,7 +64,7 @@ export default function ChatWindow({ activeFriend }) {
         `${currentUser.uid}_${activeFriend.uid}`,
         `${activeFriend.uid}_${currentUser.uid}`
       ]),
-      orderBy("createdAt", "asc")
+      orderBy("createdAtMs", "asc")
     );
 
     const unsub = onSnapshot(q, (snap) => {
@@ -74,7 +74,7 @@ export default function ChatWindow({ activeFriend }) {
           senderId: doc.data().senderId === currentUser.uid ? "me" : "other",
           text: doc.data().text,
           imageURL: doc.data().imageURL,
-          time: doc.data().createdAt ? new Date(doc.data().createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Sending..."
+          time: doc.data().createdAtMs ? new Date(doc.data().createdAtMs.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Sending..."
         }));
         setMessages(list);
       } else {
@@ -112,7 +112,7 @@ export default function ChatWindow({ activeFriend }) {
           senderId: currentUser.uid,
           text: newMsgText,
           imageURL: newImg || null,
-          createdAt: serverTimestamp()
+          createdAtMs: serverTimestamp()
         });
       } catch (err) {
         console.error("Firebase send failed:", err);

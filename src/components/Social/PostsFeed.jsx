@@ -55,11 +55,11 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
   useEffect(() => {
     let q;
     if (feedType === 'following' && followingList.length > 0) {
-        q = query(collection(db, "social_posts"), orderBy("createdAt", "desc"), limit(100));
+        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(100));
     } else if (feedType === 'profile' && profileId) {
-        q = query(collection(db, "social_posts"), where("authorId", "==", profileId), orderBy("createdAt", "desc"), limit(50));
+        q = query(collection(db, "social_posts"), where("authorId", "==", profileId), orderBy("createdAtMs", "desc"), limit(50));
     } else {
-        q = query(collection(db, "social_posts"), orderBy("createdAt", "desc"), limit(50));
+        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(50));
     }
     
     const unsub = onSnapshot(q, async (snap) => {
@@ -108,15 +108,15 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
     try {
       if (editingPost) {
           // Check 5 min window
-          if (Date.now() - editingPost.createdAt > 5 * 60 * 1000) {
+          if (Date.now() - editingPost.createdAtMs > 5 * 60 * 1000) {
               alert("Edit window has passed (5 minutes).");
               setEditingPost(null);
               setInputText("");
               return;
           }
           await updateDoc(doc(db, "social_posts", editingPost.id), {
-              content: inputText.slice(0, 280),
-              editedAt: Date.now()
+              content: inputText.slice(0, 280), text: inputText.slice(0, 280),
+              editedAtMs: Date.now()
           });
           setEditingPost(null);
           setInputText("");
@@ -135,11 +135,11 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
 
       const postData = {
         authorId: currentUser.uid,
-        content: inputText.slice(0, 280),
+        content: inputText.slice(0, 280), text: inputText.slice(0, 280),
         mediaUrls: mediaUrls.slice(0, 4),
         poll: pollData,
-        createdAt: Date.now(), // Store as unix timestamp for easier math
-        editedAt: null,
+        createdAtMs: Date.now(), // Store as unix timestamp for easier math
+        editedAtMs: null,
         parentPostId: replyingTo ? replyingTo.id : null,
         quotedPostId: quoting ? quoting.id : null,
         repostOfId: null,
@@ -205,7 +205,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
           await setDoc(bookmarkRef, {
               userId: currentUser.uid,
               postId: postId,
-              createdAt: Date.now()
+              createdAtMs: Date.now()
           }).catch(console.error);
       }
       setBookmarkedPosts(newBookmarks);
@@ -221,7 +221,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
               authorId: currentUser.uid,
               content: "",
               mediaUrls: [],
-              createdAt: Date.now(),
+              createdAtMs: Date.now(),
               repostOfId: post.id,
               visibility: 'public',
               isDeleted: false,
@@ -246,12 +246,12 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
   };
   
   const handleEditClick = (post) => {
-      if (Date.now() - post.createdAt > 5 * 60 * 1000) {
+      if (Date.now() - post.createdAtMs > 5 * 60 * 1000) {
           alert("Edit window has passed (5 minutes).");
           return;
       }
       setEditingPost(post);
-      setInputText(post.content);
+      setInputText((post.content || post.text));
       // scroll to top gently
       window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -445,9 +445,9 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                                  {post.author?.isVerified && <Check size={14} className="text-indigo-400 bg-indigo-900/40 rounded-full p-0.5" />}
                                  <span className="text-slate-500 text-sm truncate">@{post.author?.username || 'user'}</span>
                                  <span className="text-slate-600 text-xs">·</span>
-                                 <span className="text-slate-500 text-sm hover:underline cursor-pointer" title={new Date(post.createdAt).toLocaleString()}>
-                                     {timeAgo(post.createdAt)}
-                                     {post.editedAt && <span className="ml-1 text-[10px] text-slate-500">(edited)</span>}
+                                 <span className="text-slate-500 text-sm hover:underline cursor-pointer" title={new Date(post.createdAtMs).toLocaleString()}>
+                                     {timeAgo(post.createdAtMs)}
+                                     {post.editedAtMs && <span className="ml-1 text-[10px] text-slate-500">(edited)</span>}
                                  </span>
                              </div>
                              
@@ -456,7 +456,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                                      <MoreHorizontal size={16} />
                                  </button>
                                  <div className="absolute top-6 right-0 hidden group-hover/menu:flex flex-col bg-[#1e293b] border border-white/10 rounded-lg shadow-xl z-20 w-32 overflow-hidden">
-                                     {currentUser?.uid === post.authorId && Date.now() - post.createdAt < 5 * 60 * 1000 && (
+                                     {currentUser?.uid === post.authorId && Date.now() - post.createdAtMs < 5 * 60 * 1000 && (
                                          <button onClick={() => handleEditClick(post)} className="text-left px-3 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-2">
                                              <Edit2 size={14}/> Edit
                                          </button>
@@ -475,7 +475,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
 
                          {/* Body */}
                          <div className="mt-1 text-slate-200 text-sm leading-relaxed whitespace-pre-wrap break-words">
-                             {renderContentWithTags(post.content)}
+                             {renderContentWithTags((post.content || post.text))}
                          </div>
 
                          {/* Media Grid (1 to 4 images) */}

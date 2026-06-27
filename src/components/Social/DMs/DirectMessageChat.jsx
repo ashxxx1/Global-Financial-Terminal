@@ -21,7 +21,7 @@ export default function DirectMessageChat({ activeDmUser }) {
       const q = query(
           collection(db, "messages"),
           where("chatId", "==", chatId),
-          orderBy("createdAt", "asc")
+          orderBy("createdAtMs", "asc")
       );
       
       const unsub = onSnapshot(q, async (snap) => {
@@ -61,8 +61,8 @@ export default function DirectMessageChat({ activeDmUser }) {
               authorId: currentUser.uid,
               content: msgContent,
               mediaUrls: [],
-              createdAt: Date.now(),
-              editedAt: null,
+              createdAtMs: Date.now(),
+              editedAtMs: null,
               isDeleted: false,
           });
       } catch (err) {
@@ -109,7 +109,7 @@ export default function DirectMessageChat({ activeDmUser }) {
                   )}
 
                   {messages.map((msg, i) => {
-                      const isConsecutive = i > 0 && messages[i - 1].authorId === msg.authorId && !messages[i-1].isDeleted && !msg.isDeleted && (msg.createdAt - messages[i-1].createdAt < 5 * 60 * 1000);
+                      const isConsecutive = i > 0 && messages[i - 1].authorId === msg.authorId && !messages[i-1].isDeleted && !msg.isDeleted && (msg.createdAtMs - messages[i-1].createdAtMs < 5 * 60 * 1000);
                       
                       if (msg.isDeleted) {
                           return (
@@ -124,7 +124,7 @@ export default function DirectMessageChat({ activeDmUser }) {
                               {isConsecutive ? (
                                   <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100">
                                       <span className="text-[10px] text-slate-500">
-                                          {new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                          {new Date(msg.createdAtMs).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                       </span>
                                   </div>
                               ) : (
@@ -137,12 +137,12 @@ export default function DirectMessageChat({ activeDmUser }) {
                                   {!isConsecutive && (
                                       <div className="flex items-baseline gap-2">
                                           <span className="font-medium text-slate-200 text-sm font-display hover:underline cursor-pointer">{msg.author?.displayName || 'Unknown'}</span>
-                                          <span className="text-xs text-slate-500">{new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                          <span className="text-xs text-slate-500">{new Date(msg.createdAtMs).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                                       </div>
                                   )}
                                   <div className="text-slate-300 text-sm whitespace-pre-wrap break-words leading-relaxed">
                                       {msg.content}
-                                      {msg.editedAt && <span className="text-[10px] text-slate-500 ml-1">(edited)</span>}
+                                      {msg.editedAtMs && <span className="text-[10px] text-slate-500 ml-1">(edited)</span>}
                                   </div>
                               </div>
                               

@@ -8,7 +8,7 @@ export default function TrendingSidebar() {
 
     useEffect(() => {
         // Fetch recent posts to compute trending tags
-        const q = query(collection(db, "social_posts"), orderBy("createdAt", "desc"), limit(100));
+        const q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(100));
         
         const unsub = onSnapshot(q, snap => {
             const tagCounts = {};

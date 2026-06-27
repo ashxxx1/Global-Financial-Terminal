@@ -20,6 +20,16 @@ export default function PostsFeed() {
   const [bookmarkedPosts, setBookmarkedPosts] = useState(new Set());
   const [repostedPosts, setRepostedPosts] = useState(new Set());
 
+  // Load Bookmarks and Likes for the current user
+  useEffect(() => {
+      if (!currentUser) return;
+      const q = query(collection(db, "bookmarks"), where("userId", "==", currentUser.uid));
+      const unsub = onSnapshot(q, snap => {
+          setBookmarkedPosts(new Set(snap.docs.map(d => d.data().postId)));
+      });
+      return () => unsub();
+  }, [currentUser]);
+
   // Replying & Quoting
   const [replyingTo, setReplyingTo] = useState(null);
   const [quoting, setQuoting] = useState(null);
@@ -142,10 +152,24 @@ export default function PostsFeed() {
       setLikedPosts(newLiked);
   };
   
-  const toggleBookmark = (postId) => {
+  const toggleBookmark = async (postId) => {
+      if (!currentUser) return;
+      // Because we don't know the doc ID, we query it, or just use a deterministic ID
+      const bookmarkId = `${currentUser.uid}_${postId}`;
+      const bookmarkRef = doc(db, "bookmarks", bookmarkId);
+      
       const newBookmarks = new Set(bookmarkedPosts);
-      if (newBookmarks.has(postId)) newBookmarks.delete(postId);
-      else newBookmarks.add(postId);
+      if (newBookmarks.has(postId)) {
+          newBookmarks.delete(postId);
+          await deleteDoc(bookmarkRef).catch(console.error);
+      } else {
+          newBookmarks.add(postId);
+          await setDoc(bookmarkRef, {
+              userId: currentUser.uid,
+              postId: postId,
+              createdAt: Date.now()
+          }).catch(console.error);
+      }
       setBookmarkedPosts(newBookmarks);
   };
 

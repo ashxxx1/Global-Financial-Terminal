@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // Components
 import PostsFeed from "../../components/Social/PostsFeed";
 import UserProfile from "../../components/Social/UserProfile";
+import TrendingSidebar from "../../components/Social/TrendingSidebar";
 import ServerSidebar from "../../components/Social/Servers/ServerSidebar";
 import ChannelList from "../../components/Social/Servers/ChannelList";
 import ChannelChat from "../../components/Social/Servers/ChannelChat";
@@ -128,9 +129,14 @@ export default function SocialPage() {
         </div>
       </main>
 
-      {/* 4. Right Sidebar (Profile / Server Members) */}
-      <aside className="w-80 h-full flex-shrink-0 z-10 bg-[#11131a]">
+      {/* 4. Right Sidebar (Profile / Server Members / Trending) */}
+      <aside className="w-80 h-full flex-shrink-0 z-10 bg-[#11131a] flex flex-col border-l border-white/5 overflow-y-auto custom-scrollbar">
         <UserProfile />
+        {activeMode === "feed" && (
+            <div className="p-4 pt-0">
+                <TrendingSidebar />
+            </div>
+        )}
       </aside>
       
       {showSettings && activeServer && (

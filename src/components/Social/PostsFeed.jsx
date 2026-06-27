@@ -170,6 +170,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
       setQuoting(null);
     } catch (err) {
       console.error("Failed to post:", err);
+      alert("Post failed! Error: " + err.message);
     }
   };
   

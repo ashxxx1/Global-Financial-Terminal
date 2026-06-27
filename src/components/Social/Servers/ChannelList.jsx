@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "../../../contexts/AuthContext";
 import { db } from "../../../services/firebase";
-import { collection, query, where, onSnapshot, orderBy, addDoc, serverTimestamp, doc, getDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy, addDoc, serverTimestamp, doc, getDoc, updateDoc } from "firebase/firestore";
 import { Hash, Volume2, Bell, MessageSquare, Plus, ChevronDown, ChevronRight, Settings } from "lucide-react";
 
 export default function ChannelList({ serverId, activeChannel, setActiveChannel }) {
@@ -61,7 +61,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
       try {
           await addDoc(collection(db, "channels"), {
               serverId,
-              categoryId: null, // Hardcoded uncategorized for now
+              categoryId: null,
               name: formattedName,
               topic: "",
               type: newChannelType,
@@ -73,6 +73,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
           });
           setNewChannelName("");
           setShowCreateChannel(false);
+          setNewChannelType("text");
       } catch(err) {
           console.error(err);
       }
@@ -115,7 +116,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
       if (!editingChannel) return;
       if (window.confirm(`Permanently delete #${editingChannel.name}?`)) {
           try {
-              await updateDoc(doc(db, "channels", editingChannel.id), { isArchived: true }); // Soft delete instead of cascading messages for now
+              await updateDoc(doc(db, "channels", editingChannel.id), { isArchived: true });
               setEditingChannel(null);
           } catch (err) {
               console.error(err);
@@ -136,10 +137,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
                     onClick={() => setActiveChannel(channel)}
                     className={`flex items-center gap-2 px-2 py-1.5 mx-2 rounded-md transition-colors group ${activeChannel?.id === channel.id ? 'bg-white/10 text-white font-medium' : 'hover:bg-white/5 hover:text-slate-100'}`}
                 >
-                    {channel.type === 'text' && <Hash size={18} className="text-slate-400 group-hover:text-slate-200 flex-shrink-0" />}
-                    {channel.type === 'announcement' && <Bell size={18} className="text-slate-400 group-hover:text-slate-200 flex-shrink-0" />}
-                    {channel.type === 'forum' && <MessageSquare size={18} className="text-slate-400 group-hover:text-slate-200 flex-shrink-0" />}
-                    {channel.type === 'voice' && <Volume2 size={18} className="text-slate-400 group-hover:text-slate-200 flex-shrink-0" />}
+                    {channel.type === 'voice' ? <Volume2 size={18} className="text-slate-400 group-hover:text-slate-200 flex-shrink-0" /> : <Hash size={18} className="text-slate-400 group-hover:text-slate-200 flex-shrink-0" />}
                     
                     <span className="truncate flex-1 text-left">{channel.name}</span>
                     
@@ -180,7 +178,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
                                     onClick={() => setActiveChannel(channel)}
                                     className={`flex items-center gap-2 px-2 py-1.5 mx-2 rounded-md transition-colors group ${activeChannel?.id === channel.id ? 'bg-white/10 text-white font-medium' : 'hover:bg-white/5 hover:text-slate-100'}`}
                                 >
-                                    {channel.type === 'text' && <Hash size={18} className="text-slate-400 group-hover:text-slate-200 flex-shrink-0" />}
+                                    {channel.type === 'voice' ? <Volume2 size={18} className="text-slate-400 group-hover:text-slate-200 flex-shrink-0" /> : <Hash size={18} className="text-slate-400 group-hover:text-slate-200 flex-shrink-0" />}
                                     <span className="truncate flex-1 text-left">{channel.name}</span>
                                     {server?.ownerId === currentUser?.uid && (
                                         <Settings 
@@ -218,7 +216,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
                             <label className="block text-xs uppercase font-semibold text-slate-300 mb-2">Channel Type</label>
                             <div className="flex gap-2">
                                 <button type="button" onClick={() => setNewChannelType("text")} className={`flex-1 py-2 rounded-md text-sm font-medium border ${newChannelType === 'text' ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300' : 'bg-black/20 border-white/10 text-slate-400'}`}>Text</button>
-                                <button type="button" onClick={() => setNewChannelType("announcement")} className={`flex-1 py-2 rounded-md text-sm font-medium border ${newChannelType === 'announcement' ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300' : 'bg-black/20 border-white/10 text-slate-400'}`}>Announce</button>
+                                <button type="button" onClick={() => setNewChannelType("voice")} className={`flex-1 py-2 rounded-md text-sm font-medium border ${newChannelType === 'voice' ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300' : 'bg-black/20 border-white/10 text-slate-400'}`}>Voice</button>
                             </div>
                         </div>
 

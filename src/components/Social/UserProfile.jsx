@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "../../contexts/AuthContext";
 import { db } from "../../services/firebase";
-import { doc, updateDoc, onSnapshot } from "firebase/firestore";
-import { Settings, Check, X, Camera, BadgeCheck, MapPin, Link as LinkIcon, Circle } from "lucide-react";
+import { doc, updateDoc, onSnapshot, setDoc, deleteDoc } from "firebase/firestore";
+import { Settings, Check, X, Camera, BadgeCheck, MapPin, Link as LinkIcon, Circle, ShieldAlert, Clock, UserX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function UserProfile({ isExpanded = true }) {
-  const { currentUser, updateUserProfile } = useAuth();
+export default function UserProfile({ activeProfileId, onReset, activeServer }) {
+  const { currentUser } = useAuth();
   const [userProfile, setUserProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("posts"); // posts, replies, media, likes
+  const [isFollowing, setIsFollowing] = useState(false);
+  const isOwnProfile = !activeProfileId || activeProfileId === currentUser?.uid;
   
   // Edit State
   const [editForm, setEditForm] = useState({
@@ -25,24 +27,39 @@ export default function UserProfile({ isExpanded = true }) {
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    if (!currentUser) return;
-    const unsub = onSnapshot(doc(db, "users", currentUser.uid), (snap) => {
+    const targetId = activeProfileId || currentUser?.uid;
+    if (!targetId) return;
+
+    const unsub = onSnapshot(doc(db, "users", targetId), (snap) => {
       if (snap.exists()) {
         const data = snap.data();
         setUserProfile(data);
-        setEditForm({
-          displayName: data.displayName || currentUser.displayName || "",
-          username: data.username || "",
-          bio: data.bio || "",
-          photoURL: data.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
-          bannerURL: data.bannerUrl || "",
-          location: data.location || "",
-          websiteUrl: data.websiteUrl || ""
-        });
+        
+        // If it's the current user, populate edit form
+        if (targetId === currentUser?.uid) {
+            setEditForm({
+              displayName: data.displayName || currentUser.displayName || "",
+              username: data.username || "",
+              bio: data.bio || "",
+              photoURL: data.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+              bannerURL: data.bannerUrl || "",
+              location: data.location || "",
+              websiteUrl: data.websiteUrl || ""
+            });
+        }
+        
+        // If viewing someone else, check if following
+        if (!isOwnProfile && data.followerList) {
+            setIsFollowing(data.followerList.includes(currentUser?.uid));
+        } else {
+            setIsFollowing(false);
+        }
+      } else {
+          setUserProfile(null);
       }
     });
     return () => unsub();
-  }, [currentUser]);
+  }, [activeProfileId, currentUser, isOwnProfile]);
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -78,10 +95,75 @@ export default function UserProfile({ isExpanded = true }) {
     }
   };
 
+  const handleFollowToggle = async () => {
+      if (!currentUser || isOwnProfile || !activeProfileId) return;
+      
+      const targetUserRef = doc(db, "users", activeProfileId);
+      const currentUserRef = doc(db, "users", currentUser.uid);
+      
+      try {
+          if (isFollowing) {
+              // Unfollow
+              await updateDoc(targetUserRef, {
+                  followerList: (userProfile.followerList || []).filter(id => id !== currentUser.uid)
+              });
+              const mySnap = await doc(db, "users", currentUser.uid); // Need to get my data, wait, better use arrayRemove/arrayUnion
+              // We'll use arrayUnion and arrayRemove for safety
+              const { arrayUnion, arrayRemove } = await import("firebase/firestore");
+              await updateDoc(targetUserRef, { followerList: arrayRemove(currentUser.uid) });
+              await updateDoc(currentUserRef, { followingList: arrayRemove(activeProfileId) });
+          } else {
+              // Follow
+              const { arrayUnion } = await import("firebase/firestore");
+              await updateDoc(targetUserRef, { followerList: arrayUnion(currentUser.uid) });
+              await updateDoc(currentUserRef, { followingList: arrayUnion(activeProfileId) });
+          }
+      } catch (err) {
+          console.error("Follow failed", err);
+      }
+  };
+
+  const handleModerate = async (action) => {
+      if (!activeServer || !activeProfileId) return;
+      
+      const memberRef = doc(db, "servers", activeServer.id, "members", activeProfileId);
+      
+      try {
+          if (action === 'timeout') {
+              const duration = window.prompt("Enter timeout duration in minutes:", "60");
+              if (!duration || isNaN(duration)) return;
+              await setDoc(memberRef, { 
+                  timeoutUntil: Date.now() + (parseInt(duration) * 60 * 1000) 
+              }, { merge: true });
+              alert("User timed out.");
+          } else if (action === 'kick') {
+              if (window.confirm("Kick this user from the server?")) {
+                  await deleteDoc(memberRef);
+                  onReset();
+              }
+          } else if (action === 'ban') {
+              if (window.confirm("Permanently ban this user?")) {
+                  await setDoc(memberRef, { isBanned: true }, { merge: true });
+                  onReset();
+              }
+          }
+      } catch (err) {
+          console.error(err);
+      }
+  };
+
   if (!userProfile) return null;
 
   return (
     <div className="flex flex-col h-full bg-[#0f172a]/80 backdrop-blur-md border-l border-white/5 overflow-y-auto">
+      {/* Header if viewing someone else */}
+      {!isOwnProfile && (
+          <div className="flex items-center gap-2 p-3 border-b border-white/5 sticky top-0 bg-[#0f172a] z-10">
+              <button onClick={onReset} className="text-slate-400 hover:text-white"><X size={18} /></button>
+              <span className="text-slate-200 font-bold font-display text-sm">Profile</span>
+          </div>
+      )}
+      
       {/* Banner */}
       <div className="h-32 w-full bg-indigo-900/50 relative">
         {userProfile.bannerUrl ? (
@@ -99,13 +181,22 @@ export default function UserProfile({ isExpanded = true }) {
 
         {/* Action Button */}
         <div className="flex justify-end mt-3 mb-2">
-          {!isEditing ? (
-             <button onClick={() => setIsEditing(true)} className="px-4 py-1.5 rounded-full border border-white/10 hover:bg-white/5 text-sm font-medium transition-colors">
-               Edit Profile
-             </button>
+          {isOwnProfile ? (
+             !isEditing ? (
+                <button onClick={() => setIsEditing(true)} className="px-4 py-1.5 rounded-full border border-white/10 hover:bg-white/5 text-sm font-medium transition-colors">
+                  Edit Profile
+                </button>
+             ) : (
+                <button onClick={() => setIsEditing(false)} className="px-4 py-1.5 rounded-full border border-white/10 hover:bg-white/5 text-sm font-medium transition-colors">
+                  Cancel
+                </button>
+             )
           ) : (
-             <button onClick={() => setIsEditing(false)} className="px-4 py-1.5 rounded-full border border-white/10 hover:bg-white/5 text-sm font-medium transition-colors">
-               Cancel
+             <button 
+                onClick={handleFollowToggle} 
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${isFollowing ? 'border border-white/20 text-white hover:border-red-500/50 hover:text-red-400 hover:bg-red-500/10' : 'bg-white text-black hover:bg-slate-200'}`}
+             >
+                {isFollowing ? "Following" : "Follow"}
              </button>
           )}
         </div>
@@ -161,14 +252,34 @@ export default function UserProfile({ isExpanded = true }) {
               </div>
               
               {/* Tab Content Placeholder */}
-              <div className="mt-4 text-center text-slate-500 text-xs py-8">
-                 {activeTab === 'posts' && "No posts yet."}
-                 {activeTab === 'replies' && "No replies yet."}
-                 {activeTab === 'media' && "No media shared yet."}
-                 {activeTab === 'likes' && "No liked posts yet."}
-              </div>
+               <div className="mt-4 text-center text-slate-500 text-xs py-8">
+                  {activeTab === 'posts' && "No posts yet."}
+                  {activeTab === 'replies' && "No replies yet."}
+                  {activeTab === 'media' && "No media shared yet."}
+                  {activeTab === 'likes' && "No liked posts yet."}
+               </div>
 
-            </motion.div>
+               {/* Moderation Panel (Admin only) */}
+               {activeServer && activeServer.ownerId === currentUser?.uid && !isOwnProfile && (
+                   <div className="mt-6 border-t border-red-500/20 pt-4">
+                       <h3 className="text-[10px] uppercase tracking-widest text-red-400 font-bold mb-3 flex items-center gap-1">
+                           <ShieldAlert size={12} /> Server Moderation
+                       </h3>
+                       <div className="flex flex-col gap-2">
+                           <button onClick={() => handleModerate('timeout')} className="flex items-center gap-2 px-3 py-2 rounded-md bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-medium transition-colors border border-red-500/20">
+                               <Clock size={14} /> Timeout User
+                           </button>
+                           <button onClick={() => handleModerate('kick')} className="flex items-center gap-2 px-3 py-2 rounded-md bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs font-medium transition-colors border border-red-500/20">
+                               <UserX size={14} /> Kick User
+                           </button>
+                           <button onClick={() => handleModerate('ban')} className="flex items-center gap-2 px-3 py-2 rounded-md bg-red-500 text-white hover:bg-red-600 text-xs font-medium transition-colors">
+                               <ShieldAlert size={14} /> Ban User
+                           </button>
+                       </div>
+                   </div>
+               )}
+
+             </motion.div>
           ) : (
             <motion.form initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleSave} className="flex flex-col gap-3 mt-4">
                {errorMsg && <div className="text-red-400 text-xs">{errorMsg}</div>}

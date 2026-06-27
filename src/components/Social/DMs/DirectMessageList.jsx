@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from "../../../contexts/AuthContext";
 import { db } from "../../../services/firebase";
 import { collection, query, getDocs, onSnapshot, where } from "firebase/firestore";
-import { Search, User } from "lucide-react";
+import { Search, User, Plus } from "lucide-react";
 
 export default function DirectMessageList({ activeDmUser, setActiveDmUser }) {
   const { currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
+  const [showGroupModal, setShowGroupModal] = useState(false);
 
   useEffect(() => {
       // In a real app, this would query a 'friends' subcollection or 'dm_channels'
@@ -45,9 +46,12 @@ export default function DirectMessageList({ activeDmUser, setActiveDmUser }) {
               </div>
           </div>
           
-          <div className="flex-1 overflow-y-auto py-2 custom-scrollbar">
-              <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  Direct Messages
+          <div className="flex-1 overflow-y-auto py-2 custom-scrollbar relative">
+              <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 flex justify-between items-center">
+                  <span>Direct Messages</span>
+                  <button onClick={() => setShowGroupModal(true)} className="hover:text-white transition-colors" title="Create Group DM">
+                      <Plus size={14} />
+                  </button>
               </div>
               
               <div className="flex flex-col gap-0.5">
@@ -74,6 +78,20 @@ export default function DirectMessageList({ activeDmUser, setActiveDmUser }) {
                   )}
               </div>
           </div>
+          
+          {showGroupModal && (
+              <div className="absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                  <div className="bg-[#1e293b] border border-white/10 rounded-xl p-4 w-full max-w-sm">
+                      <h3 className="text-white font-bold mb-2">Select Friends</h3>
+                      <p className="text-xs text-slate-400 mb-4">You can add 9 more friends.</p>
+                      <input type="text" placeholder="Type the username of a friend" className="w-full bg-black/40 border border-white/10 rounded-md px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 mb-4" />
+                      <div className="flex justify-between items-center mt-4">
+                          <button onClick={() => setShowGroupModal(false)} className="text-slate-400 hover:text-white text-xs font-medium">Cancel</button>
+                          <button className="bg-indigo-600 text-white px-4 py-1.5 rounded text-xs font-medium opacity-50 cursor-not-allowed">Create Group DM</button>
+                      </div>
+                  </div>
+              </div>
+          )}
       </div>
   );
 }

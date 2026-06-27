@@ -135,26 +135,27 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
 
       const postData = {
         authorId: currentUser.uid,
-        authorName: currentUser.displayName || 'User',
+        authorName: currentUser.displayName || 'Trader',
         authorUsername: currentUser.username || '',
-        authorAvatar: currentUser.photoURL || '',
-        content: inputText.slice(0, 280), text: inputText.slice(0, 280),
+        authorIdNum: null,
+        authorAvatar: currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
+        text: inputText.slice(0, 280),
+        imageURL: mediaUrls.length > 0 ? mediaUrls[0] : null,
         mediaUrls: mediaUrls.slice(0, 4),
-        poll: pollData,
-        createdAtMs: Date.now(), // Store as unix timestamp for easier math
-        createdAt: serverTimestamp(),
-        editedAtMs: null,
-        parentPostId: replyingTo ? replyingTo.id : null,
-        quotedPostId: quoting ? quoting.id : null,
-        repostOfId: null,
-        visibility: 'public',
-        isDeleted: false,
-        likeCount: 0,
+        likes: 0,
+        likedBy: [],
+        dislikes: 0,
+        dislikedBy: [],
         repostCount: 0,
-        replyCount: 0,
-        quoteCount: 0,
-        viewCount: 0,
-        tags
+        repostOfId: null,
+        quotedPostId: quoting ? quoting.id : null,
+        quotedPostData: null,
+        commentCount: 0,
+        tags,
+        isDeleted: false,
+        editedAt: null,
+        createdAtMs: Date.now(),
+        createdAt: serverTimestamp()
       };
 
       await addDoc(collection(db, "social_posts"), postData);

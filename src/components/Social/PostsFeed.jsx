@@ -1,499 +1,411 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { db } from "../../services/firebase";
-import {
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  limit,
-  onSnapshot,
-  serverTimestamp,
-  doc,
-  updateDoc,
-  arrayUnion,
-  arrayRemove,
-  increment,
-  where
-} from "firebase/firestore";
-import StockMention from "../Forum/StockMention";
+import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, updateDoc, arrayUnion, arrayRemove, increment, getDoc } from "firebase/firestore";
+import { Heart, MessageCircle, Repeat2, Bookmark, Share, Image as ImageIcon, Smile, MoreHorizontal, Check, Trash2, Edit2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function PostsFeed() {
-  const { currentUser, userProfileData } = useAuth();
+  const { currentUser } = useAuth();
   const [posts, setPosts] = useState([]);
+  
+  // Composer state
   const [inputText, setInputText] = useState("");
-  const [imageURL, setImageURL] = useState("");
-  const [videoURL, setVideoURL] = useState("");
-  const [showMediaFields, setShowMediaFields] = useState(false);
+  const [mediaUrls, setMediaUrls] = useState([]);
+  const [mediaInput, setMediaInput] = useState("");
+  const [showMediaInput, setShowMediaInput] = useState(false);
+  
+  // Interactions
+  const [likedPosts, setLikedPosts] = useState(new Set());
+  const [bookmarkedPosts, setBookmarkedPosts] = useState(new Set());
+  const [repostedPosts, setRepostedPosts] = useState(new Set());
 
-  // Comments state
-  const [openCommentsPostId, setOpenCommentsPostId] = useState(null);
-  const [comments, setComments] = useState([]);
-  const [prevCommentsPostId, setPrevCommentsPostId] = useState(null);
-  const [commentInput, setCommentInput] = useState("");
+  // Replying & Quoting
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [quoting, setQuoting] = useState(null);
+  
+  // Editing
+  const [editingPost, setEditingPost] = useState(null);
 
-  if (openCommentsPostId !== prevCommentsPostId) {
-    setPrevCommentsPostId(openCommentsPostId);
-    setComments([]);
-  }
-
-  // Load Feed Posts
+  // Load Feed
   useEffect(() => {
-    const q = query(
-      collection(db, "social_posts"),
-      orderBy("createdAtMs", "desc"),
-      limit(20)
-    );
-
-    const unsub = onSnapshot(q, (snap) => {
-      if (!snap.empty) {
-        const list = snap.docs.map((doc) => ({
-          id: doc.id,
-          authorName: doc.data().authorName,
-          authorUsername: doc.data().authorUsername || "",
-          authorAvatar: doc.data().authorAvatar,
-          authorRep: doc.data().authorRep,
-          authorIdNum: doc.data().authorIdNum || null,
-          text: doc.data().text,
-          imageURL: doc.data().imageURL,
-          videoURL: doc.data().videoURL || null,
-          likes: doc.data().likes || 0,
-          likedBy: doc.data().likedBy || [],
-          dislikes: doc.data().dislikes || 0,
-          dislikedBy: doc.data().dislikedBy || [],
-          repostCount: doc.data().repostCount || 0,
-          repostedFrom: doc.data().repostedFrom || null,
-          repostedFromData: doc.data().repostedFromData || null,
-          commentCount: doc.data().commentCount || 0,
-          tags: doc.data().tags || [],
-          time: doc.data().createdAt ? new Date(doc.data().createdAt.seconds * 1000).toLocaleDateString() : "Just now"
-        }));
-        setPosts(list);
-      } else {
-        setPosts([]);
-      }
-    }, (err) => {
-      console.error("Firestore listener error:", err);
-      setPosts([]);
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(50));
+    const unsub = onSnapshot(q, async (snap) => {
+      const postsList = await Promise.all(snap.docs.map(async (docSnap) => {
+        const data = docSnap.data();
+        let authorData = {};
+        if (data.authorId) {
+           const authorDoc = await getDoc(doc(db, "users", data.authorId));
+           if (authorDoc.exists()) authorData = authorDoc.data();
+        }
+        
+        let quotedData = null;
+        if (data.quotedPostId) {
+           const quotedDoc = await getDoc(doc(db, "posts", data.quotedPostId));
+           if (quotedDoc.exists()) {
+               quotedData = quotedDoc.data();
+               if (quotedData.authorId) {
+                   const qAuthor = await getDoc(doc(db, "users", quotedData.authorId));
+                   if (qAuthor.exists()) quotedData.author = qAuthor.data();
+               }
+           }
+        }
+        
+        return {
+          id: docSnap.id,
+          ...data,
+          author: authorData,
+          quotedData
+        };
+      }));
+      setPosts(postsList);
     });
-
     return () => unsub();
   }, []);
 
-  // Load Comments for Open Post
-  useEffect(() => {
-    if (!openCommentsPostId) return;
-
-    const q = query(
-      collection(db, "post_comments"),
-      where("postId", "==", openCommentsPostId),
-      orderBy("createdAt", "asc")
-    );
-
-    const unsub = onSnapshot(q, (snap) => {
-      if (!snap.empty) {
-        const list = snap.docs.map((doc) => ({
-          id: doc.id,
-          authorName: doc.data().authorName,
-          authorUsername: doc.data().authorUsername || "",
-          authorAvatar: doc.data().authorAvatar,
-          authorIdNum: doc.data().authorIdNum || null,
-          text: doc.data().text,
-          time: doc.data().createdAt ? new Date(doc.data().createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Just now"
-        }));
-        setComments(list);
-      } else {
-        setComments([]);
-      }
-    }, (err) => {
-      console.error("Comments query error:", err);
-    });
-
-    return () => unsub();
-  }, [openCommentsPostId]);
-
-  // Handle Post Submit
   const handlePostSubmit = async (e) => {
     e.preventDefault();
-    if (!inputText.trim() && !imageURL.trim() && !videoURL.trim()) return;
-
-    const postContent = inputText;
-    const postImg = imageURL;
-    const postVid = videoURL;
-
-    setInputText("");
-    setImageURL("");
-    setVideoURL("");
-    setShowMediaFields(false);
-
-    // Extract tags
-    const tags = postContent.split(/\s+/).filter(w => w.startsWith("$") || w.startsWith("#")).map(w => w.toUpperCase());
-
-    if (currentUser) {
-      try {
-        await addDoc(collection(db, "social_posts"), {
-          authorName: userProfileData?.displayName || currentUser.displayName || "Trader",
-          authorUsername: userProfileData?.username || "",
-          authorAvatar: userProfileData?.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
-          authorRep: userProfileData?.reputation || "Analyst",
-          authorIdNum: userProfileData?.idNum || null,
-          text: postContent,
-          imageURL: postImg || null,
-          videoURL: postVid || null,
-          likes: 0,
-          likedBy: [],
-          dislikes: 0,
-          dislikedBy: [],
-          repostCount: 0,
-          repostedFrom: null,
-          repostedFromData: null,
-          commentCount: 0,
-          tags,
-          createdAt: serverTimestamp()
-        });
-      } catch (err) {
-        console.error("Failed to add post to Firestore:", err);
-      }
-    }
-  };
-
-  // Handle Likes
-  const handleLike = async (post) => {
+    if (!inputText.trim() && mediaUrls.length === 0 && !quoting && !data.repostOfId) return;
     if (!currentUser) return;
-    const postRef = doc(db, "social_posts", post.id);
-    const hasLiked = post.likedBy?.includes(currentUser.uid);
-    const hasDisliked = post.dislikedBy?.includes(currentUser.uid);
 
     try {
-      if (hasLiked) {
-        await updateDoc(postRef, {
-          likedBy: arrayRemove(currentUser.uid),
-          likes: increment(-1)
-        });
-      } else {
-        const updateData = {
-          likedBy: arrayUnion(currentUser.uid),
-          likes: increment(1)
-        };
-        if (hasDisliked) {
-          updateData.dislikedBy = arrayRemove(currentUser.uid);
-          updateData.dislikes = increment(-1);
-        }
-        await updateDoc(postRef, updateData);
+      if (editingPost) {
+          // Check 5 min window
+          if (Date.now() - editingPost.createdAt > 5 * 60 * 1000) {
+              alert("Edit window has passed (5 minutes).");
+              setEditingPost(null);
+              setInputText("");
+              return;
+          }
+          await updateDoc(doc(db, "posts", editingPost.id), {
+              content: inputText.slice(0, 280),
+              editedAt: Date.now()
+          });
+          setEditingPost(null);
+          setInputText("");
+          return;
       }
-    } catch (err) {
-      console.error("Like toggle failed:", err);
-    }
-  };
 
-  // Handle Dislikes
-  const handleDislike = async (post) => {
-    if (!currentUser) return;
-    const postRef = doc(db, "social_posts", post.id);
-    const hasLiked = post.likedBy?.includes(currentUser.uid);
-    const hasDisliked = post.dislikedBy?.includes(currentUser.uid);
+      const tags = inputText.match(/#[\w]+/g)?.map(t => t.toLowerCase()) || [];
 
-    try {
-      if (hasDisliked) {
-        await updateDoc(postRef, {
-          dislikedBy: arrayRemove(currentUser.uid),
-          dislikes: increment(-1)
-        });
-      } else {
-        const updateData = {
-          dislikedBy: arrayUnion(currentUser.uid),
-          dislikes: increment(1)
-        };
-        if (hasLiked) {
-          updateData.likedBy = arrayRemove(currentUser.uid);
-          updateData.likes = increment(-1);
-        }
-        await updateDoc(postRef, updateData);
-      }
-    } catch (err) {
-      console.error("Dislike toggle failed:", err);
-    }
-  };
-
-  // Handle Reposts
-  const handleRepost = async (post) => {
-    if (!currentUser) return;
-    try {
-      await addDoc(collection(db, "social_posts"), {
-        authorName: userProfileData?.displayName || currentUser.displayName || "Trader",
-        authorUsername: userProfileData?.username || "",
-        authorAvatar: userProfileData?.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
-        authorRep: userProfileData?.reputation || "Analyst",
-        authorIdNum: userProfileData?.idNum || null,
-        text: `Reposted:`,
-        imageURL: null,
-        videoURL: null,
-        likes: 0,
-        likedBy: [],
-        dislikes: 0,
-        dislikedBy: [],
+      const postData = {
+        authorId: currentUser.uid,
+        content: inputText.slice(0, 280),
+        mediaUrls: mediaUrls.slice(0, 4),
+        createdAt: Date.now(), // Store as unix timestamp for easier math
+        editedAt: null,
+        parentPostId: replyingTo ? replyingTo.id : null,
+        quotedPostId: quoting ? quoting.id : null,
+        repostOfId: null,
+        visibility: 'public',
+        isDeleted: false,
+        likeCount: 0,
         repostCount: 0,
-        repostedFrom: post.id,
-        repostedFromData: {
-          text: post.text,
-          authorName: post.authorName,
-          authorUsername: post.authorUsername,
-          authorAvatar: post.authorAvatar,
-          authorIdNum: post.authorIdNum
-        },
-        tags: [],
-        createdAt: serverTimestamp()
-      });
+        replyCount: 0,
+        quoteCount: 0,
+        viewCount: 0,
+        tags
+      };
 
-      const originalRef = doc(db, "social_posts", post.id);
-      await updateDoc(originalRef, {
-        repostCount: increment(1)
-      });
+      await addDoc(collection(db, "posts"), postData);
+
+      // Reset state
+      setInputText("");
+      setMediaUrls([]);
+      setShowMediaInput(false);
+      setMediaInput("");
+      setReplyingTo(null);
+      setQuoting(null);
     } catch (err) {
-      console.error("Repost failed:", err);
+      console.error("Failed to post:", err);
     }
   };
-
-  // Handle Comment Submit
-  const handleCommentSubmit = async (e, postId) => {
-    e.preventDefault();
-    if (!commentInput.trim() || !currentUser) return;
-
-    const text = commentInput;
-    setCommentInput("");
-
-    try {
-      await addDoc(collection(db, "post_comments"), {
-        postId,
-        authorName: userProfileData?.displayName || currentUser.displayName || "Trader",
-        authorUsername: userProfileData?.username || "",
-        authorAvatar: userProfileData?.photoURL || currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
-        authorIdNum: userProfileData?.idNum || null,
-        authorUid: currentUser.uid,
-        text,
-        createdAt: serverTimestamp()
-      });
-
-      const postRef = doc(db, "social_posts", postId);
-      await updateDoc(postRef, {
-        commentCount: increment(1)
-      });
-    } catch (err) {
-      console.error("Comment submission failed:", err);
-    }
-  };
-
-  const renderPostText = (text) => {
-    const parts = text.split(/(\$[A-Z]{1,5})/g);
-    return parts.map((part, i) => {
-      if (/^\$[A-Z]{1,5}$/.test(part)) {
-        return <StockMention key={i} symbol={part.slice(1)} />;
+  
+  const addMediaUrl = () => {
+      if (mediaInput.trim() && mediaUrls.length < 4) {
+          setMediaUrls([...mediaUrls, mediaInput.trim()]);
+          setMediaInput("");
       }
-      return <span key={i}>{part}</span>;
-    });
+  };
+
+  const toggleLike = async (postId, currentlyLiked) => {
+      if (!currentUser) return;
+      const postRef = doc(db, "posts", postId);
+      const newLiked = new Set(likedPosts);
+      if (currentlyLiked) {
+          newLiked.delete(postId);
+          await updateDoc(postRef, { likeCount: increment(-1) });
+      } else {
+          newLiked.add(postId);
+          await updateDoc(postRef, { likeCount: increment(1) });
+      }
+      setLikedPosts(newLiked);
+  };
+  
+  const toggleBookmark = (postId) => {
+      const newBookmarks = new Set(bookmarkedPosts);
+      if (newBookmarks.has(postId)) newBookmarks.delete(postId);
+      else newBookmarks.add(postId);
+      setBookmarkedPosts(newBookmarks);
+  };
+
+  const handlePlainRepost = async (post) => {
+      if (!currentUser) return;
+      const newReposts = new Set(repostedPosts);
+      if (newReposts.has(post.id)) return; // Already reposted
+      
+      try {
+          await addDoc(collection(db, "posts"), {
+              authorId: currentUser.uid,
+              content: "",
+              mediaUrls: [],
+              createdAt: Date.now(),
+              repostOfId: post.id,
+              visibility: 'public',
+              isDeleted: false,
+          });
+          await updateDoc(doc(db, "posts", post.id), { repostCount: increment(1) });
+          newReposts.add(post.id);
+          setRepostedPosts(newReposts);
+      } catch (err) {
+          console.error("Repost failed", err);
+      }
+  };
+
+  const timeAgo = (timestamp) => {
+      if (!timestamp) return "";
+      const seconds = Math.floor((Date.now() - timestamp) / 1000);
+      if (seconds < 60) return `${seconds}s`;
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return `${minutes}m`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours}h`;
+      return `${Math.floor(hours / 24)}d`;
+  };
+  
+  const handleEditClick = (post) => {
+      if (Date.now() - post.createdAt > 5 * 60 * 1000) {
+          alert("Edit window has passed (5 minutes).");
+          return;
+      }
+      setEditingPost(post);
+      setInputText(post.content);
+      // scroll to top gently
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDeleteClick = async (postId) => {
+      if (window.confirm("Delete this post?")) {
+          await updateDoc(doc(db, "posts", postId), { isDeleted: true });
+      }
+  };
+
+  const renderContentWithTags = (content) => {
+      const words = content.split(/(\s+)/);
+      return words.map((w, i) => {
+          if (w.startsWith('#')) return <span key={i} className="text-indigo-400 hover:underline cursor-pointer">{w}</span>;
+          if (w.startsWith('@')) return <span key={i} className="text-emerald-400 hover:underline cursor-pointer">{w}</span>;
+          return <span key={i}>{w}</span>;
+      });
   };
 
   return (
-    <div className="posts-feed">
-      {/* Post Composer */}
-      <form className="posts-feed__composer" onSubmit={handlePostSubmit}>
-        <textarea
-          className="posts-feed__input"
-          placeholder="Share analysis, charts, or macro thesis... Use $TICKER to tag assets."
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          rows={3}
-        />
-        {showMediaFields && (
-          <div className="posts-feed__media-inputs" style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
-            <input
-              type="text"
-              placeholder="Paste Image URL (e.g. Unsplash chart link)..."
-              value={imageURL}
-              onChange={(e) => setImageURL(e.target.value)}
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-subtle)", borderRadius: 6, padding: "8px 12px", color: "#fff", outline: "none", fontSize: "11px" }}
+    <div className="flex flex-col gap-6 max-w-2xl mx-auto pb-20">
+      
+      {/* Composer */}
+      <div className="glass-card rounded-2xl p-4 flex gap-4">
+         <div className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden flex-shrink-0">
+             <img src={currentUser?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser?.uid}`} alt="Me" className="w-full h-full object-cover" />
+         </div>
+         <div className="flex-1 flex flex-col">
+            {editingPost && (
+                <div className="text-xs text-amber-400 mb-2 flex justify-between items-center bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
+                   <span>Editing post (5 min window)</span>
+                   <button onClick={() => { setEditingPost(null); setInputText(""); }} className="hover:text-white"><X size={14} /></button>
+                </div>
+            )}
+            {(replyingTo || quoting) && !editingPost && (
+                <div className="text-xs text-indigo-400 mb-2 flex justify-between items-center bg-indigo-500/10 p-2 rounded-lg border border-indigo-500/20">
+                   <span>{replyingTo ? `Replying to @${replyingTo.author?.username}` : `Quoting @${quoting.author?.username}`}</span>
+                   <button onClick={() => { setReplyingTo(null); setQuoting(null); }} className="hover:text-white"><X size={14} /></button>
+                </div>
+            )}
+            
+            <textarea 
+               placeholder="Share analysis, charts, or macro thesis..."
+               value={inputText}
+               onChange={(e) => setInputText(e.target.value.slice(0, 280))}
+               className="w-full bg-transparent resize-none outline-none text-white placeholder:text-slate-500 min-h-[60px]"
+               rows={3}
             />
-            <input
-              type="text"
-              placeholder="Paste Video URL (e.g. .mp4 file link)..."
-              value={videoURL}
-              onChange={(e) => setVideoURL(e.target.value)}
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-subtle)", borderRadius: 6, padding: "8px 12px", color: "#fff", outline: "none", fontSize: "11px" }}
-            />
-          </div>
-        )}
-        <div className="posts-feed__composer-actions">
-          <button
-            type="button"
-            className={`posts-feed__tool-btn ${showMediaFields ? "active" : ""}`}
-            onClick={() => setShowMediaFields(!showMediaFields)}
-          >
-            🖼️ Attach Photo/Video
-          </button>
-          <button type="submit" className="posts-feed__submit-btn" disabled={!inputText.trim() && !imageURL.trim() && !videoURL.trim()}>
-            Post →
-          </button>
-        </div>
-      </form>
-
-      {/* Feed Cards */}
-      <div className="posts-feed__list">
-        {posts.length === 0 ? (
-          <div className="posts-feed__empty" style={{ textAlign: "center", padding: "60px 20px", color: "var(--text-secondary)" }}>
-            <span style={{ fontSize: "28px", display: "block", marginBottom: "8px" }}>📰</span>
-            <p style={{ fontSize: "13px" }}>No posts yet. Start the conversation!</p>
-          </div>
-        ) : (
-          posts.map((post) => {
-            const isLiked = post.likedBy?.includes(currentUser?.uid);
-            const isDisliked = post.dislikedBy?.includes(currentUser?.uid);
-
-            return (
-              <div key={post.id} className="post-card" style={{ marginBottom: 12, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 16 }}>
-                {/* Author Metadata */}
-                <div className="post-card__header">
-                  <div className="post-card__avatar">
-                    {post.authorAvatar && (post.authorAvatar.startsWith("http") || post.authorAvatar.includes("/") || post.authorAvatar.startsWith("data:")) ? (
-                      <img src={post.authorAvatar} alt={post.authorName} className="post-card__avatar-img" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
-                    ) : (
-                      post.authorAvatar || "T"
-                    )}
-                  </div>
-                  <div className="post-card__author-info">
-                    <div className="post-card__author-name">
-                      {post.authorName}
-                      {post.authorIdNum && <span style={{ fontSize: 10, color: "var(--accent-green)", marginLeft: 6 }}>#ID {post.authorIdNum}</span>}
-                      {post.authorUsername && <span className="post-card__author-handle" style={{ fontSize: 10, color: "var(--text-secondary)", marginLeft: 6 }}>@{post.authorUsername}</span>}
-                    </div>
-                    <div className="post-card__author-rep">{post.authorRep}</div>
-                  </div>
-                  <span className="post-card__time">{post.time}</span>
-                </div>
-
-                {/* Body Content */}
-                <div className="post-card__body">
-                  <p>{renderPostText(post.text)}</p>
-                  
-                  {/* Photo Attachment */}
-                  {post.imageURL && (
-                    <img
-                      src={post.imageURL}
-                      alt="Shared Chart Analysis"
-                      className="post-card__image"
-                      style={{ width: "100%", borderRadius: 8, marginTop: 8, maxHeight: 320, objectFit: "cover" }}
-                    />
-                  )}
-
-                  {/* Video Attachment */}
-                  {post.videoURL && (
-                    <video
-                      src={post.videoURL}
-                      controls
-                      className="post-card__video"
-                      style={{ width: "100%", borderRadius: 8, marginTop: 8, maxHeight: 320, background: "#000" }}
-                    />
-                  )}
-
-                  {/* Nested Repost */}
-                  {post.repostedFrom && post.repostedFromData && (
-                    <div className="repost-box" style={{ marginTop: 10, padding: 12, border: "1px solid var(--border-subtle)", borderRadius: 8, background: "rgba(255,255,255,0.015)" }}>
-                      <div className="repost-box__header" style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                        <div style={{ width: 16, height: 16, borderRadius: "50%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-card)", fontSize: 8 }}>
-                          {post.repostedFromData.authorAvatar && (post.repostedFromData.authorAvatar.startsWith("http") || post.repostedFromData.authorAvatar.includes("/")) ? (
-                            <img src={post.repostedFromData.authorAvatar} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          ) : (
-                            post.repostedFromData.authorAvatar || "T"
-                          )}
+            
+            {/* Media Previews */}
+            {mediaUrls.length > 0 && (
+                <div className="flex gap-2 my-2 overflow-x-auto pb-2 custom-scrollbar">
+                    {mediaUrls.map((url, i) => (
+                        <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 group">
+                            <img src={url} alt="Attachment" className="w-full h-full object-cover" />
+                            <button onClick={() => setMediaUrls(mediaUrls.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
                         </div>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-primary)" }}>{post.repostedFromData.authorName}</span>
-                        {post.repostedFromData.authorIdNum && <span style={{ fontSize: 9, color: "var(--accent-green)" }}>#ID {post.repostedFromData.authorIdNum}</span>}
-                        {post.repostedFromData.authorUsername && <span style={{ fontSize: 10, color: "var(--text-secondary)" }}>@{post.repostedFromData.authorUsername}</span>}
-                      </div>
-                      <p style={{ fontSize: 11, color: "var(--text-secondary)", lineHeight: 1.4 }}>{post.repostedFromData.text}</p>
-                    </div>
-                  )}
+                    ))}
                 </div>
+            )}
 
-                {/* Feed Actions */}
-                <div className="post-card__footer" style={{ display: "flex", gap: 16, marginTop: 12 }}>
-                  <button
-                    className="post-card__action-btn"
-                    style={{ background: "transparent", border: "none", color: openCommentsPostId === post.id ? "var(--accent-blue)" : "var(--text-secondary)", cursor: "pointer", fontSize: "11px" }}
-                    onClick={() => setOpenCommentsPostId(openCommentsPostId === post.id ? null : post.id)}
-                  >
-                    💬 {post.commentCount || 0} Replies
-                  </button>
-
-                  <button
-                    className="post-card__action-btn"
-                    style={{ background: "transparent", border: "none", color: "var(--text-secondary)", cursor: "pointer", fontSize: "11px" }}
-                    onClick={() => handleRepost(post)}
-                  >
-                    🔁 {post.repostCount || 0} Reposts
-                  </button>
-
-                  <button
-                    className="post-card__action-btn"
-                    style={{ background: "transparent", border: "none", color: isLiked ? "var(--accent-green)" : "var(--text-secondary)", cursor: "pointer", fontSize: "11px", fontWeight: isLiked ? "bold" : "normal" }}
-                    onClick={() => handleLike(post)}
-                  >
-                    ❤️ {post.likes || 0} Likes
-                  </button>
-
-                  <button
-                    className="post-card__action-btn"
-                    style={{ background: "transparent", border: "none", color: isDisliked ? "var(--accent-red)" : "var(--text-secondary)", cursor: "pointer", fontSize: "11px", fontWeight: isDisliked ? "bold" : "normal" }}
-                    onClick={() => handleDislike(post)}
-                  >
-                    👎 {post.dislikes || 0} Dislikes
-                  </button>
+            {showMediaInput && mediaUrls.length < 4 && (
+                <div className="flex gap-2 my-2">
+                    <input type="text" value={mediaInput} onChange={e => setMediaInput(e.target.value)} placeholder="Paste image URL..." className="flex-1 bg-black/30 border border-white/10 rounded-md px-3 py-1 text-sm outline-none focus:border-indigo-500" />
+                    <button onClick={addMediaUrl} className="bg-white/10 px-3 py-1 rounded-md text-sm hover:bg-white/20">Add</button>
                 </div>
-
-                {/* Inline comments thread */}
-                {openCommentsPostId === post.id && (
-                  <div className="comments-thread" style={{ marginTop: 12, paddingLeft: 24, borderLeft: "2px solid var(--border-subtle)" }}>
-                    {/* List */}
-                    <div className="comments-list" style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-                      {comments.map((comment) => (
-                        <div key={comment.id} className="comment-item" style={{ padding: "6px 0" }}>
-                          <div className="comment-item__header" style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-                            <div style={{ width: 14, height: 14, borderRadius: "50%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-card)", fontSize: 7 }}>
-                              {comment.authorAvatar && (comment.authorAvatar.startsWith("http") || comment.authorAvatar.includes("/")) ? (
-                                <img src={comment.authorAvatar} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                              ) : (
-                                comment.authorAvatar || "T"
-                              )}
-                            </div>
-                            <span style={{ fontSize: 10, fontWeight: 600, color: "var(--text-primary)" }}>{comment.authorName}</span>
-                            {comment.authorIdNum && <span style={{ fontSize: 9, color: "var(--accent-green)" }}>#ID {comment.authorIdNum}</span>}
-                            {comment.authorUsername && <span style={{ fontSize: 9, color: "var(--text-secondary)" }}>@{comment.authorUsername}</span>}
-                            <span style={{ fontSize: 8, color: "var(--text-muted)", marginLeft: "auto" }}>{comment.time}</span>
-                          </div>
-                          <p style={{ fontSize: 11, color: "var(--text-secondary)" }}>{comment.text}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Composer */}
-                    <form onSubmit={(e) => handleCommentSubmit(e, post.id)} style={{ display: "flex", gap: 8 }}>
-                      <input
-                        type="text"
-                        placeholder="Write a reply..."
-                        value={commentInput}
-                        onChange={(e) => setCommentInput(e.target.value)}
-                        style={{ flex: 1, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border-subtle)", borderRadius: 4, padding: "6px 10px", color: "#fff", outline: "none", fontSize: "11px" }}
-                      />
-                      <button type="submit" style={{ padding: "6px 12px", background: "var(--accent-green-dim)", border: "1px solid var(--border-accent)", borderRadius: 4, color: "var(--accent-green)", fontSize: "10px", fontWeight: "600", cursor: "pointer" }} disabled={!commentInput.trim()}>
-                        Reply
-                      </button>
-                    </form>
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
+            )}
+            
+            <div className="flex justify-between items-center mt-2 pt-3 border-t border-white/5">
+                <div className="flex gap-1 text-indigo-400">
+                    <button onClick={() => setShowMediaInput(!showMediaInput)} className="p-2 rounded-full hover:bg-indigo-500/20 transition-colors" title="Media">
+                        <ImageIcon size={18} />
+                    </button>
+                    <button className="p-2 rounded-full hover:bg-indigo-500/20 transition-colors" title="Emoji">
+                        <Smile size={18} />
+                    </button>
+                </div>
+                <div className="flex items-center gap-3">
+                    <span className={`text-xs ${inputText.length > 250 ? 'text-amber-400' : 'text-slate-500'}`}>
+                        {inputText.length}/280
+                    </span>
+                    <button 
+                        onClick={handlePostSubmit}
+                        disabled={!inputText.trim() && mediaUrls.length === 0}
+                        className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white px-5 py-1.5 rounded-full font-medium transition-colors text-sm"
+                    >
+                        Post
+                    </button>
+                </div>
+            </div>
+         </div>
       </div>
+
+      {/* Feed List */}
+      <AnimatePresence>
+         {posts.map(post => {
+             if (post.isDeleted) return null;
+             
+             // If plain repost, resolve differently in real app, simplified here
+             const isRepost = !!post.repostOfId;
+             const isLiked = likedPosts.has(post.id);
+             const isBookmarked = bookmarkedPosts.has(post.id);
+             const isReposted = repostedPosts.has(post.id);
+
+             return (
+                 <motion.div 
+                     key={post.id} 
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     exit={{ opacity: 0, scale: 0.95 }}
+                     className="glass-panel p-4 rounded-2xl flex gap-3 group relative"
+                 >
+                     <div className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden flex-shrink-0 cursor-pointer">
+                         <img src={post.author?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${post.authorId}`} alt="Author" className="w-full h-full object-cover" />
+                     </div>
+                     
+                     <div className="flex-1 min-w-0">
+                         {/* Header */}
+                         <div className="flex justify-between items-start">
+                             <div className="flex items-center gap-2 truncate">
+                                 <span className="font-bold text-slate-200 truncate font-display">{post.author?.displayName || 'Unknown'}</span>
+                                 {post.author?.isVerified && <Check size={14} className="text-indigo-400 bg-indigo-900/40 rounded-full p-0.5" />}
+                                 <span className="text-slate-500 text-sm truncate">@{post.author?.username || 'user'}</span>
+                                 <span className="text-slate-600 text-xs">·</span>
+                                 <span className="text-slate-500 text-sm hover:underline cursor-pointer" title={new Date(post.createdAt).toLocaleString()}>
+                                     {timeAgo(post.createdAt)}
+                                     {post.editedAt && <span className="ml-1 text-[10px] text-slate-500">(edited)</span>}
+                                 </span>
+                             </div>
+                             
+                             <div className="relative group/menu">
+                                 <button className="text-slate-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                                     <MoreHorizontal size={16} />
+                                 </button>
+                                 <div className="absolute top-6 right-0 hidden group-hover/menu:flex flex-col bg-[#1e293b] border border-white/10 rounded-lg shadow-xl z-20 w-32 overflow-hidden">
+                                     {currentUser?.uid === post.authorId && Date.now() - post.createdAt < 5 * 60 * 1000 && (
+                                         <button onClick={() => handleEditClick(post)} className="text-left px-3 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-2">
+                                             <Edit2 size={14}/> Edit
+                                         </button>
+                                     )}
+                                     {currentUser?.uid === post.authorId && (
+                                         <button onClick={() => handleDeleteClick(post.id)} className="text-left px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-2">
+                                             <Trash2 size={14}/> Delete
+                                         </button>
+                                     )}
+                                     <button className="text-left px-3 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-2">
+                                         Report
+                                     </button>
+                                 </div>
+                             </div>
+                         </div>
+
+                         {/* Body */}
+                         <div className="mt-1 text-slate-200 text-sm leading-relaxed whitespace-pre-wrap break-words">
+                             {renderContentWithTags(post.content)}
+                         </div>
+
+                         {/* Media Grid (1 to 4 images) */}
+                         {post.mediaUrls?.length > 0 && (
+                             <div className={`mt-3 grid gap-2 rounded-xl overflow-hidden ${post.mediaUrls.length === 1 ? 'grid-cols-1' : post.mediaUrls.length === 2 ? 'grid-cols-2' : post.mediaUrls.length === 3 ? 'grid-cols-2' : 'grid-cols-2'}`}>
+                                 {post.mediaUrls.map((url, i) => (
+                                     <img key={i} src={url} alt="Post media" className={`w-full object-cover ${post.mediaUrls.length === 1 ? 'h-64' : 'h-32'} ${post.mediaUrls.length === 3 && i === 0 ? 'row-span-2 h-full' : ''}`} />
+                                 ))}
+                             </div>
+                         )}
+                         
+                         {/* Quoted Post Box */}
+                         {post.quotedData && (
+                             <div className="mt-3 border border-white/10 rounded-xl p-3 bg-black/20 hover:bg-black/30 cursor-pointer transition-colors">
+                                 <div className="flex items-center gap-2 mb-1">
+                                     <div className="w-4 h-4 rounded-full bg-slate-800 overflow-hidden"><img src={post.quotedData.author?.photoURL || ''} alt="" className="w-full h-full object-cover"/></div>
+                                     <span className="font-semibold text-slate-300 text-xs">{post.quotedData.author?.displayName}</span>
+                                     <span className="text-slate-500 text-xs">@{post.quotedData.author?.username}</span>
+                                 </div>
+                                 <div className="text-xs text-slate-400 line-clamp-3">
+                                     {post.quotedData.content}
+                                 </div>
+                             </div>
+                         )}
+
+                         {/* Actions */}
+                         <div className="flex justify-between items-center mt-4 text-slate-500 max-w-md">
+                             <button onClick={() => setReplyingTo(post)} className="flex items-center gap-2 hover:text-indigo-400 group/btn transition-colors">
+                                 <div className="p-1.5 rounded-full group-hover/btn:bg-indigo-500/20"><MessageCircle size={16} /></div>
+                                 <span className="text-xs">{post.replyCount || 0}</span>
+                             </button>
+                             <div className="relative group/repost">
+                                 <button onClick={() => handlePlainRepost(post)} className={`flex items-center gap-2 hover:text-emerald-400 group/btn transition-colors ${isReposted ? 'text-emerald-500' : ''}`}>
+                                     <div className="p-1.5 rounded-full group-hover/btn:bg-emerald-500/20"><Repeat2 size={16} /></div>
+                                     <span className="text-xs">{post.repostCount || 0}</span>
+                                 </button>
+                                 <div className="absolute top-8 left-0 hidden group-hover/repost:flex flex-col bg-[#1e293b] border border-white/10 rounded-lg shadow-xl z-10 w-32 overflow-hidden">
+                                    <button onClick={() => handlePlainRepost(post)} className="text-left px-3 py-2 text-xs text-white hover:bg-white/5 flex items-center gap-2"><Repeat2 size={14}/> Repost</button>
+                                    <button onClick={() => setQuoting(post)} className="text-left px-3 py-2 text-xs text-white hover:bg-white/5 flex items-center gap-2"><Edit2 size={14}/> Quote</button>
+                                 </div>
+                             </div>
+                             <button onClick={() => toggleLike(post.id, isLiked)} className={`flex items-center gap-2 hover:text-pink-500 group/btn transition-colors ${isLiked ? 'text-pink-500' : ''}`}>
+                                 <div className="p-1.5 rounded-full group-hover/btn:bg-pink-500/20">
+                                     <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
+                                 </div>
+                                 <span className="text-xs">{post.likeCount || 0}</span>
+                             </button>
+                             <div className="flex items-center gap-1">
+                                 <button onClick={() => toggleBookmark(post.id)} className={`p-1.5 rounded-full hover:text-indigo-400 hover:bg-indigo-500/20 transition-colors ${isBookmarked ? 'text-indigo-400' : ''}`}>
+                                     <Bookmark size={16} fill={isBookmarked ? 'currentColor' : 'none'} />
+                                 </button>
+                                 <button className="p-1.5 rounded-full hover:text-indigo-400 hover:bg-indigo-500/20 transition-colors">
+                                     <Share size={16} />
+                                 </button>
+                             </div>
+                         </div>
+                     </div>
+                 </motion.div>
+             )
+         })}
+      </AnimatePresence>
     </div>
   );
 }

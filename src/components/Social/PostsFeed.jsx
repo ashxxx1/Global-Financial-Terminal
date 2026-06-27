@@ -420,6 +420,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
             </div>
           </div>
        </div>
+       )}
        
        {/* Divider */}
        <div className="h-2 bg-white/[0.02]"></div>

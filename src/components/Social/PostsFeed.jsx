@@ -83,7 +83,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
         if (data.quotedPostId) {
            const quotedDoc = await getDoc(doc(db, "social_posts", data.quotedPostId));
            if (quotedDoc.exists()) {
-               quotedData = quotedDoc.data();
+               quotedData = { id: quotedDoc.id, ...quotedDoc.data() };
                if (quotedData.authorId) {
                    const qAuthor = await getDoc(doc(db, "users", quotedData.authorId));
                    if (qAuthor.exists()) quotedData.author = qAuthor.data();
@@ -91,11 +91,37 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
            }
         }
         
+        let repostedData = null;
+        if (data.repostOfId) {
+            const repostDoc = await getDoc(doc(db, "social_posts", data.repostOfId));
+            if (repostDoc.exists()) {
+                repostedData = { id: repostDoc.id, ...repostDoc.data() };
+                if (repostedData.authorId) {
+                    const rAuthor = await getDoc(doc(db, "users", repostedData.authorId));
+                    if (rAuthor.exists()) repostedData.author = rAuthor.data();
+                }
+            }
+        }
+
+        let parentData = null;
+        if (data.parentPostId) {
+            const parentDoc = await getDoc(doc(db, "social_posts", data.parentPostId));
+            if (parentDoc.exists()) {
+                parentData = { id: parentDoc.id, ...parentDoc.data() };
+                if (parentData.authorId) {
+                    const pAuthor = await getDoc(doc(db, "users", parentData.authorId));
+                    if (pAuthor.exists()) parentData.author = pAuthor.data();
+                }
+            }
+        }
+        
         return {
           id: docSnap.id,
           ...data,
           author: authorData,
-          quotedData
+          quotedData,
+          repostedData,
+          parentData
         };
       }));
       if (!isMounted) return;
@@ -455,11 +481,12 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
          {posts.map(post => {
              if (post.isDeleted) return null;
              
-             // If plain repost, resolve differently in real app, simplified here
+             // If plain repost, we display the original post but wrap it with a "reposted by" header
              const isRepost = !!post.repostOfId;
-             const isLiked = likedPosts.has(post.id);
-             const isBookmarked = bookmarkedPosts.has(post.id);
-             const isReposted = repostedPosts.has(post.id);
+             const displayPost = isRepost && post.repostedData ? post.repostedData : post;
+             const isLiked = likedPosts.has(displayPost.id);
+             const isBookmarked = bookmarkedPosts.has(displayPost.id);
+             const isReposted = repostedPosts.has(displayPost.id);
 
              return (
                  <motion.div 
@@ -468,31 +495,40 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                      animate={{ opacity: 1, scale: 1, y: 0 }} 
                      exit={{ opacity: 0, scale: 0.95 }}
                      transition={{ duration: 0.2, type: "spring", stiffness: 200, damping: 20 }}
-                     className="px-4 py-3 border-b border-white/5 hover:bg-white/[0.02] transition-colors flex gap-3 group relative cursor-pointer"
+                     className="px-4 py-3 border-b border-white/5 hover:bg-white/[0.02] transition-colors flex flex-col gap-1 group relative cursor-pointer"
                  >
-                     <div 
-                         onClick={() => onProfileClick && onProfileClick(post.authorId)}
-                         className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden flex-shrink-0 cursor-pointer"
-                     >
-                         <img src={post.author?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${post.authorId}`} alt="Author" className="w-full h-full object-cover" />
-                     </div>
-                     
-                     <div className="flex-1 min-w-0">
+                     {/* Repost Header */}
+                     {isRepost && (
+                         <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold mb-1 ml-10">
+                             <Repeat2 size={12} />
+                             <span>{post.author?.displayName} reposted</span>
+                         </div>
+                     )}
+
+                     <div className="flex gap-3">
+                         <div 
+                             onClick={() => onProfileClick && onProfileClick(displayPost.authorId)}
+                             className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden flex-shrink-0 cursor-pointer mt-1"
+                         >
+                             <img src={displayPost.author?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${displayPost.authorId}`} alt="Author" className="w-full h-full object-cover" />
+                         </div>
+                         
+                         <div className="flex-1 min-w-0">
                          {/* Header */}
                          <div className="flex justify-between items-start">
                              <div className="flex items-center gap-2 truncate">
                                  <span 
-                                     onClick={() => onProfileClick && onProfileClick(post.authorId)}
+                                     onClick={() => onProfileClick && onProfileClick(displayPost.authorId)}
                                      className="font-bold text-slate-200 truncate font-display hover:underline cursor-pointer"
                                  >
-                                     {post.author?.displayName || 'Unknown'}
+                                     {displayPost.author?.displayName || 'Unknown'}
                                  </span>
-                                 {post.author?.isVerified && <Check size={14} className="text-indigo-400 bg-indigo-900/40 rounded-full p-0.5" />}
-                                 <span className="text-slate-500 text-sm truncate">@{post.author?.username || 'user'}</span>
+                                 {displayPost.author?.isVerified && <Check size={14} className="text-indigo-400 bg-indigo-900/40 rounded-full p-0.5" />}
+                                 <span className="text-slate-500 text-sm truncate">@{displayPost.author?.username || 'user'}</span>
                                  <span className="text-slate-600 text-xs">·</span>
-                                 <span className="text-slate-500 text-sm hover:underline cursor-pointer" title={new Date(post.createdAtMs).toLocaleString()}>
-                                     {timeAgo(post.createdAtMs)}
-                                     {post.editedAtMs && <span className="ml-1 text-[10px] text-slate-500">(edited)</span>}
+                                 <span className="text-slate-500 text-sm hover:underline cursor-pointer" title={new Date(displayPost.createdAtMs).toLocaleString()}>
+                                     {timeAgo(displayPost.createdAtMs)}
+                                     {displayPost.editedAtMs && <span className="ml-1 text-[10px] text-slate-500">(edited)</span>}
                                  </span>
                              </div>
                              
@@ -518,9 +554,17 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                              </div>
                          </div>
 
+                         {/* Reply Header */}
+                         {displayPost.parentData && (
+                             <div className="flex items-center gap-1 text-slate-500 text-xs mt-1 mb-1">
+                                 <span>Replying to</span>
+                                 <span className="text-indigo-400 hover:underline cursor-pointer">@{displayPost.parentData.author?.username}</span>
+                             </div>
+                         )}
+
                          {/* Body */}
                          <div className="mt-1 text-slate-200 text-sm leading-relaxed whitespace-pre-wrap break-words">
-                             {renderContentWithTags((post.content || post.text))}
+                             {renderContentWithTags((displayPost.content || displayPost.text))}
                          </div>
 
                          {/* Media Grid (1 to 4 images) */}
@@ -564,41 +608,44 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                                          </div>
                                      );
                                  })}
-                                 <div className="text-xs text-slate-500 mt-1">{post.poll.totalVotes} votes</div>
+                                 <div className="text-xs text-slate-500 mt-1">{displayPost.poll.totalVotes} votes</div>
                              </div>
                          )}
 
                          {/* Actions */}
                          <div className="flex justify-between items-center mt-4 text-slate-500 max-w-md">
-                             <button onClick={() => setReplyingTo(post)} className="flex items-center gap-2 hover:text-indigo-400 group/btn transition-colors">
+                             <button onClick={() => { setReplyingTo(displayPost); setQuoting(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex items-center gap-2 hover:text-indigo-400 group/btn transition-colors">
                                  <div className="p-1.5 rounded-full group-hover/btn:bg-indigo-500/20"><MessageCircle size={16} /></div>
-                                 <span className="text-xs">{post.replyCount || 0}</span>
+                                 <span className="text-xs">{displayPost.replyCount || 0}</span>
                              </button>
                              <div className="relative group/repost">
-                                 <button onClick={() => handlePlainRepost(post)} className={`flex items-center gap-2 hover:text-emerald-400 group/btn transition-colors ${isReposted ? 'text-emerald-500' : ''}`}>
+                                 <button className={`flex items-center gap-2 hover:text-emerald-400 group/btn transition-colors ${isReposted ? 'text-emerald-500' : ''}`}>
                                      <div className="p-1.5 rounded-full group-hover/btn:bg-emerald-500/20"><Repeat2 size={16} /></div>
-                                     <span className="text-xs">{post.repostCount || 0}</span>
+                                     <span className="text-xs">{displayPost.repostCount || 0}</span>
                                  </button>
-                                 <div className="absolute top-8 left-0 hidden group-hover/repost:flex flex-col bg-[#1e293b] border border-white/10 rounded-lg shadow-xl z-10 w-32 overflow-hidden">
-                                    <button onClick={() => handlePlainRepost(post)} className="text-left px-3 py-2 text-xs text-white hover:bg-white/5 flex items-center gap-2"><Repeat2 size={14}/> Repost</button>
-                                    <button onClick={() => setQuoting(post)} className="text-left px-3 py-2 text-xs text-white hover:bg-white/5 flex items-center gap-2"><Edit2 size={14}/> Quote</button>
+                                 <div className="absolute top-8 left-0 hidden group-hover/repost:flex flex-col bg-[#1e293b] border border-white/10 rounded-lg shadow-xl z-20 w-32 overflow-hidden">
+                                    <button onClick={() => handlePlainRepost(displayPost)} className="text-left px-3 py-2 text-xs text-white hover:bg-white/5 flex items-center gap-2"><Repeat2 size={14}/> Repost</button>
+                                    <button onClick={() => { setQuoting(displayPost); setReplyingTo(null); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="text-left px-3 py-2 text-xs text-white hover:bg-white/5 flex items-center gap-2"><Edit2 size={14}/> Quote</button>
                                  </div>
                              </div>
-                             <button onClick={() => toggleLike(post.id, isLiked)} className={`flex items-center gap-2 hover:text-pink-500 group/btn transition-colors ${isLiked ? 'text-pink-500' : ''}`}>
+                             <button onClick={() => toggleLike(displayPost.id, isLiked)} className={`flex items-center gap-2 hover:text-pink-500 group/btn transition-colors ${isLiked ? 'text-pink-500' : ''}`}>
                                  <div className="p-1.5 rounded-full group-hover/btn:bg-pink-500/20">
-                                     <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
+                                     <Heart size={16} className={isLiked ? "fill-pink-500" : ""} />
                                  </div>
-                                 <span className="text-xs">{post.likeCount || 0}</span>
+                                 <span className="text-xs">{displayPost.likeCount || 0}</span>
+                             </button>
+                             <button className="flex items-center gap-2 hover:text-indigo-400 group/btn transition-colors">
+                                 <div className="p-1.5 rounded-full group-hover/btn:bg-indigo-500/20"><BarChart2 size={16} /></div>
+                                 <span className="text-xs">{displayPost.viewCount || 0}</span>
                              </button>
                              <div className="flex items-center gap-1">
-                                 <button onClick={() => toggleBookmark(post.id)} className={`p-1.5 rounded-full hover:text-indigo-400 hover:bg-indigo-500/20 transition-colors ${isBookmarked ? 'text-indigo-400' : ''}`}>
-                                     <Bookmark size={16} fill={isBookmarked ? 'currentColor' : 'none'} />
+                                 <button onClick={() => toggleBookmark(displayPost.id)} className={`p-1.5 rounded-full hover:text-amber-400 hover:bg-amber-500/20 transition-colors ${isBookmarked ? 'text-amber-400' : ''}`}>
+                                     <Bookmark size={16} className={isBookmarked ? "fill-amber-400" : ""} />
                                  </button>
-                                 <button className="p-1.5 rounded-full hover:text-indigo-400 hover:bg-indigo-500/20 transition-colors">
-                                     <Share size={16} />
-                                 </button>
+                                 <button className="p-1.5 rounded-full hover:text-indigo-400 hover:bg-indigo-500/20 transition-colors"><Share size={16} /></button>
                              </div>
                          </div>
+                     </div>
                      </div>
                  </motion.div>
              )

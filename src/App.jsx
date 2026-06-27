@@ -15,7 +15,7 @@ import { GlobeVis }     from "./components/Terminal/GlobeVis";
 import { GlobalNews }   from "./components/Terminal/GlobalNews";
 import { MarketBrief }  from "./components/Terminal/MarketBrief";
 import { CountryPanel } from "./components/Terminal/CountryPanel";
-import { SocialModule } from "./components/Terminal/SocialModule";
+import SocialPage from "./pages/Social/SocialPage";
 import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
 import { CountryLeftPanel } from "./components/Terminal/CountryLeftPanel";
 import { CountryRightPanel } from "./components/Terminal/CountryRightPanel";
@@ -273,7 +273,7 @@ function TerminalApp() {
         ) : (
           <div className="absolute inset-0 z-10 flex flex-col w-full h-full bg-[#020617] overflow-hidden">
             {activeView === "news"        && <GlobalNews />}
-            {activeView === "social"      && <SocialModule />}
+            {activeView === "social"      && <SocialPage />}
             {activeView === "portfolio"   && <PortfolioPanel onClose={() => setActiveView('globe')} />}
             {activeView === "heatmap"     && <MacroHeatmap />}
             {activeView === "calendar"    && <EconomicCalendar />}

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Globe, Hash, MessageSquare, LayoutDashboard, Compass, Settings, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import useTerminalStore from "../../store/terminalStore";
 
 // Components
 import PostsFeed from "../../components/Social/PostsFeed";
@@ -18,6 +19,7 @@ import DirectMessageChat from "../../components/Social/DMs/DirectMessageChat";
 
 export default function SocialPage() {
   const { currentUser } = useAuth();
+  const { setActiveView } = useTerminalStore();
   const [activeMode, setActiveMode] = useState("feed"); // 'feed' | 'servers' | 'dm'
   const [activeServer, setActiveServer] = useState(null); // null means no server selected
   const [activeDmUser, setActiveDmUser] = useState(null); // currently active DM conversation
@@ -30,9 +32,9 @@ export default function SocialPage() {
       
       {/* 1. Leftmost Server / Mode Navigation Sidebar */}
       <nav className="w-[72px] h-full flex flex-col items-center py-4 gap-3 bg-[#0a0a0f] border-r border-white/5 z-20">
-        <Link to="/" className="w-12 h-12 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center hover:bg-indigo-600/40 transition-colors mb-2" title="Back to Terminal">
+        <button onClick={() => setActiveView("globe")} className="w-12 h-12 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center hover:bg-indigo-600/40 transition-colors mb-2 cursor-pointer" title="Back to Terminal">
            <LayoutDashboard className="w-6 h-6" />
-        </Link>
+        </button>
         
         <div className="w-8 h-[2px] bg-white/10 rounded-full mb-2"></div>
 

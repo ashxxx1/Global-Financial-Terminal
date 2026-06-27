@@ -142,6 +142,15 @@ export function AuthProvider({ children }) {
         }
       };
 
+      // Add a global function for Playwright testing to inject a mock user
+      window.setPlaywrightTestUser = (userStr) => {
+          const testUser = JSON.parse(userStr);
+          setCurrentUser(testUser);
+          setUserStatus("approved");
+          setUserProfileData({ displayName: testUser.displayName, username: testUser.username || "testuser" });
+          setLoading(false);
+      };
+
       // Listen to this user's Firestore doc in real-time
       const userRef = doc(db, "users", user.uid);
       const unsubFirestore = onSnapshot(

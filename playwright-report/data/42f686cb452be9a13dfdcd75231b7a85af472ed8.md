@@ -12,10 +12,7 @@
 # Error details
 
 ```
-TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
-Call log:
-  - waiting for locator('text=Confluence Feed') to be visible
-
+Test timeout of 30000ms exceeded.
 ```
 
 # Page snapshot
@@ -88,47 +85,4 @@ Call log:
       - generic [ref=e71]:
         - generic [ref=e72]: Alerts (Coming)
         - generic [ref=e73]: Custom price alerts and breaking news notifications
-```
-
-# Test source
-
-```ts
-  1  | // @ts-check
-  2  | import { test, expect } from '@playwright/test';
-  3  | 
-  4  | test.describe('Comprehensive Social Features', () => {
-  5  | 
-  6  |   const APP_URL = 'http://localhost:5173/social';
-  7  | 
-  8  |   test('User can post to feed, edit post, like, and delete post', async ({ browser }) => {
-  9  |     const context = await browser.newContext();
-  10 |     const page = await context.newPage();
-  11 |     
-  12 |     await page.goto(APP_URL);
-> 13 |     await page.waitForSelector('text=Confluence Feed', { timeout: 15000 });
-     |                ^ TimeoutError: page.waitForSelector: Timeout 15000ms exceeded.
-  14 | 
-  15 |     const postText = `Automated test post ${Date.now()} #testing`;
-  16 |     await page.fill('textarea[placeholder="Share analysis, charts, or macro thesis..."]', postText);
-  17 |     await page.click('button:has-text("Post")');
-  18 | 
-  19 |     // Wait for post to appear
-  20 |     await page.waitForSelector(`text=${postText}`, { timeout: 15000 });
-  21 |     
-  22 |     // Find the specific post
-  23 |     const postContainer = page.locator('.glass-panel', { hasText: postText }).first();
-  24 |     
-  25 |     // Edit the post
-  26 |     await postContainer.locator('button').filter({ has: page.locator('svg') }).last().hover();
-  27 |     await postContainer.locator('button:has-text("Edit")').click();
-  28 |     
-  29 |     const editText = ` (Edited)`;
-  30 |     await page.fill('textarea[placeholder="Share analysis, charts, or macro thesis..."]', postText + editText);
-  31 |     await page.click('button:has-text("Post")'); // Assuming the post button is used for saving edits? Oh wait, in PostsFeed it updates directly on 'Enter' or same button?
-  32 |     // Wait, let's look at PostsFeed: 
-  33 |     // It uses the same composer. The composer has "Post" button which calls handlePostSubmit.
-  34 |   });
-  35 | 
-  36 | });
-  37 | 
 ```

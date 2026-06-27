@@ -5,7 +5,7 @@ import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp,
 import { Heart, MessageCircle, Repeat2, Bookmark, Share, Image as ImageIcon, Smile, MoreHorizontal, Check, Trash2, Edit2, BarChart2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function PostsFeed({ feedType = 'foryou', onProfileClick }) {
+export default function PostsFeed({ feedType = 'foryou', profileId = null, onProfileClick }) {
   const { currentUser } = useAuth();
   const [posts, setPosts] = useState([]);
   const [followingList, setFollowingList] = useState([]);
@@ -55,9 +55,9 @@ export default function PostsFeed({ feedType = 'foryou', onProfileClick }) {
   useEffect(() => {
     let q;
     if (feedType === 'following' && followingList.length > 0) {
-        // Simple local filter approach for now to bypass 30 limit, or just fetch all and filter below.
-        // Actually, just fetch all for now and filter locally below to save complexity
         q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(100));
+    } else if (feedType === 'profile' && profileId) {
+        q = query(collection(db, "posts"), where("authorId", "==", profileId), orderBy("createdAt", "desc"), limit(50));
     } else {
         q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(50));
     }
@@ -98,11 +98,11 @@ export default function PostsFeed({ feedType = 'foryou', onProfileClick }) {
       }
     });
     return () => unsub();
-  }, [feedType, followingList, currentUser]);
+  }, [feedType, followingList, currentUser, profileId]);
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
-    if (!inputText.trim() && mediaUrls.length === 0 && !quoting && !data.repostOfId) return;
+    if (!inputText.trim() && mediaUrls.length === 0 && !quoting) return;
     if (!currentUser) return;
 
     try {
@@ -304,8 +304,9 @@ export default function PostsFeed({ feedType = 'foryou', onProfileClick }) {
     <div className="flex flex-col gap-6 max-w-2xl mx-auto pb-20">
       
       {/* Composer */}
-      <div className="glass-card rounded-2xl p-4 flex gap-4">
-         <div className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden flex-shrink-0">
+      {(!profileId || profileId === currentUser?.uid) && (
+        <div className="glass-card rounded-2xl p-4 flex gap-4">
+           <div className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden flex-shrink-0">
              <img src={currentUser?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser?.uid}`} alt="Me" className="w-full h-full object-cover" />
          </div>
          <div className="flex-1 flex flex-col">
@@ -401,8 +402,9 @@ export default function PostsFeed({ feedType = 'foryou', onProfileClick }) {
                     </button>
                 </div>
             </div>
-         </div>
-      </div>
+           </div>
+        </div>
+      )}
 
       {/* Feed List */}
       <AnimatePresence>

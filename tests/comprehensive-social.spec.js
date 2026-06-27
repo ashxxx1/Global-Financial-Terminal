@@ -10,6 +10,20 @@ test.describe('Comprehensive Social Features', () => {
     const page = await context.newPage();
     
     await page.goto(APP_URL);
+    // Wait for Login page to be fully ready
+    await page.waitForSelector('text=Access Terminal', { timeout: 30000 });
+    
+    await page.evaluate(() => {
+        if (window.setPlaywrightTestUser) {
+            window.setPlaywrightTestUser(JSON.stringify({ uid: 'test-user-1', email: 'test@example.com', displayName: 'Test User 1', username: 'testuser1' }));
+        }
+    });
+    
+    // Wait for globe to load and click Social
+    await page.waitForSelector('button[title="Social"]', { timeout: 30000 });
+    await page.click('button[title="Social"]');
+
+    // Wait for feed to load
     await page.waitForSelector('text=Confluence Feed', { timeout: 15000 });
 
     const postText = `Automated test post ${Date.now()} #testing`;

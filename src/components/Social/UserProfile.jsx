@@ -4,6 +4,7 @@ import { db } from "../../services/firebase";
 import { doc, updateDoc, onSnapshot, setDoc, deleteDoc } from "firebase/firestore";
 import { Settings, Check, X, Camera, BadgeCheck, MapPin, Link as LinkIcon, Circle, ShieldAlert, Clock, UserX, Wallet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import PostsFeed from "./PostsFeed";
 
 export default function UserProfile({ activeProfileId, onReset, activeServer }) {
   const { currentUser } = useAuth();
@@ -258,11 +259,13 @@ export default function UserProfile({ activeProfileId, onReset, activeServer }) 
               </div>
               
               {/* Tab Content Placeholder */}
-               <div className="mt-4 text-center text-slate-500 text-xs py-8">
-                  {activeTab === 'posts' && "No posts yet."}
-                  {activeTab === 'replies' && "No replies yet."}
-                  {activeTab === 'media' && "No media shared yet."}
-                  {activeTab === 'likes' && "No liked posts yet."}
+               <div className="mt-4 text-slate-500 text-xs py-2">
+                  {activeTab === 'posts' && (
+                      <PostsFeed feedType="profile" profileId={activeProfileId || currentUser?.uid} />
+                  )}
+                  {activeTab === 'replies' && <div className="text-center py-8">No replies yet.</div>}
+                  {activeTab === 'media' && <div className="text-center py-8">No media shared yet.</div>}
+                  {activeTab === 'likes' && <div className="text-center py-8">No liked posts yet.</div>}
                </div>
 
                {/* Moderation Panel (Admin only) */}

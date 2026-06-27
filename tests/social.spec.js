@@ -13,22 +13,35 @@ test.describe('Confluence Social Platform - Dual Account E2E Test', () => {
     const pageA = await contextA.newPage();
     const pageB = await contextB.newPage();
 
-    // Use the live URL since the user pushed to GitHub to test on the live website.
-    // Replace this with 'http://localhost:5173' if testing locally.
-    const APP_URL = 'https://global-financial-terminal.vercel.app/';
+    // Use local dev server URL
+    const APP_URL = 'http://localhost:5173/social';
 
-    console.log('Navigating both users to the application...');
+    // Setup User A
     await pageA.goto(APP_URL);
-    await pageB.goto(APP_URL);
-
-    // --- HELPER FUNCTION: Anonymous Login & Setup ---
-    // If the app uses Anonymous Auth automatically, we just need to set a username
-    // in the UserProfile. If it requires explicit signup, we would script it here.
+    // Wait for Login page to be fully ready
+    await pageA.waitForSelector('text=Access Terminal', { timeout: 30000 });
     
-    // For this simulation, we'll assume the users land on the Social Tab
-    // Let's navigate to the Social Tab
-    await pageA.click('text=Social'); // Adjust selector based on actual navigation bar
-    await pageB.click('text=Social');
+    await pageA.evaluate(() => {
+        if (window.setPlaywrightTestUser) {
+            window.setPlaywrightTestUser(JSON.stringify({ uid: 'test-user-A', email: 'testa@example.com', displayName: 'Test User A', username: 'usera' }));
+        }
+    });
+    // Wait for the terminal to load (Globe view)
+    await pageA.waitForSelector('button[title="Social"]', { timeout: 30000 });
+    // Click Social nav item
+    await pageA.click('button[title="Social"]');
+
+    // Setup User B
+    await pageB.goto(APP_URL);
+    await pageB.waitForSelector('text=Access Terminal', { timeout: 30000 });
+    
+    await pageB.evaluate(() => {
+        if (window.setPlaywrightTestUser) {
+            window.setPlaywrightTestUser(JSON.stringify({ uid: 'test-user-B', email: 'testb@example.com', displayName: 'Test User B', username: 'userb' }));
+        }
+    });
+    await pageB.waitForSelector('button[title="Social"]', { timeout: 30000 });
+    await pageB.click('button[title="Social"]');
 
     // Wait for the feed to load
     await pageA.waitForSelector('text=Confluence Feed', { timeout: 10000 });
@@ -58,8 +71,7 @@ test.describe('Confluence Social Platform - Dual Account E2E Test', () => {
 
     // Assuming User A can see User B in the list
     // Click on User B's name in the DM list
-    // Note: Since users are anonymous, we might just click the first user in the list
-    await pageA.locator('button').filter({ hasText: 'Unknown' }).first().click();
+    await pageA.locator('button').filter({ hasText: 'Test User B' }).first().click();
 
     const dmText = `Hey User B, this is a real-time DM! ${Date.now()}`;
     await pageA.fill('textarea[placeholder^="Message @"]', dmText);

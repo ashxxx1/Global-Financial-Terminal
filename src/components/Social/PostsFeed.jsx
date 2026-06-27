@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { db } from "../../services/firebase";
-import { collection, query, orderBy, limit, onSnapshot, doc, getDoc, addDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, setDoc, serverTimestamp, increment, where } from "firebase/firestore";
+import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, updateDoc, increment, getDoc, arrayUnion, arrayRemove, where, deleteDoc, setDoc } from "firebase/firestore";
 import { Heart, MessageCircle, Repeat2, Bookmark, Share, Image as ImageIcon, Smile, MoreHorizontal, Check, Trash2, Edit2, BarChart2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -135,27 +135,22 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
 
       const postData = {
         authorId: currentUser.uid,
-        authorName: currentUser.displayName || 'Trader',
-        authorUsername: currentUser.username || '',
-        authorIdNum: null,
-        authorAvatar: currentUser.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser.uid}`,
-        text: inputText.slice(0, 280),
-        imageURL: mediaUrls.length > 0 ? mediaUrls[0] : null,
+        content: inputText.slice(0, 280), text: inputText.slice(0, 280),
         mediaUrls: mediaUrls.slice(0, 4),
-        likes: 0,
-        likedBy: [],
-        dislikes: 0,
-        dislikedBy: [],
-        repostCount: 0,
-        repostOfId: null,
+        poll: pollData,
+        createdAtMs: Date.now(), // Store as unix timestamp for easier math
+        editedAtMs: null,
+        parentPostId: replyingTo ? replyingTo.id : null,
         quotedPostId: quoting ? quoting.id : null,
-        quotedPostData: null,
-        commentCount: 0,
-        tags,
+        repostOfId: null,
+        visibility: 'public',
         isDeleted: false,
-        editedAt: null,
-        createdAtMs: Date.now(),
-        createdAt: serverTimestamp()
+        likeCount: 0,
+        repostCount: 0,
+        replyCount: 0,
+        quoteCount: 0,
+        viewCount: 0,
+        tags
       };
 
       await addDoc(collection(db, "social_posts"), postData);
@@ -288,6 +283,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
   };
 
   const renderContentWithTags = (content) => {
+      if (!content) return null;
       const words = content.split(/(\s+)/);
       return words.map((w, i) => {
           if (w.startsWith('#') && w.length > 1) {

@@ -315,12 +315,29 @@ export function SocialModule() {
     return () => unsub();
   }, [activeFriend, currentUser]);
 
+  const chatContainerRef = useRef(null);
+  const channelContainerRef = useRef(null);
+
   useEffect(() => {
-    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+        if (scrollHeight - scrollTop - clientHeight < 150) {
+            chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }
+    } else {
+        chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   useEffect(() => {
-    channelBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (channelContainerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = channelContainerRef.current;
+        if (scrollHeight - scrollTop - clientHeight < 150) {
+            channelBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }
+    } else {
+        channelBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [channelMessages]);
 
   const handleSendMessage = async (e) => {
@@ -965,7 +982,7 @@ export function SocialModule() {
                    </div>
                 )}
                 {activeHomeTab === 'profile' && (
-                  <div className="flex flex-col h-full overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 bg-[#020617]">
+                  <div ref={chatContainerRef} className="flex-1 flex flex-col h-full overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 bg-[#020617]">
                       <div 
                         className="h-44 bg-cover bg-center shrink-0 relative"
                         style={{
@@ -1293,7 +1310,7 @@ export function SocialModule() {
                    </div>
 
                    {/* Channels & Categories List */}
-                   <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-white/10">
+                   <div ref={channelContainerRef} className="flex-1 overflow-y-auto p-3 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-white/10">
                       {/* Uncategorized channels */}
                       {channels.filter(c => !c.categoryId).length > 0 && (
                          <div className="flex flex-col gap-1">

@@ -4,10 +4,13 @@ import { db } from "../../services/firebase";
 import { collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, updateDoc, increment, getDoc, arrayUnion, arrayRemove, where, deleteDoc, setDoc } from "firebase/firestore";
 import { Heart, MessageCircle, Repeat2, Bookmark, Share, Image as ImageIcon, Smile, MoreHorizontal, Check, Trash2, Edit2, BarChart2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Cashtag from "./Cashtag";
+import UserMention from "./UserMention";
 
 export default function PostsFeed({ feedType = 'foryou', profileId = null, onProfileClick }) {
   const { currentUser } = useAuth();
   const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [followingList, setFollowingList] = useState([]);
   
   // Composer state
@@ -22,6 +25,8 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
   const [likedPosts, setLikedPosts] = useState(new Set());
   const [bookmarkedPosts, setBookmarkedPosts] = useState(new Set());
   const [repostedPosts, setRepostedPosts] = useState(new Set());
+  const [postLimit, setPostLimit] = useState(20);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load Bookmarks and Likes for the current user
   useEffect(() => {
@@ -54,14 +59,17 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
   // Load Feed
   useEffect(() => {
     let q;
-    if (feedType === 'following' && followingList.length > 0) {
-        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(100));
-    } else if (feedType === 'profile' && profileId) {
-        q = query(collection(db, "social_posts"), where("authorId", "==", profileId), orderBy("createdAtMs", "desc"), limit(50));
+    if (feedType === 'foryou') {
+        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(postLimit));
+    } else if (feedType === 'following' && currentUser) {
+        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(postLimit * 2));
+    } else if (profileId) {
+        q = query(collection(db, "social_posts"), where("authorId", "==", profileId), orderBy("createdAtMs", "desc"), limit(postLimit));
     } else {
-        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(50));
+        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(postLimit));
     }
     
+    let isMounted = true;
     const unsub = onSnapshot(q, async (snap) => {
       const postsList = await Promise.all(snap.docs.map(async (docSnap) => {
         const data = docSnap.data();
@@ -90,21 +98,26 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
           quotedData
         };
       }));
-      
+      if (!isMounted) return;
       if (feedType === 'following') {
           setPosts(postsList.filter(p => followingList.includes(p.authorId) || p.authorId === currentUser?.uid));
       } else {
           setPosts(postsList);
       }
+      setIsLoading(false);
     });
-    return () => unsub();
-  }, [feedType, followingList, currentUser, profileId]);
+    return () => {
+        isMounted = false;
+        unsub();
+    };
+  }, [feedType, followingList, currentUser, profileId, postLimit]);
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
     if (!inputText.trim() && mediaUrls.length === 0 && !quoting) return;
-    if (!currentUser) return;
+    if (!currentUser || isSubmitting) return;
 
+    setIsSubmitting(true);
     try {
       if (editingPost) {
           // Check 5 min window
@@ -166,6 +179,8 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
       setQuoting(null);
     } catch (err) {
       console.error("Failed to post:", err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -290,13 +305,13 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
               return <span key={i} className="text-indigo-400 hover:underline cursor-pointer">{w}</span>;
           }
           if (w.startsWith('$') && w.length > 1) {
-              return (
-                  <span key={i} className="text-emerald-400 font-bold hover:bg-emerald-400/20 px-1 rounded cursor-pointer transition-colors" title={`View ${w} stock data`}>
-                      {w}
-                  </span>
-              );
+              // Strip $ from symbol
+              return <Cashtag key={i} symbol={w.slice(1).replace(/[^a-zA-Z0-9]/g, '')} />;
           }
-          if (w.startsWith('@')) return <span key={i} className="text-emerald-400 hover:underline cursor-pointer">{w}</span>;
+          if (w.startsWith('@') && w.length > 1) {
+              // Strip @ from username
+              return <UserMention key={i} username={w.slice(1).replace(/[^a-zA-Z0-9_]/g, '')} />;
+          }
           return <span key={i}>{w}</span>;
       });
   };
@@ -396,18 +411,45 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                     </span>
                     <button 
                         onClick={handlePostSubmit}
-                        disabled={!inputText.trim() && mediaUrls.length === 0}
-                        className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white px-5 py-1.5 rounded-full font-medium transition-colors text-sm"
+                        disabled={(!inputText.trim() && mediaUrls.length === 0) || isSubmitting}
+                        className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white px-5 py-1.5 rounded-full font-medium transition-colors text-sm flex items-center justify-center min-w-[70px]"
                     >
-                        Post
+                        {isSubmitting ? <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span> : 'Post'}
                     </button>
                 </div>
             </div>
-           </div>
-        </div>
-      )}
-
-      {/* Feed List */}
+          </div>
+       </div>
+       
+       {/* Divider */}
+       <div className="h-2 bg-white/[0.02]"></div>
+      
+      {isLoading ? (
+          <div className="flex flex-col">
+              {[...Array(3)].map((_, i) => (
+                  <div key={i} className="p-4 border-b border-white/5 flex gap-3">
+                      <div className="w-10 h-10 rounded-full skeleton flex-shrink-0"></div>
+                      <div className="flex-1">
+                          <div className="flex gap-2 mb-2">
+                              <div className="w-24 h-4 skeleton"></div>
+                              <div className="w-16 h-4 skeleton"></div>
+                          </div>
+                          <div className="w-full h-16 skeleton mb-2"></div>
+                          <div className="w-3/4 h-4 skeleton"></div>
+                          <div className="flex gap-6 mt-4">
+                              <div className="w-10 h-4 skeleton"></div>
+                              <div className="w-10 h-4 skeleton"></div>
+                              <div className="w-10 h-4 skeleton"></div>
+                          </div>
+                      </div>
+                  </div>
+              ))}
+          </div>
+      ) : posts.length === 0 ? (
+          <div className="text-center text-slate-500 py-12">
+              No posts found. Start following people or share your own thoughts!
+          </div>
+      ) : (
       <AnimatePresence>
          {posts.map(post => {
              if (post.isDeleted) return null;
@@ -421,10 +463,11 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
              return (
                  <motion.div 
                      key={post.id} 
-                     initial={{ opacity: 0, y: 20 }}
-                     animate={{ opacity: 1, y: 0 }}
+                     initial={{ opacity: 0, scale: 0.98, y: 10 }} 
+                     animate={{ opacity: 1, scale: 1, y: 0 }} 
                      exit={{ opacity: 0, scale: 0.95 }}
-                     className="glass-panel p-4 rounded-2xl flex gap-3 group relative"
+                     transition={{ duration: 0.2, type: "spring", stiffness: 200, damping: 20 }}
+                     className="px-4 py-3 border-b border-white/5 hover:bg-white/[0.02] transition-colors flex gap-3 group relative cursor-pointer"
                  >
                      <div 
                          onClick={() => onProfileClick && onProfileClick(post.authorId)}
@@ -560,6 +603,16 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
              )
          })}
       </AnimatePresence>
+      )}
+      
+      {!isLoading && posts.length >= postLimit && (
+          <button 
+              onClick={() => setPostLimit(prev => prev + 20)}
+              className="w-full mt-4 py-3 border border-white/10 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors font-medium"
+          >
+              Load More
+          </button>
+      )}
     </div>
   );
 }

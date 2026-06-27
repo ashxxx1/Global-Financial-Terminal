@@ -20,6 +20,7 @@ export default function ChannelChat({ activeChannel }) {
           orderBy("createdAtMs", "asc")
       );
       
+      let isMounted = true;
       const unsub = onSnapshot(q, async (snap) => {
           const msgs = await Promise.all(snap.docs.map(async (d) => {
               const data = d.data();
@@ -30,13 +31,17 @@ export default function ChannelChat({ activeChannel }) {
               }
               return { id: d.id, ...data, author: authorData };
           }));
+          if (!isMounted) return;
           setMessages(msgs);
           setTimeout(() => {
               messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
           }, 100);
       });
 
-      return () => unsub();
+      return () => {
+          isMounted = false;
+          unsub();
+      };
   }, [activeChannel]);
 
   const handleSendMessage = async (e) => {
@@ -117,13 +122,20 @@ export default function ChannelChat({ activeChannel }) {
 
   const renderMarkdown = (text) => {
       if (!text) return null;
-      let parsed = text
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/~~(.*?)~~/g, '<del>$1</del>')
-          .replace(/__(.*?)__/g, '<u>$1</u>')
-          .replace(/`(.*?)`/g, '<code class="bg-black/30 px-1 py-0.5 rounded text-indigo-300 font-mono text-[13px]">$1</code>');
-      return <span dangerouslySetInnerHTML={{ __html: parsed }} />;
+      // Replaced dangerouslySetInnerHTML with safe rendering
+      const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|~~.*?~~|__.*?__|`.*?`)/g);
+      return (
+          <span>
+              {parts.map((part, i) => {
+                  if (part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
+                  if (part.startsWith('*') && part.endsWith('*')) return <em key={i}>{part.slice(1, -1)}</em>;
+                  if (part.startsWith('~~') && part.endsWith('~~')) return <del key={i}>{part.slice(2, -2)}</del>;
+                  if (part.startsWith('__') && part.endsWith('__')) return <u key={i}>{part.slice(2, -2)}</u>;
+                  if (part.startsWith('`') && part.endsWith('`')) return <code key={i} className="bg-black/30 px-1 py-0.5 rounded text-indigo-300 font-mono text-[13px]">{part.slice(1, -1)}</code>;
+                  return <span key={i}>{part}</span>;
+              })}
+          </span>
+      );
   };
 
   if (!activeChannel) return null;

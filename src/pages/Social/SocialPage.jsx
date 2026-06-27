@@ -32,7 +32,7 @@ export default function SocialPage() {
     <div className="flex h-screen w-full bg-[#0b0c10] overflow-hidden font-sans">
       
       {/* 1. Leftmost Server / Mode Navigation Sidebar */}
-      <nav className="w-[72px] h-full flex flex-col items-center py-4 gap-3 bg-[#0a0a0f] border-r border-white/5 z-20">
+      <nav className="hidden md:flex w-[72px] h-full flex-col items-center py-4 gap-3 bg-[#0a0a0f] border-r border-white/5 z-20">
         <button onClick={() => setActiveView("globe")} className="w-12 h-12 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center hover:bg-indigo-600/40 transition-colors mb-2 cursor-pointer" title="Back to Terminal">
            <LayoutDashboard className="w-6 h-6" />
         </button>
@@ -55,7 +55,7 @@ export default function SocialPage() {
       </nav>
 
       {/* 2. Secondary Sidebar (Navigation for current mode) */}
-      <aside className="w-64 h-full bg-[#11131a] flex flex-col border-r border-white/5 z-10 flex-shrink-0 transition-all duration-300">
+      <aside className="hidden lg:flex w-64 h-full bg-[#11131a] flex-col border-r border-white/5 z-10 flex-shrink-0 transition-all duration-300">
          {activeMode === "feed" ? (
            <div className="flex flex-col h-full">
              <div className="h-14 px-4 flex items-center shadow-sm border-b border-white/5">
@@ -129,8 +129,11 @@ export default function SocialPage() {
 
       {/* 3. Main Content Area */}
       <main className="flex-1 h-full flex flex-col bg-[#0b0c10] relative z-0 min-w-0">
-        <div className="h-14 px-6 flex items-center border-b border-white/5 shadow-sm bg-[#0b0c10]/80 backdrop-blur-md sticky top-0 z-10 flex-shrink-0 justify-between">
+        <div className="h-14 px-4 md:px-6 flex items-center border-b border-white/5 shadow-sm bg-[#0b0c10]/80 backdrop-blur-md sticky top-0 z-10 flex-shrink-0 justify-between">
            <div className="flex items-center gap-2 text-white font-medium">
+             <button onClick={() => setActiveView("globe")} className="md:hidden mr-1 p-1.5 rounded-md hover:bg-white/10 text-indigo-400">
+                 <LayoutDashboard size={18} />
+             </button>
              {activeMode === "feed" ? (
                  feedType === 'foryou' ? "For You" : 
                  feedType === 'following' ? "Following" : 
@@ -172,7 +175,7 @@ export default function SocialPage() {
       </main>
 
       {/* 4. Right Sidebar (Profile / Server Members / Trending) */}
-      <aside className="w-80 h-full flex-shrink-0 z-10 bg-[#11131a] flex flex-col border-l border-white/5 overflow-y-auto custom-scrollbar">
+      <aside className="hidden xl:flex w-80 h-full flex-shrink-0 z-10 bg-[#11131a] flex-col border-l border-white/5 overflow-y-auto custom-scrollbar">
         <UserProfile 
             activeProfileId={activeProfileId || currentUser?.uid} 
             onReset={() => setActiveProfileId(null)} 

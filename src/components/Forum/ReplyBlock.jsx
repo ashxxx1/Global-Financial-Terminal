@@ -13,9 +13,17 @@ function renderBody(text) {
           if (/^\$[A-Z]{1,5}$/.test(part)) {
             return <StockMention key={j} symbol={part.slice(1)} />;
           }
-          let html = part.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-          html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
-          return <span key={j} dangerouslySetInnerHTML={{ __html: html }} />;
+          // Basic markdown parser for inline elements
+          const subParts = part.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+          return (
+             <span key={j}>
+                 {subParts.map((sub, k) => {
+                    if (sub.startsWith('**') && sub.endsWith('**')) return <strong key={k}>{sub.slice(2, -2)}</strong>;
+                    if (sub.startsWith('*') && sub.endsWith('*')) return <em key={k}>{sub.slice(1, -1)}</em>;
+                    return <span key={k}>{sub}</span>;
+                 })}
+             </span>
+          );
         })}
         {i < lines.length - 1 && <br />}
       </span>

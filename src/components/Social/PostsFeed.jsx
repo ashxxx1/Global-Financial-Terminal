@@ -55,11 +55,11 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
   useEffect(() => {
     let q;
     if (feedType === 'following' && followingList.length > 0) {
-        q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(100));
+        q = query(collection(db, "social_posts"), orderBy("createdAt", "desc"), limit(100));
     } else if (feedType === 'profile' && profileId) {
-        q = query(collection(db, "posts"), where("authorId", "==", profileId), orderBy("createdAt", "desc"), limit(50));
+        q = query(collection(db, "social_posts"), where("authorId", "==", profileId), orderBy("createdAt", "desc"), limit(50));
     } else {
-        q = query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(50));
+        q = query(collection(db, "social_posts"), orderBy("createdAt", "desc"), limit(50));
     }
     
     const unsub = onSnapshot(q, async (snap) => {
@@ -73,7 +73,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
         
         let quotedData = null;
         if (data.quotedPostId) {
-           const quotedDoc = await getDoc(doc(db, "posts", data.quotedPostId));
+           const quotedDoc = await getDoc(doc(db, "social_posts", data.quotedPostId));
            if (quotedDoc.exists()) {
                quotedData = quotedDoc.data();
                if (quotedData.authorId) {
@@ -114,7 +114,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
               setInputText("");
               return;
           }
-          await updateDoc(doc(db, "posts", editingPost.id), {
+          await updateDoc(doc(db, "social_posts", editingPost.id), {
               content: inputText.slice(0, 280),
               editedAt: Date.now()
           });
@@ -153,7 +153,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
         tags
       };
 
-      await addDoc(collection(db, "posts"), postData);
+      await addDoc(collection(db, "social_posts"), postData);
 
       // Reset state
       setInputText("");
@@ -178,7 +178,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
 
   const toggleLike = async (postId, currentlyLiked) => {
       if (!currentUser) return;
-      const postRef = doc(db, "posts", postId);
+      const postRef = doc(db, "social_posts", postId);
       const newLiked = new Set(likedPosts);
       if (currentlyLiked) {
           newLiked.delete(postId);
@@ -217,7 +217,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
       if (newReposts.has(post.id)) return; // Already reposted
       
       try {
-          await addDoc(collection(db, "posts"), {
+          await addDoc(collection(db, "social_posts"), {
               authorId: currentUser.uid,
               content: "",
               mediaUrls: [],
@@ -226,7 +226,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
               visibility: 'public',
               isDeleted: false,
           });
-          await updateDoc(doc(db, "posts", post.id), { repostCount: increment(1) });
+          await updateDoc(doc(db, "social_posts", post.id), { repostCount: increment(1) });
           newReposts.add(post.id);
           setRepostedPosts(newReposts);
       } catch (err) {
@@ -258,7 +258,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
 
   const handleDeleteClick = async (postId) => {
       if (window.confirm("Delete this post?")) {
-          await updateDoc(doc(db, "posts", postId), { isDeleted: true });
+          await updateDoc(doc(db, "social_posts", postId), { isDeleted: true });
       }
   };
 
@@ -273,7 +273,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
       newOptions[optionIndex].votes.push(currentUser.uid);
       
       try {
-          await updateDoc(doc(db, "posts", postId), {
+          await updateDoc(doc(db, "social_posts", postId), {
               "poll.options": newOptions,
               "poll.totalVotes": poll.totalVotes + 1
           });

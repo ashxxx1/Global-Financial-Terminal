@@ -59,7 +59,7 @@ export default function ChatWindow({ activeFriend }) {
 
     // Firestore query for mutual chat messages
     const q = query(
-      collection(db, "messages"),
+      collection(db, "channel_messages"),
       where("chatId", "in", [
         `${currentUser.uid}_${activeFriend.uid}`,
         `${activeFriend.uid}_${currentUser.uid}`
@@ -107,7 +107,7 @@ export default function ChatWindow({ activeFriend }) {
     if (currentUser) {
       const chatId = `${currentUser.uid}_${activeFriend.uid}`;
       try {
-        await addDoc(collection(db, "messages"), {
+        await addDoc(collection(db, "channel_messages"), {
           chatId,
           senderId: currentUser.uid,
           text: newMsgText,

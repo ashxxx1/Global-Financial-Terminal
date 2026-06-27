@@ -19,7 +19,7 @@ export default function DirectMessageChat({ activeDmUser }) {
       if (!chatId) return;
       
       const q = query(
-          collection(db, "dm_messages"),
+          collection(db, "messages"),
           where("chatId", "==", chatId),
           orderBy("createdAt", "asc")
       );
@@ -56,7 +56,7 @@ export default function DirectMessageChat({ activeDmUser }) {
       setInputText("");
       
       try {
-          await addDoc(collection(db, "dm_messages"), {
+          await addDoc(collection(db, "messages"), {
               chatId,
               authorId: currentUser.uid,
               content: msgContent,

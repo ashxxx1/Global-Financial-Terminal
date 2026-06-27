@@ -24,7 +24,7 @@ export default function ServerSidebar({ activeServer, setActiveServer, setActive
         }
         
         // Fetch server details (this is a simplified approach, a real app might denormalize or use a different strategy if server list is huge)
-        const serverDocs = await Promise.all(serverIds.map(id => getDoc(doc(db, "servers", id))));
+        const serverDocs = await Promise.all(serverIds.map(id => getDoc(doc(db, "social_servers", id))));
         const loadedServers = serverDocs.filter(d => d.exists() && !d.data().isDeleted).map(d => ({id: d.id, ...d.data()}));
         setServers(loadedServers);
     });
@@ -62,13 +62,13 @@ export default function ServerSidebar({ activeServer, setActiveServer, setActive
               everyoneRoleId: roleRef.id,
               isDeleted: false
           };
-          const serverRef = await addDoc(collection(db, "servers"), serverData);
+          const serverRef = await addDoc(collection(db, "social_servers"), serverData);
 
           // Update role with serverId
           await addDoc(collection(db, "roles"), { ...roleData, serverId: serverRef.id }); // Assuming we recreate with correct serverId or update the first. Simplification here.
 
           // 3. Create General Channel
-          await addDoc(collection(db, "channels"), {
+          await addDoc(collection(db, "social_channels"), {
               serverId: serverRef.id,
               categoryId: null,
               name: "general",

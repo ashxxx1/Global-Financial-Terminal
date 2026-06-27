@@ -15,7 +15,7 @@ export default function ChannelChat({ activeChannel }) {
       if (!activeChannel) return;
       
       const q = query(
-          collection(db, "messages"),
+          collection(db, "channel_messages"),
           where("channelId", "==", activeChannel.id),
           orderBy("createdAt", "asc")
       );
@@ -53,7 +53,7 @@ export default function ChannelChat({ activeChannel }) {
               });
               setEditingMsg(null);
           } else {
-              await addDoc(collection(db, "messages"), {
+              await addDoc(collection(db, "channel_messages"), {
                   channelId: activeChannel.id,
                   authorId: currentUser.uid,
                   content: msgContent,

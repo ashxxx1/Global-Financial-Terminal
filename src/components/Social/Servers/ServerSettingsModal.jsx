@@ -22,7 +22,7 @@ export default function ServerSettingsModal({ serverId, onClose }) {
   useEffect(() => {
       if (!serverId) return;
       
-      const unsubServer = onSnapshot(doc(db, "servers", serverId), (d) => {
+      const unsubServer = onSnapshot(doc(db, "social_servers", serverId), (d) => {
           if (d.exists()) {
               const data = d.data();
               setServer({ id: d.id, ...data });
@@ -41,7 +41,7 @@ export default function ServerSettingsModal({ serverId, onClose }) {
 
   const handleUpdateServer = async () => {
       try {
-          await updateDoc(doc(db, "servers", serverId), { name: serverName });
+          await updateDoc(doc(db, "social_servers", serverId), { name: serverName });
       } catch (err) {
           console.error(err);
       }
@@ -57,7 +57,7 @@ export default function ServerSettingsModal({ serverId, onClose }) {
       if (confirmName !== server.name) return;
       
       try {
-          await deleteDoc(doc(db, "servers", serverId));
+          await deleteDoc(doc(db, "social_servers", serverId));
           onClose(); // Assuming parent handles resetting activeServer when deleted
       } catch (err) {
           console.error(err);

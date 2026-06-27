@@ -25,19 +25,19 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
       if (!serverId) return;
       
       const fetchServer = async () => {
-          const s = await getDoc(doc(db, "servers", serverId));
+          const s = await getDoc(doc(db, "social_servers", serverId));
           if (s.exists()) setServer(s.data());
       };
       fetchServer();
 
       // Listen to channels
-      const qc = query(collection(db, "channels"), where("serverId", "==", serverId), orderBy("position", "asc"));
+      const qc = query(collection(db, "social_channels"), where("serverId", "==", serverId), orderBy("position", "asc"));
       const unsubC = onSnapshot(qc, snap => {
           setChannels(snap.docs.map(d => ({id: d.id, ...d.data()})));
       });
 
       // Listen to categories
-      const qCat = query(collection(db, "categories"), where("serverId", "==", serverId), orderBy("position", "asc"));
+      const qCat = query(collection(db, "social_categories"), where("serverId", "==", serverId), orderBy("position", "asc"));
       const unsubCat = onSnapshot(qCat, snap => {
           setCategories(snap.docs.map(d => ({id: d.id, ...d.data()})));
       });
@@ -59,7 +59,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
       const formattedName = newChannelName.trim().toLowerCase().replace(/\s+/g, '-');
 
       try {
-          await addDoc(collection(db, "channels"), {
+          await addDoc(collection(db, "social_channels"), {
               serverId,
               categoryId: null,
               name: formattedName,

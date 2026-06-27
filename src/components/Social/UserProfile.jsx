@@ -127,7 +127,7 @@ export default function UserProfile({ activeProfileId, onReset, activeServer }) 
   const handleModerate = async (action) => {
       if (!activeServer || !activeProfileId) return;
       
-      const memberRef = doc(db, "servers", activeServer.id, "members", activeProfileId);
+      const memberRef = doc(db, "social_servers", activeServer.id, "members", activeProfileId);
       
       try {
           if (action === 'timeout') {

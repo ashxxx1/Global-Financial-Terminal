@@ -2076,7 +2076,7 @@ export function ChartTerminal() {
       <div className="nexus-chart-bar flex items-center gap-3 px-4 py-2 border-b flex-shrink-0 flex-wrap">
         
         <div className="flex items-center gap-2">
-          <span className="nexus-chart-title hidden md:inline">Chart Nexus</span>
+          <span className="nexus-chart-title hidden md:inline">Charts</span>
           <button 
             onClick={() => setShowHelp(prev => !prev)}
             className="w-4 h-4 rounded-full border border-slate-700 hover:border-indigo-400 flex items-center justify-center text-[9px] font-bold text-slate-500 hover:text-white transition-colors cursor-pointer"

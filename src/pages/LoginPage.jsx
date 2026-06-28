@@ -4,7 +4,7 @@ import { Radio } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 const FEATURES = [
-  { icon: "◈", title: "Geo Nexus Map", desc: "Interactive globe with live news heatmap across 25+ markets" },
+  { icon: "◈", title: "Global Market Map", desc: "Interactive globe with live news heatmap across 25+ markets" },
   { icon: "◎", title: "Country Signal Drill", desc: "Click any nation — headlines, local index, AI sentiment score" },
   { icon: "▣", title: "Live Market Lattice", desc: "Global indices, FX, commodities, and crypto in one view" },
   { icon: "⬡", title: "AI Signal Engine", desc: "News-to-price impact scoring with directional signals" },
@@ -72,7 +72,7 @@ export default function LoginPage() {
               <Radio className="nx-logo__core h-4 w-4" strokeWidth={2.5} />
             </div>
             <div>
-              <div className="nx-logo__text">SIGNAL<em>NEXUS</em></div>
+              <div className="nx-logo__text">GLOBAL<em>FINANCIAL</em> TERMINAL</div>
               <div className="nx-section-sub mt-1">Geospatial Market Intelligence</div>
             </div>
           </div>
@@ -139,7 +139,7 @@ export default function LoginPage() {
         </div>
 
         <div className="px-6 py-3 flex items-center justify-center gap-2" style={{ borderTop: "1px solid var(--nx-border)", fontFamily: "var(--nx-font-mono)", fontSize: "8px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.08em" }}>
-          <span>Signal Nexus v0.6</span><span>·</span><span>Private Beta</span><span>·</span><span>© 2026</span>
+          <span>Global Financial Terminal v0.6</span><span>·</span><span>Private Beta</span><span>·</span><span>© 2026</span>
         </div>
       </div>
 

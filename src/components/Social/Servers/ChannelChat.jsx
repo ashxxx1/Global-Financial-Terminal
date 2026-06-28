@@ -52,7 +52,7 @@ export default function ChannelChat({ activeChannel }) {
       
       try {
           if (editingMsg) {
-              await updateDoc(doc(db, "messages", editingMsg.id), {
+              await updateDoc(doc(db, "channel_messages", editingMsg.id), {
                   content: msgContent,
                   editedAtMs: Date.now()
               });
@@ -87,7 +87,7 @@ export default function ChannelChat({ activeChannel }) {
   
   const togglePin = async (msgId, currentPin) => {
       try {
-          await updateDoc(doc(db, "messages", msgId), { isPinned: !currentPin });
+          await updateDoc(doc(db, "channel_messages", msgId), { isPinned: !currentPin });
       } catch (err) {
           console.error(err);
       }
@@ -106,7 +106,7 @@ export default function ChannelChat({ activeChannel }) {
       }
       
       try {
-          await updateDoc(doc(db, "messages", msgId), { reactions: newReactions });
+          await updateDoc(doc(db, "channel_messages", msgId), { reactions: newReactions });
       } catch (err) {
           console.error(err);
       }
@@ -114,7 +114,7 @@ export default function ChannelChat({ activeChannel }) {
   
   const handleDelete = async (msgId) => {
       try {
-          await updateDoc(doc(db, "messages", msgId), { isDeleted: true });
+          await updateDoc(doc(db, "channel_messages", msgId), { isDeleted: true });
       } catch (err) {
           console.error(err);
       }

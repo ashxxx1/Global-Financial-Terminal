@@ -7,11 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import Cashtag from "./Cashtag";
 import UserMention from "./UserMention";
 
-export default function PostsFeed({ feedType = 'foryou', profileId = null, onProfileClick, searchQuery = "" }) {
+export default function PostsFeed({ feedType = 'foryou', profileId = null, onProfileClick, searchQuery = "", tabFilter = "posts" }) {
   const { currentUser } = useAuth();
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [followingList, setFollowingList] = useState([]);
+  const [myUsername, setMyUsername] = useState("");
   
   // Composer state
   const [inputText, setInputText] = useState("");
@@ -73,35 +74,22 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
       if (!currentUser) return;
       const unsub = onSnapshot(doc(db, "users", currentUser.uid), snap => {
           if (snap.exists()) {
-              setFollowingList(snap.data().followingList || []);
+              const data = snap.data();
+              setFollowingList(data.followingList || []);
+              setMyUsername((data.username || "").toLowerCase());
           }
       });
       return () => unsub();
   }, [currentUser]);
 
-  // Load Feed
-  useEffect(() => {
-    let q;
-    if (feedType === 'foryou') {
-        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(postLimit));
-    } else if (feedType === 'following' && currentUser) {
-        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(postLimit * 2));
-    } else if (profileId) {
-        q = query(collection(db, "social_posts"), where("authorId", "==", profileId), orderBy("createdAtMs", "desc"), limit(postLimit));
-    } else {
-        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(postLimit));
-    }
-    
-    let isMounted = true;
-    const unsub = onSnapshot(q, async (snap) => {
-      const postsList = await Promise.all(snap.docs.map(async (docSnap) => {
-        const data = docSnap.data();
+  const hydratePost = async (docSnap) => {
+        const data = docSnap.data ? docSnap.data() : docSnap;
+        const id = docSnap.id || data.id;
         let authorData = {};
         if (data.authorId) {
            const authorDoc = await getDoc(doc(db, "users", data.authorId));
            if (authorDoc.exists()) authorData = authorDoc.data();
         }
-        
         let quotedData = null;
         if (data.quotedPostId) {
            const quotedDoc = await getDoc(doc(db, "social_posts", data.quotedPostId));
@@ -113,7 +101,6 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                }
            }
         }
-        
         let repostedData = null;
         if (data.repostOfId) {
             const repostDoc = await getDoc(doc(db, "social_posts", data.repostOfId));
@@ -125,7 +112,6 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                 }
             }
         }
-
         let parentData = null;
         if (data.parentPostId) {
             const parentDoc = await getDoc(doc(db, "social_posts", data.parentPostId));
@@ -137,28 +123,29 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                 }
             }
         }
-        
-        return {
-          id: docSnap.id,
-          ...data,
-          author: authorData,
-          quotedData,
-          repostedData,
-          parentData
-        };
-      }));
-      if (!isMounted) return;
-      let filtered = postsList;
+        return { id, ...data, author: authorData, quotedData, repostedData, parentData };
+  };
+
+  const applyFeedFilters = (postsList) => {
+      let filtered = postsList.filter(p => !p.isDeleted);
       if (feedType === 'following') {
-          filtered = postsList.filter(p => followingList.includes(p.authorId) || p.authorId === currentUser?.uid);
-      } else if (feedType === 'bookmarks') {
-          filtered = postsList.filter(p => bookmarkedPosts.has(p.id));
+          filtered = filtered.filter(p => followingList.includes(p.authorId) || p.authorId === currentUser?.uid);
+      } else if (feedType === 'communities') {
+          filtered = filtered.filter(p => (p.tags || []).length > 0);
+      } else if (feedType === 'lists') {
+          filtered = filtered.filter(p => followingList.includes(p.authorId));
       } else if (feedType === 'mentions' && currentUser) {
-          const handle = currentUser.displayName?.split(' ')[0]?.toLowerCase();
-          filtered = postsList.filter(p => {
+          const handles = [myUsername, currentUser.email?.split('@')[0]?.toLowerCase()].filter(Boolean);
+          filtered = filtered.filter(p => {
               const text = (p.content || p.text || '').toLowerCase();
-              return text.includes(`@${handle}`) || text.includes(`@${currentUser.email?.split('@')[0]?.toLowerCase()}`);
+              return handles.some(h => text.includes(`@${h}`));
           });
+      }
+      if (profileId) {
+          if (tabFilter === 'replies') filtered = filtered.filter(p => p.parentPostId && p.authorId === profileId);
+          else if (tabFilter === 'media') filtered = filtered.filter(p => (p.mediaUrls || []).length > 0);
+          else if (tabFilter === 'likes') filtered = filtered.filter(p => likedPosts.has(p.id));
+          else filtered = filtered.filter(p => p.authorId === profileId && !p.repostOfId);
       }
       if (searchQuery.trim()) {
           const q = searchQuery.trim().toLowerCase();
@@ -169,14 +156,79 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
               (p.tags || []).some(t => t.toLowerCase().includes(q))
           );
       }
-      setPosts(filtered);
+      return filtered;
+  };
+
+  // Load Feed
+  useEffect(() => {
+    if (!currentUser && (feedType === 'bookmarks' || feedType === 'following')) {
+      setPosts([]);
+      setIsLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    let unsub = () => {};
+
+    const loadBookmarkedPosts = async () => {
+        const qBookmarks = query(collection(db, "bookmarks"), where("userId", "==", currentUser.uid));
+        unsub = onSnapshot(qBookmarks, async (snap) => {
+            const postIds = snap.docs.map(d => d.data().postId);
+            if (!isMounted) return;
+            if (postIds.length === 0) { setPosts([]); setIsLoading(false); return; }
+            const postsList = (await Promise.all(postIds.map(async (id) => {
+                const postDoc = await getDoc(doc(db, "social_posts", id));
+                if (!postDoc.exists()) return null;
+                return hydratePost(postDoc);
+            }))).filter(Boolean);
+            postsList.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+            setPosts(applyFeedFilters(postsList));
+            setIsLoading(false);
+        });
+    };
+
+    if (feedType === 'bookmarks' && currentUser) {
+        loadBookmarkedPosts();
+        return () => { isMounted = false; unsub(); };
+    }
+
+    let q;
+    if (profileId && tabFilter === 'likes') {
+        const qLikes = query(collection(db, "likes"), where("userId", "==", profileId));
+        unsub = onSnapshot(qLikes, async (snap) => {
+            const postIds = snap.docs.map(d => d.data().postId);
+            if (!isMounted) return;
+            const postsList = (await Promise.all(postIds.map(async (id) => {
+                const postDoc = await getDoc(doc(db, "social_posts", id));
+                if (!postDoc.exists()) return null;
+                return hydratePost(postDoc);
+            }))).filter(Boolean);
+            postsList.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+            setPosts(applyFeedFilters(postsList));
+            setIsLoading(false);
+        });
+        return () => { isMounted = false; unsub(); };
+    }
+
+    if (profileId) {
+        q = query(collection(db, "social_posts"), where("authorId", "==", profileId), orderBy("createdAtMs", "desc"), limit(postLimit));
+    } else if (feedType === 'following' && currentUser) {
+        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(postLimit * 3));
+    } else {
+        q = query(collection(db, "social_posts"), orderBy("createdAtMs", "desc"), limit(postLimit));
+    }
+
+    unsub = onSnapshot(q, async (snap) => {
+      const postsList = await Promise.all(snap.docs.map(hydratePost));
+      if (!isMounted) return;
+      setPosts(applyFeedFilters(postsList));
       setIsLoading(false);
     });
     return () => {
         isMounted = false;
         unsub();
     };
-  }, [feedType, followingList, currentUser, profileId, postLimit, searchQuery, bookmarkedPosts]);
+  }, [feedType, followingList, currentUser, profileId, postLimit, searchQuery, bookmarkedPosts, tabFilter, myUsername, likedPosts]);
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
@@ -333,17 +385,37 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
           await addDoc(collection(db, "social_posts"), {
               authorId: currentUser.uid,
               content: "",
+              text: "",
               mediaUrls: [],
               createdAtMs: Date.now(),
               repostOfId: post.id,
               visibility: 'public',
               isDeleted: false,
+              likeCount: 0,
+              repostCount: 0,
+              replyCount: 0,
+              quoteCount: 0,
+              viewCount: 0,
           });
           await updateDoc(doc(db, "social_posts", post.id), { repostCount: increment(1) });
           newReposts.add(post.id);
           setRepostedPosts(new Set(newReposts));
       } catch (err) {
           console.error("Repost failed", err);
+      }
+  };
+
+  const handleShare = async (postId) => {
+      const url = `${window.location.origin}?post=${postId}`;
+      try {
+          if (navigator.share) {
+              await navigator.share({ title: "Global Financial Terminal", url });
+          } else {
+              await navigator.clipboard.writeText(url);
+              alert("Link copied to clipboard");
+          }
+      } catch (err) {
+          if (err?.name !== "AbortError") console.error(err);
       }
   };
 
@@ -608,13 +680,13 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                                      <MoreHorizontal size={16} />
                                  </button>
                                  <div className="absolute top-6 right-0 hidden group-hover/menu:flex flex-col bg-[#1e293b] border border-white/10 rounded-lg shadow-xl z-20 w-32 overflow-hidden">
-                                     {currentUser?.uid === post.authorId && Date.now() - post.createdAtMs < 5 * 60 * 1000 && (
-                                         <button onClick={() => handleEditClick(post)} className="text-left px-3 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-2">
+                                     {currentUser?.uid === displayPost.authorId && Date.now() - displayPost.createdAtMs < 5 * 60 * 1000 && (
+                                         <button onClick={() => handleEditClick(displayPost)} className="text-left px-3 py-2 text-xs text-slate-300 hover:bg-white/5 hover:text-white flex items-center gap-2">
                                              <Edit2 size={14}/> Edit
                                          </button>
                                      )}
-                                     {currentUser?.uid === post.authorId && (
-                                         <button onClick={() => handleDeleteClick(post.id)} className="text-left px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-2">
+                                     {currentUser?.uid === displayPost.authorId && (
+                                         <button onClick={() => handleDeleteClick(displayPost.id)} className="text-left px-3 py-2 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-2">
                                              <Trash2 size={14}/> Delete
                                          </button>
                                      )}
@@ -639,38 +711,38 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                          </div>
 
                          {/* Media Grid (1 to 4 images) */}
-                         {post.mediaUrls?.length > 0 && (
-                             <div className={`mt-3 grid gap-2 rounded-xl overflow-hidden ${post.mediaUrls.length === 1 ? 'grid-cols-1' : post.mediaUrls.length === 2 ? 'grid-cols-2' : post.mediaUrls.length === 3 ? 'grid-cols-2' : 'grid-cols-2'}`}>
-                                 {post.mediaUrls.map((url, i) => (
-                                     <img key={i} src={url} alt="Post media" className={`w-full object-cover ${post.mediaUrls.length === 1 ? 'h-64' : 'h-32'} ${post.mediaUrls.length === 3 && i === 0 ? 'row-span-2 h-full' : ''}`} />
+                         {displayPost.mediaUrls?.length > 0 && (
+                             <div className={`mt-3 grid gap-2 rounded-xl overflow-hidden ${displayPost.mediaUrls.length === 1 ? 'grid-cols-1' : displayPost.mediaUrls.length === 2 ? 'grid-cols-2' : displayPost.mediaUrls.length === 3 ? 'grid-cols-2' : 'grid-cols-2'}`}>
+                                 {displayPost.mediaUrls.map((url, i) => (
+                                     <img key={i} src={url} alt="Post media" className={`w-full object-cover ${displayPost.mediaUrls.length === 1 ? 'h-64' : 'h-32'} ${displayPost.mediaUrls.length === 3 && i === 0 ? 'row-span-2 h-full' : ''}`} />
                                  ))}
                              </div>
                          )}
                          
                          {/* Quoted Post Box */}
-                         {post.quotedData && (
+                         {displayPost.quotedData && (
                              <div className="mt-3 border border-white/10 rounded-xl p-3 bg-black/20 hover:bg-black/30 cursor-pointer transition-colors">
                                  <div className="flex items-center gap-2 mb-1">
-                                     <div className="w-4 h-4 rounded-full bg-slate-800 overflow-hidden"><img src={post.quotedData.author?.photoURL || ''} alt="" className="w-full h-full object-cover"/></div>
-                                     <span className="font-semibold text-slate-300 text-xs">{post.quotedData.author?.displayName}</span>
-                                     <span className="text-slate-500 text-xs">@{post.quotedData.author?.username}</span>
+                                     <div className="w-4 h-4 rounded-full bg-slate-800 overflow-hidden"><img src={displayPost.quotedData.author?.photoURL || ''} alt="" className="w-full h-full object-cover"/></div>
+                                     <span className="font-semibold text-slate-300 text-xs">{displayPost.quotedData.author?.displayName}</span>
+                                     <span className="text-slate-500 text-xs">@{displayPost.quotedData.author?.username}</span>
                                  </div>
                                  <div className="text-xs text-slate-400 line-clamp-3">
-                                     {post.quotedData.content}
+                                     {displayPost.quotedData.content}
                                  </div>
                              </div>
                          )}
                          
                          {/* Poll View */}
-                         {post.poll && (
+                         {displayPost.poll && (
                              <div className="mt-4 flex flex-col gap-2">
-                                 {post.poll.options.map((opt, i) => {
-                                     const percentage = post.poll.totalVotes > 0 ? Math.round((opt.votes.length / post.poll.totalVotes) * 100) : 0;
+                                 {displayPost.poll.options.map((opt, i) => {
+                                     const percentage = displayPost.poll.totalVotes > 0 ? Math.round((opt.votes.length / displayPost.poll.totalVotes) * 100) : 0;
                                      const isVoted = opt.votes.includes(currentUser?.uid);
-                                     const hasVotedAny = post.poll.options.some(o => o.votes.includes(currentUser?.uid));
+                                     const hasVotedAny = displayPost.poll.options.some(o => o.votes.includes(currentUser?.uid));
                                      
                                      return (
-                                         <div key={i} className="relative w-full overflow-hidden rounded-lg border border-white/10 hover:border-white/20 transition-colors cursor-pointer group" onClick={() => handleVote(post.id, post.poll, i)}>
+                                         <div key={i} className="relative w-full overflow-hidden rounded-lg border transition-colors cursor-pointer group" style={{ borderColor: "var(--gft-border)" }} onClick={() => handleVote(displayPost.id, displayPost.poll, i)}>
                                              <div className="absolute top-0 left-0 h-full bg-indigo-600/30 transition-all duration-500" style={{ width: hasVotedAny ? `${percentage}%` : '0%' }}></div>
                                              <div className="relative px-3 py-2 flex justify-between items-center z-10">
                                                  <span className={`text-sm ${isVoted ? 'font-bold text-white' : 'text-slate-300'} group-hover:text-white transition-colors`}>{opt.text}</span>
@@ -679,7 +751,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                                          </div>
                                      );
                                  })}
-                                 <div className="text-xs text-slate-500 mt-1">{displayPost.poll.totalVotes} votes</div>
+                                 <div className="text-xs mt-1" style={{ color: "var(--gft-text-soft)" }}>{displayPost.poll.totalVotes} votes</div>
                              </div>
                          )}
 
@@ -710,7 +782,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                              <button type="button" onClick={() => toggleBookmark(displayPost.id)} className={`gft-post-action ${isBookmarked ? 'bookmarked' : ''}`}>
                                  <Bookmark size={16} className={isBookmarked ? "fill-current" : ""} />
                              </button>
-                             <button type="button" className="gft-post-action">
+                             <button type="button" onClick={() => handleShare(displayPost.id)} className="gft-post-action">
                                  <Share size={16} />
                              </button>
                          </div>

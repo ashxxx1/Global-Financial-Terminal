@@ -8,7 +8,7 @@ export function LeftNav({ currentView, onSetView }) {
   const [isSyncing, setIsSyncing] = useState(false);
 
   const navItems = [
-    { icon: Globe2, label: "Nexus", val: "globe" },
+    { icon: Globe2, label: "Map", val: "globe" },
     { icon: Newspaper, label: "Wire", val: "news" },
     { icon: Hash, label: "Pulse", val: "social" },
     { icon: Zap, label: "Book", val: "portfolio" },

@@ -55,7 +55,7 @@ export function MarketBrief() {
       >
         <Sparkles size={12} style={{ color: "var(--nx-violet)" }} />
         <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", color: "var(--nx-cyan)" }}>
-          SIGNAL BRIEF
+          MARKET BRIEF
         </span>
         <ChevronDown size={10} style={{ color: "rgba(255,255,255,0.35)" }} />
       </button>
@@ -67,7 +67,7 @@ export function MarketBrief() {
       <div className="nx-brief__header">
         <div className="flex items-center gap-2">
           <Sparkles size={12} style={{ color: "var(--nx-violet)" }} />
-          <span className="nx-brief__title">Signal Brief</span>
+          <span className="nx-brief__title">Market Brief</span>
           <span className="nx-brief__ai-badge">AI SYNTH</span>
           <span style={{ fontFamily: "var(--nx-font-mono)", fontSize: "8px", color: "rgba(255,255,255,0.3)" }}>
             {TODAY}

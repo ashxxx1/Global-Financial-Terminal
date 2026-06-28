@@ -19,7 +19,7 @@ export default function RejectedPage() {
           <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-sm flex items-center justify-center text-[10px] text-white" style={{ background: "var(--nx-rose)", border: "2px solid var(--nx-void)" }}>✕</div>
         </div>
 
-        <div className="nx-logo__text" style={{ fontSize: "11px" }}>SIGNAL<em>NEXUS</em></div>
+        <div className="nx-logo__text" style={{ fontSize: "11px" }}>GLOBAL<em>FINANCIAL</em> TERMINAL</div>
         <h1 style={{ fontFamily: "var(--nx-font-display)", fontSize: "22px", fontWeight: 700, color: "var(--nx-rose)" }}>Access Denied</h1>
         <p style={{ fontFamily: "var(--nx-font-mono)", fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>
           Your access request was not approved. Contact the platform administrator if you believe this is an error.

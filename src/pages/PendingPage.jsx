@@ -21,7 +21,7 @@ export default function PendingPage() {
           <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-sm flex items-center justify-center text-[10px]" style={{ background: "var(--nx-gold)", border: "2px solid var(--nx-void)" }}>⏳</div>
         </div>
 
-        <div className="nx-logo__text" style={{ fontSize: "11px" }}>SIGNAL<em>NEXUS</em></div>
+        <div className="nx-logo__text" style={{ fontSize: "11px" }}>GLOBAL<em>FINANCIAL</em> TERMINAL</div>
         <h1 style={{ fontFamily: "var(--nx-font-display)", fontSize: "22px", fontWeight: 700, color: "#f0f4ff" }}>Access Pending</h1>
         <p style={{ fontFamily: "var(--nx-font-mono)", fontSize: "12px", color: "rgba(255,255,255,0.45)", lineHeight: 1.7 }}>
           Hi, {currentUser.displayName?.split(" ")[0]}! Your request is queued for admin review.

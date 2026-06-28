@@ -42,8 +42,15 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
           setCategories(snap.docs.map(d => ({id: d.id, ...d.data()})));
       });
 
-      return () => { unsubC(); unsubCat(); }
+      return () => { unsubC(); unsubCat(); };
   }, [serverId]);
+
+  useEffect(() => {
+      if (!activeChannel && channels.length > 0) {
+          const firstText = channels.find(c => !c.isArchived && c.type === "text");
+          setActiveChannel(firstText || channels.find(c => !c.isArchived) || null);
+      }
+  }, [channels, activeChannel, setActiveChannel]);
 
   const toggleCategory = (catId) => {
       const newSet = new Set(collapsedCategories);
@@ -91,7 +98,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
       e.preventDefault();
       if (!editingChannel) return;
       try {
-          await updateDoc(doc(db, "channels", editingChannel.id), {
+          await updateDoc(doc(db, "social_channels", editingChannel.id), {
               name: editChannelName.trim().toLowerCase().replace(/\s+/g, '-'),
               topic: editChannelTopic,
               isNsfw: editChannelNsfw
@@ -105,7 +112,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
   const handleArchiveChannel = async () => {
       if (!editingChannel) return;
       try {
-          await updateDoc(doc(db, "channels", editingChannel.id), { isArchived: true });
+          await updateDoc(doc(db, "social_channels", editingChannel.id), { isArchived: true });
           setEditingChannel(null);
       } catch (err) {
           console.error(err);
@@ -116,7 +123,7 @@ export default function ChannelList({ serverId, activeChannel, setActiveChannel 
       if (!editingChannel) return;
       if (window.confirm(`Permanently delete #${editingChannel.name}?`)) {
           try {
-              await updateDoc(doc(db, "channels", editingChannel.id), { isArchived: true });
+              await updateDoc(doc(db, "social_channels", editingChannel.id), { isArchived: true });
               setEditingChannel(null);
           } catch (err) {
               console.error(err);

@@ -45,7 +45,7 @@ export function TopBar({ currentView, onSetView }) {
         </div>
         <div>
           <div className="nx-logo__text">
-            SIGNAL<em>NEXUS</em>
+            GLOBAL<em>FINANCIAL</em> TERMINAL
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="nx-logo__tag">GFT · v0.6</span>

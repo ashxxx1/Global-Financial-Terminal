@@ -105,7 +105,7 @@ export default function FXDashboard({ onClose }) {
   return (
     <div className="nexus-module fx-dashboard">
       <div className="fx-dashboard__header">
-        <div className="fx-dashboard__title">◈ FX Nexus — Live Cross Rates</div>
+        <div className="fx-dashboard__title">◈ FX Dashboard — Live Cross Rates</div>
         <button className="fx-dashboard__close" onClick={onClose}>✕</button>
       </div>
 

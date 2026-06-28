@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "../../../contexts/AuthContext";
 import { db } from "../../../services/firebase";
-import { collection, query, where, onSnapshot, addDoc, serverTimestamp, getDoc, doc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, addDoc, serverTimestamp, getDoc, doc, updateDoc } from "firebase/firestore";
 import { Compass, Plus } from "lucide-react";
 import { Permission, ALL_PERMISSIONS } from "../../../lib/permissions";
 
@@ -47,10 +47,12 @@ export default function ServerSidebar({ activeServer, setActiveServer, setActive
               isHoisted: false,
               isEveryoneRole: true
           };
-          const roleRef = await addDoc(collection(db, "roles"), roleData);
-          
-          // 2. Create Server
-          const serverData = {
+          const roleRef = await addDoc(collection(db, "roles"), {
+              ...roleData,
+              serverId: null,
+          });
+
+          const serverRef = await addDoc(collection(db, "social_servers"), {
               name: newServerName.trim(),
               description: "",
               iconUrl: null,
@@ -61,11 +63,9 @@ export default function ServerSidebar({ activeServer, setActiveServer, setActive
               memberCount: 1,
               everyoneRoleId: roleRef.id,
               isDeleted: false
-          };
-          const serverRef = await addDoc(collection(db, "social_servers"), serverData);
+          });
 
-          // Update role with serverId
-          await addDoc(collection(db, "roles"), { ...roleData, serverId: serverRef.id }); // Assuming we recreate with correct serverId or update the first. Simplification here.
+          await updateDoc(roleRef, { serverId: serverRef.id });
 
           // 3. Create General Channel
           await addDoc(collection(db, "social_channels"), {

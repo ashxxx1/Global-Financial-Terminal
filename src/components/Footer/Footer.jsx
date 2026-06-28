@@ -12,7 +12,7 @@ export default function Footer() {
         </span>
       </div>
       <div style={{ color: "rgba(0,229,255,0.45)", letterSpacing: "0.12em" }}>
-        SIGNAL NEXUS · GFT-SECURE · v0.6.0
+        GLOBAL FINANCIAL TERMINAL · GFT-SECURE · v0.6.0
       </div>
     </footer>
   );

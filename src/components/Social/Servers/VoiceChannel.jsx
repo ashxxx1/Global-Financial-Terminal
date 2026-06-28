@@ -1,82 +1,106 @@
-import React, { useState } from 'react';
-import { Mic, MicOff, Headphones, Video, Share, Settings, PhoneOff, User, MessageSquare } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useAuth } from "../../../contexts/AuthContext";
+import { db } from "../../../services/firebase";
+import { collection, doc, onSnapshot, setDoc, deleteDoc } from "firebase/firestore";
+import { Mic, MicOff, Headphones, Video, PhoneOff } from "lucide-react";
 
 export default function VoiceChannel({ activeChannel }) {
+    const { currentUser } = useAuth();
     const [isMuted, setIsMuted] = useState(false);
     const [isDeafened, setIsDeafened] = useState(false);
     const [isVideoOn, setIsVideoOn] = useState(false);
+    const [connectedUsers, setConnectedUsers] = useState([]);
+    const [joined, setJoined] = useState(false);
 
-    // Dummy connected users
-    const connectedUsers = [
-        { id: '1', name: 'Aarush', isSpeaking: true, isMuted: false },
-        { id: '2', name: 'Anchita', isSpeaking: false, isMuted: true },
-        { id: '3', name: 'TraderX', isSpeaking: false, isMuted: false },
-    ];
+    useEffect(() => {
+        if (!activeChannel?.id || !currentUser) return;
+
+        const presenceRef = collection(db, "voice_presence", activeChannel.id, "participants");
+        const unsub = onSnapshot(presenceRef, (snap) => {
+            setConnectedUsers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        });
+
+        return () => unsub();
+    }, [activeChannel?.id, currentUser]);
+
+    useEffect(() => {
+        return () => {
+            if (joined && activeChannel?.id && currentUser) {
+                deleteDoc(doc(db, "voice_presence", activeChannel.id, "participants", currentUser.uid)).catch(() => {});
+            }
+        };
+    }, [joined, activeChannel?.id, currentUser]);
+
+    const joinVoice = async () => {
+        if (!activeChannel?.id || !currentUser) return;
+        await setDoc(doc(db, "voice_presence", activeChannel.id, "participants", currentUser.uid), {
+            displayName: currentUser.displayName || "User",
+            photoURL: currentUser.photoURL || null,
+            isMuted,
+            isDeafened,
+            isVideoOn,
+            joinedAtMs: Date.now(),
+        });
+        setJoined(true);
+    };
+
+    const leaveVoice = async () => {
+        if (!activeChannel?.id || !currentUser) return;
+        await deleteDoc(doc(db, "voice_presence", activeChannel.id, "participants", currentUser.uid));
+        setJoined(false);
+    };
+
+    const updatePresence = async (patch) => {
+        if (!joined || !activeChannel?.id || !currentUser) return;
+        await setDoc(doc(db, "voice_presence", activeChannel.id, "participants", currentUser.uid), patch, { merge: true });
+    };
 
     if (!activeChannel) return null;
 
     return (
-        <div className="flex flex-col h-full bg-[#0b0c10] relative text-white">
-            <div className="flex-1 p-6 overflow-y-auto">
+        <div className="gft-chat">
+            <div className="gft-chat-messages">
                 <div className="mb-6 flex justify-between items-center">
                     <div>
-                        <h2 className="text-2xl font-display font-bold">{activeChannel.name}</h2>
-                        <p className="text-slate-400 text-sm">Voice Connected - us-east-1</p>
-                    </div>
-                    <button className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-md text-sm transition-colors">
-                        <MessageSquare size={16} /> Open Chat
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {connectedUsers.map(user => (
-                        <div key={user.id} className={`relative aspect-video bg-[#1e293b] rounded-xl border-2 transition-all ${user.isSpeaking ? 'border-emerald-500' : 'border-transparent'} flex items-center justify-center overflow-hidden`}>
-                            {user.isSpeaking && (
-                                <div className="absolute inset-0 ring-4 ring-emerald-500/20 rounded-xl pointer-events-none"></div>
-                            )}
-                            <div className="w-20 h-20 rounded-full bg-slate-800 flex items-center justify-center border-4 border-[#1e293b] relative z-10">
-                                <img src={`https://api.dicebear.com/7.x/bottts/svg?seed=${user.id}`} alt="User" className="w-full h-full rounded-full" />
-                            </div>
-                            <div className="absolute bottom-3 left-3 bg-black/60 px-2 py-1 rounded text-xs font-medium backdrop-blur-sm flex items-center gap-2 z-20">
-                                {user.name}
-                                {user.isMuted && <MicOff size={12} className="text-red-400" />}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Bottom Controls */}
-            <div className="h-20 bg-[#11131a] border-t border-white/5 flex items-center justify-between px-8 flex-shrink-0">
-                <div className="flex items-center gap-4 text-slate-300 text-sm">
-                    <div className="flex items-center gap-2 text-emerald-400">
-                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                        Voice Connected
+                        <h2 className="gft-panel-title text-2xl">{activeChannel.name}</h2>
+                        <p className="text-sm" style={{ color: "var(--gft-text-muted)" }}>
+                            {joined ? "Connected to voice channel" : "Join to connect with other traders"}
+                        </p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <button onClick={() => setIsVideoOn(!isVideoOn)} className={`p-3 rounded-full transition-colors ${isVideoOn ? 'bg-indigo-600 text-white hover:bg-indigo-500' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}>
-                        <Video size={20} />
-                    </button>
-                    <button className="p-3 rounded-full bg-white/5 text-slate-300 hover:bg-white/10 transition-colors">
-                        <Share size={20} />
-                    </button>
-                    <div className="w-px h-8 bg-white/10 mx-2"></div>
-                    <button onClick={() => setIsMuted(!isMuted)} className={`p-3 rounded-full transition-colors ${isMuted ? 'bg-red-500 text-white hover:bg-red-400' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}>
-                        {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
-                    </button>
-                    <button onClick={() => setIsDeafened(!isDeafened)} className={`p-3 rounded-full transition-colors ${isDeafened ? 'bg-red-500 text-white hover:bg-red-400' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}>
-                        <Headphones size={20} />
-                    </button>
-                    <div className="w-px h-8 bg-white/10 mx-2"></div>
-                    <button className="p-3 rounded-full bg-red-500 text-white hover:bg-red-400 transition-colors">
-                        <PhoneOff size={20} />
-                    </button>
-                </div>
-                
-                <div className="w-32"></div> {/* Spacer to balance flex-between */}
+                {!joined ? (
+                    <div className="gft-card text-center py-12">
+                        <p className="mb-4" style={{ color: "var(--gft-text-muted)" }}>Voice channels let your server talk in real time.</p>
+                        <button type="button" onClick={joinVoice} className="gft-btn-primary">Join Voice</button>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {connectedUsers.map(user => (
+                            <div key={user.id} className="gft-card aspect-video flex items-center justify-center relative">
+                                <div className="w-16 h-16 rounded-full overflow-hidden">
+                                    <img src={user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.id}`} alt={user.displayName} className="w-full h-full object-cover" />
+                                </div>
+                                <div className="absolute bottom-3 left-3 text-xs font-medium px-2 py-1 rounded" style={{ background: "rgba(0,0,0,0.5)" }}>
+                                    {user.displayName}{user.isMuted ? " · muted" : ""}
+                                </div>
+                            </div>
+                        ))}
+                        {connectedUsers.length === 0 && (
+                            <p className="gft-empty col-span-full">You're the first one here.</p>
+                        )}
+                    </div>
+                )}
             </div>
+
+            {joined && (
+                <div className="gft-chat-input-wrap flex items-center justify-center gap-3">
+                    <button type="button" onClick={() => { setIsVideoOn(v => !v); updatePresence({ isVideoOn: !isVideoOn }); }} className={`gft-icon-btn ${isVideoOn ? "active" : ""}`}><Video size={20} /></button>
+                    <button type="button" onClick={() => { setIsMuted(v => !v); updatePresence({ isMuted: !isMuted }); }} className={`gft-icon-btn ${isMuted ? "active" : ""}`}>{isMuted ? <MicOff size={20} /> : <Mic size={20} />}</button>
+                    <button type="button" onClick={() => { setIsDeafened(v => !v); updatePresence({ isDeafened: !isDeafened }); }} className={`gft-icon-btn ${isDeafened ? "active" : ""}`}><Headphones size={20} /></button>
+                    <button type="button" onClick={leaveVoice} className="gft-btn-primary" style={{ background: "var(--gft-red)" }}><PhoneOff size={18} /></button>
+                </div>
+            )}
         </div>
     );
 }

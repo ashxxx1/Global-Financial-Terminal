@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Globe, Hash, MessageSquare, LayoutDashboard, Settings, Users,
   Home, Bell, Bookmark, Search, PenLine, Radio, MessagesSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { doc, getDoc } from "firebase/firestore";
 import { useAuth } from "../../contexts/AuthContext";
 import useTerminalStore from "../../store/terminalStore";
+import { db } from "../../services/firebase";
 import "../../styles/gft-social.css";
 
 import PostsFeed from "../../components/Social/PostsFeed";
@@ -40,6 +42,7 @@ export default function SocialPage() {
   const { setActiveView } = useTerminalStore();
   const [activeMode, setActiveMode] = useState("feed");
   const [activeServer, setActiveServer] = useState(null);
+  const [activeServerData, setActiveServerData] = useState(null);
   const [activeChannel, setActiveChannel] = useState(null);
   const [activeDmUser, setActiveDmUser] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -62,8 +65,19 @@ export default function SocialPage() {
     setFeedType(id);
     setActiveMode("feed");
     setActiveServer(null);
+    setActiveServerData(null);
     setMobilePanel(null);
   };
+
+  useEffect(() => {
+    if (!activeServer) {
+      setActiveServerData(null);
+      return;
+    }
+    getDoc(doc(db, "social_servers", activeServer)).then((snap) => {
+      if (snap.exists()) setActiveServerData({ id: snap.id, ...snap.data() });
+    });
+  }, [activeServer]);
 
   return (
     <div className="gft-social-root gft-social-layout">
@@ -267,7 +281,7 @@ export default function SocialPage() {
           <UserProfile
             activeProfileId={activeProfileId || currentUser?.uid}
             onReset={() => setActiveProfileId(null)}
-            activeServer={activeServer}
+            activeServer={activeServerData}
           />
         </div>
 

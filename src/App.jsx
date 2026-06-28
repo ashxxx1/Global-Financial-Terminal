@@ -178,7 +178,7 @@ function TerminalApp() {
                 {/* Floating Workspace & Control Overlay */}
                 {/* Top-left: View title, Timeframe & Scrubber */}
                 <div className="absolute top-4 left-8 z-20 pointer-events-auto nx-hud-bar">
-                  <span className="nx-hud-bar__title">Geo Nexus</span>
+                  <span className="nx-hud-bar__title">Global Map</span>
                   <div className="nx-hud-bar__divider" />
                   <div className="flex items-center gap-0.5">
                     {["1D", "1W", "1M", "YTD"].map((tf) => (

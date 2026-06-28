@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from "../../contexts/AuthContext";
 import { db } from "../../services/firebase";
-import { doc, updateDoc, onSnapshot, setDoc, deleteDoc } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot, setDoc, deleteDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { Settings, Check, X, Camera, BadgeCheck, MapPin, Link as LinkIcon, Circle, ShieldAlert, Clock, UserX, Wallet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PostsFeed from "./PostsFeed";
@@ -128,25 +128,33 @@ export default function UserProfile({ activeProfileId, onReset, activeServer }) 
 
   const handleModerate = async (action) => {
       if (!activeServer || !activeProfileId) return;
-      
-      const memberRef = doc(db, "social_servers", activeServer.id, "members", activeProfileId);
-      
+      const serverId = typeof activeServer === "string" ? activeServer : activeServer.id;
+      const serverOwnerId = typeof activeServer === "object" ? activeServer.ownerId : null;
+
       try {
+          const membersQ = query(collection(db, "server_members"), where("serverId", "==", serverId), where("userId", "==", activeProfileId));
+          const memberSnap = await getDocs(membersQ);
+          if (memberSnap.empty && action !== 'ban') {
+              alert("User is not a member of this server.");
+              return;
+          }
+          const memberRef = memberSnap.docs[0]?.ref;
+
           if (action === 'timeout') {
               const duration = window.prompt("Enter timeout duration in minutes:", "60");
               if (!duration || isNaN(duration)) return;
-              await setDoc(memberRef, { 
-                  timeoutUntil: Date.now() + (parseInt(duration) * 60 * 1000) 
-              }, { merge: true });
+              if (memberRef) {
+                  await updateDoc(memberRef, { timeoutUntil: Date.now() + (parseInt(duration, 10) * 60 * 1000) });
+              }
               alert("User timed out.");
           } else if (action === 'kick') {
-              if (window.confirm("Kick this user from the server?")) {
+              if (window.confirm("Kick this user from the server?") && memberRef) {
                   await deleteDoc(memberRef);
                   onReset();
               }
           } else if (action === 'ban') {
-              if (window.confirm("Permanently ban this user?")) {
-                  await setDoc(memberRef, { isBanned: true }, { merge: true });
+              if (window.confirm("Permanently ban this user?") && memberRef) {
+                  await updateDoc(memberRef, { isBanned: true });
                   onReset();
               }
           }
@@ -260,15 +268,21 @@ export default function UserProfile({ activeProfileId, onReset, activeServer }) 
               {/* Tab Content Placeholder */}
                <div className="mt-4 text-slate-500 text-xs py-2">
                   {activeTab === 'posts' && (
-                      <PostsFeed feedType="profile" profileId={activeProfileId || currentUser?.uid} />
+                      <PostsFeed feedType="profile" profileId={activeProfileId || currentUser?.uid} tabFilter="posts" />
                   )}
-                  {activeTab === 'replies' && <div className="text-center py-8">No replies yet.</div>}
-                  {activeTab === 'media' && <div className="text-center py-8">No media shared yet.</div>}
-                  {activeTab === 'likes' && <div className="text-center py-8">No liked posts yet.</div>}
+                  {activeTab === 'replies' && (
+                      <PostsFeed feedType="profile" profileId={activeProfileId || currentUser?.uid} tabFilter="replies" />
+                  )}
+                  {activeTab === 'media' && (
+                      <PostsFeed feedType="profile" profileId={activeProfileId || currentUser?.uid} tabFilter="media" />
+                  )}
+                  {activeTab === 'likes' && (
+                      <PostsFeed feedType="profile" profileId={activeProfileId || currentUser?.uid} tabFilter="likes" />
+                  )}
                </div>
 
                {/* Moderation Panel (Admin only) */}
-               {activeServer && activeServer.ownerId === currentUser?.uid && !isOwnProfile && (
+               {activeServer?.ownerId === currentUser?.uid && !isOwnProfile && (
                    <div className="mt-6 border-t border-red-500/20 pt-4">
                        <h3 className="text-[10px] uppercase tracking-widest text-red-400 font-bold mb-3 flex items-center gap-1">
                            <ShieldAlert size={12} /> Server Moderation

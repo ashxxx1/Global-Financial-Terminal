@@ -18,6 +18,8 @@ import {
   where,
   getDocs
 } from "firebase/firestore";
+
+const getCurrentTime = () => Date.now();
 import StockMention from "../Forum/StockMention";
 
 export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "posts", activeTopicFilter = null, onClearTopicFilter = null }) {
@@ -641,7 +643,7 @@ export function SocialFeed({ onViewProfile, userIdFilter = null, tabFilter = "po
           const isAuthor = post.authorId === currentUser?.uid;
           
           // 5-minute edit window verification
-          const canEdit = isAuthor && (Date.now() - post.createdAtMs < 5 * 60 * 1000) && !post.isDeleted;
+          const canEdit = isAuthor && (getCurrentTime() - post.createdAtMs < 5 * 60 * 1000) && !post.isDeleted;
 
           if (post.isDeleted) {
             return (

@@ -12,8 +12,10 @@ export function CausalChainMap({ eventId, eventTitle, onClose }) {
   // Load the causal chain data
   useEffect(() => {
     const chain = getCausalChain(eventId || eventTitle);
-    setData(chain);
-    setSelectedNode(chain.event); // Default select the event node itself
+    Promise.resolve().then(() => {
+      setData(chain);
+      setSelectedNode(chain.event); // Default select the event node itself
+    });
   }, [eventId, eventTitle]);
 
   // Handle resizing to redraw connections

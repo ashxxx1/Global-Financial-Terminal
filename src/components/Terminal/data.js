@@ -410,12 +410,7 @@ const _rnd = (str, seedOffset) => { const s=Math.sin(_seed(str)+seedOffset)*1000
 const statsCache = {};
 
 export function getCountryStats(iso) {
-  let stats = null;
-  if (countryStats[iso]) {
-    stats = countryStats[iso];
-  } else if (statsCache[iso]) {
-    stats = statsCache[iso];
-  } else {
+  const stats = countryStats[iso] || statsCache[iso] || (() => {
     // ── Safe deterministic fallback for unlisted countries ────────────────────
     const riskScore = Math.floor(_rnd(iso, 5) * 60 + 20); // 20–80
     const mockScore = Math.floor(_rnd(iso, 8) * 3);
@@ -429,7 +424,7 @@ export function getCountryStats(iso) {
     // Generic FX vs USD
     const fxVal = (10 + _rnd(iso, 4) * 490).toFixed(1);
 
-    stats = {
+    const fallback = {
       gdp: gdpVal,
       inflation: inflVal,
       rate: rateVal,
@@ -448,8 +443,9 @@ export function getCountryStats(iso) {
         "YTD": _rnd(iso, 23)*30-15
       }
     };
-    statsCache[iso] = stats;
-  }
+    statsCache[iso] = fallback;
+    return fallback;
+  })();
 
   // Inject computed instability risk score
   try {

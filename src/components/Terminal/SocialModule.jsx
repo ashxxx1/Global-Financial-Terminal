@@ -93,7 +93,7 @@ export function SocialModule() {
   // Set default profile user
   useEffect(() => {
     if (currentUser && !profileUserId) {
-      setProfileUserId(currentUser.uid);
+      Promise.resolve().then(() => setProfileUserId(currentUser.uid));
     }
   }, [currentUser, profileUserId]);
 
@@ -101,7 +101,7 @@ export function SocialModule() {
   useEffect(() => {
     if (!profileUserId) return;
     if (profileUserId === currentUser?.uid) {
-      setViewedUserProfile(null);
+      Promise.resolve().then(() => setViewedUserProfile(null));
       return;
     }
     const docRef = doc(db, "users", profileUserId);
@@ -119,12 +119,14 @@ export function SocialModule() {
   useEffect(() => {
     const data = viewedUserProfile || userProfileData || currentUser;
     if (data) {
-      setProfileName(data.displayName || "");
-      setProfileUsername(data.username || "");
-      setProfileBio(data.bio || "Institutional macro research & active swing trading.");
-      setProfileRep(data.reputation || "Analyst");
-      setProfileAvatar(data.photoURL || data.avatarUrl || "");
-      setProfileBanner(data.bannerUrl || "");
+      Promise.resolve().then(() => {
+        setProfileName(data.displayName || "");
+        setProfileUsername(data.username || "");
+        setProfileBio(data.bio || "Institutional macro research & active swing trading.");
+        setProfileRep(data.reputation || "Analyst");
+        setProfileAvatar(data.photoURL || data.avatarUrl || "");
+        setProfileBanner(data.bannerUrl || "");
+      });
     }
   }, [viewedUserProfile, userProfileData, currentUser, isEditingProfile]);
 
@@ -157,7 +159,7 @@ export function SocialModule() {
   // Real-time listener for current user's following list (used for Suggested Voices dynamic follows)
   useEffect(() => {
     if (!currentUser) {
-      setFollowingList([]);
+      Promise.resolve().then(() => setFollowingList([]));
       return;
     }
     const q = query(collection(db, "follows"), where("followerId", "==", currentUser.uid));
@@ -194,8 +196,10 @@ export function SocialModule() {
   // Fetch channels for selected server
   useEffect(() => {
     if (activeWorkspace === 'home' || !currentUser) {
-      setChannels([]);
-      setActiveChannelId(null);
+      Promise.resolve().then(() => {
+        setChannels([]);
+        setActiveChannelId(null);
+      });
       return;
     }
     const q = query(
@@ -229,7 +233,7 @@ export function SocialModule() {
   // Fetch channel messages
   useEffect(() => {
     if (!activeChannelId || !currentUser) {
-      setChannelMessages([]);
+      Promise.resolve().then(() => setChannelMessages([]));
       return;
     }
     const q = query(
@@ -584,7 +588,7 @@ export function SocialModule() {
   // Fetch categories for active server
   useEffect(() => {
     if (activeWorkspace === 'home') {
-      setCategories([]);
+      Promise.resolve().then(() => setCategories([]));
       return;
     }
     const q = query(
@@ -627,7 +631,7 @@ export function SocialModule() {
   // Real-time server members details fetch
   useEffect(() => {
     if (activeWorkspace === 'home') {
-      setServerMembers([]);
+      Promise.resolve().then(() => setServerMembers([]));
       return;
     }
     const serverRef = doc(db, "social_servers", activeWorkspace);

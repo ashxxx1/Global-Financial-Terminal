@@ -8,10 +8,11 @@
 }
 
 body {
-  @apply bg-[#0b0c10] text-slate-200 antialiased selection:bg-indigo-500/30 overflow-hidden;
+  @apply antialiased overflow-hidden;
   margin: 0;
-  /* Premium dark background with a subtle radial gradient */
-  background-image: radial-gradient(circle at 50% 0%, rgba(30, 41, 59, 0.5) 0%, rgba(11, 12, 16, 1) 70%);
+  background: var(--nx-void, #010208);
+  color: rgba(240, 244, 255, 0.9);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 /* Custom Scrollbar for a cleaner look */

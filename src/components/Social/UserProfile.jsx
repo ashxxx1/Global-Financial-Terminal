@@ -66,6 +66,8 @@ export default function UserProfile({ activeProfileId, onReset, activeServer }) 
     e.preventDefault();
     if (!currentUser) return;
 
+    let usernameChangedAt = null;
+
     // Validation (e.g. 14 day cooldown would be checked on backend ideally, but we can do a UI check if usernameChangedAt exists)
     if (userProfile?.username !== editForm.username) {
        const now = Date.now();
@@ -74,7 +76,7 @@ export default function UserProfile({ activeProfileId, onReset, activeServer }) 
            setErrorMsg("Username can only be changed every 14 days.");
            return;
        }
-       editForm.usernameChangedAt = now;
+       usernameChangedAt = now;
     }
 
     try {
@@ -86,7 +88,7 @@ export default function UserProfile({ activeProfileId, onReset, activeServer }) 
         bannerUrl: editForm.bannerURL,
         location: editForm.location,
         websiteUrl: editForm.websiteUrl,
-        ...(editForm.usernameChangedAt && { usernameChangedAt: editForm.usernameChangedAt })
+        ...(usernameChangedAt && { usernameChangedAt })
       });
       setIsEditing(false);
       setErrorMsg("");

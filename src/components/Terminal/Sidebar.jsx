@@ -25,15 +25,16 @@ export function Sidebar() {
     <aside className="flex w-full h-full flex-col bg-transparent shrink-0 z-10 transition-all duration-300">
       
       {/* Top Status */}
-      <div className="flex flex-col p-3 border-b border-white/5 bg-black/20">
+      <div className="flex flex-col p-3 border-b bg-black/20" style={{ borderColor: "var(--nx-border)" }}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] motion-safe:animate-pulse" />
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Node: Online</span>
+            <div className="h-2 w-2 rounded-full motion-safe:animate-pulse" style={{ background: "var(--nx-mint)", boxShadow: "0 0 8px var(--nx-mint)" }} />
+            <span className="nx-section-sub">Global Node: Online</span>
           </div>
           <button 
              onClick={handleSync}
-             className="flex items-center gap-1 text-[10px] font-bold text-indigo-400 hover:text-indigo-300 transition-colors uppercase tracking-widest"
+             className="flex items-center gap-1 text-[10px] font-bold transition-colors uppercase tracking-widest cursor-pointer hover:text-[var(--nx-cyan)]"
+             style={{ fontFamily: "var(--nx-font-mono)", color: "var(--nx-gold)" }}
           >
             <RefreshCcw className={`h-3 w-3 ${isSyncing ? 'animate-spin' : ''}`} />
             Auto Sync
@@ -44,16 +45,15 @@ export function Sidebar() {
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
         
         {/* Morning Briefing Daily Digest */}
-        <div className="p-4 border-b border-white/5 bg-gradient-to-b from-indigo-500/5 to-transparent relative">
+        <div className="p-4 border-b bg-gradient-to-b from-[rgba(0,229,255,0.04)] to-transparent relative" style={{ borderColor: "var(--nx-border)" }}>
            <div className="flex items-center gap-2 mb-2.5">
-             <BookOpen className="w-4 h-4 text-amber-400" />
-             <h3 className="text-[12px] font-bold tracking-widest text-[#94a3b8] font-mono">MORNING BRIEFING</h3>
-             <span className="text-[8px] font-mono text-slate-500 bg-slate-800 px-1 rounded ml-auto">DAILY DIGEST</span>
+             <BookOpen className="w-4 h-4" style={{ color: "var(--nx-gold)" }} />
+             <h3 className="nx-section-head" style={{ fontSize: "10px" }}>Morning Signal</h3>
+             <span className="nx-section-sub ml-auto px-1.5 py-0.5" style={{ border: "1px solid var(--nx-border)", borderRadius: "2px" }}>DIGEST</span>
            </div>
            
-           <div className="text-[11.5px] text-slate-300 font-sans leading-relaxed bg-[#060a16] border border-[#1e293b] p-3 rounded-lg relative overflow-hidden">
-             {/* Glowing side accent */}
-             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-amber-500/40" />
+           <div className="text-[11.5px] leading-relaxed p-3 relative overflow-hidden" style={{ fontFamily: "var(--nx-font-mono)", color: "rgba(255,255,255,0.6)", background: "rgba(0,0,0,0.35)", border: "1px solid var(--nx-border)", borderRadius: "2px" }}>
+             <div className="absolute left-0 top-0 bottom-0 w-0.5" style={{ background: "var(--nx-gold)" }} />
              
              {(() => {
                const parts = briefText.split(/(`\[.*?\]`)/);
@@ -65,7 +65,8 @@ export function Sidebar() {
                        return (
                          <span 
                            key={pidx} 
-                           className="inline-block px-1 py-px bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 font-mono text-[8px] rounded mx-0.5 uppercase cursor-pointer hover:bg-indigo-500 hover:text-white transition-all font-bold"
+                           className="inline-block px-1 py-px font-mono text-[8px] rounded mx-0.5 uppercase cursor-pointer transition-all font-bold"
+                           style={{ background: "rgba(0,229,255,0.12)", border: "1px solid var(--nx-border-strong)", color: "var(--nx-cyan)" }}
                            onClick={() => alert(`Navigating to citation: ${label}`)}
                          >
                            {label}

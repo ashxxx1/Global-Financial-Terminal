@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Sparkles, ChevronDown, ChevronUp, RefreshCw, TrendingUp, TrendingDown, Minus, X } from "lucide-react";
+import {
+  Sparkles, ChevronDown, ChevronUp, RefreshCw,
+  TrendingUp, TrendingDown, Minus, X,
+} from "lucide-react";
 
-// Simulated daily brief — clearly labeled AI-generated, not attributed to any publisher
 const BRIEF_ITEMS = [
   { region: "N. America", flag: "🇺🇸", move: "+0.9%", direction: "up",
     summary: "S&P 500 extends gains after softer-than-expected jobs data reduces near-term rate hike probability.",
@@ -25,6 +27,9 @@ const BRIEF_ITEMS = [
 
 const TODAY = new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 
+const dirColor = (d) =>
+  d === "up" ? "var(--nx-mint)" : d === "down" ? "var(--nx-rose)" : "rgba(255,255,255,0.4)";
+
 export function MarketBrief() {
   const [open, setOpen] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -36,110 +41,126 @@ export function MarketBrief() {
     setTimeout(() => { setSpinning(false); setRefreshKey(k => k + 1); }, 900);
   };
 
-  // Collapsed to just a header badge
   if (!open) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#080f1e]/90 backdrop-blur-xl border border-indigo-500/40 shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:border-indigo-400 transition-all cursor-pointer"
+        className="flex items-center gap-2 px-3 py-2 cursor-pointer transition-all"
+        style={{
+          background: "rgba(2,5,12,0.9)",
+          border: "1px solid var(--nx-border-strong)",
+          borderRadius: "2px",
+          fontFamily: "var(--nx-font-mono)",
+        }}
       >
-        <Sparkles size={12} className="text-indigo-400" />
-        <span className="text-[10px] font-bold text-indigo-300 tracking-widest uppercase">AI Market Brief</span>
-        <ChevronDown size={10} className="text-slate-500" />
+        <Sparkles size={12} style={{ color: "var(--nx-violet)" }} />
+        <span style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.14em", color: "var(--nx-cyan)" }}>
+          SIGNAL BRIEF
+        </span>
+        <ChevronDown size={10} style={{ color: "rgba(255,255,255,0.35)" }} />
       </button>
     );
   }
 
   return (
-    <div
-      key={refreshKey}
-      className="rounded-xl overflow-hidden bg-[#06091a]/95 backdrop-blur-xl border border-indigo-500/25 shadow-[0_0_40px_rgba(0,0,0,0.8),0_0_20px_rgba(99,102,241,0.1)]"
-      style={{ animation: "fadeSlideIn 0.3s ease" }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2.5 bg-gradient-to-r from-indigo-900/40 via-transparent to-transparent border-b border-white/5">
+    <div key={refreshKey} className="nx-brief" style={{ animation: "fadeSlideIn 0.3s ease" }}>
+      <div className="nx-brief__header">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-md bg-indigo-500/30 border border-indigo-500/50 flex items-center justify-center">
-            <Sparkles size={10} className="text-indigo-400" />
-          </div>
-          <span className="text-[11px] font-bold text-white tracking-wider">AI MARKET BRIEF</span>
-          <span className="px-1.5 py-0.5 rounded text-[7px] font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 tracking-widest">
-            AI
+          <Sparkles size={12} style={{ color: "var(--nx-violet)" }} />
+          <span className="nx-brief__title">Signal Brief</span>
+          <span className="nx-brief__ai-badge">AI SYNTH</span>
+          <span style={{ fontFamily: "var(--nx-font-mono)", fontSize: "8px", color: "rgba(255,255,255,0.3)" }}>
+            {TODAY}
           </span>
-          <span className="text-[9px] text-slate-600 ml-0.5">{TODAY}</span>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={refresh} className="p-1 rounded text-slate-600 hover:text-indigo-400 transition-colors cursor-pointer">
+          <button onClick={refresh} className="p-1 cursor-pointer transition-colors hover:text-[var(--nx-cyan)]" style={{ color: "rgba(255,255,255,0.35)" }}>
             <RefreshCw size={10} className={spinning ? "animate-spin" : ""} />
           </button>
-          <button onClick={() => setExpanded(!expanded)} className="p-1 rounded text-slate-600 hover:text-slate-300 transition-colors cursor-pointer">
+          <button onClick={() => setExpanded(!expanded)} className="p-1 cursor-pointer" style={{ color: "rgba(255,255,255,0.35)" }}>
             {expanded ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
           </button>
-          <button onClick={() => setOpen(false)} className="p-1 rounded text-slate-600 hover:text-rose-400 transition-colors cursor-pointer">
+          <button onClick={() => setOpen(false)} className="p-1 cursor-pointer hover:text-[var(--nx-rose)]" style={{ color: "rgba(255,255,255,0.35)" }}>
             <X size={10} />
           </button>
         </div>
       </div>
 
-      {/* Headline */}
-      <div className="px-3 py-2.5 border-b border-white/5">
-        <p className="text-[10px] text-slate-300 leading-relaxed">
-          <span className="text-indigo-400 font-bold">60s · </span>
-          US up on cooling jobs data. Europe lower after ECB signals. Oil +2% on Red Sea tensions. Dollar softens.
+      <div className="px-3 py-2.5" style={{ borderBottom: "1px solid var(--nx-border)" }}>
+        <p style={{ fontFamily: "var(--nx-font-mono)", fontSize: "10px", color: "rgba(255,255,255,0.65)", lineHeight: 1.6 }}>
+          <span style={{ color: "var(--nx-gold)", fontWeight: 700 }}>60s · </span>
+          US up on cooling jobs. Europe lower post-ECB. Oil +2% Red Sea. Dollar softens.
         </p>
       </div>
 
-      {/* Compact ticker row — always visible */}
       <div className="px-3 py-2 flex flex-wrap gap-1.5">
-        {BRIEF_ITEMS.map(item => (
-          <div key={item.region}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 border border-white/5"
+        {BRIEF_ITEMS.map((item) => (
+          <div
+            key={item.region}
+            className="flex items-center gap-1 px-2 py-1"
+            style={{
+              background: "rgba(0,229,255,0.04)",
+              border: "1px solid var(--nx-border)",
+              borderRadius: "2px",
+            }}
           >
-            <span className="text-[9px]">{item.flag}</span>
-            <span className="text-[8px] font-bold text-slate-500 uppercase">{item.region}</span>
-            <span className={`text-[9px] font-bold font-mono ${
-              item.direction === "up" ? "text-emerald-400" :
-              item.direction === "down" ? "text-rose-400" : "text-slate-400"
-            }`}>
+            <span style={{ fontSize: "9px" }}>{item.flag}</span>
+            <span style={{ fontFamily: "var(--nx-font-mono)", fontSize: "7px", fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em" }}>
+              {item.region.toUpperCase()}
+            </span>
+            <span style={{ fontFamily: "var(--nx-font-mono)", fontSize: "9px", fontWeight: 700, color: dirColor(item.direction) }}>
               {item.direction === "up" && "▲"}
               {item.direction === "down" && "▼"}
-              {item.direction === "neutral" && "–"}
-              {" "}{item.move}
+              {item.direction === "neutral" && "–"} {item.move}
             </span>
           </div>
         ))}
       </div>
 
-      {/* Expanded detail cards */}
       {expanded && (
-        <div className="px-3 pb-3 space-y-2 border-t border-white/5 pt-2">
-          {BRIEF_ITEMS.map(item => (
-            <div key={item.region}
-              className="p-2.5 rounded-lg bg-white/3 border border-white/5"
+        <div className="px-3 pb-3 space-y-2 pt-2" style={{ borderTop: "1px solid var(--nx-border)" }}>
+          {BRIEF_ITEMS.map((item) => (
+            <div
+              key={item.region}
+              className="p-2.5"
+              style={{ background: "rgba(0,0,0,0.3)", border: "1px solid var(--nx-border)", borderRadius: "2px" }}
             >
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px]">{item.flag}</span>
-                  <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">{item.region}</span>
+                  <span style={{ fontSize: "11px" }}>{item.flag}</span>
+                  <span style={{ fontFamily: "var(--nx-font-mono)", fontSize: "8px", fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.1em" }}>
+                    {item.region.toUpperCase()}
+                  </span>
                 </div>
-                <span className={`text-[10px] font-bold font-mono ${
-                  item.direction === "up" ? "text-emerald-400" :
-                  item.direction === "down" ? "text-rose-400" : "text-slate-400"
-                }`}>
+                <span style={{ fontFamily: "var(--nx-font-mono)", fontSize: "10px", fontWeight: 700, color: dirColor(item.direction) }}>
                   {item.direction === "up" ? <TrendingUp size={9} className="inline" /> :
                    item.direction === "down" ? <TrendingDown size={9} className="inline" /> :
                    <Minus size={9} className="inline" />} {item.move}
                 </span>
               </div>
-              <p className="text-[9px] text-slate-500 leading-relaxed mb-1.5">{item.summary}</p>
+              <p style={{ fontFamily: "var(--nx-font-mono)", fontSize: "9px", color: "rgba(255,255,255,0.4)", lineHeight: 1.5, marginBottom: "6px" }}>
+                {item.summary}
+              </p>
               <div className="flex gap-1">
-                {item.drivers.map(d => (
-                  <span key={d} className="px-1.5 py-0.5 rounded bg-slate-800/60 text-[7px] text-slate-600 font-medium border border-white/5">{d}</span>
+                {item.drivers.map((d) => (
+                  <span
+                    key={d}
+                    style={{
+                      fontFamily: "var(--nx-font-mono)",
+                      fontSize: "7px",
+                      padding: "2px 6px",
+                      border: "1px solid var(--nx-border)",
+                      borderRadius: "2px",
+                      color: "rgba(255,255,255,0.35)",
+                    }}
+                  >
+                    {d}
+                  </span>
                 ))}
               </div>
             </div>
           ))}
-          <p className="text-[8px] text-slate-700 leading-relaxed pt-1 border-t border-white/5">
+          <p style={{ fontFamily: "var(--nx-font-mono)", fontSize: "7px", color: "rgba(255,255,255,0.25)", paddingTop: "4px", borderTop: "1px solid var(--nx-border)" }}>
             ✦ AI-generated simulation. Not sourced from any publisher. Not financial advice.
           </p>
         </div>

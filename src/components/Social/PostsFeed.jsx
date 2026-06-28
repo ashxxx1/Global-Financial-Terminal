@@ -28,14 +28,37 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
   const [postLimit, setPostLimit] = useState(20);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load Bookmarks and Likes for the current user
+  // Load Bookmarks, Likes, and Reposts for the current user
   useEffect(() => {
       if (!currentUser) return;
-      const q = query(collection(db, "bookmarks"), where("userId", "==", currentUser.uid));
-      const unsub = onSnapshot(q, snap => {
+      
+      const qBookmarks = query(collection(db, "bookmarks"), where("userId", "==", currentUser.uid));
+      const unsubBookmarks = onSnapshot(qBookmarks, snap => {
           setBookmarkedPosts(new Set(snap.docs.map(d => d.data().postId)));
-      });
-      return () => unsub();
+      }, err => console.error("Bookmarks sync error:", err));
+
+      const qLikes = query(collection(db, "likes"), where("userId", "==", currentUser.uid));
+      const unsubLikes = onSnapshot(qLikes, snap => {
+          setLikedPosts(new Set(snap.docs.map(d => d.data().postId)));
+      }, err => console.error("Likes sync error:", err));
+
+      const qReposts = query(
+          collection(db, "social_posts"),
+          where("authorId", "==", currentUser.uid),
+          where("isDeleted", "==", false)
+      );
+      const unsubReposts = onSnapshot(qReposts, snap => {
+          const repostedIds = snap.docs
+              .map(d => d.data().repostOfId)
+              .filter(id => !!id);
+          setRepostedPosts(new Set(repostedIds));
+      }, err => console.error("Reposts sync error:", err));
+
+      return () => {
+          unsubBookmarks();
+          unsubLikes();
+          unsubReposts();
+      };
   }, [currentUser]);
 
   // Replying & Quoting
@@ -192,7 +215,18 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
         tags
       };
 
-      await addDoc(collection(db, "social_posts"), postData);
+      const newPostRef = await addDoc(collection(db, "social_posts"), postData);
+
+      if (replyingTo) {
+          await updateDoc(doc(db, "social_posts", replyingTo.id), {
+              replyCount: increment(1)
+          });
+      }
+      if (quoting) {
+          await updateDoc(doc(db, "social_posts", quoting.id), {
+              quoteCount: increment(1)
+          });
+      }
 
       // Reset state
       setInputText("");
@@ -220,15 +254,36 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
   const toggleLike = async (postId, currentlyLiked) => {
       if (!currentUser) return;
       const postRef = doc(db, "social_posts", postId);
+      const likeId = `${currentUser.uid}_${postId}`;
+      const likeRef = doc(db, "likes", likeId);
       const newLiked = new Set(likedPosts);
-      if (currentlyLiked) {
-          newLiked.delete(postId);
-          await updateDoc(postRef, { likeCount: increment(-1) });
-      } else {
-          newLiked.add(postId);
-          await updateDoc(postRef, { likeCount: increment(1) });
+      
+      try {
+          if (currentlyLiked) {
+              newLiked.delete(postId);
+              setLikedPosts(new Set(newLiked));
+              await deleteDoc(likeRef);
+              await updateDoc(postRef, { likeCount: increment(-1) });
+          } else {
+              newLiked.add(postId);
+              setLikedPosts(new Set(newLiked));
+              await setDoc(likeRef, {
+                  userId: currentUser.uid,
+                  postId: postId,
+                  createdAtMs: Date.now()
+              });
+              await updateDoc(postRef, { likeCount: increment(1) });
+          }
+      } catch (err) {
+          console.error("Like toggle failed:", err);
+          // Revert local state
+          if (currentlyLiked) {
+              newLiked.add(postId);
+          } else {
+              newLiked.delete(postId);
+          }
+          setLikedPosts(new Set(newLiked));
       }
-      setLikedPosts(newLiked);
   };
   
   const toggleBookmark = async (postId) => {
@@ -269,7 +324,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
           });
           await updateDoc(doc(db, "social_posts", post.id), { repostCount: increment(1) });
           newReposts.add(post.id);
-          setRepostedPosts(newReposts);
+          setRepostedPosts(new Set(newReposts));
       } catch (err) {
           console.error("Repost failed", err);
       }

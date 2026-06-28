@@ -83,28 +83,34 @@ export function RightSidebar({ onSetView }) {
   return (
     <div className="flex-1 flex flex-col h-full bg-transparent">
       {/* Top switch header */}
-      <div className="flex bg-[#020617] p-1.5 border-b border-white/5 shrink-0">
+      <div className="flex p-1.5 border-b shrink-0" style={{ background: "rgba(0,0,0,0.4)", borderColor: "var(--nx-border)" }}>
         <button
           onClick={() => setView('INTEL')}
-          className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-[11px] font-bold tracking-widest uppercase transition-colors ${
-             view === 'INTEL' 
-               ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)] font-bold' 
-               : 'text-slate-500 hover:text-slate-300 border border-transparent'
-          }`}
+          className="flex-1 flex items-center justify-center gap-2 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer"
+          style={{
+            fontFamily: "var(--nx-font-mono)",
+            borderRadius: "2px",
+            ...(view === 'INTEL'
+              ? { background: "rgba(0,229,255,0.1)", color: "var(--nx-cyan)", border: "1px solid var(--nx-border-strong)" }
+              : { color: "rgba(255,255,255,0.4)", border: "1px solid transparent" }),
+          }}
         >
           <Globe2 className="w-3.5 h-3.5" />
-          Intelligence
+          Intel
         </button>
         <button
           onClick={() => setView('SOCIAL')}
-          className={`flex-1 flex items-center justify-center gap-2 py-1.5 rounded text-[11px] font-bold tracking-widest uppercase transition-colors ${
-             view === 'SOCIAL' 
-               ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)] font-bold' 
-               : 'text-slate-500 hover:text-slate-300 border border-transparent'
-          }`}
+          className="flex-1 flex items-center justify-center gap-2 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer"
+          style={{
+            fontFamily: "var(--nx-font-mono)",
+            borderRadius: "2px",
+            ...(view === 'SOCIAL'
+              ? { background: "rgba(0,229,255,0.1)", color: "var(--nx-cyan)", border: "1px solid var(--nx-border-strong)" }
+              : { color: "rgba(255,255,255,0.4)", border: "1px solid transparent" }),
+          }}
         >
           <Hash className="w-3.5 h-3.5" />
-          Social Flow
+          Pulse
         </button>
       </div>
 

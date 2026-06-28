@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
+import { Radio } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
+const FEATURES = [
+  { icon: "◈", title: "Geo Nexus Map", desc: "Interactive globe with live news heatmap across 25+ markets" },
+  { icon: "◎", title: "Country Signal Drill", desc: "Click any nation — headlines, local index, AI sentiment score" },
+  { icon: "▣", title: "Live Market Lattice", desc: "Global indices, FX, commodities, and crypto in one view" },
+  { icon: "⬡", title: "AI Signal Engine", desc: "News-to-price impact scoring with directional signals" },
+  { icon: "◉", title: "Pulse Community", desc: "Trader intel feed, servers, and direct messages" },
+];
 
 export default function LoginPage() {
   const { currentUser, userStatus, isAdmin, signInWithGoogle } = useAuth();
@@ -9,14 +17,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [redirecting, setRedirecting] = useState(false);
 
-  // Already signed in — redirect appropriately
   if (currentUser) {
     if (isAdmin || userStatus === "approved") return <Navigate to="/" replace />;
     if (userStatus === "pending") return <Navigate to="/pending" replace />;
     if (userStatus === "rejected") return <Navigate to="/rejected" replace />;
   }
 
-  // Detect mobile
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   async function handleGoogleSignIn() {
@@ -25,9 +31,7 @@ export default function LoginPage() {
     try {
       if (isMobile) {
         setRedirecting(true);
-        // signInWithGoogle triggers signInWithRedirect — page will leave
         await signInWithGoogle();
-        // (execution stops here on mobile — page redirects to Google)
       } else {
         await signInWithGoogle();
       }
@@ -46,68 +50,71 @@ export default function LoginPage() {
     }
   }
 
-
   return (
-    <div className="login-page">
-      {/* Animated background grid */}
-      <div className="login-bg">
-        <div className="login-bg__grid" />
-        <div className="login-bg__glow login-bg__glow--1" />
-        <div className="login-bg__glow login-bg__glow--2" />
+    <div className="nx-login-page">
+      <div className="nexus-ambient" aria-hidden="true">
+        <div className="nexus-ambient__grid" />
+        <div className="nexus-ambient__aurora nexus-ambient__aurora--1" />
+        <div className="nexus-ambient__aurora nexus-ambient__aurora--2" />
       </div>
 
-      {/* Ticker strip at top */}
-      <div className="login-ticker">
-        {["S&P 500 +1.24%", "NIKKEI +0.79%", "NIFTY 50 +0.96%", "BTC $67,234", "GOLD $2,387", "EUR/USD 1.0876", "DAX -0.78%", "FTSE -0.29%", "SSE +1.47%"].map((t, i) => (
-          <span key={i} className="login-ticker__item">{t}</span>
+      <div className="nx-login-ticker">
+        {["S&P 500 +1.24%", "NIKKEI +0.79%", "BTC $67,234", "GOLD $2,387", "EUR/USD 1.0876", "DAX -0.78%", "SSE +1.47%"].map((t, i) => (
+          <span key={i}>{t}</span>
         ))}
       </div>
 
-      {/* Main card */}
-      <div className="login-card">
-        {/* Logo */}
-        <div className="login-card__logo">
-          <div className="login-card__logo-icon">🌐</div>
-          <div>
-            <div className="login-card__logo-title">
-              GLOBAL<span>FIN</span> TERMINAL
+      <div className="nx-login-card nx-panel">
+        <div className="p-6 pb-0">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="nx-logo__glyph">
+              <div className="nx-logo__hex" />
+              <Radio className="nx-logo__core h-4 w-4" strokeWidth={2.5} />
             </div>
-            <div className="login-card__logo-sub">MARKET INTELLIGENCE PLATFORM</div>
+            <div>
+              <div className="nx-logo__text">SIGNAL<em>NEXUS</em></div>
+              <div className="nx-section-sub mt-1">Geospatial Market Intelligence</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mb-5">
+            {[
+              { label: "Markets", val: "25+" },
+              { label: "Signals", val: "1.8K" },
+              { label: "Live", val: "2026" },
+            ].map((s) => (
+              <div key={s.label} className="text-center py-3" style={{ border: "1px solid var(--nx-border)", background: "rgba(0,0,0,0.3)" }}>
+                <div style={{ fontFamily: "var(--nx-font-mono)", fontSize: "16px", fontWeight: 700, color: "var(--nx-cyan)" }}>{s.val}</div>
+                <div className="nx-section-sub mt-1">{s.label}</div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Live stats row */}
-        <div className="login-card__stats">
-          {[
-            { label: "Markets Tracked", val: "25+" },
-            { label: "Data Points", val: "1,800+" },
-            { label: "Live Since", val: "2026" },
-          ].map((s) => (
-            <div key={s.label} className="login-card__stat">
-              <div className="login-card__stat-val">{s.val}</div>
-              <div className="login-card__stat-label">{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="login-card__divider" />
-
-        {/* Sign-in section */}
-        <div className="login-card__body">
-          <h1 className="login-card__heading">Access Terminal</h1>
-          <p className="login-card__desc">
+        <div className="px-6 py-5" style={{ borderTop: "1px solid var(--nx-border)" }}>
+          <h1 style={{ fontFamily: "var(--nx-font-display)", fontSize: "20px", fontWeight: 700, color: "#f0f4ff", marginBottom: "8px" }}>
+            Access Terminal
+          </h1>
+          <p style={{ fontFamily: "var(--nx-font-mono)", fontSize: "11px", color: "rgba(255,255,255,0.45)", lineHeight: 1.6, marginBottom: "16px" }}>
             Institutional-grade global market intelligence. Sign in to request access — approved by admin.
           </p>
 
           <button
-            className={`login-card__btn ${loading ? "loading" : ""}`}
             onClick={handleGoogleSignIn}
             disabled={loading || redirecting}
+            className="w-full flex items-center justify-center gap-3 py-3 cursor-pointer transition-all"
+            style={{
+              fontFamily: "var(--nx-font-mono)",
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              border: "1px solid var(--nx-border-strong)",
+              background: "rgba(0,229,255,0.06)",
+              color: "var(--nx-cyan)",
+            }}
             id="google-signin-btn"
           >
-            {redirecting ? (
-              <span className="login-card__btn-spinner" />
-            ) : loading ? (
+            {(loading || redirecting) ? (
               <span className="login-card__btn-spinner" />
             ) : (
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -120,39 +127,30 @@ export default function LoginPage() {
             {redirecting ? "Redirecting to Google…" : loading ? "Signing in…" : "Continue with Google"}
           </button>
 
+          {error && (
+            <div className="mt-3 px-3 py-2 text-[11px]" style={{ fontFamily: "var(--nx-font-mono)", color: "var(--nx-rose)", background: "var(--nx-rose-dim)", border: "1px solid rgba(255,51,102,0.3)" }}>
+              {error}
+            </div>
+          )}
 
-          {error && <div className="login-card__error">{error}</div>}
-
-          <p className="login-card__notice">
-            🔒 Access is private and invite-only. New sign-ins require admin approval before terminal access is granted.
+          <p className="mt-4 text-[9px] leading-relaxed" style={{ fontFamily: "var(--nx-font-mono)", color: "rgba(255,255,255,0.3)" }}>
+            Access is private and invite-only. New sign-ins require admin approval.
           </p>
         </div>
 
-        {/* Footer */}
-        <div className="login-card__footer">
-          <span>GlobalFin Terminal v0.1.1</span>
-          <span>·</span>
-          <span>Private Beta</span>
-          <span>·</span>
-          <span>© 2026</span>
+        <div className="px-6 py-3 flex items-center justify-center gap-2" style={{ borderTop: "1px solid var(--nx-border)", fontFamily: "var(--nx-font-mono)", fontSize: "8px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.08em" }}>
+          <span>Signal Nexus v0.6</span><span>·</span><span>Private Beta</span><span>·</span><span>© 2026</span>
         </div>
       </div>
 
-      {/* Feature list beside card */}
-      <div className="login-features">
-        <div className="login-features__heading">What's inside</div>
-        {[
-          { icon: "🌍", title: "3D Globe Intelligence", desc: "Interactive Earth with real-time news heatmap across 25+ markets" },
-          { icon: "📰", title: "Country Drill-Down", desc: "Click any nation — top headlines, local index, AI sentiment score" },
-          { icon: "📈", title: "Live Market Data", desc: "18+ global indices, FX rates, commodities, and crypto in one view" },
-          { icon: "⚡", title: "AI Sentiment Engine", desc: "News-to-price impact scoring with bullish/bearish signals" },
-          { icon: "🔔", title: "Alerts (Coming)", desc: "Custom price alerts and breaking news notifications" },
-        ].map((f) => (
-          <div key={f.title} className="login-feature">
-            <div className="login-feature__icon">{f.icon}</div>
+      <div className="nx-login-features">
+        <div className="nx-section-sub mb-3">Inside the terminal</div>
+        {FEATURES.map((f) => (
+          <div key={f.title} className="nx-login-feature">
+            <span style={{ fontFamily: "var(--nx-font-mono)", fontSize: "16px", color: "var(--nx-gold)", width: "28px" }}>{f.icon}</span>
             <div>
-              <div className="login-feature__title">{f.title}</div>
-              <div className="login-feature__desc">{f.desc}</div>
+              <div style={{ fontFamily: "var(--nx-font-display)", fontSize: "13px", fontWeight: 600, color: "#f0f4ff", marginBottom: "3px" }}>{f.title}</div>
+              <div style={{ fontFamily: "var(--nx-font-mono)", fontSize: "10px", color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>{f.desc}</div>
             </div>
           </div>
         ))}

@@ -24,11 +24,14 @@ function getArcPath(x, y, radius, startAngle, endAngle) {
 }
 
 export function SignalDesk({ country }) {
+  if (!country) return null;
+  return <SignalDeskInner country={country} />;
+}
+
+function SignalDeskInner({ country }) {
   const { whatIfScenario, setWhatIfScenario, clearWhatIfScenario } = useTerminalStore();
   const [expanded, setExpanded] = useState(true);
   const [whatIfOpen, setWhatIfOpen] = useState(false);
-
-  if (!country) return null;
 
   const iso = country.properties?.ISO_A2 || country.code || "XX";
   const name = country.properties?.ADMIN || country.name || "Unknown Region";

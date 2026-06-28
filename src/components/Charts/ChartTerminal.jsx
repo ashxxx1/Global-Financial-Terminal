@@ -2071,14 +2071,12 @@ export function ChartTerminal() {
   }
 
   return (
-    <div className="flex flex-col min-h-full md:h-full bg-[#040912] text-white pb-[56px] md:pb-0 overflow-y-auto md:overflow-hidden select-none">
+    <div className="nexus-chart-root flex flex-col min-h-full md:h-full pb-[56px] md:pb-0 overflow-y-auto md:overflow-hidden select-none">
 
-      {/* ── Top Control Bar (Responsive) ────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 px-4 py-2 border-b border-[#1e293b] bg-[#06091a] flex-shrink-0 flex-wrap">
+      <div className="nexus-chart-bar flex items-center gap-3 px-4 py-2 border-b flex-shrink-0 flex-wrap">
         
-        {/* Title & Help */}
         <div className="flex items-center gap-2">
-          <span className="font-bold text-[11px] tracking-widest text-[#94a3b8] hidden md:inline uppercase">Chart Terminal</span>
+          <span className="nexus-chart-title hidden md:inline">Chart Nexus</span>
           <button 
             onClick={() => setShowHelp(prev => !prev)}
             className="w-4 h-4 rounded-full border border-slate-700 hover:border-indigo-400 flex items-center justify-center text-[9px] font-bold text-slate-500 hover:text-white transition-colors cursor-pointer"
@@ -2130,9 +2128,7 @@ export function ChartTerminal() {
                     setSymbol(sym);
                   }
                 }}
-                className={`px-3 py-1 rounded-lg text-xs font-bold font-mono transition-all border cursor-pointer ${
-                  isSelected ? 'bg-indigo-500/15 border-indigo-500/50 text-indigo-300' : 'border-[#1e293b] text-slate-400 hover:text-white hover:border-slate-700'
-                }`}
+                className={`nexus-chip ${isSelected ? 'active' : ''}`}
               >
                 {sym}
               </button>

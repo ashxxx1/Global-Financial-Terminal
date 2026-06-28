@@ -1,14 +1,18 @@
 export default function Footer() {
   return (
-    <footer className="footer">
-      <div className="footer__disclaimer">
-        <span className="footer__warning-icon">⚠</span>
-        <span className="footer__disclaimer-text">
-          <strong>DISCLAIMER:</strong> Global Financial Terminal is a simulated platform for educational and demonstration purposes only. The information and data provided on this platform do not constitute investment, financial, trading, tax, or legal advice. Trading financial instruments involves significant risk.
+    <footer className="nx-footer">
+      <div className="nx-footer__status">
+        <span className="nx-footer__chip">
+          <span className="nx-footer__chip-dot" />
+          FEEDS ONLINE
+        </span>
+        <span style={{ color: "rgba(255,157,0,0.6)" }}>⚠</span>
+        <span>
+          Simulated platform · Not financial advice · Educational use only
         </span>
       </div>
-      <div className="footer__version">
-        GFT-SECURE · v0.5.0
+      <div style={{ color: "rgba(0,229,255,0.45)", letterSpacing: "0.12em" }}>
+        SIGNAL NEXUS · GFT-SECURE · v0.6.0
       </div>
     </footer>
   );

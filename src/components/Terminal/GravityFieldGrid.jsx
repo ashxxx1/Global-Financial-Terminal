@@ -112,8 +112,8 @@ export function GravityFieldGrid() {
                     const ry1 = cy + 8 * Math.sin(angle);
                     const rx2 = cx + 55 * Math.cos(angle);
                     const ry2 = cy + 55 * Math.sin(angle);
-                    const controlX = targetCx + (r * 0.4) * Math.cos(angle);
-                    const controlY = targetCy + (r * 0.4) * Math.sin(angle);
+                    const controlX = targetCx + (30 * 0.4) * Math.cos(angle);
+                    const controlY = targetCy + (30 * 0.4) * Math.sin(angle);
 
                     return (
                       <path

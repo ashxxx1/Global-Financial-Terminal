@@ -69,6 +69,10 @@ function getSupplyChainExposure(iso) {
 }
 
 export function CountryRightPanel({ country, timeframe = "1D" }) {
+  const setCausalChainEvent = useTerminalStore(state => state.setCausalChainEvent);
+  const addAnnotation = useTerminalStore(state => state.addAnnotation);
+  const [noteText, setNoteText] = useState("");
+
   if (!country) return null;
 
   const iso = country.properties?.ISO_A2 || country.code || "XX";
@@ -77,14 +81,10 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
   const localOutlets = getLocalNewsOutlets(iso);
   const localHeadlines = getLocalHeadlines(iso);
   const geoSummary = generateGeopoliticalSummary(iso, stats.sentiment || "neutral");
-  const setCausalChainEvent = useTerminalStore(state => state.setCausalChainEvent);
-  
-  const [noteText, setNoteText] = useState("");
-  const addAnnotation = useTerminalStore(state => state.addAnnotation);
 
   const handlePinNote = () => {
     if (!noteText.trim()) return;
-    let lat = 0, lng = 0;
+    let lat, lng;
     if (iso === "US") { lat = 40; lng = -97; }
     else if (iso === "CN") { lat = 35; lng = 105; }
     else if (iso === "JP") { lat = 36; lng = 138; }

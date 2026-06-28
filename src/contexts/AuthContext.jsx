@@ -90,16 +90,15 @@ export function AuthProvider({ children }) {
     setUserStatus(null);
   }
 
-  // Add a global function for Playwright testing to inject a mock user
-  window.setPlaywrightTestUser = (userStr) => {
-      const testUser = JSON.parse(userStr);
-      setCurrentUser(testUser);
-      setUserStatus("approved");
-      setUserProfileData({ displayName: testUser.displayName, username: testUser.username || "testuser" });
-      setLoading(false);
-  };
-
   useEffect(() => {
+    window.setPlaywrightTestUser = (userStr) => {
+        const testUser = JSON.parse(userStr);
+        setCurrentUser(testUser);
+        setUserStatus("approved");
+        setUserProfileData({ displayName: testUser.displayName, username: testUser.username || "testuser" });
+        setLoading(false);
+    };
+
     // Handle the redirect result when returning from Google on mobile
     getRedirectResult(auth)
       .then(async (result) => {

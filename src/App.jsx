@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import "./styles/index.css";
+import "./styles/nexus-theme.css";
 import "./index.css";
 
 // ── Terminal UI (pulled from merge) ──────────────────────────────────────────
@@ -98,13 +99,12 @@ function TerminalApp() {
   const [rightCollapsed, setRightCollapsed] = useState(true);
   const [bottomCollapsed, setBottomCollapsed] = useState(true);
 
-  // Auto-expand sidebars when a country is selected
   useEffect(() => {
     if (selectedCountry) {
-      setLeftCollapsed(false);
-      setRightCollapsed(false);
+      if (leftCollapsed) setLeftCollapsed(false);
+      if (rightCollapsed) setRightCollapsed(false);
     }
-  }, [selectedCountry]);
+  }, [selectedCountry, leftCollapsed, rightCollapsed]);
 
   const handleCountryClick = useCallback((country, event) => {
     if (event && event.shiftKey && selectedCountry) {
@@ -121,8 +121,14 @@ function TerminalApp() {
   const anySheetOpen = mobileSidebarOpen || isNewsPanelOpen || isStockPanelOpen;
 
   return (
-    <div className="app-shell">
-      {/* Top bar — header with nav, search, alerts, user */}
+    <div className="app-shell nexus">
+      <div className="nexus-ambient" aria-hidden="true">
+        <div className="nexus-ambient__grid" />
+        <div className="nexus-ambient__aurora nexus-ambient__aurora--1" />
+        <div className="nexus-ambient__aurora nexus-ambient__aurora--2" />
+        <div className="nexus-ambient__aurora nexus-ambient__aurora--3" />
+      </div>
+
       <TopBar currentView={activeView} onSetView={setActiveView} />
 
       {/* Ticker scrolling strip */}
@@ -140,7 +146,7 @@ function TerminalApp() {
         {activeView === "globe" ? (
           <div className="flex w-full h-full">
             {/* Left Panel: Market overview & Risk radar OR Country Info */}
-            <div className={`sidebar ${mobileSidebarOpen ? "mobile-open" : ""} ${leftCollapsed ? "w-0 border-r-0" : "w-[350px]"} h-full flex flex-col border-r border-indigo-500/10 glass-panel flex-shrink-0 transition-all duration-300 overflow-y-auto shadow-[40px_0_100px_rgba(0,0,0,0.5)]`}>
+            <div className={`sidebar nx-panel nx-scanlines ${mobileSidebarOpen ? "mobile-open" : ""} ${leftCollapsed ? "w-0 border-r-0" : "w-[350px]"} h-full flex flex-col border-r flex-shrink-0 transition-all duration-300 overflow-y-auto`} style={{ borderColor: "var(--nx-border)" }}>
               {selectedCountry ? (
                 <CountryLeftPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />
               ) : (
@@ -151,36 +157,35 @@ function TerminalApp() {
             {/* Center Content Space & Bottom Dashboard */}
             <div className="flex-1 flex flex-col min-w-0 h-full relative">
               {/* Floating Left Sidebar Toggle */}
-              <button 
+              <button
                 onClick={() => setLeftCollapsed(!leftCollapsed)}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-30 w-5 h-16 bg-[#0c1220]/95 border border-l-0 border-[#1e293b]/70 hover:border-indigo-500 text-indigo-400 hover:text-white rounded-r flex items-center justify-center cursor-pointer transition-colors shadow-2xl"
+                className="nx-rail-toggle nx-rail-toggle--left"
                 title={leftCollapsed ? "Expand Markets" : "Collapse Markets"}
               >
-                <span className="text-[10px] font-bold">{leftCollapsed ? "▶" : "◀"}</span>
+                {leftCollapsed ? "▶" : "◀"}
               </button>
 
-              {/* Floating Right Sidebar Toggle */}
-              <button 
+              <button
                 onClick={() => setRightCollapsed(!rightCollapsed)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-30 w-5 h-16 bg-[#0c1220]/95 border border-r-0 border-[#1e293b]/70 hover:border-indigo-500 text-indigo-400 hover:text-white rounded-l flex items-center justify-center cursor-pointer transition-colors shadow-2xl"
+                className="nx-rail-toggle nx-rail-toggle--right"
                 title={rightCollapsed ? "Expand Intelligence" : "Collapse Intelligence"}
               >
-                <span className="text-[10px] font-bold">{rightCollapsed ? "◀" : "▶"}</span>
+                {rightCollapsed ? "◀" : "▶"}
               </button>
 
               {/* Globe centerpiece container */}
               <div className="flex-1 w-full relative">
                 {/* Floating Workspace & Control Overlay */}
                 {/* Top-left: View title, Timeframe & Scrubber */}
-                <div className="absolute top-4 left-8 z-20 pointer-events-auto flex items-center gap-3 bg-[#080f1e]/90 backdrop-blur-md border border-[#1e293b] px-4 py-2 rounded-lg shadow-2xl">
-                  <span className="font-bold text-[11px] text-white tracking-widest">🌍 GLOBAL MAP</span>
-                  <div className="h-4 w-px bg-slate-700" />
-                  <div className="flex items-center bg-black/40 border border-white/10 p-0.5 rounded">
+                <div className="absolute top-4 left-8 z-20 pointer-events-auto nx-hud-bar">
+                  <span className="nx-hud-bar__title">Geo Nexus</span>
+                  <div className="nx-hud-bar__divider" />
+                  <div className="flex items-center gap-0.5">
                     {["1D", "1W", "1M", "YTD"].map((tf) => (
-                      <button 
+                      <button
                         key={tf}
                         onClick={() => setTimeframe(tf)}
-                        className={`px-3 py-1 text-[10px] font-bold font-mono uppercase tracking-wider rounded transition-all cursor-pointer ${timeframe === tf ? 'bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                        className={`nx-tf-btn ${timeframe === tf ? "active" : ""}`}
                       >
                         {tf}
                       </button>
@@ -194,53 +199,32 @@ function TerminalApp() {
                 </div>
 
                 {/* Bottom-center: Panel Toggles — large, clearly labeled */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto flex items-center gap-3 bg-[#080f1e]/95 backdrop-blur-xl border border-[#1e293b] px-5 py-2.5 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.8)]">
-                  <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mr-1">PANELS</span>
-                  
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto flex items-center gap-2 px-4 py-2" style={{ background: "rgba(2,4,10,0.9)", border: "1px solid var(--nx-border)", backdropFilter: "blur(16px)" }}>
+                  <span className="nx-section-sub mr-1">Modules</span>
                   <button
                     onClick={() => setLeftCollapsed(!leftCollapsed)}
-                    className={`px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all border cursor-pointer flex items-center gap-2 ${
-                      !leftCollapsed 
-                        ? 'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
-                        : 'bg-white/5 text-slate-400 border-white/10 hover:border-indigo-500/50 hover:text-indigo-300'
-                    }`}
+                    className={`nx-panel-toggle ${!leftCollapsed ? "on" : ""}`}
                   >
-                    📊 <span>Markets</span>
-                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${!leftCollapsed ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-500'}`}>
-                      {leftCollapsed ? 'OFF' : 'ON'}
-                    </span>
+                    Markets
+                    <span className="nx-panel-toggle__badge">{leftCollapsed ? "OFF" : "ON"}</span>
                   </button>
-
                   <button
                     onClick={() => setRightCollapsed(!rightCollapsed)}
-                    className={`px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all border cursor-pointer flex items-center gap-2 ${
-                      !rightCollapsed 
-                        ? 'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
-                        : 'bg-white/5 text-slate-400 border-white/10 hover:border-indigo-500/50 hover:text-indigo-300'
-                    }`}
+                    className={`nx-panel-toggle ${!rightCollapsed ? "on" : ""}`}
                   >
-                    🧠 <span>Intel</span>
-                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${!rightCollapsed ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-500'}`}>
-                      {rightCollapsed ? 'OFF' : 'ON'}
-                    </span>
+                    Intel
+                    <span className="nx-panel-toggle__badge">{rightCollapsed ? "OFF" : "ON"}</span>
                   </button>
-
                   <button
                     onClick={() => setBottomCollapsed(!bottomCollapsed)}
-                    className={`px-4 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all border cursor-pointer flex items-center gap-2 ${
-                      !bottomCollapsed 
-                        ? 'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
-                        : 'bg-white/5 text-slate-400 border-white/10 hover:border-indigo-500/50 hover:text-indigo-300'
-                    }`}
+                    className={`nx-panel-toggle ${!bottomCollapsed ? "on" : ""}`}
                   >
-                    📡 <span>News</span>
-                    <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${!bottomCollapsed ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-500'}`}>
-                      {bottomCollapsed ? 'OFF' : 'ON'}
-                    </span>
+                    Wire
+                    <span className="nx-panel-toggle__badge">{bottomCollapsed ? "OFF" : "ON"}</span>
                   </button>
                 </div>
 
-                <div className="absolute inset-0 z-0 bg-[#020617] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/30 via-[#020617] to-[#020617]">
+                <div className="absolute inset-0 z-0" style={{ background: "radial-gradient(ellipse 70% 60% at 50% 45%, rgba(0,229,255,0.04) 0%, var(--nx-void) 65%)" }}>
                   <GlobeVis selectedCountry={selectedCountry} onCountryClick={handleCountryClick} timeframe={timeframe} />
                 </div>
 
@@ -256,13 +240,13 @@ function TerminalApp() {
               </div>
               
               {/* Bottom Panel: Global News */}
-              <div className={`hidden md:flex relative ${bottomCollapsed ? "h-[44px]" : "h-[220px]"} w-full border-t border-indigo-500/10 glass-panel flex-shrink-0 flex flex-col transition-all duration-300 overflow-hidden shadow-[0_-40px_100px_rgba(0,0,0,0.5)]`}>
+              <div className={`hidden md:flex relative nx-panel nx-scanlines ${bottomCollapsed ? "h-[44px]" : "h-[220px]"} w-full border-t flex-shrink-0 flex flex-col transition-all duration-300 overflow-hidden`} style={{ borderColor: "var(--nx-border)" }}>
                 <GlobalNews isCollapsed={bottomCollapsed} onToggle={() => setBottomCollapsed(!bottomCollapsed)} />
               </div>
             </div>
 
             {/* Right Panel: Intelligence / Social OR Country Feed */}
-            <div className={`hidden md:flex ${rightCollapsed ? "w-0 border-l-0" : "w-[380px]"} h-full flex-col border-l border-indigo-500/10 glass-panel flex-shrink-0 transition-all duration-300 overflow-y-auto shadow-[-40px_0_100px_rgba(0,0,0,0.5)]`}>
+            <div className={`hidden md:flex nx-panel nx-scanlines ${rightCollapsed ? "w-0 border-l-0" : "w-[380px]"} h-full flex-col border-l flex-shrink-0 transition-all duration-300 overflow-y-auto`} style={{ borderColor: "var(--nx-border)" }}>
               {selectedCountry ? (
                 <CountryRightPanel country={selectedCountry} timeframe={timeframe} />
               ) : (
@@ -271,14 +255,14 @@ function TerminalApp() {
             </div>
           </div>
         ) : (
-          <div className="absolute inset-0 z-10 flex flex-col w-full h-full bg-[#020617] overflow-hidden">
+          <div className="absolute inset-0 z-10 flex flex-col w-full h-full overflow-hidden" style={{ background: "var(--nx-void)" }}>
             {activeView === "news"        && <GlobalNews />}
             {activeView === "social"      && <SocialPage />}
             {activeView === "portfolio"   && <PortfolioPanel onClose={() => setActiveView('globe')} />}
-            {activeView === "heatmap"     && <MacroHeatmap />}
-            {activeView === "calendar"    && <EconomicCalendar />}
-            {activeView === "fx"          && <FXDashboard />}
-            {activeView === "correlation" && <CorrelationMatrix />}
+            {activeView === "heatmap"     && <div className="nexus-module h-full"><MacroHeatmap /></div>}
+            {activeView === "calendar"    && <div className="nexus-module h-full"><EconomicCalendar /></div>}
+            {activeView === "fx"          && <div className="nexus-module h-full"><FXDashboard /></div>}
+            {activeView === "correlation" && <div className="nexus-module h-full"><CorrelationMatrix /></div>}
             {activeView === "charts"      && <ChartTerminal />}
           </div>
         )}
@@ -339,7 +323,7 @@ function TerminalApp() {
         }}
       />
 
-      <nav className="mobile-nav" aria-label="Mobile navigation">
+      <nav className="mobile-nav nexus-mobile-nav" aria-label="Mobile navigation">
         <button
           className={`mobile-nav__btn${activeView === "globe" ? " active" : ""}`}
           onClick={() => { setActiveView("globe"); setMobileViewsOpen(false); }}

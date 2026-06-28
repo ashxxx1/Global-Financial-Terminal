@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Cashtag from "./Cashtag";
 import UserMention from "./UserMention";
 
-export default function PostsFeed({ feedType = 'foryou', profileId = null, onProfileClick }) {
+export default function PostsFeed({ feedType = 'foryou', profileId = null, onProfileClick, searchQuery = "" }) {
   const { currentUser } = useAuth();
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -148,18 +148,35 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
         };
       }));
       if (!isMounted) return;
+      let filtered = postsList;
       if (feedType === 'following') {
-          setPosts(postsList.filter(p => followingList.includes(p.authorId) || p.authorId === currentUser?.uid));
-      } else {
-          setPosts(postsList);
+          filtered = postsList.filter(p => followingList.includes(p.authorId) || p.authorId === currentUser?.uid);
+      } else if (feedType === 'bookmarks') {
+          filtered = postsList.filter(p => bookmarkedPosts.has(p.id));
+      } else if (feedType === 'mentions' && currentUser) {
+          const handle = currentUser.displayName?.split(' ')[0]?.toLowerCase();
+          filtered = postsList.filter(p => {
+              const text = (p.content || p.text || '').toLowerCase();
+              return text.includes(`@${handle}`) || text.includes(`@${currentUser.email?.split('@')[0]?.toLowerCase()}`);
+          });
       }
+      if (searchQuery.trim()) {
+          const q = searchQuery.trim().toLowerCase();
+          filtered = filtered.filter(p =>
+              (p.content || p.text || '').toLowerCase().includes(q) ||
+              (p.author?.username || '').toLowerCase().includes(q) ||
+              (p.author?.displayName || '').toLowerCase().includes(q) ||
+              (p.tags || []).some(t => t.toLowerCase().includes(q))
+          );
+      }
+      setPosts(filtered);
       setIsLoading(false);
     });
     return () => {
         isMounted = false;
         unsub();
     };
-  }, [feedType, followingList, currentUser, profileId, postLimit]);
+  }, [feedType, followingList, currentUser, profileId, postLimit, searchQuery, bookmarkedPosts]);
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
@@ -383,7 +400,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
       const words = content.split(/(\s+)/);
       return words.map((w, i) => {
           if (w.startsWith('#') && w.length > 1) {
-              return <span key={i} className="text-indigo-400 hover:underline cursor-pointer">{w}</span>;
+              return <span key={i} className="gft-tag">{w}</span>;
           }
           if (w.startsWith('$') && w.length > 1) {
               // Strip $ from symbol
@@ -398,15 +415,14 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-2xl mx-auto pb-20">
+    <div className="flex flex-col pb-20">
       
-      {/* Composer */}
       {(!profileId || profileId === currentUser?.uid) && (
-        <div className="glass-card rounded-2xl p-4 flex gap-4">
-           <div className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden flex-shrink-0">
+        <div className="gft-composer">
+           <div className="gft-composer-avatar">
              <img src={currentUser?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser?.uid}`} alt="Me" className="w-full h-full object-cover" />
          </div>
-         <div className="flex-1 flex flex-col">
+         <div className="gft-composer-body">
             {editingPost && (
                 <div className="text-xs text-amber-400 mb-2 flex justify-between items-center bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
                    <span>Editing post (5 min window)</span>
@@ -421,10 +437,9 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
             )}
             
             <textarea 
-               placeholder="Share analysis, charts, or macro thesis..."
+               placeholder="What's happening in the markets?"
                value={inputText}
                onChange={(e) => setInputText(e.target.value.slice(0, 280))}
-               className="w-full bg-transparent resize-none outline-none text-white placeholder:text-slate-500 min-h-[60px]"
                rows={3}
             />
             
@@ -474,28 +489,29 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                 </div>
             )}
             
-            <div className="flex justify-between items-center mt-2 pt-3 border-t border-white/5">
-                <div className="flex gap-1 text-indigo-400">
-                    <button onClick={() => setShowMediaInput(!showMediaInput)} className="p-2 rounded-full hover:bg-indigo-500/20 transition-colors" title="Media">
+            <div className="gft-composer-actions">
+                <div className="flex gap-1">
+                    <button type="button" onClick={() => setShowMediaInput(!showMediaInput)} className="gft-icon-btn" title="Media">
                         <ImageIcon size={18} />
                     </button>
-                    <button onClick={() => setShowPollInput(!showPollInput)} className="p-2 rounded-full hover:bg-indigo-500/20 transition-colors" title="Poll">
+                    <button type="button" onClick={() => setShowPollInput(!showPollInput)} className="gft-icon-btn" title="Poll">
                         <BarChart2 size={18} />
                     </button>
-                    <button className="p-2 rounded-full hover:bg-indigo-500/20 transition-colors" title="Emoji">
+                    <button type="button" className="gft-icon-btn" title="Emoji">
                         <Smile size={18} />
                     </button>
                 </div>
                 <div className="flex items-center gap-3">
-                    <span className={`text-xs ${inputText.length > 250 ? 'text-amber-400' : 'text-slate-500'}`}>
+                    <span style={{ fontSize: "12px", color: inputText.length > 250 ? "var(--gft-accent)" : "var(--gft-text-soft)" }}>
                         {inputText.length}/280
                     </span>
                     <button 
+                        type="button"
                         onClick={handlePostSubmit}
                         disabled={(!inputText.trim() && mediaUrls.length === 0) || isSubmitting}
-                        className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white px-5 py-1.5 rounded-full font-medium transition-colors text-sm flex items-center justify-center min-w-[70px]"
+                        className="gft-btn-primary flex items-center justify-center min-w-[72px]"
                     >
-                        {isSubmitting ? <span className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span> : 'Post'}
+                        {isSubmitting ? <span className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></span> : 'Post'}
                     </button>
                 </div>
             </div>
@@ -550,7 +566,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                      animate={{ opacity: 1, scale: 1, y: 0 }} 
                      exit={{ opacity: 0, scale: 0.95 }}
                      transition={{ duration: 0.2, type: "spring", stiffness: 200, damping: 20 }}
-                     className="px-4 py-3 border-b border-white/5 hover:bg-white/[0.02] transition-colors flex flex-col gap-1 group relative cursor-pointer"
+                     className="gft-post group relative"
                  >
                      {/* Repost Header */}
                      {isRepost && (
@@ -560,10 +576,10 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                          </div>
                      )}
 
-                     <div className="flex gap-3">
+                     <div className="gft-post-header">
                          <div 
                              onClick={() => onProfileClick && onProfileClick(displayPost.authorId)}
-                             className="w-10 h-10 rounded-full bg-slate-800 overflow-hidden flex-shrink-0 cursor-pointer mt-1"
+                             className="gft-post-avatar cursor-pointer mt-0.5"
                          >
                              <img src={displayPost.author?.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${displayPost.authorId}`} alt="Author" className="w-full h-full object-cover" />
                          </div>
@@ -618,7 +634,7 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                          )}
 
                          {/* Body */}
-                         <div className="mt-1 text-slate-200 text-sm leading-relaxed whitespace-pre-wrap break-words">
+                         <div className="gft-post-body mt-1">
                              {renderContentWithTags((displayPost.content || displayPost.text))}
                          </div>
 
@@ -668,37 +684,35 @@ export default function PostsFeed({ feedType = 'foryou', profileId = null, onPro
                          )}
 
                          {/* Actions */}
-                         <div className="flex justify-between items-center mt-4 text-slate-500 max-w-md">
-                             <button onClick={() => { setReplyingTo(displayPost); setQuoting(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex items-center gap-2 hover:text-indigo-400 group/btn transition-colors">
-                                 <div className="p-1.5 rounded-full group-hover/btn:bg-indigo-500/20"><MessageCircle size={16} /></div>
-                                 <span className="text-xs">{displayPost.replyCount || 0}</span>
+                         <div className="gft-post-actions">
+                             <button type="button" onClick={(e) => { e.stopPropagation(); setReplyingTo(displayPost); setQuoting(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="gft-post-action">
+                                 <MessageCircle size={16} />
+                                 <span>{displayPost.replyCount || 0}</span>
                              </button>
                              <div className="relative group/repost">
-                                 <button className={`flex items-center gap-2 hover:text-emerald-400 group/btn transition-colors ${isReposted ? 'text-emerald-500' : ''}`}>
-                                     <div className="p-1.5 rounded-full group-hover/btn:bg-emerald-500/20"><Repeat2 size={16} /></div>
-                                     <span className="text-xs">{displayPost.repostCount || 0}</span>
+                                 <button type="button" className={`gft-post-action ${isReposted ? 'reposted' : ''}`}>
+                                     <Repeat2 size={16} />
+                                     <span>{displayPost.repostCount || 0}</span>
                                  </button>
-                                 <div className="absolute top-8 left-0 hidden group-hover/repost:flex flex-col bg-[#1e293b] border border-white/10 rounded-lg shadow-xl z-20 w-32 overflow-hidden">
-                                    <button onClick={() => handlePlainRepost(displayPost)} className="text-left px-3 py-2 text-xs text-white hover:bg-white/5 flex items-center gap-2"><Repeat2 size={14}/> Repost</button>
-                                    <button onClick={() => { setQuoting(displayPost); setReplyingTo(null); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="text-left px-3 py-2 text-xs text-white hover:bg-white/5 flex items-center gap-2"><Edit2 size={14}/> Quote</button>
+                                 <div className="absolute top-full left-0 mt-1 hidden group-hover/repost:flex flex-col rounded-lg shadow-xl z-20 w-32 overflow-hidden border border-[var(--gft-border)]" style={{ background: "var(--gft-elevated)" }}>
+                                    <button type="button" onClick={() => handlePlainRepost(displayPost)} className="text-left px-3 py-2 text-xs hover:bg-[var(--gft-hover)] flex items-center gap-2"><Repeat2 size={14}/> Repost</button>
+                                    <button type="button" onClick={() => { setQuoting(displayPost); setReplyingTo(null); window.scrollTo({top: 0, behavior: 'smooth'}); }} className="text-left px-3 py-2 text-xs hover:bg-[var(--gft-hover)] flex items-center gap-2"><Edit2 size={14}/> Quote</button>
                                  </div>
                              </div>
-                             <button onClick={() => toggleLike(displayPost.id, isLiked)} className={`flex items-center gap-2 hover:text-pink-500 group/btn transition-colors ${isLiked ? 'text-pink-500' : ''}`}>
-                                 <div className="p-1.5 rounded-full group-hover/btn:bg-pink-500/20">
-                                     <Heart size={16} className={isLiked ? "fill-pink-500" : ""} />
-                                 </div>
-                                 <span className="text-xs">{displayPost.likeCount || 0}</span>
+                             <button type="button" onClick={() => toggleLike(displayPost.id, isLiked)} className={`gft-post-action ${isLiked ? 'liked' : ''}`}>
+                                 <Heart size={16} className={isLiked ? "fill-current" : ""} />
+                                 <span>{displayPost.likeCount || 0}</span>
                              </button>
-                             <button className="flex items-center gap-2 hover:text-indigo-400 group/btn transition-colors">
-                                 <div className="p-1.5 rounded-full group-hover/btn:bg-indigo-500/20"><BarChart2 size={16} /></div>
-                                 <span className="text-xs">{displayPost.viewCount || 0}</span>
+                             <button type="button" className="gft-post-action">
+                                 <BarChart2 size={16} />
+                                 <span>{displayPost.viewCount || 0}</span>
                              </button>
-                             <div className="flex items-center gap-1">
-                                 <button onClick={() => toggleBookmark(displayPost.id)} className={`p-1.5 rounded-full hover:text-amber-400 hover:bg-amber-500/20 transition-colors ${isBookmarked ? 'text-amber-400' : ''}`}>
-                                     <Bookmark size={16} className={isBookmarked ? "fill-amber-400" : ""} />
-                                 </button>
-                                 <button className="p-1.5 rounded-full hover:text-indigo-400 hover:bg-indigo-500/20 transition-colors"><Share size={16} /></button>
-                             </div>
+                             <button type="button" onClick={() => toggleBookmark(displayPost.id)} className={`gft-post-action ${isBookmarked ? 'bookmarked' : ''}`}>
+                                 <Bookmark size={16} className={isBookmarked ? "fill-current" : ""} />
+                             </button>
+                             <button type="button" className="gft-post-action">
+                                 <Share size={16} />
+                             </button>
                          </div>
                      </div>
                      </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from "../../../contexts/AuthContext";
 import { db } from "../../../services/firebase";
 import { collection, query, where, onSnapshot, addDoc, serverTimestamp, getDoc, doc } from "firebase/firestore";
-import { Compass, Plus, Hash, MessageCircle } from "lucide-react";
+import { Compass, Plus } from "lucide-react";
 import { Permission, ALL_PERMISSIONS } from "../../../lib/permissions";
 
 export default function ServerSidebar({ activeServer, setActiveServer, setActiveMode }) {
@@ -102,86 +102,64 @@ export default function ServerSidebar({ activeServer, setActiveServer, setActive
 
   return (
     <>
-      <div className="flex flex-col gap-3 w-full items-center overflow-y-auto no-scrollbar py-2">
-        {/* Direct Messages Button */}
-        <button 
-            onClick={() => { setActiveMode("dm"); setActiveServer(null); }}
-            className={`w-12 h-12 rounded-[24px] hover:rounded-[16px] transition-all duration-300 flex items-center justify-center bg-[#1e293b] text-indigo-400 group relative ${!activeServer ? "rounded-[16px]" : "opacity-70 hover:opacity-100"}`}
-        >
-            {!activeServer && (
-                <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-md"></div>
-            )}
-            <MessageCircle size={24} />
-            <div className="absolute left-16 px-3 py-1.5 bg-black/90 text-white text-sm font-medium rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                Direct Messages
-            </div>
-        </button>
-        
-        <div className="w-8 h-[2px] bg-white/10 rounded-full my-1"></div>
-
+      <div className="flex flex-col gap-2 w-full items-center overflow-y-auto no-scrollbar">
         {servers.map(server => (
-            <button 
+            <button
                 key={server.id}
+                type="button"
                 onClick={() => { setActiveMode("servers"); setActiveServer(server.id); }}
-                className={`w-12 h-12 rounded-[24px] hover:rounded-[16px] transition-all duration-300 flex items-center justify-center bg-gradient-premium text-white relative group ${activeServer === server.id ? "rounded-[16px]" : "opacity-70 hover:opacity-100"}`}
+                className={`gft-rail-btn ${activeServer === server.id ? "active" : ""}`}
+                title={server.name}
             >
-                {activeServer === server.id && (
-                    <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-md"></div>
-                )}
                 {server.iconUrl ? (
                     <img src={server.iconUrl} alt={server.name} className="w-full h-full object-cover rounded-inherit" />
                 ) : (
-                    <span className="font-bold text-lg font-display uppercase">{server.name.substring(0, 2)}</span>
+                    <span className="font-bold text-sm uppercase">{server.name.substring(0, 2)}</span>
                 )}
-                
-                {/* Tooltip */}
-                <div className="absolute left-16 px-3 py-1.5 bg-black/90 text-white text-sm font-medium rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                    {server.name}
-                </div>
             </button>
         ))}
 
-        <button 
+        <button
+            type="button"
             onClick={() => setShowCreateModal(true)}
-            className="w-12 h-12 rounded-[24px] hover:rounded-[16px] transition-all duration-300 flex items-center justify-center bg-white/5 text-emerald-400 border border-dashed border-emerald-400/30 hover:bg-emerald-400/10 group relative"
+            className="gft-rail-btn"
+            title="Add Server"
+            style={{ border: "1px dashed var(--gft-border-strong)", color: "var(--gft-green)" }}
         >
-            <Plus size={24} />
-            <div className="absolute left-16 px-3 py-1.5 bg-black/90 text-white text-sm font-medium rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                Add Server
-            </div>
+            <Plus size={22} />
         </button>
 
-        <button className="w-12 h-12 rounded-[24px] hover:rounded-[16px] transition-all duration-300 flex items-center justify-center bg-white/5 text-emerald-400 hover:bg-emerald-400/10 group relative">
-            <Compass size={24} />
-            <div className="absolute left-16 px-3 py-1.5 bg-black/90 text-white text-sm font-medium rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                Discover
-            </div>
+        <button type="button" className="gft-rail-btn" title="Discover servers">
+            <Compass size={22} />
         </button>
       </div>
 
       {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-              <div className="bg-[#1e293b] rounded-2xl w-full max-w-md p-6 border border-white/10 shadow-2xl">
-                  <h2 className="text-xl font-display font-bold text-white mb-2">Create a Server</h2>
-                  <p className="text-slate-400 text-sm mb-6">Your server is where you and your friends hang out. Make yours and start talking.</p>
-                  
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.7)" }}>
+              <div className="gft-card w-full max-w-md">
+                  <h2 className="gft-card-title">Create a server</h2>
+                  <p className="text-sm mb-6" style={{ color: "var(--gft-text-muted)" }}>
+                      Your server is where you and your community hang out. Make yours and start talking.
+                  </p>
+
                   <form onSubmit={handleCreateServer}>
                       <div className="mb-6">
-                          <label className="block text-xs uppercase font-semibold text-slate-300 mb-2">Server Name</label>
-                          <input 
-                             type="text" 
+                          <label className="block text-xs uppercase font-semibold mb-2" style={{ color: "var(--gft-text-muted)" }}>Server Name</label>
+                          <input
+                             type="text"
                              value={newServerName}
                              onChange={e => setNewServerName(e.target.value)}
-                             className="w-full bg-black/40 border border-white/10 rounded-md px-3 py-2 text-white outline-none focus:border-indigo-500"
-                             placeholder="My Awesome Server"
+                             className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+                             style={{ background: "var(--gft-elevated)", border: "1px solid var(--gft-border)", color: "var(--gft-text)" }}
+                             placeholder="Markets Lounge"
                           />
                       </div>
-                      
+
                       <div className="flex justify-end gap-3">
-                          <button type="button" onClick={() => setShowCreateModal(false)} className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors">
+                          <button type="button" onClick={() => setShowCreateModal(false)} className="gft-btn-ghost text-sm">
                               Cancel
                           </button>
-                          <button type="submit" disabled={!newServerName.trim()} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors">
+                          <button type="submit" disabled={!newServerName.trim()} className="gft-btn-primary text-sm">
                               Create
                           </button>
                       </div>

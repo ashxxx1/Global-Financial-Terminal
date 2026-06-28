@@ -158,46 +158,43 @@ export default function UserProfile({ activeProfileId, onReset, activeServer }) 
   if (!userProfile) return null;
 
   return (
-    <div className="flex flex-col h-full bg-[#0f172a]/80 backdrop-blur-md border-l border-white/5 overflow-y-auto">
-      {/* Header if viewing someone else */}
+    <div className="flex flex-col overflow-hidden">
       {!isOwnProfile && (
-          <div className="flex items-center gap-2 p-3 border-b border-white/5 sticky top-0 bg-[#0f172a] z-10">
-              <button onClick={onReset} className="text-slate-400 hover:text-white"><X size={18} /></button>
-              <span className="text-slate-200 font-bold font-display text-sm">Profile</span>
+          <div className="flex items-center gap-2 pb-3 mb-3 border-b" style={{ borderColor: "var(--gft-border)" }}>
+              <button type="button" onClick={onReset} className="gft-icon-btn"><X size={18} /></button>
+              <span className="text-sm font-semibold">Profile</span>
           </div>
       )}
-      
-      {/* Banner */}
-      <div className="h-32 w-full bg-indigo-900/50 relative">
+
+      <div className="h-20 w-full rounded-lg overflow-hidden mb-12 relative" style={{ background: "var(--gft-elevated)" }}>
         {userProfile.bannerUrl ? (
            <img src={userProfile.bannerUrl} className="w-full h-full object-cover" alt="Banner" />
         ) : (
-           <div className="w-full h-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20"></div>
+           <div className="w-full h-full" style={{ background: "linear-gradient(135deg, rgba(212,132,90,0.25), rgba(126,184,212,0.15))" }} />
         )}
-      </div>
-
-      <div className="px-4 pb-6 relative flex-1">
-        {/* Avatar */}
-        <div className="absolute -top-10 left-4 w-20 h-20 rounded-full border-4 border-[#0f172a] overflow-hidden bg-slate-800">
+        <div className="absolute -bottom-8 left-3 w-16 h-16 rounded-full overflow-hidden border-2" style={{ borderColor: "var(--gft-surface)", background: "var(--gft-elevated)" }}>
           <img src={userProfile.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser?.uid}`} alt="Avatar" className="w-full h-full object-cover" />
         </div>
+      </div>
 
-        {/* Action Button */}
-        <div className="flex justify-end mt-3 mb-2">
+      <div className="pb-2">
+
+        <div className="flex justify-end mb-3">
           {isOwnProfile ? (
              !isEditing ? (
-                <button onClick={() => setIsEditing(true)} className="px-4 py-1.5 rounded-full border border-white/10 hover:bg-white/5 text-sm font-medium transition-colors">
+                <button type="button" onClick={() => setIsEditing(true)} className="gft-btn-ghost text-xs py-1 px-3">
                   Edit Profile
                 </button>
              ) : (
-                <button onClick={() => setIsEditing(false)} className="px-4 py-1.5 rounded-full border border-white/10 hover:bg-white/5 text-sm font-medium transition-colors">
+                <button type="button" onClick={() => setIsEditing(false)} className="gft-btn-ghost text-xs py-1 px-3">
                   Cancel
                 </button>
              )
           ) : (
-             <button 
-                onClick={handleFollowToggle} 
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${isFollowing ? 'border border-white/20 text-white hover:border-red-500/50 hover:text-red-400 hover:bg-red-500/10' : 'bg-white text-black hover:bg-slate-200'}`}
+             <button
+                type="button"
+                onClick={handleFollowToggle}
+                className={isFollowing ? "gft-btn-ghost text-xs py-1 px-3" : "gft-btn-primary text-xs py-1 px-3"}
              >
                 {isFollowing ? "Following" : "Follow"}
              </button>

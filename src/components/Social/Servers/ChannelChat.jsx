@@ -141,8 +141,8 @@ export default function ChannelChat({ activeChannel }) {
   if (!activeChannel) return null;
 
   return (
-      <div className="flex flex-col h-full bg-[#0b0c10] relative">
-          <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
+      <div className="gft-chat">
+          <div className="gft-chat-messages custom-scrollbar">
               <div className="mb-8 mt-auto flex flex-col justify-end min-h-full">
                   {messages.map((msg, i) => {
                       const isConsecutive = i > 0 && messages[i - 1].authorId === msg.authorId && !messages[i-1].isDeleted && !msg.isDeleted && (msg.createdAtMs - messages[i-1].createdAtMs < 5 * 60 * 1000);
@@ -156,7 +156,7 @@ export default function ChannelChat({ activeChannel }) {
                       }
                       
                       return (
-                          <div key={msg.id} className={`group flex gap-4 hover:bg-white/5 px-2 py-1 -mx-2 rounded-md ${isConsecutive ? 'mt-0' : 'mt-4'}`}>
+                          <div key={msg.id} className={`gft-chat-msg group ${isConsecutive ? 'mt-0' : 'mt-4'}`}>
                               {isConsecutive ? (
                                   <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100">
                                       <span className="text-[10px] text-slate-500">
@@ -228,18 +228,18 @@ export default function ChannelChat({ activeChannel }) {
               </div>
           </div>
           
-          <div className="px-6 py-4 flex-shrink-0 flex flex-col gap-2">
+          <div className="gft-chat-input-wrap">
               {editingMsg && (
-                  <div className="text-xs text-indigo-400 flex items-center justify-between bg-indigo-500/10 px-3 py-1.5 rounded-md border border-indigo-500/20">
+                  <div className="text-xs flex items-center justify-between px-3 py-1.5 rounded-md mb-2" style={{ background: "var(--gft-accent-dim)", color: "var(--gft-accent)", border: "1px solid rgba(212,132,90,0.25)" }}>
                       <span>Editing message...</span>
-                      <button onClick={() => { setEditingMsg(null); setInputText(""); }} className="hover:text-white"><X size={14}/></button>
+                      <button type="button" onClick={() => { setEditingMsg(null); setInputText(""); }}><X size={14}/></button>
                   </div>
               )}
-              <form onSubmit={handleSendMessage} className="bg-[#1e293b] rounded-lg p-2 flex items-end gap-2 border border-white/5 shadow-inner">
-                  <button type="button" className="p-2 text-slate-400 hover:text-indigo-400 transition-colors flex-shrink-0">
+              <form onSubmit={handleSendMessage} className="gft-chat-input">
+                  <button type="button" className="gft-icon-btn flex-shrink-0">
                       <Paperclip size={20} />
                   </button>
-                  <textarea 
+                  <textarea
                       value={inputText}
                       onChange={e => setInputText(e.target.value)}
                       onKeyDown={e => {
@@ -249,10 +249,9 @@ export default function ChannelChat({ activeChannel }) {
                           }
                       }}
                       placeholder={`Message #${activeChannel.name}`}
-                      className="flex-1 bg-transparent border-none outline-none text-slate-200 resize-none max-h-48 py-2 min-h-[40px] text-sm"
                       rows={1}
                   />
-                  <button type="submit" disabled={!inputText.trim()} className="p-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white rounded-md transition-colors flex-shrink-0">
+                  <button type="submit" disabled={!inputText.trim()} className="gft-chat-send flex-shrink-0">
                       <Send size={18} />
                   </button>
               </form>

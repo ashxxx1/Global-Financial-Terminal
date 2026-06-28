@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from "../../../contexts/AuthContext";
 import { db } from "../../../services/firebase";
-import { collection, query, getDocs, onSnapshot, where } from "firebase/firestore";
-import { Search, User, Plus } from "lucide-react";
+import { collection, query, onSnapshot } from "firebase/firestore";
+import { Search, Plus } from "lucide-react";
 
 export default function DirectMessageList({ activeDmUser, setActiveDmUser }) {
   const { currentUser } = useAuth();
@@ -11,8 +11,6 @@ export default function DirectMessageList({ activeDmUser, setActiveDmUser }) {
   const [showGroupModal, setShowGroupModal] = useState(false);
 
   useEffect(() => {
-      // In a real app, this would query a 'friends' subcollection or 'dm_channels'
-      // For this demo, we'll fetch all users except current user to populate the list quickly
       if (!currentUser) return;
 
       const q = query(collection(db, "users"));
@@ -26,68 +24,80 @@ export default function DirectMessageList({ activeDmUser, setActiveDmUser }) {
       return () => unsub();
   }, [currentUser]);
 
-  const filteredUsers = users.filter(u => 
-      u.displayName?.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredUsers = users.filter(u =>
+      u.displayName?.toLowerCase().includes(search.toLowerCase()) ||
       u.username?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-      <div className="flex flex-col h-full bg-[#11131a] text-slate-300">
-          <div className="h-14 px-4 flex items-center shadow-sm border-b border-white/5 flex-shrink-0">
-              <div className="relative w-full">
-                  <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
-                  <input 
-                      type="text" 
-                      placeholder="Find or start a conversation" 
-                      value={search}
-                      onChange={e => setSearch(e.target.value)}
-                      className="w-full bg-[#1e293b] text-xs text-white rounded-md py-1.5 pl-8 pr-3 outline-none border border-transparent focus:border-indigo-500/50 transition-colors placeholder:text-slate-500"
-                  />
-              </div>
+      <div className="flex flex-col h-full">
+          <div className="gft-panel-head">
+              <div className="gft-panel-title">Messages</div>
+              <div className="gft-panel-sub">Direct messages & group chats</div>
           </div>
-          
-          <div className="flex-1 overflow-y-auto py-2 custom-scrollbar relative">
-              <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-500 flex justify-between items-center">
+
+          <div className="gft-dm-search relative">
+              <Search size={14} className="absolute left-6 top-1/2 -translate-y-1/2" style={{ color: "var(--gft-text-soft)" }} />
+              <input
+                  type="text"
+                  placeholder="Find or start a conversation"
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  style={{ paddingLeft: "32px" }}
+              />
+          </div>
+
+          <div className="flex-1 overflow-y-auto py-2">
+              <div className="gft-nav-section flex justify-between items-center">
                   <span>Direct Messages</span>
-                  <button onClick={() => setShowGroupModal(true)} className="hover:text-white transition-colors" title="Create Group DM">
+                  <button type="button" onClick={() => setShowGroupModal(true)} className="gft-icon-btn" title="Create Group DM">
                       <Plus size={14} />
                   </button>
               </div>
-              
-              <div className="flex flex-col gap-0.5">
-                  {filteredUsers.map(user => (
-                      <button 
-                          key={user.id}
-                          onClick={() => setActiveDmUser(user)}
-                          className={`flex items-center gap-3 px-3 py-2 mx-2 rounded-md transition-colors group ${activeDmUser?.id === user.id ? 'bg-white/10 text-white font-medium' : 'hover:bg-white/5 hover:text-slate-100'}`}
-                      >
-                          <div className="w-8 h-8 rounded-full bg-slate-800 overflow-hidden flex-shrink-0 relative">
-                              <img src={user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.id}`} alt="" className="w-full h-full object-cover"/>
-                              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#11131a] rounded-full"></div>
-                          </div>
-                          <div className="flex-1 min-w-0 text-left flex flex-col">
-                              <span className="truncate text-sm">{user.displayName || 'Unknown'}</span>
-                          </div>
-                      </button>
-                  ))}
-                  
-                  {filteredUsers.length === 0 && (
-                      <div className="text-center px-4 py-8 text-xs text-slate-500">
-                          No users found.
+
+              {filteredUsers.map(user => (
+                  <button
+                      key={user.id}
+                      type="button"
+                      onClick={() => setActiveDmUser(user)}
+                      className={`gft-dm-item ${activeDmUser?.id === user.id ? 'active' : ''}`}
+                  >
+                      <div className="relative flex-shrink-0">
+                          <img
+                              src={user.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.id}`}
+                              alt=""
+                              className="w-9 h-9 rounded-full object-cover"
+                          />
+                          <span className="gft-online-dot" />
                       </div>
-                  )}
-              </div>
+                      <div className="flex-1 min-w-0 text-left">
+                          <span className="block truncate text-sm font-medium">{user.displayName || 'Unknown'}</span>
+                          {user.username && (
+                              <span className="block truncate text-xs" style={{ color: "var(--gft-text-soft)" }}>@{user.username}</span>
+                          )}
+                      </div>
+                  </button>
+              ))}
+
+              {filteredUsers.length === 0 && (
+                  <p className="gft-empty text-xs py-6">No users found.</p>
+              )}
           </div>
-          
+
           {showGroupModal && (
-              <div className="absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-                  <div className="bg-[#1e293b] border border-white/10 rounded-xl p-4 w-full max-w-sm">
-                      <h3 className="text-white font-bold mb-2">Select Friends</h3>
-                      <p className="text-xs text-slate-400 mb-4">You can add 9 more friends.</p>
-                      <input type="text" placeholder="Type the username of a friend" className="w-full bg-black/40 border border-white/10 rounded-md px-3 py-2 text-xs text-white outline-none focus:border-indigo-500 mb-4" />
-                      <div className="flex justify-between items-center mt-4">
-                          <button onClick={() => setShowGroupModal(false)} className="text-slate-400 hover:text-white text-xs font-medium">Cancel</button>
-                          <button className="bg-indigo-600 text-white px-4 py-1.5 rounded text-xs font-medium opacity-50 cursor-not-allowed">Create Group DM</button>
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.7)" }}>
+                  <div className="gft-card w-full max-w-sm">
+                      <h3 className="gft-card-title text-base">Select friends</h3>
+                      <p className="text-xs mb-4" style={{ color: "var(--gft-text-muted)" }}>You can add up to 9 more friends.</p>
+                      <input
+                          type="text"
+                          placeholder="Type the username of a friend"
+                          className="w-full mb-4 px-3 py-2 rounded-lg text-sm outline-none"
+                          style={{ background: "var(--gft-elevated)", border: "1px solid var(--gft-border)", color: "var(--gft-text)" }}
+                      />
+                      <div className="flex justify-between items-center">
+                          <button type="button" onClick={() => setShowGroupModal(false)} className="gft-btn-ghost text-xs">Cancel</button>
+                          <button type="button" className="gft-btn-primary text-xs opacity-50 cursor-not-allowed">Create Group DM</button>
                       </div>
                   </div>
               </div>

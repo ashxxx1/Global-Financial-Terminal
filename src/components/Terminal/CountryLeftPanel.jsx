@@ -1,310 +1,357 @@
-import { X, Building2, ShieldAlert } from "lucide-react";
+import { X, ShieldAlert, Building2, Calendar } from "lucide-react";
 import { getCountryStats } from "./data";
 import MarketTable from "../MarketTable/MarketTable";
 import { getCountryData, getCountrySignalMetrics } from "../../lib/quantFeed";
 import { kNearestAnalogs } from "../../lib/quantEngine";
 import { CALENDAR_EVENTS } from "../EconomicCalendar/calendarData";
 
+// ── Data helpers (unchanged logic, same as before) ────────────
 function getUpcomingEvents(iso) {
-  // Filter for matching country or EU for European countries
   const isEuro = ["DE", "FR", "IT", "NL", "SE"].includes(iso);
-  const events = CALENDAR_EVENTS.filter(e => e.country === iso || (isEuro && e.country === "EU"));
-  
+  const events = CALENDAR_EVENTS.filter(
+    (e) => e.country === iso || (isEuro && e.country === "EU")
+  );
   if (events.length > 0) {
-    return events.slice(0, 3).map(e => ({
+    return events.slice(0, 3).map((e) => ({
       title: e.event,
       type: e.category,
-      countdown: `${e.time} on ${e.date}`
+      countdown: `${e.time} · ${e.date}`,
     }));
   }
-  
-  // Deterministic fallback countdowns based on ISO code
   const seed = (iso.charCodeAt(0) || 65) + (iso.charCodeAt(1) || 66);
   return [
-    { title: "Central Bank Rate Decision", type: "Monetary Policy", countdown: `In ${(seed % 4) + 1} Days` },
-    { title: "CPI Inflation Report", type: "Macro Inflation", countdown: `In ${(seed % 5) + 3} Days` }
+    { title: "Central Bank Rate Decision", type: "Monetary Policy", countdown: `In ${(seed % 4) + 1}d` },
+    { title: "CPI Inflation Report",       type: "Macro Inflation", countdown: `In ${(seed % 5) + 3}d` },
   ];
 }
 
 function getSentimentData(iso) {
   try {
-    const { baseFactors } = getCountryData(iso);
     const metrics = getCountrySignalMetrics(iso);
-    
     const score = Math.round(Math.max(0, Math.min(100, 50 + metrics.factors.sentiment * 15)));
     const seed = (iso.charCodeAt(0) || 65) * 100 + (iso.charCodeAt(1) || 66);
-    const history = Array.from({ length: 10 }, (_, i) => 
-      Math.round(Math.max(0, Math.min(100, 50 + Math.sin(i + seed) * 15 + (metrics.factors.sentiment * 5))))
+    const history = Array.from({ length: 10 }, (_, i) =>
+      Math.round(Math.max(0, Math.min(100, 50 + Math.sin(i + seed) * 15 + metrics.factors.sentiment * 5)))
     );
-
     const label = score > 58 ? "BULLISH" : score < 42 ? "BEARISH" : "NEUTRAL";
-    const color = score > 58 ? "text-emerald-400" : score < 42 ? "text-rose-400" : "text-amber-500";
-
+    const color = score > 58 ? "#4fd1a5" : score < 42 ? "#e8635a" : "#d4af37";
     return { score, label, color, history };
-  } catch (err) {
-    return { score: 50, label: "NEUTRAL", color: "text-amber-500", history: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50] };
+  } catch {
+    return { score: 50, label: "NEUTRAL", color: "#d4af37", history: Array(10).fill(50) };
   }
 }
 
 function getHistoricalAnalog(iso) {
   try {
     const { prices, baseFactors } = getCountryData(iso);
-    const currentVec = [
-      baseFactors.momentum,
-      baseFactors.valuation,
-      baseFactors.macro,
-      baseFactors.volatility,
-      baseFactors.sentiment
-    ];
-
-    const historicalSamples = [];
-    const invCov = [
-      [1, 0, 0, 0, 0],
-      [0, 1, 0, 0, 0],
-      [0, 0, 1, 0, 0],
-      [0, 0, 0, 1, 0],
-      [0, 0, 0, 0, 1]
-    ];
-
+    const currentVec = [baseFactors.momentum, baseFactors.valuation, baseFactors.macro, baseFactors.volatility, baseFactors.sentiment];
+    const invCov = [[1,0,0,0,0],[0,1,0,0,0],[0,0,1,0,0],[0,0,0,1,0],[0,0,0,0,1]];
     const seed = (iso.charCodeAt(0) || 65) * 100 + (iso.charCodeAt(1) || 66);
     let s = seed + 2000;
-    const rnd = () => {
-      s = (s * 9301 + 49297) % 233280;
-      return s / 233280;
-    };
-
+    const rnd = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    const samples = [];
     for (let t = 253; t < prices.length - 30; t += 5) {
-      historicalSamples.push({
+      samples.push({
         t,
-        vec: [
-          baseFactors.momentum + (rnd() - 0.5) * 1.5,
-          baseFactors.valuation + (rnd() - 0.5) * 1.5,
-          baseFactors.macro + (rnd() - 0.5) * 1.5,
-          baseFactors.volatility + (rnd() - 0.5) * 1.0,
-          baseFactors.sentiment + (rnd() - 0.5) * 1.0
-        ],
-        forwardReturn: (prices[t + 30] / prices[t] - 1) * (1.0 + (rnd() - 0.5) * 0.2)
+        vec: currentVec.map((v, i) => v + (rnd() - 0.5) * (i < 3 ? 1.5 : 1.0)),
+        forwardReturn: (prices[t + 30] / prices[t] - 1) * (1.0 + (rnd() - 0.5) * 0.2),
       });
     }
-
-    const analogs = kNearestAnalogs(currentVec, historicalSamples, invCov, 5, 20);
-    const bestAnalog = analogs[0];
-
-    let period = `T - ${500 - bestAnalog.t}d Setup`;
-    if (iso === "US") {
-      period = bestAnalog.t > 380 ? "Mid-2023 Consolidation" : "Late-2022 Valuation Low";
-    } else if (iso === "JP") {
-      period = bestAnalog.t > 380 ? "Post-YCC Pivot Phase" : "Mid-2023 Export Surge";
-    } else if (iso === "DE") {
-      period = bestAnalog.t > 380 ? "2023 Energy Crunch" : "2022 Supply Chain Peak";
-    } else {
-      period = bestAnalog.t > 380 ? "H1 2024 Regime Shift" : "H2 2023 Consolidation";
-    }
-
-    const correlationVal = Math.round(Math.max(65, Math.min(98, 98 - bestAnalog.distance * 10)));
-    const currentPrices = prices.slice(-10);
-    const historicalPrices = prices.slice(bestAnalog.t, bestAnalog.t + 10);
-
-    return {
-      period,
-      correlation: correlationVal,
-      current: currentPrices,
-      historical: historicalPrices
-    };
-  } catch (err) {
-    return {
-      period: "H1 2024 Regime Shift",
-      correlation: 85,
-      current: [100, 101, 102, 101, 103, 104, 103, 105, 106, 107],
-      historical: [100, 99, 101, 102, 100, 103, 104, 102, 104, 105]
-    };
+    const analogs = kNearestAnalogs(currentVec, samples, invCov, 5, 20);
+    const best = analogs[0];
+    let period = `T − ${500 - best.t}d Setup`;
+    if (iso === "US") period = best.t > 380 ? "Mid-2023 Consolidation" : "Late-2022 Valuation Low";
+    else if (iso === "JP") period = best.t > 380 ? "Post-YCC Pivot Phase" : "Mid-2023 Export Surge";
+    else if (iso === "DE") period = best.t > 380 ? "2023 Energy Crunch" : "2022 Supply Chain Peak";
+    else period = best.t > 380 ? "H1 2024 Regime Shift" : "H2 2023 Consolidation";
+    const correlation = Math.round(Math.max(65, Math.min(98, 98 - best.distance * 10)));
+    return { period, correlation, current: prices.slice(-10), historical: prices.slice(best.t, best.t + 10) };
+  } catch {
+    return { period: "H1 2024 Regime Shift", correlation: 85,
+      current: [100,101,102,101,103,104,103,105,106,107],
+      historical: [100,99,101,102,100,103,104,102,104,105] };
   }
 }
 
+// ── Shared style tokens ───────────────────────────────────────
+const MONO = "'JetBrains Mono', monospace";
+const SERIF = "'Fraunces', Georgia, serif";
+const BRASS = "#d4af37";
+const BRASS_SOFT = "rgba(212,175,55,0.1)";
+const HAIRLINE = "rgba(212,175,55,0.14)";
+const INK = "#05070d";
+
+function SectionLabel({ children }) {
+  return (
+    <span style={{
+      fontFamily: MONO, fontSize: "8px", fontWeight: 700,
+      letterSpacing: "0.2em", color: "#5c5546",
+      textTransform: "uppercase", display: "block", marginBottom: "8px",
+    }}>
+      {children}
+    </span>
+  );
+}
+
+function StatCard({ label, value, valueColor = "#f0e6d2" }) {
+  return (
+    <div className="flex flex-col gap-0.5 p-3 rounded-sm" style={{
+      background: "rgba(255,255,255,0.025)",
+      border: HAIRLINE ? `1px solid ${HAIRLINE}` : undefined,
+    }}>
+      <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#5c5546" }}>
+        {label}
+      </span>
+      <span style={{ fontFamily: MONO, fontSize: "16px", fontWeight: 700, color: valueColor, lineHeight: 1.1 }}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────
 export function CountryLeftPanel({ country, onClose, timeframe = "1D" }) {
   if (!country) return null;
 
   const name = country.properties?.ADMIN || country.name || "Unknown Region";
-  const iso = country.properties?.ISO_A2 || country.code || "XX";
-  
+  const iso  = country.properties?.ISO_A2 || country.code || "XX";
   const stats = getCountryStats(iso);
-  const riskColor = stats.riskScore > 75 ? 'text-rose-500' : stats.riskScore > 40 ? 'text-amber-500' : 'text-emerald-400';
-  const riskBorder = stats.riskScore > 75 ? 'border-rose-500' : stats.riskScore > 40 ? 'border-amber-500' : 'border-emerald-500';
+
+  const riskColor =
+    stats.riskScore > 75 ? "#e8635a" :
+    stats.riskScore > 40 ? "#d4af37" : "#4fd1a5";
+
+  const riskLabel =
+    stats.riskScore > 75 ? "CRITICAL" :
+    stats.riskScore > 40 ? "ELEVATED" : "STABLE";
+
+  const inflColor = parseFloat(stats.inflation) > 4 ? "#e8635a" : "#4fd1a5";
+
+  // Sentiment data for sparkline
+  const sent = getSentimentData(iso);
+  const sentMax = Math.max(...sent.history);
+  const sentMin = Math.min(...sent.history);
+  const sentRange = sentMax - sentMin || 1;
+  const sentPoints = sent.history.map((v, i) => `${(i / 9) * 70},${14 - ((v - sentMin) / sentRange) * 12}`).join(" ");
+
+  // Analog sparklines
+  const analog = getHistoricalAnalog(iso);
+  const makePoints = (arr) => {
+    const max = Math.max(...arr), min = Math.min(...arr), r = max - min || 1;
+    return arr.map((v, i) => `${(i / (arr.length - 1)) * 50},${10 - ((v - min) / r) * 8}`).join(" ");
+  };
 
   return (
-    <div className="flex flex-col h-full bg-[#020617]/95 border-r border-[#1e293b]/50 text-slate-200">
-      {/* Header with Return Button */}
-      <div className="p-4 border-b border-white/5 bg-black/20 flex justify-between items-center shrink-0">
+    <div
+      className="flex flex-col h-full"
+      style={{
+        background: "rgba(5,7,13,0.98)",
+        borderRight: `1px solid ${HAIRLINE}`,
+      }}
+    >
+      {/* ── Header ── */}
+      <div
+        className="flex items-center justify-between px-4 py-3 shrink-0"
+        style={{ borderBottom: `1px solid ${HAIRLINE}` }}
+      >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-indigo-500/10 border border-indigo-500/30 rounded flex items-center justify-center font-mono font-bold text-sm text-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.2)]">
+          {/* ISO badge */}
+          <div
+            className="flex items-center justify-center rounded-sm"
+            style={{
+              width: 36, height: 36,
+              background: BRASS_SOFT,
+              border: `1px solid rgba(212,175,55,0.35)`,
+              fontFamily: MONO, fontSize: "11px", fontWeight: 700,
+              color: BRASS, letterSpacing: "0.08em",
+            }}
+          >
             {iso}
           </div>
           <div>
-            <h2 className="text-[14px] font-bold tracking-wider text-slate-100 uppercase truncate max-w-[150px]">{name}</h2>
+            <h2 style={{
+              fontFamily: SERIF, fontStyle: "italic",
+              fontSize: "15px", fontWeight: 500,
+              color: "#f0e6d2", letterSpacing: "0.01em",
+              margin: 0, lineHeight: 1.1,
+            }}>
+              {name}
+            </h2>
             <div className="flex items-center gap-1.5 mt-0.5">
-               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" />
-               <span className="text-[9px] font-mono font-bold tracking-wider text-emerald-400">ONLINE</span>
+              <span className="w-1.5 h-1.5 rounded-full motion-safe:animate-pulse"
+                style={{ background: "#4fd1a5", boxShadow: "0 0 4px rgba(79,209,165,0.8)" }} />
+              <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#4fd1a5" }}>
+                LIVE DATA
+              </span>
             </div>
           </div>
         </div>
-        <button 
+        <button
           onClick={onClose}
-          className="text-[10px] font-bold text-slate-400 hover:text-rose-400 transition-colors uppercase tracking-widest px-2 py-1.5 border border-white/5 bg-white/5 hover:bg-rose-500/10 hover:border-rose-500/20 rounded cursor-pointer flex items-center gap-1"
+          className="flex items-center justify-center w-7 h-7 rounded-sm transition-all cursor-pointer"
+          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "#6b6354" }}
+          onMouseEnter={e => { e.currentTarget.style.color = "#e8635a"; e.currentTarget.style.borderColor = "rgba(232,99,90,0.35)"; e.currentTarget.style.background = "rgba(232,99,90,0.06)"; }}
+          onMouseLeave={e => { e.currentTarget.style.color = "#6b6354"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
         >
           <X className="w-3.5 h-3.5" />
-          EXIT
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        
-        {/* Box 1: Economic indicators */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[10.5px] font-bold text-slate-400 uppercase tracking-widest block mb-1 font-mono">📊 Macro Vector Indicators</span>
-          <div className="grid grid-cols-2 gap-2.5">
-             <div className="bg-[#0c1220]/80 border border-[#1e293b] p-3 rounded flex flex-col justify-center shadow-md">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-0.5 font-mono">GDP</span>
-                <span className="font-mono text-slate-200 text-base font-bold">${stats.gdp}T</span>
-             </div>
-             <div className="bg-[#0c1220]/80 border border-[#1e293b] p-3 rounded flex flex-col justify-center shadow-md">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-0.5 font-mono">INFLATION</span>
-                <span className={`font-mono text-base font-bold ${parseFloat(stats.inflation) > 4 ? 'text-rose-400' : 'text-emerald-400'}`}>{stats.inflation}%</span>
-             </div>
-             <div className="bg-[#0c1220]/80 border border-[#1e293b] p-3 rounded flex flex-col justify-center shadow-md">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-0.5 font-mono">C.B. RATE</span>
-                <span className="font-mono text-amber-400 text-base font-bold">{stats.rate}%</span>
-             </div>
-             <div className="bg-[#0c1220]/80 border border-[#1e293b] p-3 rounded flex flex-col justify-center shadow-md">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-0.5 font-mono">FX VALUE</span>
-                <span className="font-mono text-indigo-400 text-base font-bold">{stats.currency}</span>
-             </div>
-          </div>
+      {/* ── Scrollable body ── */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-5">
 
-          {/* Policy & Political Calendar */}
-          <div className="mt-1 p-3 bg-[#080d19] border border-white/5 rounded-lg flex flex-col gap-2">
-            <span className="text-[9.5px] font-bold text-slate-400 uppercase tracking-widest font-mono">📅 Policy & Political Calendar</span>
-            <div className="flex flex-col gap-2">
-              {getUpcomingEvents(iso).map((evt, idx) => (
-                <div key={idx} className="flex justify-between items-center bg-[#050912] p-2 rounded border border-white/5">
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-[11px] text-slate-200 font-medium truncate max-w-[170px]">{evt.title}</span>
-                    <span className="text-[7.5px] font-mono font-bold text-indigo-400 uppercase tracking-widest">{evt.type}</span>
-                  </div>
-                  <span className="text-[10px] font-mono text-amber-400 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20 whitespace-nowrap">
-                    {evt.countdown}
-                  </span>
+        {/* ── Macro stats ── */}
+        <div>
+          <SectionLabel>Macro Indicators</SectionLabel>
+          <div className="grid grid-cols-2 gap-2">
+            <StatCard label="GDP" value={`$${stats.gdp}T`} />
+            <StatCard label="Inflation" value={`${stats.inflation}%`} valueColor={inflColor} />
+            <StatCard label="C.B. Rate" value={`${stats.rate}%`} valueColor={BRASS} />
+            <StatCard label="FX" value={stats.currency} valueColor="#a89c84" />
+          </div>
+        </div>
+
+        {/* ── Divider ── */}
+        <div style={{ height: "1px", background: HAIRLINE }} />
+
+        {/* ── Risk gravity ── */}
+        <div>
+          <SectionLabel>Risk Gravity</SectionLabel>
+          <div
+            className="flex items-center gap-4 p-3 rounded-sm"
+            style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${HAIRLINE}` }}
+          >
+            {/* Ring */}
+            <div className="relative shrink-0 flex items-center justify-center rounded-full"
+              style={{ width: 60, height: 60, border: `4px solid rgba(255,255,255,0.06)` }}>
+              <div className="absolute inset-0 rounded-full rotate-12"
+                style={{ border: `4px solid ${riskColor}`, borderTopColor: "transparent", borderLeftColor: "transparent" }} />
+              <span style={{ fontFamily: MONO, fontSize: "17px", fontWeight: 700, color: riskColor }}>
+                {stats.riskScore}
+              </span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, letterSpacing: "0.08em", color: riskColor }}>
+                {riskLabel}
+              </span>
+              <span style={{ fontSize: "11px", color: "#a89c84", lineHeight: 1.5 }}>
+                Geopolitical exposure is&nbsp;
+                <strong style={{ color: riskColor }}>
+                  {stats.riskScore > 75 ? "critical" : stats.riskScore > 40 ? "elevated" : "stable"}
+                </strong>
+                &nbsp;across transmission channels.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Sentiment sparkline ── */}
+        <div>
+          <SectionLabel>Sentiment Pulse</SectionLabel>
+          <div
+            className="flex items-center justify-between p-3 rounded-sm"
+            style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${HAIRLINE}` }}
+          >
+            <div className="flex flex-col gap-0.5">
+              <span style={{ fontFamily: MONO, fontSize: "20px", fontWeight: 700, color: sent.color, lineHeight: 1 }}>
+                {sent.score}
+              </span>
+              <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: sent.color }}>
+                {sent.label}
+              </span>
+            </div>
+            <svg width="72" height="18" viewBox="0 0 72 18" overflow="visible">
+              <defs>
+                <linearGradient id={`sg-${iso}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={sent.color} stopOpacity="0.3" />
+                  <stop offset="100%" stopColor={sent.color} stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d={`M ${sentPoints}`} fill="none" stroke={sent.color} strokeWidth="1.5" strokeLinecap="round" />
+              <polygon points={`0,18 ${sentPoints} 70,18`} fill={`url(#sg-${iso})`} />
+              <circle cx="70" cy={14 - ((sent.history[9] - sentMin) / sentRange) * 12} r="2.5"
+                fill={sent.color} className="motion-safe:animate-pulse" />
+            </svg>
+          </div>
+        </div>
+
+        {/* ── Historical analog ── */}
+        <div>
+          <SectionLabel>Historical Analog</SectionLabel>
+          <div
+            className="p-3 rounded-sm flex items-center justify-between gap-3"
+            style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${HAIRLINE}` }}
+          >
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: BRASS, letterSpacing: "0.04em" }}>
+                {analog.period}
+              </span>
+              <span style={{ fontFamily: MONO, fontSize: "8px", color: "#6b6354", letterSpacing: "0.1em" }}>
+                {analog.correlation}% CORRELATION
+              </span>
+            </div>
+            <div className="flex gap-3 shrink-0">
+              {[{ label: "NOW", pts: makePoints(analog.current), color: BRASS },
+                { label: "HIST", pts: makePoints(analog.historical), color: "#c97b4a" }].map(({ label, pts, color }) => (
+                <div key={label} className="flex flex-col items-center gap-0.5">
+                  <span style={{ fontFamily: MONO, fontSize: "7px", color: "#5c5546", letterSpacing: "0.1em" }}>{label}</span>
+                  <svg width="52" height="14" viewBox="0 0 52 14" overflow="visible">
+                    <path d={`M ${pts}`} fill="none" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+                  </svg>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Box 2: Political Risk */}
-        <div className="bg-[#0c1220]/80 border border-[#1e293b] p-4 rounded flex flex-col shadow-md">
-          <div className="flex items-center gap-2 mb-3">
-             <ShieldAlert className={`w-4 h-4 ${riskColor}`} />
-             <span className="text-[11px] font-bold text-slate-300 tracking-wider uppercase font-mono">Risk Gravity Details</span>
-          </div>
-          
-          <div className="flex items-center gap-4 justify-between border-b border-white/5 pb-3">
-             <div className="relative w-16 h-16 shrink-0 flex items-center justify-center rounded-full border-[3px] border-slate-800">
-                <div className={`absolute inset-0 rounded-full border-[3px] ${riskBorder} border-t-transparent border-l-transparent rotate-12`} />
-                <span className={`text-xl font-mono font-bold ${riskColor}`}>{stats.riskScore}</span>
-             </div>
-             <div className="flex-1 min-w-0">
-               <span className="text-[8.5px] font-mono text-slate-500 uppercase block">POLITICAL RISK SCORE</span>
-               <p className="text-[11px] text-slate-400 font-sans leading-snug mt-0.5">
-                 Transmission channels indicate {stats.riskScore > 75 ? 'critical' : stats.riskScore > 40 ? 'elevated' : 'stable'} geopolitical exposure.
-               </p>
-             </div>
-          </div>
+        {/* ── Divider ── */}
+        <div style={{ height: "1px", background: HAIRLINE }} />
 
-          {/* Sentiment Pulse */}
-          <div className="py-2.5 border-b border-white/5 flex justify-between items-center gap-2">
-            <div>
-              <span className="text-[8.5px] font-mono text-slate-500 uppercase block">Sentiment Pulse</span>
-              <span className={`text-[12px] font-mono font-bold ${getSentimentData(iso).color}`}>
-                {getSentimentData(iso).score}/100 · {getSentimentData(iso).label}
-              </span>
-            </div>
-            {/* SVG Trendline */}
-            {(() => {
-              const sentiment = getSentimentData(iso);
-              const maxHistory = Math.max(...sentiment.history);
-              const minHistory = Math.min(...sentiment.history);
-              const range = maxHistory - minHistory || 1;
-              const points = sentiment.history.map((val, idx) => {
-                const x = (idx / 9) * 80; 
-                const y = 17 - ((val - minHistory) / range) * 14; 
-                return `${x},${y}`;
-              }).join(" ");
-              const pulseColor = sentiment.score > 62 ? "#10b981" : sentiment.score < 48 ? "#ef4444" : "#f59e0b";
-              return (
-                <svg className="w-[80px] h-[20px] overflow-visible">
-                  <defs>
-                    <linearGradient id={`sentGrad-${iso}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={pulseColor} stopOpacity="0.3" />
-                      <stop offset="100%" stopColor={pulseColor} stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <path d={`M ${points}`} fill="none" stroke={pulseColor} strokeWidth="1.2" />
-                  <polygon points={`0,20 ${points} 80,20`} fill={`url(#sentGrad-${iso})`} opacity="0.4" />
-                  <circle cx="80" cy={17 - ((sentiment.history[9] - minHistory) / range) * 14} r="2.5" fill={pulseColor} className="motion-safe:animate-pulse" />
-                </svg>
-              );
-            })()}
-          </div>
-
-          {/* Historical Analog Finder */}
-          <div className="pt-2.5 flex justify-between items-center gap-2">
-            <div>
-              <span className="text-[8.5px] font-mono text-slate-500 uppercase block">Historical Analog</span>
-              <span className="text-[11px] font-mono font-bold text-amber-400 block truncate max-w-[150px]">
-                {getHistoricalAnalog(iso).period}
-              </span>
-              <span className="text-[7.5px] text-slate-500 font-mono">Correlation: {getHistoricalAnalog(iso).correlation}%</span>
-            </div>
-            {/* Sparklines */}
-            {(() => {
-              const analog = getHistoricalAnalog(iso);
-              const curMax = Math.max(...analog.current);
-              const curMin = Math.min(...analog.current);
-              const curRange = curMax - curMin || 1;
-              const curPoints = analog.current.map((v, i) => `${(i/9)*30},${10 - ((v - curMin)/curRange)*8}`).join(" ");
-
-              const histMax = Math.max(...analog.historical);
-              const histMin = Math.min(...analog.historical);
-              const histRange = histMax - histMin || 1;
-              const histPoints = analog.historical.map((v, i) => `${(i/9)*30},${10 - ((v - histMin)/histRange)*8}`).join(" ");
-
-              return (
-                <div className="flex gap-2 shrink-0">
-                  <div className="flex flex-col items-center">
-                    <span className="text-[6px] font-mono text-slate-500 uppercase">CUR</span>
-                    <svg className="w-[30px] h-[10px] overflow-visible">
-                      <path d={`M ${curPoints}`} fill="none" stroke="#6366f1" strokeWidth="1.0" />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-[6px] font-mono text-slate-500 uppercase">HIST</span>
-                    <svg className="w-[30px] h-[10px] overflow-visible">
-                      <path d={`M ${histPoints}`} fill="none" stroke="#f59e0b" strokeWidth="1.0" />
-                    </svg>
-                  </div>
+        {/* ── Upcoming events ── */}
+        <div>
+          <SectionLabel>Policy Calendar</SectionLabel>
+          <div className="flex flex-col gap-2">
+            {getUpcomingEvents(iso).map((evt, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between gap-3 px-3 py-2.5 rounded-sm"
+                style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${HAIRLINE}` }}
+              >
+                <div className="flex flex-col min-w-0">
+                  <span style={{ fontSize: "11.5px", color: "#c9bea3", fontWeight: 500, lineHeight: 1.3 }}>
+                    {evt.title}
+                  </span>
+                  <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, letterSpacing: "0.1em", color: "#5c5546" }}>
+                    {evt.type.toUpperCase()}
+                  </span>
                 </div>
-              );
-            })()}
+                <span
+                  className="shrink-0 rounded-sm px-2 py-1"
+                  style={{
+                    fontFamily: MONO, fontSize: "9px", fontWeight: 700,
+                    letterSpacing: "0.06em", color: BRASS,
+                    background: BRASS_SOFT,
+                    border: `1px solid rgba(212,175,55,0.28)`,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {evt.countdown}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Box 3: Strategic Equities */}
-        <div className="bg-[#0c1220]/80 border border-[#1e293b] p-4 rounded flex flex-col overflow-x-auto shadow-md">
-          <div className="flex items-center justify-between mb-3.5">
-             <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-slate-400" />
-                <span className="text-[11px] font-bold text-slate-300 tracking-wider uppercase font-mono">Strategic Equities</span>
-             </div>
-             <span className="text-[9px] font-mono text-slate-500 font-bold bg-slate-800/50 px-1 rounded">{timeframe}</span>
+        {/* ── Divider ── */}
+        <div style={{ height: "1px", background: HAIRLINE }} />
+
+        {/* ── Strategic Equities ── */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <SectionLabel>Strategic Equities</SectionLabel>
+            <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, color: "#5c5546", letterSpacing: "0.1em", marginBottom: "8px" }}>
+              {timeframe}
+            </span>
           </div>
           <MarketTable countryCode={iso} />
         </div>

@@ -1,208 +1,310 @@
 import { useState, useEffect, useRef } from "react";
-import { Cpu, Globe, Activity } from "lucide-react";
+import { Cpu, Globe, Pin } from "lucide-react";
 import { getCountryStats } from "./data";
 import { getLocalNewsOutlets, getLocalHeadlines, generateGeopoliticalSummary } from "../NewsPanel/localNewsData";
-
 import useTerminalStore from "../../store/terminalStore";
 
+// ── Typewriter (preserved exactly) ────────────────────────────
 function TypewriterSummary({ text, speed = 10 }) {
   const [displayed, setDisplayed] = useState("");
   const idx = useRef(0);
   const [prevText, setPrevText] = useState(text);
-
-  if (text !== prevText) {
-    setPrevText(text);
-    setDisplayed("");
-  }
-
+  if (text !== prevText) { setPrevText(text); setDisplayed(""); }
   useEffect(() => {
     idx.current = 0;
     if (!text) return;
     const interval = setInterval(() => {
       idx.current += 1;
       setDisplayed(text.slice(0, idx.current));
-      if (idx.current >= text.length) {
-        clearInterval(interval);
-      }
+      if (idx.current >= text.length) clearInterval(interval);
     }, speed);
     return () => clearInterval(interval);
   }, [text, speed]);
-
   return (
-    <p className="text-[12px] text-indigo-100/90 leading-relaxed font-mono relative z-10 min-h-[60px]">
+    <p style={{ fontSize: "11.5px", color: "#c9bea3", lineHeight: "1.65", margin: 0, minHeight: "56px" }}>
       {displayed}
-      {displayed.length < (text?.length || 0) && <span className="inline-block w-1.5 h-3 bg-indigo-400 animate-pulse ml-0.5">▋</span>}
+      {displayed.length < (text?.length || 0) && (
+        <span style={{ display: "inline-block", width: "6px", height: "12px", background: "#d4af37", marginLeft: "2px", verticalAlign: "text-bottom" }}
+          className="animate-pulse">▋</span>
+      )}
     </p>
   );
 }
 
+// ── Supply chain data (unchanged logic) ───────────────────────
 function getSupplyChainExposure(iso) {
-  if (iso === "US") {
-    return [
-      { name: "Semiconductors", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
-      { name: "Neon Supply", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
-      { name: "SaaS Compliance", eventId: 4, eventTitle: "AI Regulatory Framework Draft Leaked" },
-      { name: "Crude Energy", eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" }
-    ];
-  }
-  if (iso === "CN" || iso === "TW" || iso === "JP" || iso === "KR") {
-    return [
-      { name: "Wafer Shipping", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
-      { name: "Rare Earths", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
-      { name: "Lithium Cells", eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" },
-      { name: "AI Regulations", eventId: 4, eventTitle: "AI Regulatory Framework Draft Leaked" }
-    ];
-  }
-  if (iso === "DE" || iso === "FR" || iso === "NL" || iso === "GB") {
-    return [
-      { name: "Liquidity Buffers", eventId: 3, eventTitle: "ECB Emergency Liquidity Injection" },
-      { name: "ASML Gas Imports", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
-      { name: "AI Copilots", eventId: 4, eventTitle: "AI Regulatory Framework Draft Leaked" },
-      { name: "Jet Fuel Spot", eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" }
-    ];
-  }
+  if (iso === "US") return [
+    { name: "Semiconductors", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+    { name: "Neon Supply",    eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+    { name: "SaaS Compliance",eventId: 4, eventTitle: "AI Regulatory Framework Draft Leaked" },
+    { name: "Crude Energy",   eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" },
+  ];
+  if (["CN","TW","JP","KR"].includes(iso)) return [
+    { name: "Wafer Shipping", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+    { name: "Rare Earths",    eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+    { name: "Lithium Cells",  eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" },
+    { name: "AI Regulations", eventId: 4, eventTitle: "AI Regulatory Framework Draft Leaked" },
+  ];
+  if (["DE","FR","NL","GB"].includes(iso)) return [
+    { name: "Liquidity Buffers", eventId: 3, eventTitle: "ECB Emergency Liquidity Injection" },
+    { name: "ASML Gas Imports",  eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+    { name: "AI Copilots",       eventId: 4, eventTitle: "AI Regulatory Framework Draft Leaked" },
+    { name: "Jet Fuel Spot",     eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" },
+  ];
   return [
-    { name: "Energy Inputs", eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" },
-    { name: "Technology Hardware", eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
-    { name: "Sovereign Bonds", eventId: 3, eventTitle: "ECB Emergency Liquidity Injection" }
+    { name: "Energy Inputs",      eventId: 1, eventTitle: "Unscheduled OPEC+ Output Reduction" },
+    { name: "Technology Hardware",eventId: 2, eventTitle: "Semiconductor Supply Chain Disruption" },
+    { name: "Sovereign Bonds",    eventId: 3, eventTitle: "ECB Emergency Liquidity Injection" },
   ];
 }
 
+// ── Style tokens ──────────────────────────────────────────────
+const MONO    = "'JetBrains Mono', monospace";
+const SERIF   = "'Fraunces', Georgia, serif";
+const BRASS   = "#d4af37";
+const HAIRLINE = "rgba(212,175,55,0.14)";
+
+function SectionLabel({ children }) {
+  return (
+    <span style={{
+      fontFamily: MONO, fontSize: "8px", fontWeight: 700,
+      letterSpacing: "0.2em", color: "#5c5546",
+      textTransform: "uppercase", display: "block", marginBottom: "8px",
+    }}>
+      {children}
+    </span>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────
 export function CountryRightPanel({ country, timeframe = "1D" }) {
-  const setCausalChainEvent = useTerminalStore(state => state.setCausalChainEvent);
-  const addAnnotation = useTerminalStore(state => state.addAnnotation);
+  const setCausalChainEvent = useTerminalStore((s) => s.setCausalChainEvent);
+  const addAnnotation       = useTerminalStore((s) => s.addAnnotation);
   const [noteText, setNoteText] = useState("");
 
   if (!country) return null;
 
-  const iso = country.properties?.ISO_A2 || country.code || "XX";
-  
-  const stats = getCountryStats(iso);
-  const localOutlets = getLocalNewsOutlets(iso);
-  const localHeadlines = getLocalHeadlines(iso);
-  const geoSummary = generateGeopoliticalSummary(iso, stats.sentiment || "neutral");
+  const iso           = country.properties?.ISO_A2 || country.code || "XX";
+  const stats         = getCountryStats(iso);
+  const localOutlets  = getLocalNewsOutlets(iso);
+  const localHeadlines= getLocalHeadlines(iso);
+  const geoSummary    = generateGeopoliticalSummary(iso, stats.sentiment || "neutral");
+  const supplyChain   = getSupplyChainExposure(iso);
 
   const handlePinNote = () => {
     if (!noteText.trim()) return;
-    let lat, lng;
+    let lat = (iso.charCodeAt(0) % 60) - 20;
+    let lng = (iso.charCodeAt(1) % 180) - 90;
     if (iso === "US") { lat = 40; lng = -97; }
     else if (iso === "CN") { lat = 35; lng = 105; }
     else if (iso === "JP") { lat = 36; lng = 138; }
     else if (iso === "DE") { lat = 51; lng = 9; }
-    else {
-      lat = (iso.charCodeAt(0) % 60) - 20;
-      lng = (iso.charCodeAt(1) % 180) - 90;
-    }
-
-    addAnnotation({
-      id: "a_" + Date.now(),
-      lat,
-      lng,
-      text: noteText.trim(),
-      author: "Trader #1"
-    });
+    addAnnotation({ id: "a_" + Date.now(), lat, lng, text: noteText.trim(), author: "Trader #1" });
     setNoteText("");
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#020617]/95 border-l border-[#1e293b]/50 text-slate-200">
-      
-      {/* Top Header Switch */}
-      <div className="p-4 border-b border-white/5 bg-black/20 flex justify-between items-center shrink-0">
+    <div
+      className="flex flex-col h-full"
+      style={{
+        background: "rgba(5,7,13,0.98)",
+        borderLeft: `1px solid ${HAIRLINE}`,
+      }}
+    >
+      {/* ── Header ── */}
+      <div
+        className="flex items-center justify-between px-4 py-3 shrink-0"
+        style={{ borderBottom: `1px solid ${HAIRLINE}` }}
+      >
         <div className="flex items-center gap-2">
-          <Globe className="w-4 h-4 text-indigo-500" />
-          <h2 className="text-[13px] font-bold tracking-widest text-[#94a3b8] font-mono">REGIONAL ANALYSIS</h2>
+          <Globe className="w-4 h-4" style={{ color: BRASS }} />
+          <span style={{
+            fontFamily: MONO, fontSize: "9px", fontWeight: 700,
+            letterSpacing: "0.18em", color: "#a89c84",
+          }}>
+            REGIONAL ANALYSIS
+          </span>
         </div>
-        <div className="text-[9px] font-bold text-indigo-400 flex items-center gap-1 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/30">
+        <span
+          className="flex items-center gap-1 rounded-sm px-2 py-0.5"
+          style={{
+            fontFamily: MONO, fontSize: "8px", fontWeight: 700,
+            letterSpacing: "0.1em", color: "#4fd1a5",
+            background: "rgba(79,209,165,0.08)",
+            border: "1px solid rgba(79,209,165,0.2)",
+          }}
+        >
+          <span className="w-1 h-1 rounded-full animate-pulse" style={{ background: "#4fd1a5" }} />
           SECURE
-        </div>
+        </span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+      {/* ── Scrollable body ── */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-5">
 
-        {/* Box 4: Geopolitical AI Summary */}
-        <div className="bg-[#0c1220]/80 border border-indigo-500/30 p-4 rounded relative overflow-hidden group shadow-md">
-          <div className="absolute inset-0 bg-indigo-500/5 group-hover:bg-indigo-500/10 transition-colors" />
-          <div className="flex items-center gap-2 mb-3 relative z-10">
-             <Cpu className="w-4 h-4 text-indigo-400" />
-             <span className="text-[11px] font-bold text-indigo-300 tracking-wider uppercase font-mono">AI Geopolitical Synthesis</span>
+        {/* ── AI Geopolitical synthesis ── */}
+        <div>
+          <SectionLabel>AI Geopolitical Synthesis</SectionLabel>
+          <div
+            className="relative overflow-hidden p-4 rounded-sm"
+            style={{
+              background: "rgba(10,14,26,0.8)",
+              border: `1px solid rgba(212,175,55,0.25)`,
+            }}
+          >
+            {/* Left brass bar */}
+            <div className="absolute left-0 top-0 bottom-0 w-[2px]"
+              style={{ background: "linear-gradient(180deg, rgba(212,175,55,0.8), rgba(212,175,55,0.1))" }} />
+            <div className="flex items-center gap-2 mb-3 pl-2">
+              <Cpu className="w-3.5 h-3.5 shrink-0" style={{ color: BRASS }} />
+              <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#a89c84" }}>
+                SYNTHESIZING REGIONAL SIGNALS
+              </span>
+            </div>
+            <div className="pl-2">
+              <TypewriterSummary text={geoSummary || stats.aiAnalysis} speed={10} />
+            </div>
           </div>
-          <TypewriterSummary text={geoSummary || stats.aiAnalysis} speed={10} />
         </div>
 
-        {/* Box 4b: Flow Trajectory / Supply Chain Exposure Map */}
-        <div className="bg-[#0c1220]/80 border border-[#1e293b] p-4 rounded flex flex-col shadow-md">
-           <div className="text-[11px] font-bold text-slate-300 tracking-wider uppercase mb-2.5 flex items-center gap-2 font-mono">
-              <span className="text-indigo-400">🌊</span>
-              Flow Trajectory & Supply Chain
-           </div>
-           <span className="text-[9px] text-slate-500 font-mono mb-2 block">
-             Click any dependency node below to trace its causal propagation chain.
-           </span>
-           <div className="flex flex-wrap gap-2">
-              {getSupplyChainExposure(iso).map((item, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCausalChainEvent(item.eventId, item.eventTitle)}
-                  className="px-2.5 py-1.5 bg-indigo-500/10 border border-indigo-500/30 hover:border-indigo-400 hover:bg-indigo-500/20 text-indigo-300 hover:text-white transition-all text-[10px] font-mono tracking-wider rounded-lg cursor-pointer uppercase font-bold"
-                >
-                  {item.name} ↗
-                </button>
-              ))}
-           </div>
+        {/* ── Divider ── */}
+        <div style={{ height: "1px", background: HAIRLINE }} />
+
+        {/* ── Supply chain / Flow Trajectory ── */}
+        <div>
+          <SectionLabel>Flow Trajectory & Supply Chain</SectionLabel>
+          <p style={{ fontSize: "10px", color: "#5c5546", fontFamily: MONO, marginBottom: "10px", lineHeight: 1.5 }}>
+            Click any node to trace its causal propagation chain →
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {supplyChain.map((item, i) => (
+              <button
+                key={i}
+                onClick={() => setCausalChainEvent(item.eventId, item.eventTitle)}
+                className="flex items-center gap-1.5 cursor-pointer transition-all rounded-sm"
+                style={{
+                  fontFamily: MONO, fontSize: "9px", fontWeight: 700,
+                  letterSpacing: "0.08em", textTransform: "uppercase",
+                  padding: "5px 10px",
+                  background: "rgba(212,175,55,0.06)",
+                  border: "1px solid rgba(212,175,55,0.22)",
+                  color: "#a89c84",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = "rgba(212,175,55,0.14)";
+                  e.currentTarget.style.borderColor = "rgba(212,175,55,0.5)";
+                  e.currentTarget.style.color = "#f0e6d2";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = "rgba(212,175,55,0.06)";
+                  e.currentTarget.style.borderColor = "rgba(212,175,55,0.22)";
+                  e.currentTarget.style.color = "#a89c84";
+                }}
+              >
+                {item.name}
+                <span style={{ color: BRASS, fontSize: "10px" }}>↗</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Box 5: Connected Channels */}
-        <div className="bg-[#0c1220]/80 border border-[#1e293b] p-4 rounded flex flex-col shadow-md">
-           <div className="text-[11px] font-bold text-slate-300 tracking-wider uppercase mb-3 flex items-center gap-2 font-mono">
-              <Globe className="w-4 h-4 text-slate-400" />
-              📡 Connected Channels
-           </div>
-           <div className="grid grid-cols-2 gap-2">
-              {localOutlets.slice(0, 6).map((outlet, i) => (
-                <div key={i} className="bg-slate-900/60 border border-white/5 p-2 rounded flex flex-col items-center text-center justify-center min-h-[50px] transition-colors hover:border-indigo-500/20">
-                  <span className="text-[10px] font-bold text-indigo-400 truncate w-full">{outlet.name}</span>
-                  <span className="text-[8px] text-slate-500 font-mono mt-0.5 leading-tight">{outlet.focus}</span>
-                </div>
-              ))}
-           </div>
+        {/* ── Divider ── */}
+        <div style={{ height: "1px", background: HAIRLINE }} />
+
+        {/* ── Connected channels ── */}
+        <div>
+          <SectionLabel>Connected Channels</SectionLabel>
+          <div className="grid grid-cols-2 gap-2">
+            {localOutlets.slice(0, 6).map((outlet, i) => (
+              <div
+                key={i}
+                className="flex flex-col justify-center p-2.5 rounded-sm"
+                style={{
+                  background: "rgba(255,255,255,0.025)",
+                  border: `1px solid ${HAIRLINE}`,
+                  minHeight: "44px",
+                }}
+              >
+                <span style={{ fontFamily: MONO, fontSize: "10px", fontWeight: 700, color: BRASS, letterSpacing: "0.04em" }}>
+                  {outlet.name}
+                </span>
+                <span style={{ fontSize: "9px", color: "#5c5546", fontFamily: MONO, marginTop: "2px", lineHeight: 1.3 }}>
+                  {outlet.focus}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Box 6: Local Press News Feed */}
-        <div className="bg-[#0c1220]/80 border border-[#1e293b] p-4 rounded flex flex-col shadow-md font-sans">
-           <div className="text-[11px] font-bold text-slate-300 tracking-wider uppercase mb-3 flex items-center gap-2 font-mono">
-              <Activity className="w-4 h-4 text-slate-400" />
-              📰 Local News Feed
-           </div>
-           <div className="flex flex-col gap-2">
-              {localHeadlines.map((headline, i) => (
-                <div key={i} className="p-2.5 rounded bg-white/5 border border-white/5 hover:border-indigo-500/20 transition-colors flex flex-col gap-1">
-                  <span className="text-[11.5px] text-slate-200 leading-normal">{headline.title}</span>
-                  <span className="text-[8px] font-bold font-mono text-indigo-400 uppercase tracking-widest self-end">{headline.source}</span>
-                </div>
-              ))}
-           </div>
+        {/* ── Divider ── */}
+        <div style={{ height: "1px", background: HAIRLINE }} />
+
+        {/* ── Local news feed ── */}
+        <div>
+          <SectionLabel>Local News Feed</SectionLabel>
+          <div className="flex flex-col gap-2">
+            {localHeadlines.map((item, i) => (
+              <div
+                key={i}
+                className="p-3 rounded-sm flex flex-col gap-1 transition-all"
+                style={{
+                  background: "rgba(255,255,255,0.02)",
+                  border: `1px solid ${HAIRLINE}`,
+                }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(212,175,55,0.3)"}
+                onMouseLeave={e => e.currentTarget.style.borderColor = HAIRLINE}
+              >
+                <span style={{ fontSize: "12px", color: "#c9bea3", lineHeight: "1.5", fontWeight: 500 }}>
+                  {item.title}
+                </span>
+                <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, color: "#5c5546", letterSpacing: "0.1em", textTransform: "uppercase", alignSelf: "flex-end" }}>
+                  {item.source}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Box 7: Collaborative Annotations Pinning */}
-        <div className="bg-[#0c1220]/80 border border-white/5 p-4 rounded flex flex-col gap-3 shadow-md">
-           <div className="text-[11.5px] font-bold text-slate-300 tracking-wider uppercase flex items-center gap-2 font-mono">
-              <span>📌</span> Pin Geopolitical Note
-           </div>
-           <div className="flex gap-2">
-             <input
-               className="flex-1 px-3 py-1.5 bg-black/40 border border-white/10 rounded font-sans text-xs text-slate-200 focus:border-indigo-500 focus:outline-none"
-               placeholder="Add collaborative note..."
-               value={noteText}
-               onChange={(e) => setNoteText(e.target.value)}
-             />
-             <button 
-               onClick={handlePinNote}
-               className="px-3 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded font-mono font-bold text-[10px] uppercase cursor-pointer"
-             >
-               PIN
-             </button>
-           </div>
+        {/* ── Divider ── */}
+        <div style={{ height: "1px", background: HAIRLINE }} />
+
+        {/* ── Pin geopolitical note ── */}
+        <div>
+          <SectionLabel>Pin Geopolitical Note</SectionLabel>
+          <div className="flex gap-2">
+            <input
+              className="flex-1 rounded-sm px-3 py-2 transition-all"
+              style={{
+                fontFamily: MONO, fontSize: "11px",
+                color: "#f0e6d2",
+                background: "rgba(255,255,255,0.03)",
+                border: `1px solid ${HAIRLINE}`,
+                outline: "none",
+              }}
+              placeholder="Add a collaborative note..."
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handlePinNote(); }}
+              onFocus={e => { e.target.style.borderColor = "rgba(212,175,55,0.5)"; e.target.style.boxShadow = "0 0 0 2px rgba(212,175,55,0.08)"; }}
+              onBlur={e => { e.target.style.borderColor = HAIRLINE; e.target.style.boxShadow = "none"; }}
+            />
+            <button
+              onClick={handlePinNote}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-sm cursor-pointer transition-all shrink-0"
+              style={{
+                fontFamily: MONO, fontSize: "9px", fontWeight: 700,
+                letterSpacing: "0.1em", textTransform: "uppercase",
+                background: "rgba(212,175,55,0.12)",
+                border: "1px solid rgba(212,175,55,0.35)",
+                color: BRASS,
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = BRASS; e.currentTarget.style.color = "#05070d"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "rgba(212,175,55,0.12)"; e.currentTarget.style.color = BRASS; }}
+            >
+              <Pin className="w-3 h-3" />
+              PIN
+            </button>
+          </div>
         </div>
 
       </div>

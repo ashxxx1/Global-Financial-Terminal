@@ -35,7 +35,7 @@ export function GravityFieldGrid() {
       <svg className="w-[85%] h-[85%] max-w-[800px] max-h-[800px] opacity-40 overflow-visible" viewBox="0 0 100 100">
         
         {/* ─── GHOST BASE GRID (Faint Indigo, prior state, always visible under warp) ─── */}
-        <g stroke="rgba(99, 102, 241, 0.15)" fill="none" strokeWidth="0.25">
+        <g stroke="rgba(212, 175, 55, 0.10)" fill="none" strokeWidth="0.25">
           {/* Base Rings */}
           {circles.map((r, idx) => (
             <circle 
@@ -68,7 +68,7 @@ export function GravityFieldGrid() {
         {/* ─── LIVE WARPED GRID (Copper/Gold when warped, Deep Indigo when flat) ─── */}
         <g fill="none" className="transition-all duration-700 ease-out">
           {(() => {
-            const strokeColor = isWarped ? "#d97706" : "rgba(99, 102, 241, 0.35)";
+            const strokeColor = isWarped ? "#d97706" : "rgba(212, 175, 55, 0.28)";
             const strokeW = isWarped ? 0.45 : 0.3;
             const targetCx = cx + warpOffset.x;
             const targetCy = cy + warpOffset.y;

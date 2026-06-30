@@ -175,17 +175,73 @@ function TerminalApp() {
 
               {/* Globe centerpiece container */}
               <div className="flex-1 w-full relative">
-                {/* Floating Workspace & Control Overlay */}
-                {/* Top-left: View title, Timeframe & Scrubber */}
-                <div className="absolute top-4 left-8 z-20 pointer-events-auto nx-hud-bar">
-                  <span className="nx-hud-bar__title">Global Map</span>
-                  <div className="nx-hud-bar__divider" />
-                  <div className="flex items-center gap-0.5">
+                {/* ── Top-left: Atlas View title + Timeframe selector ── */}
+                <div
+                  className="absolute top-4 left-8 z-20 pointer-events-auto flex items-center gap-3"
+                  style={{
+                    background: "rgba(10,14,26,0.92)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(212,175,55,0.35)",
+                    padding: "6px 14px",
+                    borderRadius: "2px",
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.08)",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'Fraunces', Georgia, serif",
+                      fontStyle: "italic",
+                      fontSize: "12px",
+                      letterSpacing: "0.04em",
+                      color: "#f0e6d2",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Atlas View
+                  </span>
+                  <div style={{ width: "1px", height: "14px", background: "rgba(212,175,55,0.25)" }} />
+                  <div
+                    className="flex items-center p-0.5 rounded-sm"
+                    style={{
+                      background: "rgba(5,7,13,0.7)",
+                      border: "1px solid rgba(212,175,55,0.18)",
+                    }}
+                  >
                     {["1D", "1W", "1M", "YTD"].map((tf) => (
                       <button
                         key={tf}
                         onClick={() => setTimeframe(tf)}
-                        className={`nx-tf-btn ${timeframe === tf ? "active" : ""}`}
+                        className="transition-all cursor-pointer rounded-sm"
+                        style={{
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontSize: "9px",
+                          fontWeight: 700,
+                          letterSpacing: "0.12em",
+                          textTransform: "uppercase",
+                          padding: "4px 10px",
+                          ...(timeframe === tf
+                            ? {
+                                background: "#d4af37",
+                                color: "#05070d",
+                                boxShadow: "0 0 10px rgba(212,175,55,0.4)",
+                              }
+                            : {
+                                background: "transparent",
+                                color: "#a89c84",
+                              }),
+                        }}
+                        onMouseEnter={e => {
+                          if (timeframe !== tf) {
+                            e.currentTarget.style.color = "#f0e6d2";
+                            e.currentTarget.style.background = "rgba(212,175,55,0.1)";
+                          }
+                        }}
+                        onMouseLeave={e => {
+                          if (timeframe !== tf) {
+                            e.currentTarget.style.color = "#a89c84";
+                            e.currentTarget.style.background = "transparent";
+                          }
+                        }}
                       >
                         {tf}
                       </button>
@@ -193,45 +249,126 @@ function TerminalApp() {
                   </div>
                 </div>
 
-                {/* Top-right: AI Market Brief floating card */}
+                {/* ── Top-right: AI Market Brief floating card ── */}
                 <div className="absolute top-4 right-8 z-20 pointer-events-auto w-72">
                   <MarketBrief />
                 </div>
 
-                {/* Bottom-center: Panel Toggles — large, clearly labeled */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto flex items-center gap-2 px-4 py-2" style={{ background: "rgba(2,4,10,0.9)", border: "1px solid var(--nx-border)", backdropFilter: "blur(16px)" }}>
-                  <span className="nx-section-sub mr-1">Modules</span>
-                  <button
-                    onClick={() => setLeftCollapsed(!leftCollapsed)}
-                    className={`nx-panel-toggle ${!leftCollapsed ? "on" : ""}`}
+                {/* ── Bottom-center: Panel Toggles ── */}
+                <div
+                  className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-auto flex items-center gap-3"
+                  style={{
+                    background: "rgba(10,14,26,0.96)",
+                    backdropFilter: "blur(20px)",
+                    border: "1px solid rgba(212,175,55,0.3)",
+                    padding: "8px 18px",
+                    borderRadius: "2px",
+                    boxShadow: "0 0 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(212,175,55,0.06)",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "8px",
+                      fontWeight: 700,
+                      letterSpacing: "0.16em",
+                      color: "#5c5546",
+                      marginRight: "2px",
+                    }}
                   >
-                    Markets
-                    <span className="nx-panel-toggle__badge">{leftCollapsed ? "OFF" : "ON"}</span>
-                  </button>
-                  <button
-                    onClick={() => setRightCollapsed(!rightCollapsed)}
-                    className={`nx-panel-toggle ${!rightCollapsed ? "on" : ""}`}
-                  >
-                    Intel
-                    <span className="nx-panel-toggle__badge">{rightCollapsed ? "OFF" : "ON"}</span>
-                  </button>
-                  <button
-                    onClick={() => setBottomCollapsed(!bottomCollapsed)}
-                    className={`nx-panel-toggle ${!bottomCollapsed ? "on" : ""}`}
-                  >
-                    Wire
-                    <span className="nx-panel-toggle__badge">{bottomCollapsed ? "OFF" : "ON"}</span>
-                  </button>
+                    PANELS
+                  </span>
+                  {[
+                    { on: !leftCollapsed,   icon: "📊", label: "Markets", toggle: () => setLeftCollapsed(!leftCollapsed)   },
+                    { on: !rightCollapsed,  icon: "🧠", label: "Intel",   toggle: () => setRightCollapsed(!rightCollapsed) },
+                    { on: !bottomCollapsed, icon: "📡", label: "News",    toggle: () => setBottomCollapsed(!bottomCollapsed) },
+                  ].map(panel => (
+                    <button
+                      key={panel.label}
+                      onClick={panel.toggle}
+                      className="flex items-center gap-2 transition-all cursor-pointer rounded-sm"
+                      style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
+                        padding: "6px 14px",
+                        border: panel.on
+                          ? "1px solid #f0c84a"
+                          : "1px solid rgba(212,175,55,0.2)",
+                        background: panel.on
+                          ? "#d4af37"
+                          : "rgba(212,175,55,0.05)",
+                        color: panel.on ? "#05070d" : "#a89c84",
+                        boxShadow: panel.on ? "0 0 14px rgba(212,175,55,0.3)" : "none",
+                      }}
+                    >
+                      <span>{panel.icon}</span>
+                      <span>{panel.label}</span>
+                      <span
+                        className="rounded-sm font-bold"
+                        style={{
+                          fontSize: "7px",
+                          padding: "1px 5px",
+                          letterSpacing: "0.08em",
+                          background: panel.on ? "rgba(5,7,13,0.2)" : "rgba(212,175,55,0.1)",
+                          color: panel.on ? "#05070d" : "#6b6354",
+                        }}
+                      >
+                        {panel.on ? "ON" : "OFF"}
+                      </span>
+                    </button>
+                  ))}
                 </div>
 
-                <div className="absolute inset-0 z-0" style={{ background: "radial-gradient(ellipse 70% 60% at 50% 45%, rgba(0,229,255,0.04) 0%, var(--nx-void) 65%)" }}>
+                {/* ── Bottom-left coordinate watermark ── */}
+                <div
+                  className="absolute bottom-8 left-8 z-10 pointer-events-none hidden lg:flex items-center gap-1.5"
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "8px",
+                    letterSpacing: "0.12em",
+                    color: "#6b6354",
+                  }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" style={{ color: "rgba(212,175,55,0.5)" }}>
+                    <path d="M5 0v10M0 5h10" stroke="currentColor" strokeWidth="0.6" />
+                  </svg>
+                  20.0°N · 0.0°E
+                </div>
+
+                {/* ── Bottom-right live status watermark ── */}
+                <div
+                  className="absolute bottom-8 right-8 z-10 pointer-events-none hidden lg:flex items-center gap-1.5"
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "8px",
+                    letterSpacing: "0.12em",
+                    color: "#6b6354",
+                  }}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full animate-pulse"
+                    style={{ background: "#4fd1a5", boxShadow: "0 0 4px #4fd1a5" }}
+                  />
+                  MERIDIAN · LIVE
+                </div>
+
+                {/* ── Globe background ── */}
+                <div
+                  className="absolute inset-0 z-0"
+                  style={{
+                    background: "radial-gradient(ellipse 70% 60% at 50% 45%, rgba(22,49,79,0.28) 0%, #05070d 65%)",
+                  }}
+                >
                   <GlobeVis selectedCountry={selectedCountry} onCountryClick={handleCountryClick} timeframe={timeframe} />
                 </div>
 
-                {/* Gravity Grid Layer */}
+                {/* Gravity Field Grid Layer */}
                 <GravityFieldGrid />
 
-                {/* Central AI Signal Desk (hub of Vector Bloom panels) */}
+                {/* Central AI Signal Desk */}
                 {selectedCountry && (
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-auto">
                     <SignalDesk country={selectedCountry} />

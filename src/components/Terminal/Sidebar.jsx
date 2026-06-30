@@ -12,193 +12,398 @@ export function Sidebar() {
     setTimeout(() => setIsSyncing(false), 1000);
   };
 
-  // Auto-generated morning briefing with citations
+  // Auto-generated morning briefing with clickable citations
   const briefText = useMemo(() => {
     if (!watchlist || watchlist.length === 0) {
       return "S&P 500 index margins expand on tech capital injection `[S&P 500]`. High-yield sovereign spreads indicate stabilizing credit conditions across European banking nodes `[DAX 40]`. Yield dynamics signal delayed Fed policy adjustments `[NASDAQ]`.";
     }
     const names = watchlist.slice(0, 3).map(s => s.symbol || s.name);
-    return `Watchlist highlights: ${names.join(", ")} show sticky pricing parameters. Momentum support remains resilient for holdings \`[${names[0]}]\`. Risk exposures are elevated across regional channels \`[${names[1] || 'Markets'}]\`.`;
+    return `Watchlist highlights: ${names.join(", ")} show sticky pricing parameters. Momentum support remains resilient for holdings \`[${names[0]}]\`. Risk exposures are elevated across regional channels \`[${names[1] || "Markets"}]\`.`;
   }, [watchlist]);
 
+  const riskMetrics = [
+    { label: "Geopolitical", val: "84/100", color: "#e8635a" },
+    { label: "Systemic",     val: "62/100", color: "#d4af37" },
+    { label: "Credit",       val: "38/100", color: "#4fd1a5" },
+    { label: "Volatility",   val: "55/100", color: "#d4af37" },
+  ];
+
+  const liquidityItems = [
+    { label: "USD ONR (O/N Repo)", val: "5.32%", pct: 85, color: "#4fd1a5" },
+    { label: "EUR SOFR",           val: "3.90%", pct: 60, color: "#d4af37" },
+    { label: "Dark Pool Index",    val: "42.1%", pct: 42, color: "#c97b4a" },
+  ];
+
+  const sectionHead = {
+    fontFamily: "'JetBrains Mono', monospace",
+    fontSize: "10px",
+    fontWeight: 700,
+    letterSpacing: "0.18em",
+    color: "#a89c84",
+  };
+
   return (
-    <aside className="flex w-full h-full flex-col bg-transparent shrink-0 z-10 transition-all duration-300">
-      
-      {/* Top Status */}
-      <div className="flex flex-col p-3 border-b bg-black/20" style={{ borderColor: "var(--nx-border)" }}>
-        <div className="flex items-center justify-between mb-2">
+    <aside className="flex w-full h-full flex-col shrink-0 z-10 transition-all duration-300"
+      style={{ background: "transparent" }}
+    >
+      {/* ── Status bar ── */}
+      <div
+        className="flex flex-col p-3 shrink-0"
+        style={{
+          borderBottom: "1px solid rgba(212,175,55,0.14)",
+          background: "rgba(5,7,13,0.7)",
+        }}
+      >
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full motion-safe:animate-pulse" style={{ background: "var(--nx-mint)", boxShadow: "0 0 8px var(--nx-mint)" }} />
-            <span className="nx-section-sub">Global Node: Online</span>
+            <div
+              className="h-1.5 w-1.5 rounded-full motion-safe:animate-pulse"
+              style={{ background: "#4fd1a5", boxShadow: "0 0 8px rgba(79,209,165,0.8)" }}
+            />
+            <span style={{ ...sectionHead, letterSpacing: "0.14em" }}>
+              Global Node · Online
+            </span>
           </div>
-          <button 
-             onClick={handleSync}
-             className="flex items-center gap-1 text-[10px] font-bold transition-colors uppercase tracking-widest cursor-pointer hover:text-[var(--nx-cyan)]"
-             style={{ fontFamily: "var(--nx-font-mono)", color: "var(--nx-gold)" }}
+          <button
+            onClick={handleSync}
+            className="flex items-center gap-1 transition-colors cursor-pointer"
+            style={{ ...sectionHead, color: "#d4af37" }}
+            onMouseEnter={e => e.currentTarget.style.color = "#f0c84a"}
+            onMouseLeave={e => e.currentTarget.style.color = "#d4af37"}
           >
-            <RefreshCcw className={`h-3 w-3 ${isSyncing ? 'animate-spin' : ''}`} />
-            Auto Sync
+            <RefreshCcw className={`h-3 w-3 ${isSyncing ? "animate-spin" : ""}`} />
+            Sync
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        
-        {/* Morning Briefing Daily Digest */}
-        <div className="p-4 border-b bg-gradient-to-b from-[rgba(0,229,255,0.04)] to-transparent relative" style={{ borderColor: "var(--nx-border)" }}>
-           <div className="flex items-center gap-2 mb-2.5">
-             <BookOpen className="w-4 h-4" style={{ color: "var(--nx-gold)" }} />
-             <h3 className="nx-section-head" style={{ fontSize: "10px" }}>Morning Signal</h3>
-             <span className="nx-section-sub ml-auto px-1.5 py-0.5" style={{ border: "1px solid var(--nx-border)", borderRadius: "2px" }}>DIGEST</span>
-           </div>
-           
-           <div className="text-[11.5px] leading-relaxed p-3 relative overflow-hidden" style={{ fontFamily: "var(--nx-font-mono)", color: "rgba(255,255,255,0.6)", background: "rgba(0,0,0,0.35)", border: "1px solid var(--nx-border)", borderRadius: "2px" }}>
-             <div className="absolute left-0 top-0 bottom-0 w-0.5" style={{ background: "var(--nx-gold)" }} />
-             
-             {(() => {
-               const parts = briefText.split(/(`\[.*?\]`)/);
-               return (
-                 <p className="m-0 leading-relaxed">
-                   {parts.map((p, pidx) => {
-                     if (p.startsWith("`[") && p.endsWith("]`")) {
-                       const label = p.slice(2, -2);
-                       return (
-                         <span 
-                           key={pidx} 
-                           className="inline-block px-1 py-px font-mono text-[8px] rounded mx-0.5 uppercase cursor-pointer transition-all font-bold"
-                           style={{ background: "rgba(0,229,255,0.12)", border: "1px solid var(--nx-border-strong)", color: "var(--nx-cyan)" }}
-                           onClick={() => alert(`Navigating to citation: ${label}`)}
-                         >
-                           {label}
-                         </span>
-                       );
-                     }
-                     return p;
-                   })}
-                 </p>
-               );
-             })()}
-           </div>
-        </div>
-        
-        {/* Market Overview Module */}
-        <div className="p-4 border-b border-white/5 bg-black/10">
-           <div className="flex items-center gap-2 mb-4">
-             <LineChart className="w-4 h-4 text-slate-400" />
-             <h3 className="text-[12px] font-bold tracking-widest text-[#94a3b8]">MARKET OVERVIEW</h3>
-           </div>
-           <div className="flex flex-col gap-2">
-             {indicesData.slice(0, 6).map((index) => (
-               <div key={index.name} className="group flex cursor-pointer items-center justify-between hover:bg-white/5 p-1.5 rounded transition-colors -mx-1.5">
-                 <span className="text-[12px] font-bold text-slate-300 transition-colors group-hover:text-white px-1.5">
-                   {index.name}
-                 </span>
-                 <div className="flex items-center gap-3 font-mono px-1.5">
-                   <span className="text-[12px] text-slate-200">{index.value}</span>
-                   <span className={`w-14 text-right text-[12px] font-bold ${index.isPositive ? 'text-emerald-400' : 'text-rose-500'}`}>
-                     {index.change}
-                   </span>
-                 </div>
-               </div>
-             ))}
-           </div>
+      <div className="flex-1 overflow-y-auto">
+
+        {/* ── Morning Briefing ── */}
+        <div
+          className="p-4 relative"
+          style={{
+            borderBottom: "1px solid rgba(212,175,55,0.12)",
+            background: "linear-gradient(180deg, rgba(22,49,79,0.15) 0%, transparent 100%)",
+          }}
+        >
+          <div className="flex items-center gap-2 mb-2.5">
+            <BookOpen className="w-4 h-4" style={{ color: "#c97b4a" }} />
+            <h3
+              style={{
+                fontFamily: "'Fraunces', Georgia, serif",
+                fontStyle: "italic",
+                fontSize: "13px",
+                letterSpacing: "0.02em",
+                color: "#f0e6d2",
+                fontWeight: 500,
+                margin: 0,
+              }}
+            >
+              Morning Briefing
+            </h3>
+            <span
+              className="ml-auto px-1.5 py-px rounded-sm"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "7px",
+                fontWeight: 700,
+                color: "#6b6354",
+                background: "#0f1525",
+                border: "1px solid rgba(212,175,55,0.14)",
+                letterSpacing: "0.1em",
+              }}
+            >
+              DAILY DIGEST
+            </span>
+          </div>
+
+          <div
+            className="relative overflow-hidden"
+            style={{
+              fontSize: "11.5px",
+              color: "#c9bea3",
+              lineHeight: "1.65",
+              background: "#05070d",
+              border: "1px solid rgba(212,175,55,0.14)",
+              borderRadius: "2px",
+              padding: "12px 12px 12px 16px",
+            }}
+          >
+            {/* Left accent bar */}
+            <div
+              className="absolute left-0 top-0 bottom-0 w-[2px]"
+              style={{ background: "rgba(212,175,55,0.55)" }}
+            />
+            {(() => {
+              const parts = briefText.split(/(`\[.*?\]`)/);
+              return (
+                <p style={{ margin: 0, lineHeight: "1.65" }}>
+                  {parts.map((p, pidx) => {
+                    if (p.startsWith("`[") && p.endsWith("]`")) {
+                      const label = p.slice(2, -2);
+                      return (
+                        <span
+                          key={pidx}
+                          className="inline-block mx-0.5 cursor-pointer transition-all"
+                          style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: "8px",
+                            fontWeight: 700,
+                            letterSpacing: "0.08em",
+                            padding: "1px 5px",
+                            borderRadius: "2px",
+                            background: "rgba(212,175,55,0.12)",
+                            border: "1px solid rgba(212,175,55,0.35)",
+                            color: "#d4af37",
+                            textTransform: "uppercase",
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.background = "#d4af37";
+                            e.currentTarget.style.color = "#05070d";
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background = "rgba(212,175,55,0.12)";
+                            e.currentTarget.style.color = "#d4af37";
+                          }}
+                          onClick={() => alert(`Navigating to citation: ${label}`)}
+                        >
+                          {label}
+                        </span>
+                      );
+                    }
+                    return p;
+                  })}
+                </p>
+              );
+            })()}
+          </div>
         </div>
 
-        {/* Global Risk Radar */}
-        <div className="p-4 border-b border-white/5 bg-black/10">
-           <div className="flex items-center justify-between mb-4">
-             <div className="flex items-center gap-2">
-                <Radar className="w-4 h-4 text-rose-500" />
-                <h3 className="text-[12px] font-bold tracking-widest text-[#94a3b8]">RISK RADAR</h3>
-             </div>
-             <span className="text-[11px] font-mono text-rose-500 font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/30">
-               ELEVATED
-             </span>
-           </div>
-           
-           <div className="grid grid-cols-2 gap-3">
-             <div className="bg-black/20 border border-white/5 rounded p-3 flex flex-col gap-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Geopolitical</span>
-                <span className="text-[16px] font-mono font-bold text-rose-500">84/100</span>
-             </div>
-             <div className="bg-black/20 border border-white/5 rounded p-3 flex flex-col gap-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Systemic</span>
-                <span className="text-[16px] font-mono font-bold text-amber-500">62/100</span>
-             </div>
-             <div className="bg-black/20 border border-white/5 rounded p-3 flex flex-col gap-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Credit</span>
-                <span className="text-[16px] font-mono font-bold text-emerald-400">38/100</span>
-             </div>
-             <div className="bg-black/20 border border-white/5 rounded p-3 flex flex-col gap-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Volatility</span>
-                <span className="text-[16px] font-mono font-bold text-amber-500">55/100</span>
-             </div>
-           </div>
+        {/* ── Market Overview ── */}
+        <div className="p-4" style={{ borderBottom: "1px solid rgba(212,175,55,0.10)" }}>
+          <div className="flex items-center gap-2 mb-4">
+            <LineChart className="w-4 h-4" style={{ color: "#a89c84" }} />
+            <h3 style={sectionHead}>MARKET OVERVIEW</h3>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            {indicesData.slice(0, 6).map((index) => (
+              <div
+                key={index.name}
+                className="group flex cursor-pointer items-center justify-between p-1.5 -mx-1.5 rounded-sm transition-all"
+                style={{ background: "transparent" }}
+                onMouseEnter={e => e.currentTarget.style.background = "rgba(212,175,55,0.05)"}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+              >
+                <span
+                  className="px-1.5 transition-colors"
+                  style={{ fontSize: "12px", fontWeight: 500, color: "#c9bea3" }}
+                >
+                  {index.name}
+                </span>
+                <div className="flex items-center gap-3 px-1.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  <span style={{ fontSize: "12px", color: "#f0e6d2", fontWeight: 600 }}>
+                    {index.value}
+                  </span>
+                  <span
+                    style={{
+                      width: "56px",
+                      textAlign: "right",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      color: index.isPositive ? "#4fd1a5" : "#e8635a",
+                    }}
+                  >
+                    {index.change}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Fear & Greed Index */}
-        <div className="p-4 border-b border-white/5 bg-black/10">
-           <div className="flex items-center justify-between mb-4">
-             <div className="flex items-center gap-2">
-                <Gauge className="w-4 h-4 text-amber-500" />
-                <h3 className="text-[12px] font-bold tracking-widest text-[#94a3b8]">SENTIMENT</h3>
-             </div>
-           </div>
-           <div className="flex items-center gap-5">
-              <div className="relative w-20 h-20 shrink-0 flex items-center justify-center rounded-full border-[5px] border-amber-500/50">
-                 <div className="absolute inset-0 rounded-full border-[5px] border-amber-500 border-t-transparent border-r-transparent rotate-45" />
-                 <span className="text-2xl font-mono font-bold text-amber-400">41</span>
+        {/* ── Risk Radar ── */}
+        <div className="p-4" style={{ borderBottom: "1px solid rgba(212,175,55,0.10)" }}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Radar className="w-4 h-4" style={{ color: "#e8635a" }} />
+              <h3 style={sectionHead}>RISK RADAR</h3>
+            </div>
+            <span
+              className="font-bold rounded-sm px-2 py-0.5"
+              style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: "9px",
+                letterSpacing: "0.1em",
+                color: "#e8635a",
+                background: "rgba(232,99,90,0.1)",
+                border: "1px solid rgba(232,99,90,0.25)",
+              }}
+            >
+              ELEVATED
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            {riskMetrics.map(item => (
+              <div
+                key={item.label}
+                className="flex flex-col gap-1 p-3 rounded-sm"
+                style={{
+                  background: "#05070d",
+                  border: "1px solid rgba(212,175,55,0.12)",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "9px",
+                    fontWeight: 700,
+                    letterSpacing: "0.12em",
+                    color: "#6b6354",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {item.label}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "18px",
+                    fontWeight: 700,
+                    color: item.color,
+                  }}
+                >
+                  {item.val}
+                </span>
               </div>
-              <div className="flex flex-col gap-1.5 w-full">
-                 <span className="text-[12px] font-bold text-slate-300">FEAR</span>
-                 <div className="w-full h-2 flex gap-1">
-                   <div className="h-full flex-1 bg-rose-500/20 rounded-l" />
-                   <div className="h-full flex-[0.5] w-2 bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
-                   <div className="h-full flex-1 bg-emerald-500/20 rounded-r" />
-                 </div>
-                 <span className="text-[10px] text-slate-500 font-mono flex justify-between mt-1">
-                   <span>EXTR FEAR</span>
-                   <span>EXTR GREED</span>
-                 </span>
-              </div>
-           </div>
+            ))}
+          </div>
         </div>
 
-        {/* Liquidity Monitor */}
-        <div className="p-4 bg-black/10">
-           <div className="flex items-center gap-2 mb-4">
-             <Droplets className="w-4 h-4 text-sky-500" />
-             <h3 className="text-[12px] font-bold tracking-widest text-[#94a3b8]">LIQUIDITY MONITOR</h3>
-           </div>
-           <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1.5">
-                 <div className="flex justify-between items-center text-[11px] font-bold tracking-wider">
-                    <span className="text-slate-400">USD ONR (O/N Repo)</span>
-                    <span className="font-mono text-sky-400 text-[12px]">5.32%</span>
-                 </div>
-                 <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                    <div className="w-[85%] h-full bg-sky-500" />
-                  </div>
+        {/* ── Sentiment / Fear & Greed ── */}
+        <div className="p-4" style={{ borderBottom: "1px solid rgba(212,175,55,0.10)" }}>
+          <div className="flex items-center gap-2 mb-4">
+            <Gauge className="w-4 h-4" style={{ color: "#d4af37" }} />
+            <h3 style={sectionHead}>SENTIMENT</h3>
+          </div>
+          <div className="flex items-center gap-5">
+            {/* Ring gauge */}
+            <div
+              className="relative shrink-0 flex items-center justify-center rounded-full"
+              style={{
+                width: "76px",
+                height: "76px",
+                border: "5px solid rgba(212,175,55,0.22)",
+              }}
+            >
+              <div
+                className="absolute inset-0 rounded-full rotate-45"
+                style={{
+                  border: "5px solid #d4af37",
+                  borderTopColor: "transparent",
+                  borderRightColor: "transparent",
+                }}
+              />
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "22px",
+                  fontWeight: 700,
+                  color: "#f0c84a",
+                }}
+              >
+                41
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-1.5 w-full">
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  color: "#c9bea3",
+                }}
+              >
+                FEAR
+              </span>
+              <div className="w-full flex gap-1" style={{ height: "6px" }}>
+                <div className="h-full flex-1 rounded-l-sm" style={{ background: "rgba(232,99,90,0.18)" }} />
+                <div
+                  className="h-full"
+                  style={{
+                    width: "8px",
+                    flexShrink: 0,
+                    background: "#d4af37",
+                    boxShadow: "0 0 8px rgba(212,175,55,0.7)",
+                  }}
+                />
+                <div className="h-full flex-1 rounded-r-sm" style={{ background: "rgba(79,209,165,0.12)" }} />
               </div>
-              <div className="flex flex-col gap-1.5 mt-2">
-                 <div className="flex justify-between items-center text-[11px] font-bold tracking-wider">
-                    <span className="text-slate-400">EUR SOFR</span>
-                    <span className="font-mono text-indigo-400 text-[12px]">3.90%</span>
-                 </div>
-                 <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                    <div className="w-[60%] h-full bg-indigo-500" />
-                 </div>
+              <div
+                className="flex justify-between mt-1"
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "8px",
+                  letterSpacing: "0.06em",
+                  color: "#6b6354",
+                }}
+              >
+                <span>EXTR FEAR</span>
+                <span>EXTR GREED</span>
               </div>
-              <div className="flex flex-col gap-1.5 mt-2">
-                 <div className="flex justify-between items-center text-[11px] font-bold tracking-wider">
-                    <span className="text-slate-400">Dark Pool Index</span>
-                    <span className="font-mono text-purple-400 text-[12px]">42.1%</span>
-                 </div>
-                 <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                    <div className="w-[42%] h-full bg-purple-500" />
-                 </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Liquidity Monitor ── */}
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Droplets className="w-4 h-4" style={{ color: "#16314f" }} />
+            <h3 style={sectionHead}>LIQUIDITY MONITOR</h3>
+          </div>
+          <div className="flex flex-col gap-3.5">
+            {liquidityItems.map(item => (
+              <div key={item.label} className="flex flex-col gap-1.5">
+                <div className="flex justify-between items-center">
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      letterSpacing: "0.06em",
+                      color: "#a89c84",
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: item.color,
+                    }}
+                  >
+                    {item.val}
+                  </span>
+                </div>
+                <div
+                  className="w-full rounded-full overflow-hidden"
+                  style={{ height: "4px", background: "#0f1525" }}
+                >
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{
+                      width: `${item.pct}%`,
+                      background: item.color,
+                      boxShadow: `0 0 6px ${item.color}60`,
+                    }}
+                  />
+                </div>
               </div>
-           </div>
+            ))}
+          </div>
         </div>
 
       </div>

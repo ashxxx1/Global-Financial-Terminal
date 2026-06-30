@@ -39,9 +39,9 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
     const N = 40;
     return [...Array(N).keys()].map(() => {
       const type = Math.random();
-      let color = ['rgba(16, 185, 129, 0.8)', 'rgba(16, 185, 129, 0.1)']; // Trade (Emerald)
-      if (type > 0.6) color = ['rgba(99, 102, 241, 0.8)', 'rgba(99, 102, 241, 0.1)']; // Internet (Indigo)
-      if (type > 0.8) color = ['rgba(244, 63, 94, 0.8)', 'rgba(244, 63, 94, 0.1)']; // Military/Air (Rose)
+      let color = ['rgba(79, 209, 165, 0.8)', 'rgba(79, 209, 165, 0.1)']; // Trade (Rise)
+      if (type > 0.6) color = ['rgba(212, 175, 55, 0.8)', 'rgba(212, 175, 55, 0.1)']; // Capital flows (Brass)
+      if (type > 0.8) color = ['rgba(232, 99, 90, 0.8)', 'rgba(232, 99, 90, 0.1)']; // Military/Air (Fall)
       
       return {
         startLat: (Math.random() - 0.5) * 160,
@@ -242,7 +242,12 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
     <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden" ref={containerRef}>
       
       {/* The Globe Canvas Container */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-100 drop-shadow-[0_0_80px_rgba(30,58,138,0.3)]">
+      <div
+        className="absolute inset-0 flex items-center justify-center opacity-100"
+        style={{
+          filter: 'drop-shadow(0 0 90px rgba(212,175,55,0.18))',
+        }}
+      >
         <Globe
           ref={globeRef}
           width={dimensions.width}
@@ -251,8 +256,8 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           globeImageUrl="https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
           bumpImageUrl="https://unpkg.com/three-globe/example/img/earth-topology.png"
           showAtmosphere={true}
-          atmosphereColor="#38bdf8"
-          atmosphereAltitude={0.15}
+          atmosphereColor="#d4af37"
+          atmosphereAltitude={0.18}
           polygonsData={countries.features}
           polygonAltitude={d => d === hoverD ? 0.08 : 0.001}
           polygonCapColor={d => {
@@ -262,18 +267,18 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
              const score = stats.marketReturns[timeframe] !== undefined ? stats.marketReturns[timeframe] : fallback;
              
              const baseAlpha = d === hoverD ? '0.6' : '0.1'; 
-             if (score > 1.0) return `rgba(16, 185, 129, ${baseAlpha})`; 
-             if (score < -1.0) return `rgba(244, 63, 94, ${baseAlpha})`;
-             return `rgba(251, 191, 36, ${baseAlpha})`; 
+             if (score > 1.0) return `rgba(79, 209, 165, ${baseAlpha})`; 
+             if (score < -1.0) return `rgba(232, 99, 90, ${baseAlpha})`;
+             return `rgba(201, 123, 74, ${baseAlpha})`; 
           }}
           polygonSideColor={() => 'rgba(15, 23, 42, 0.0)'} 
-          polygonStrokeColor={() => 'rgba(255, 255, 255, 0.02)'} 
+          polygonStrokeColor={() => 'rgba(212, 175, 55, 0.05)'} 
           polygonLabel={(d) => {
             const props = d?.properties || {};
             return `
-            <div class="bg-black/90 border border-slate-700 px-3 py-2 rounded shadow-2xl backdrop-blur-md font-sans min-w-[120px]">
-              <div class="text-[11px] font-bold text-white tracking-widest uppercase mb-1">${props.ADMIN || 'Unknown'}</div>
-              <div class="text-[9px] text-sky-400 font-bold uppercase tracking-wider">CLICK FOR AI SUMMARY</div>
+            <div style="background:rgba(5,7,13,0.95);border:1px solid rgba(212,175,55,0.4);padding:8px 12px;border-radius:2px;box-shadow:0 4px 20px rgba(0,0,0,0.8),0 0 0 1px rgba(212,175,55,0.08);min-width:130px;backdrop-filter:blur(12px);">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#f0e6d2;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px;">${props.ADMIN || 'Unknown'}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:#d4af37;letter-spacing:0.1em;text-transform:uppercase;">↗ CLICK FOR AI INTEL</div>
             </div>
           `}}
           onPolygonHover={setHoverD}
@@ -323,14 +328,20 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
       {/* Zoom Controls Overlay */}
       <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
         <button 
-           className="w-10 h-10 rounded-md bg-[#131b2f] border border-[#1e293b] text-slate-400 hover:text-white flex items-center justify-center hover:bg-[#1a233a] transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] cursor-pointer"
+           className="w-10 h-10 rounded-sm flex items-center justify-center transition-all cursor-pointer"
+           style={{ background: "#0a0e1a", border: "1px solid rgba(212,175,55,0.25)", color: "#a89c84", boxShadow: "0 0 15px rgba(0,0,0,0.5)" }}
+           onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(212,175,55,0.1)"; }}
+           onMouseLeave={e => { e.currentTarget.style.color = "#a89c84"; e.currentTarget.style.background = "#0a0e1a"; }}
            onClick={() => globeRef.current?.pointOfView({ lat: 20, lng: 0, altitude: 1.7 }, 1000)}
            aria-label="Reset view"
         >
           <Target className="w-5 h-5" />
         </button>
         <button 
-           className="w-10 h-10 rounded-md bg-[#131b2f] border border-[#1e293b] text-slate-400 hover:text-white flex items-center justify-center hover:bg-[#1a233a] transition-colors shadow-[0_0_15px_rgba(0,0,0,0.5)] cursor-pointer"
+           className="w-10 h-10 rounded-sm flex items-center justify-center transition-all cursor-pointer"
+           style={{ background: "#0a0e1a", border: "1px solid rgba(212,175,55,0.25)", color: "#a89c84", boxShadow: "0 0 15px rgba(0,0,0,0.5)" }}
+           onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(212,175,55,0.1)"; }}
+           onMouseLeave={e => { e.currentTarget.style.color = "#a89c84"; e.currentTarget.style.background = "#0a0e1a"; }}
            onClick={() => {
              if (globeRef.current) {
                const controls = globeRef.current.controls();
@@ -341,16 +352,22 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
         >
           <RotateCcw className="w-5 h-5" />
         </button>
-        <div className="flex flex-col rounded-md bg-[#131b2f] border border-[#1e293b] overflow-hidden mt-2 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+        <div className="flex flex-col rounded-sm overflow-hidden mt-2" style={{ background: "#0a0e1a", border: "1px solid rgba(212,175,55,0.25)", boxShadow: "0 0 15px rgba(0,0,0,0.5)" }}>
            <button 
-             className="w-10 h-10 text-slate-400 hover:text-white flex items-center justify-center hover:bg-[#1a233a] transition-colors border-b border-[#1e293b] cursor-pointer"
+             className="w-10 h-10 flex items-center justify-center transition-all cursor-pointer"
+             style={{ color: "#a89c84", borderBottom: "1px solid rgba(212,175,55,0.18)" }}
+             onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(212,175,55,0.1)"; }}
+             onMouseLeave={e => { e.currentTarget.style.color = "#a89c84"; e.currentTarget.style.background = "transparent"; }}
              onClick={() => globeRef.current && globeRef.current.pointOfView({ altitude: globeRef.current.pointOfView().altitude - 0.2 }, 300)}
              aria-label="Zoom in"
            >
              <Plus className="w-5 h-5" />
            </button>
            <button 
-             className="w-10 h-10 text-slate-400 hover:text-white flex items-center justify-center hover:bg-[#1a233a] transition-colors cursor-pointer"
+             className="w-10 h-10 flex items-center justify-center transition-all cursor-pointer"
+             style={{ color: "#a89c84" }}
+             onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(212,175,55,0.1)"; }}
+             onMouseLeave={e => { e.currentTarget.style.color = "#a89c84"; e.currentTarget.style.background = "transparent"; }}
              onClick={() => globeRef.current && globeRef.current.pointOfView({ altitude: globeRef.current.pointOfView().altitude + 0.2 }, 300)}
              aria-label="Zoom out"
            >

@@ -43,8 +43,18 @@ function SocialFeedPreview({ onSetView }) {
     <div className="flex flex-col h-full bg-transparent">
       <div className="p-4 border-b border-white/5 flex justify-between items-center bg-black/20">
         <div className="flex items-center gap-2">
-          <Hash className="w-4 h-4 text-indigo-500" />
-          <h2 className="text-[13px] font-bold tracking-widest text-[#94a3b8]">COMMUNITY FLOW</h2>
+          <Hash className="w-4 h-4" style={{ color: "#d4af37" }} />
+          <h2
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "10px",
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              color: "#a89c84",
+            }}
+          >
+            COMMUNITY FLOW
+          </h2>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
@@ -52,11 +62,40 @@ function SocialFeedPreview({ onSetView }) {
           <div 
             key={post.id} 
             onClick={() => onSetView('social')}
-            className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl cursor-pointer transition-all duration-200"
+            className="p-3 cursor-pointer transition-all duration-200 rounded-sm"
+            style={{
+              background: "rgba(212,175,55,0.04)",
+              border: "1px solid rgba(212,175,55,0.1)",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = "rgba(212,175,55,0.08)";
+              e.currentTarget.style.borderColor = "rgba(212,175,55,0.22)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = "rgba(212,175,55,0.04)";
+              e.currentTarget.style.borderColor = "rgba(212,175,55,0.1)";
+            }}
           >
             <div className="flex items-center justify-between mb-1.5 text-[11px]">
-              <span className="font-bold text-slate-300">@{post.authorUsername || post.authorName}</span>
-              <span className="text-slate-500 font-mono">{post.time}</span>
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  color: "#c9bea3",
+                }}
+              >
+                @{post.authorUsername || post.authorName}
+              </span>
+              <span
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "9px",
+                  color: "#6b6354",
+                }}
+              >
+                {post.time}
+              </span>
             </div>
             <p className="text-[13px] text-slate-200 line-clamp-2 leading-relaxed mb-2.5">
               {post.text}
@@ -81,18 +120,23 @@ export function RightSidebar({ onSetView }) {
   const [view, setView] = useState('INTEL');
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-transparent">
-      {/* Top switch header */}
-      <div className="flex p-1.5 border-b shrink-0" style={{ background: "rgba(0,0,0,0.4)", borderColor: "var(--nx-border)" }}>
+    <div className="flex-1 flex flex-col h-full" style={{ background: "transparent" }}>
+      {/* Tab switch header */}
+      <div
+        className="flex p-1.5 shrink-0"
+        style={{
+          background: "rgba(5,7,13,0.7)",
+          borderBottom: "1px solid rgba(212,175,55,0.14)",
+        }}
+      >
         <button
           onClick={() => setView('INTEL')}
-          className="flex-1 flex items-center justify-center gap-2 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-2 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer rounded-sm"
           style={{
-            fontFamily: "var(--nx-font-mono)",
-            borderRadius: "2px",
+            fontFamily: "'JetBrains Mono', monospace",
             ...(view === 'INTEL'
-              ? { background: "rgba(0,229,255,0.1)", color: "var(--nx-cyan)", border: "1px solid var(--nx-border-strong)" }
-              : { color: "rgba(255,255,255,0.4)", border: "1px solid transparent" }),
+              ? { background: "rgba(212,175,55,0.12)", color: "#d4af37", border: "1px solid rgba(212,175,55,0.35)" }
+              : { color: "rgba(240,230,210,0.35)", border: "1px solid transparent" }),
           }}
         >
           <Globe2 className="w-3.5 h-3.5" />
@@ -100,13 +144,12 @@ export function RightSidebar({ onSetView }) {
         </button>
         <button
           onClick={() => setView('SOCIAL')}
-          className="flex-1 flex items-center justify-center gap-2 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer"
+          className="flex-1 flex items-center justify-center gap-2 py-1.5 text-[10px] font-bold tracking-widest uppercase transition-colors cursor-pointer rounded-sm"
           style={{
-            fontFamily: "var(--nx-font-mono)",
-            borderRadius: "2px",
+            fontFamily: "'JetBrains Mono', monospace",
             ...(view === 'SOCIAL'
-              ? { background: "rgba(0,229,255,0.1)", color: "var(--nx-cyan)", border: "1px solid var(--nx-border-strong)" }
-              : { color: "rgba(255,255,255,0.4)", border: "1px solid transparent" }),
+              ? { background: "rgba(212,175,55,0.12)", color: "#d4af37", border: "1px solid rgba(212,175,55,0.35)" }
+              : { color: "rgba(240,230,210,0.35)", border: "1px solid transparent" }),
           }}
         >
           <Hash className="w-3.5 h-3.5" />

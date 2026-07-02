@@ -63,7 +63,8 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
         fetch('/india.geojson')
           .then(res => res.json())
           .then(indiaData => {
-            const formattedIndia = indiaData.features.map((f) => ({
+            const rawFeatures = indiaData.features || (indiaData.geometries ? indiaData.geometries.map(g => ({ type: 'Feature', properties: {}, geometry: g })) : []);
+            const formattedIndia = rawFeatures.map((f) => ({
               ...f,
               properties: {
                  ...f.properties,

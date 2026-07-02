@@ -28,6 +28,7 @@ const mockNews = Array.from({ length: 50 }, (_, i) => {
 export function GlobalNews({ isCollapsed = false, onToggle }) {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState('All');
+  const [activeNews, setActiveNews] = useState(null);
   const itemsPerPage = 5;
 
   const filteredNews = mockNews.filter(n => filter === 'All' || n.type === filter);
@@ -135,7 +136,7 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
                </div>
                <button 
                   className="text-[10px] font-bold text-slate-400 hover:text-indigo-400 uppercase tracking-widest px-4 py-2 border border-[#1e293b]/50 rounded transition-colors bg-[#0c1220]/60 group-hover:bg-indigo-500/10 flex items-center gap-1.5 cursor-pointer"
-                  onClick={() => alert(`Details for: ${news.title}`)}
+                  onClick={() => setActiveNews(news)}
                >
                  <TrendingUp className="w-3.5 h-3.5" />
                  ANALYZE
@@ -147,6 +148,140 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
                NO DATA IN FEED FOR SELECTED FILTER
             </div>
           )}
+        </div>
+      )}
+      {activeNews && (
+        <div 
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
+          onClick={() => setActiveNews(null)}
+        >
+          <div 
+            className="w-full max-w-[480px] overflow-hidden text-left relative" 
+            style={{
+              background: "rgba(5,7,13,0.99)",
+              border: "1px solid rgba(212,175,55,0.35)",
+              borderRadius: "4px",
+              boxShadow: "0 0 60px rgba(0,0,0,0.95), 0 0 0 1px rgba(212,175,55,0.08), inset 0 1px 0 rgba(212,175,55,0.12)",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Corner accents */}
+            {["top-0 left-0 border-t border-l", "top-0 right-0 border-t border-r",
+              "bottom-0 left-0 border-b border-l", "bottom-0 right-0 border-b border-r"].map((cls, i) => (
+              <div key={i} className={`absolute w-3 h-3 ${cls}`}
+                style={{ borderColor: "rgba(212,175,55,0.5)" }} />
+            ))}
+
+            {/* Header */}
+            <div 
+              className="flex justify-between items-center px-4 py-3 shrink-0"
+              style={{ borderBottom: "1px solid rgba(212,175,55,0.12)" }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#d4af37", boxShadow: "0 0 6px #d4af37" }} />
+                <span style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "9px", fontWeight: 700,
+                  letterSpacing: "0.2em", color: "#d4af37",
+                }}>
+                  QUANT RECONNAISSANCE DESK
+                </span>
+              </div>
+              <button 
+                onClick={() => setActiveNews(null)}
+                className="text-slate-500 hover:text-white p-1 hover:bg-white/5 rounded transition-colors cursor-pointer"
+                aria-label="Close modal"
+              >
+                <span className="font-sans text-xs font-bold text-[#d4af37]">✕</span>
+              </button>
+            </div>
+            
+            {/* Body */}
+            <div className="p-5 flex flex-col gap-4 font-mono">
+              <div className="flex items-center gap-2">
+                <span style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "9px", fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  padding: "1px 5px", borderRadius: "2px",
+                  background: "rgba(212,175,55,0.1)",
+                  border: "1px solid rgba(212,175,55,0.3)",
+                  color: "#d4af37",
+                  textTransform: "uppercase",
+                }}>
+                  {activeNews.type}
+                </span>
+                <span className="text-[11px] text-slate-500">{activeNews.time} • {activeNews.source}</span>
+              </div>
+              
+              <h3 
+                style={{
+                  fontFamily: "'Fraunces', Georgia, serif",
+                  fontStyle: "italic", fontSize: "15px",
+                  fontWeight: 500, color: "#f0e6d2",
+                  lineHeight: "1.4",
+                }}
+              >
+                {activeNews.title}
+              </h3>
+              
+              <div 
+                className="p-3 rounded text-[11.5px] leading-relaxed"
+                style={{
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid rgba(255,255,255,0.05)",
+                  color: "#c9bea3",
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}
+              >
+                Quantitative tracking analysis reveals a confidence metric of 92% for the reported sector changes. Strategic sentiment models indicate moderate vector shifts across secondary trade routes and domestic consumer groups.
+              </div>
+              
+              {/* Decorative Grid Stats */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <div 
+                  className="p-2.5 rounded flex flex-col gap-0.5"
+                  style={{
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                  }}
+                >
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#5c5546" }}>TRANSMISSION</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: 700, color: "#4fd1a5" }}>ACTIVE</span>
+                </div>
+                <div 
+                  className="p-2.5 rounded flex flex-col gap-0.5"
+                  style={{
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                  }}
+                >
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#5c5546" }}>SIGNAL SECURITY</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: 700, color: "#d4af37" }}>92% SECURE</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Footer */}
+            <div 
+              className="p-4 flex justify-end"
+              style={{ borderTop: "1px solid rgba(212,175,55,0.08)" }}
+            >
+              <button 
+                onClick={() => setActiveNews(null)}
+                className="px-4 py-1.5 text-[10px] font-bold rounded transition-all cursor-pointer"
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  background: "rgba(212,175,55,0.1)",
+                  border: "1px solid rgba(212,175,55,0.3)",
+                  color: "#d4af37",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                DISMISS
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

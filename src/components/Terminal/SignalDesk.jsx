@@ -33,6 +33,7 @@ function SignalDeskInner({ country }) {
   const { whatIfScenario, setWhatIfScenario, clearWhatIfScenario, setSelectedCountry } =
     useTerminalStore();
   const [simOpen, setSimOpen] = useState(false);
+  const [activeCitation, setActiveCitation] = useState(null);
 
   const iso  = country.properties?.ISO_A2 || country.code || "XX";
   const name = country.properties?.ADMIN  || country.name  || "Unknown";
@@ -349,7 +350,7 @@ function SignalDeskInner({ country }) {
                           }}
                           onMouseEnter={e => { e.currentTarget.style.background = "#d4af37"; e.currentTarget.style.color = "#05070d"; }}
                           onMouseLeave={e => { e.currentTarget.style.background = "rgba(212,175,55,0.1)"; e.currentTarget.style.color = "#d4af37"; }}
-                          onClick={() => alert(`Citation: ${label}`)}
+                          onClick={() => setActiveCitation(label)}
                         >
                           {label}
                         </span>
@@ -580,6 +581,97 @@ function SignalDeskInner({ country }) {
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "7px", color: "#3d3830", lineHeight: "1.5" }}>
               Cholesky decomposition · 500 paths · conditional overrides applied
             </span>
+          </div>
+        </div>
+      )}
+
+      {activeCitation && (
+        <div 
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
+          onClick={() => setActiveCitation(null)}
+        >
+          <div 
+            className="w-full max-w-[420px] overflow-hidden text-left relative" 
+            style={{
+              background: "rgba(5,7,13,0.99)",
+              border: "1px solid rgba(212,175,55,0.35)",
+              borderRadius: "4px",
+              boxShadow: "0 0 60px rgba(0,0,0,0.95), 0 0 0 1px rgba(212,175,55,0.08), inset 0 1px 0 rgba(212,175,55,0.12)",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Corner accents */}
+            {["top-0 left-0 border-t border-l", "top-0 right-0 border-t border-r",
+              "bottom-0 left-0 border-b border-l", "bottom-0 right-0 border-b border-r"].map((cls, i) => (
+              <div key={i} className={`absolute w-3 h-3 ${cls}`}
+                style={{ borderColor: "rgba(212,175,55,0.5)" }} />
+            ))}
+
+            {/* Header */}
+            <div 
+              className="flex justify-between items-center px-4 py-3 shrink-0"
+              style={{ borderBottom: "1px solid rgba(212,175,55,0.12)" }}
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#d4af37", boxShadow: "0 0 6px #d4af37" }} />
+                <span style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: "9px", fontWeight: 700,
+                  letterSpacing: "0.2em", color: "#d4af37",
+                }}>
+                  CITATION REFERENCE
+                </span>
+              </div>
+              <button 
+                onClick={() => setActiveCitation(null)}
+                className="text-slate-500 hover:text-white p-1 hover:bg-white/5 rounded transition-colors cursor-pointer"
+                aria-label="Close modal"
+              >
+                <span className="font-sans text-xs font-bold text-[#d4af37]">✕</span>
+              </button>
+            </div>
+            
+            {/* Body */}
+            <div className="p-5 flex flex-col gap-3 font-mono">
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#5c5546" }}>DATA CLASS REFERENCED</span>
+              <h4 
+                style={{
+                  fontFamily: "'Fraunces', Georgia, serif",
+                  fontStyle: "italic", fontSize: "16px",
+                  fontWeight: 500, color: "#f0e6d2",
+                }}
+              >
+                {activeCitation}
+              </h4>
+              <p 
+                style={{
+                  fontSize: "11.5px", color: "#c9bea3",
+                  lineHeight: "1.6", margin: 0,
+                }}
+              >
+                Selected macro vector tracks to key sovereign policy directives, central bank reserves, and active balance sheet indicators. Real-time transmission matrix coefficients are active.
+              </p>
+            </div>
+            
+            {/* Footer */}
+            <div 
+              className="p-4 flex justify-end"
+              style={{ borderTop: "1px solid rgba(212,175,55,0.08)" }}
+            >
+              <button 
+                onClick={() => setActiveCitation(null)}
+                className="px-4 py-1.5 text-[10px] font-bold rounded transition-all cursor-pointer"
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  background: "rgba(212,175,55,0.1)",
+                  border: "1px solid rgba(212,175,55,0.3)",
+                  color: "#d4af37",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                DISMISS
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -803,6 +803,18 @@ export const STOCKS_BY_COUNTRY = {
     { ticker: "IFS",   name: "Intercorp Financial",    price: 23.45,   changePct: +0.67, currency: "PEN", sector: "Banking & Finance" },
     { ticker: "CPACASC",name:"Alicorp",                price: 6.78,    changePct: -0.34, currency: "PEN", sector: "Consumer" },
   ],
+  
+  GY: [
+    { ticker: "DEMERARA", name: "Demerara Bank",        price: 234.50,  changePct: +1.20, currency: "GYD", sector: "Banking & Finance" },
+    { ticker: "BANKS",    name: "Banks DIH Ltd.",       price: 145.20,  changePct: +0.80, currency: "GYD", sector: "Consumer" },
+    { ticker: "GPL",      name: "Guyana Power & Light", price: 12.30,   changePct: 0.00,  currency: "GYD", sector: "Utilities" }
+  ],
+  
+  DZ: [
+    { ticker: "SONATRACH", name: "Sonatrach Gas",       price: 1234.50, changePct: +1.50, currency: "DZD", sector: "Energy" },
+    { ticker: "BNA",       name: "Nationale d'Algerie", price: 456.20,  changePct: +0.60, currency: "DZD", sector: "Banking & Finance" },
+    { ticker: "CEVITAL",   name: "Cevital Agro Group",  price: 789.30,  changePct: -0.40, currency: "DZD", sector: "Consumer" }
+  ],
 };
 
 export function getStocksForCountry(countryCode) {

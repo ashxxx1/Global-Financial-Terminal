@@ -56,9 +56,13 @@ const MODES = [
 ];
 
 const GDP_WEIGHTS = {
-  US: 25.4, CN: 17.9, JP: 4.2, DE: 4.0, GB: 3.1, IN: 3.6, FR: 2.8, IT: 2.1, CA: 2.0, KR: 1.8,
-  AU: 1.7, BR: 2.2, RU: 1.8, MX: 1.4, ES: 1.4, NL: 1.0, CH: 0.8, AR: 0.6, SE: 0.6, NO: 0.5,
-  DK: 0.4, PL: 0.7, CL: 0.4, CO: 0.4, NZ: 0.3,
+  US: 27.4, CN: 17.9, JP: 4.2, DE: 4.1, GB: 3.1, IN: 3.9, FR: 2.9, IT: 2.1, CA: 2.1, KR: 1.7,
+  AU: 1.7, BR: 2.2, RU: 2.0, MX: 1.4, ES: 1.6, NL: 1.10, CH: 0.81, AR: 0.64, SE: 0.60, NO: 0.59,
+  PL: 0.84, TR: 1.1, SA: 1.1, TW: 0.79, BE: 0.63, AT: 0.52, IE: 0.51, AE: 0.51, TH: 0.51, SG: 0.50,
+  ID: 1.4, IL: 0.53, IR: 0.46, BD: 0.45, MY: 0.44, PH: 0.44, VN: 0.43, DK: 0.41, ZA: 0.40, NG: 0.40,
+  EG: 0.40, HK: 0.39, CO: 0.38, PK: 0.37, RO: 0.36, CL: 0.33, CZ: 0.33, FI: 0.30, PT: 0.29, KZ: 0.29,
+  PE: 0.27, DZ: 0.26, NZ: 0.25, GR: 0.24, HU: 0.22, QA: 0.22, UA: 0.19, KW: 0.16, MA: 0.15, KE: 0.12,
+  OM: 0.11, CI: 0.086, TZ: 0.085, LK: 0.084, GH: 0.075, JO: 0.052, BH: 0.045, GY: 0.015
 };
 
 export default function MacroHeatmap({ onClose }) {

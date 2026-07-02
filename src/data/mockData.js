@@ -2487,9 +2487,9 @@ export const COUNTRIES_DATA = {
     color: "#ff2244",
     newsIntensity: 0.95,
     sentiment: "bearish",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "PFTS Stock Exchange",
+    tradingHours: "10:00–17:00 EET",
+    timezone: "EET",
     sparkline: [345, 338, 332, 325, 320, 316, 312],
     news: [
     {
@@ -2534,9 +2534,9 @@ export const COUNTRIES_DATA = {
     color: "#00ff88",
     newsIntensity: 0.58,
     sentiment: "bullish",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "Boursa Kuwait",
+    tradingHours: "09:00–12:30 AST",
+    timezone: "AST",
     sparkline: [7110, 7135, 7158, 7176, 7196, 7215, 7234],
     news: [
     {
@@ -2572,9 +2572,9 @@ export const COUNTRIES_DATA = {
     color: "#ffaa00",
     newsIntensity: 0.46,
     sentiment: "neutral",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "Muscat Stock Exchange",
+    tradingHours: "10:00–14:00 GST",
+    timezone: "GST",
     sparkline: [4510, 4523, 4535, 4547, 4555, 4562, 4567],
     news: [
     {
@@ -2610,9 +2610,9 @@ export const COUNTRIES_DATA = {
     color: "#ff6b35",
     newsIntensity: 0.48,
     sentiment: "bearish",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "Amman Stock Exchange",
+    tradingHours: "10:00–12:45 EET",
+    timezone: "EET",
     sparkline: [2200, 2192, 2184, 2175, 2165, 2150, 2134],
     news: [
     {
@@ -2648,9 +2648,9 @@ export const COUNTRIES_DATA = {
     color: "#00ff88",
     newsIntensity: 0.44,
     sentiment: "bullish",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "Bahrain Bourse",
+    tradingHours: "09:30–13:00 AST",
+    timezone: "AST",
     sparkline: [1950, 1956, 1962, 1968, 1975, 1981, 1987],
     news: [
     {
@@ -2686,9 +2686,9 @@ export const COUNTRIES_DATA = {
     color: "#ff2244",
     newsIntensity: 0.78,
     sentiment: "bearish",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "Tehran Stock Exchange",
+    tradingHours: "09:00–12:30 IRST",
+    timezone: "IRST",
     sparkline: [2280000, 2250000, 2225000, 2200000, 2175000, 2155000, 2134567],
     news: [
     {
@@ -2724,9 +2724,9 @@ export const COUNTRIES_DATA = {
     color: "#ff2244",
     newsIntensity: 0.57,
     sentiment: "bearish",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "Ghana Stock Exchange",
+    tradingHours: "10:00–15:00 GMT",
+    timezone: "GMT",
     sparkline: [3620, 3598, 3575, 3555, 3535, 3497, 3456],
     news: [
     {
@@ -2762,9 +2762,9 @@ export const COUNTRIES_DATA = {
     color: "#00ff88",
     newsIntensity: 0.5,
     sentiment: "bullish",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "BRVM",
+    tradingHours: "09:00–16:00 GMT",
+    timezone: "GMT",
     sparkline: [224, 226, 228, 230, 231, 233, 234],
     news: [
     {
@@ -2800,9 +2800,9 @@ export const COUNTRIES_DATA = {
     color: "#00ff88",
     newsIntensity: 0.44,
     sentiment: "bullish",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "Dar es Salaam Stock Exchange",
+    tradingHours: "10:00–14:00 EAT",
+    timezone: "EAT",
     sparkline: [2130, 2141, 2152, 2162, 2171, 2180, 2187],
     news: [
     {
@@ -2838,9 +2838,9 @@ export const COUNTRIES_DATA = {
     color: "#ffaa00",
     newsIntensity: 0.54,
     sentiment: "neutral",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "Colombo Stock Exchange",
+    tradingHours: "09:30–12:30 IST",
+    timezone: "IST",
     sparkline: [12200, 12240, 12280, 12320, 12370, 12415, 12456],
     news: [
     {
@@ -2876,9 +2876,9 @@ export const COUNTRIES_DATA = {
     color: "#00ff88",
     newsIntensity: 0.55,
     sentiment: "bullish",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "Kazakhstan Stock Exchange",
+    tradingHours: "11:30–17:00 ALMT",
+    timezone: "ALMT",
     sparkline: [4420, 4450, 4480, 4505, 4530, 4550, 4567],
     news: [
     {
@@ -2914,9 +2914,9 @@ export const COUNTRIES_DATA = {
     color: "#ffaa00",
     newsIntensity: 0.52,
     sentiment: "neutral",
-    exchange: undefined,
-    tradingHours: undefined,
-    timezone: undefined,
+    exchange: "Bolsa de Valores de Lima",
+    tradingHours: "08:30–15:00 PET",
+    timezone: "PET",
     sparkline: [21100, 21160, 21220, 21280, 21340, 21400, 21456],
     news: [
     {
@@ -2939,6 +2939,64 @@ export const COUNTRIES_DATA = {
     }
   ]
   },
+  GY: {
+    name: "Guyana",
+    code: "GY",
+    lat: 4.86,
+    lng: -58.93,
+    currency: "GYD",
+    marketIndex: "GASCI",
+    indexValue: 1823.45,
+    indexChange: 12.34,
+    indexChangePct: 0.68,
+    color: "#00ff88",
+    newsIntensity: 0.35,
+    sentiment: "bullish",
+    exchange: "GASCI",
+    tradingHours: "09:00–13:00 GYT",
+    timezone: "GYT",
+    sparkline: [1780, 1790, 1800, 1810, 1815, 1820, 1823],
+    news: [
+      {
+        id: 1,
+        title: "Guyana oil sector drives double-digit GDP growth outlook",
+        source: "GASCI Wire",
+        time: "3h ago",
+        sentiment: "bullish",
+        impact: "+1.5%",
+        category: "Energy"
+      }
+    ]
+  },
+  DZ: {
+    name: "Algeria",
+    code: "DZ",
+    lat: 28.03,
+    lng: 1.66,
+    currency: "DZD",
+    marketIndex: "SGBV Index",
+    indexValue: 3456.78,
+    indexChange: 23.45,
+    indexChangePct: 0.68,
+    color: "#ffaa00",
+    newsIntensity: 0.42,
+    sentiment: "neutral",
+    exchange: "SGBV",
+    tradingHours: "09:00–12:00 CET",
+    timezone: "CET",
+    sparkline: [3410, 3420, 3428, 3435, 3442, 3450, 3456],
+    news: [
+      {
+        id: 1,
+        title: "Algeria signs major gas pipeline transit deals with European partners",
+        source: "Algiers Wire",
+        time: "2h ago",
+        sentiment: "bullish",
+        impact: "+1.2%",
+        category: "Energy"
+      }
+    ]
+  }
 };
 
 export const GLOBAL_INDICES = [

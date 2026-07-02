@@ -54,10 +54,122 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
   });
 
   useEffect(() => {
+    const ISO_A3_MAP = {
+      USA: "US", GBR: "GB", JPN: "JP", DEU: "DE", CHN: "CN", IND: "IN",
+      BRA: "BR", AUS: "AU", CAN: "CA", FRA: "FR", SAU: "SA", KOR: "KR",
+      ZAF: "ZA", NGA: "NG", MEX: "MX", SGP: "SG", ARE: "AE", RUS: "RU",
+      ESP: "ES", ITA: "IT", NLD: "NL", SWE: "SE", NOR: "NO", CHE: "CH",
+      DNK: "DK", FIN: "FI", AUT: "AT", PRT: "PT", GRC: "GR", POL: "PL",
+      BEL: "BE", IRL: "IE", HUN: "HU", CZE: "CZ", ROU: "RO", UKR: "UA",
+      TUR: "TR", ISR: "IL", QAT: "QA", KWT: "KW", OMN: "OM", JOR: "JO",
+      BHR: "BH", IRN: "IR", EGY: "EG", MAR: "MA", KEN: "KE", GHA: "GH",
+      CIV: "CI", TZA: "TZ", TWN: "TW", HKG: "HK", IDN: "ID", MYS: "MY",
+      THA: "TH", PHL: "PH", VNM: "VN", PAK: "PK", BGD: "BD", LKA: "LK",
+      NZL: "NZ", KAZ: "KZ", ARG: "AR", COL: "CO", CHL: "CL", PER: "PE",
+      GUY: "GY", DZA: "DZ"
+    };
+
+    const NAME_MAP = {
+      "India": "IN",
+      "United States of America": "US",
+      "United Kingdom": "GB",
+      "France": "FR",
+      "Norway": "NO",
+      "China": "CN",
+      "South Korea": "KR",
+      "Republic of Korea": "KR",
+      "Russia": "RU",
+      "Australia": "AU",
+      "Brazil": "BR",
+      "Canada": "CA",
+      "Germany": "DE",
+      "Japan": "JP",
+      "Mexico": "MX",
+      "Saudi Arabia": "SA",
+      "Singapore": "SG",
+      "South Africa": "ZA",
+      "Nigeria": "NG",
+      "United Arab Emirates": "AE",
+      "Spain": "ES",
+      "Italy": "IT",
+      "Netherlands": "NL",
+      "Sweden": "SE",
+      "Switzerland": "CH",
+      "Denmark": "DK",
+      "Finland": "FI",
+      "Austria": "AT",
+      "Portugal": "PT",
+      "Greece": "GR",
+      "Poland": "PL",
+      "Belgium": "BE",
+      "Ireland": "IE",
+      "Hungary": "HU",
+      "Czech Republic": "CZ",
+      "Czechia": "CZ",
+      "Romania": "RO",
+      "Ukraine": "UA",
+      "Turkey": "TR",
+      "Türkiye": "TR",
+      "Israel": "IL",
+      "Qatar": "QA",
+      "Kuwait": "KW",
+      "Oman": "OM",
+      "Jordan": "JO",
+      "Bahrain": "BH",
+      "Iran": "IR",
+      "Egypt": "EG",
+      "Morocco": "MA",
+      "Kenya": "KE",
+      "Ghana": "GH",
+      "Ivory Coast": "CI",
+      "Côte d'Ivoire": "CI",
+      "Tanzania": "TZ",
+      "United Republic of Tanzania": "TZ",
+      "Taiwan": "TW",
+      "Hong Kong": "HK",
+      "Indonesia": "ID",
+      "Malaysia": "MY",
+      "Thailand": "TH",
+      "Philippines": "PH",
+      "Vietnam": "VN",
+      "Viet Nam": "VN",
+      "Pakistan": "PK",
+      "Bangladesh": "BD",
+      "Sri Lanka": "LK",
+      "New Zealand": "NZ",
+      "Kazakhstan": "KZ",
+      "Argentina": "AR",
+      "Colombia": "CO",
+      "Chile": "CL",
+      "Peru": "PE",
+      "Guyana": "GY",
+      "Algeria": "DZ"
+    };
+
+    function resolveISO(feat) {
+      const p = feat.properties || {};
+      if (p.ISO_A2 && p.ISO_A2 !== "-99") return p.ISO_A2;
+      if (p.ISO_A3 && ISO_A3_MAP[p.ISO_A3]) return ISO_A3_MAP[p.ISO_A3];
+      if (p.NAME && NAME_MAP[p.NAME]) return NAME_MAP[p.NAME];
+      if (p.ADMIN && NAME_MAP[p.ADMIN]) return NAME_MAP[p.ADMIN];
+      return p.ISO_A2 || null;
+    }
+
     fetch('https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
       .then(res => res.json())
       .then(worldData => {
-        const filteredFeatures = worldData.features.filter((d) => d.properties.ISO_A2 !== 'AQ' && d.properties.ADMIN !== 'India');
+        const filteredFeatures = worldData.features
+          .filter((d) => d.properties.ISO_A2 !== 'AQ' && d.properties.ADMIN !== 'India')
+          .map((d) => {
+             const resolved = resolveISO(d);
+             return {
+               ...d,
+               properties: {
+                 ...d.properties,
+                 ISO_A2: resolved || d.properties.ISO_A2
+               }
+             };
+          });
         
         // Fetch simplified datameet india geojson
         fetch('/india.geojson')

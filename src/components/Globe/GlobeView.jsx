@@ -24,7 +24,7 @@ const ISO_A3_MAP = {
   TWN: "TW", HKG: "HK", IDN: "ID", MYS: "MY", THA: "TH", PHL: "PH",
   VNM: "VN", PAK: "PK", BGD: "BD", LKA: "LK", NZL: "NZ", KAZ: "KZ",
   // Latin America (new)
-  ARG: "AR", COL: "CO", CHL: "CL", PER: "PE",
+  ARG: "AR", COL: "CO", CHL: "CL", PER: "PE", GUY: "GY", DZA: "DZ",
 };
 
 const NAME_MAP = {
@@ -106,6 +106,8 @@ const NAME_MAP = {
   "Colombia": "CO",
   "Chile": "CL",
   "Peru": "PE",
+  "Guyana": "GY",
+  "Algeria": "DZ",
 };
 
 /** Resolve a feature to one of our tracked ISO2 codes */

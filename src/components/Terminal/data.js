@@ -15,7 +15,7 @@ export const indicesData = [
   { name: "BOVESPA", value: "128,456", change: "-0.95%", isPositive: false },
   { name: "TSX COMP", value: "22,145.67", change: "+0.40%", isPositive: true },
   { name: "KOSPI", value: "2,847.23", change: "+1.23%", isPositive: true },
-  { name: "TAIEX", value: "21,456.78", change: "+1.10%", isPositive: true },
+  { name: "TAIEX", value: "21,456.78", change: "+1.64%", isPositive: true },
 ];
 
 export const topTicks = [
@@ -28,7 +28,7 @@ export const topTicks = [
 // gdp = USD trillions | inflation/rate = % | currency = local FX rate vs USD or index
 export const countryStats = {
   US: {
-    gdp: "27.4", inflation: "3.2", rate: "5.50", currency: "104.50 (DXY)",
+    gdp: "27.4", inflation: "2.9", rate: "5.25", currency: "104.50 (DXY)",
     riskScore: 28,
     companies: [
         {
@@ -65,7 +65,7 @@ export const countryStats = {
     }
   },
   CN: {
-    gdp: "17.9", inflation: "-0.8", rate: "3.45", currency: "7.24 (USD/CNY)",
+    gdp: "17.9", inflation: "-0.8", rate: "3.45", currency: "7.26 (USD/CNY)",
     riskScore: 65,
     companies: [
         {
@@ -102,7 +102,7 @@ export const countryStats = {
     }
   },
   JP: {
-    gdp: "4.2", inflation: "2.8", rate: "0.10", currency: "151.20 (USD/JPY)",
+    gdp: "4.2", inflation: "2.8", rate: "0.10", currency: "152.67 (USD/JPY)",
     riskScore: 15,
     companies: [
         {
@@ -139,7 +139,7 @@ export const countryStats = {
     }
   },
   DE: {
-    gdp: "4.1", inflation: "2.4", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "4.1", inflation: "2.4", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 22,
     companies: [
         {
@@ -176,7 +176,7 @@ export const countryStats = {
     }
   },
   GB: {
-    gdp: "3.1", inflation: "3.4", rate: "5.25", currency: "1.26 (GBP/USD)",
+    gdp: "3.1", inflation: "2.1", rate: "4.75", currency: "1.2720 (GBP/USD)",
     riskScore: 30,
     companies: [
         {
@@ -213,7 +213,7 @@ export const countryStats = {
     }
   },
   IN: {
-    gdp: "3.9", inflation: "5.1", rate: "6.50", currency: "83.15 (USD/INR)",
+    gdp: "3.9", inflation: "5.1", rate: "6.50", currency: "83.54 (USD/INR)",
     riskScore: 42,
     companies: [
         {
@@ -250,7 +250,7 @@ export const countryStats = {
     }
   },
   FR: {
-    gdp: "2.9", inflation: "2.3", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "2.9", inflation: "2.3", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 35,
     companies: [
         {
@@ -287,7 +287,7 @@ export const countryStats = {
     }
   },
   IT: {
-    gdp: "2.1", inflation: "1.8", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "2.1", inflation: "1.8", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 48,
     companies: [
         {
@@ -324,7 +324,7 @@ export const countryStats = {
     }
   },
   CA: {
-    gdp: "2.1", inflation: "2.9", rate: "5.00", currency: "1.36 (USD/CAD)",
+    gdp: "2.1", inflation: "2.9", rate: "5.00", currency: "1.3620 (USD/CAD)",
     riskScore: 20,
     companies: [
         {
@@ -361,7 +361,7 @@ export const countryStats = {
     }
   },
   KR: {
-    gdp: "1.7", inflation: "3.1", rate: "3.50", currency: "1,324 (USD/KRW)",
+    gdp: "1.7", inflation: "3.1", rate: "3.50", currency: "1,379 (USD/KRW)",
     riskScore: 35,
     companies: [
         {
@@ -398,7 +398,7 @@ export const countryStats = {
     }
   },
   AU: {
-    gdp: "1.7", inflation: "3.8", rate: "4.35", currency: "0.65 (AUD/USD)",
+    gdp: "1.7", inflation: "3.8", rate: "4.35", currency: "0.6580 (AUD/USD)",
     riskScore: 18,
     companies: [
         {
@@ -435,7 +435,7 @@ export const countryStats = {
     }
   },
   BR: {
-    gdp: "2.2", inflation: "4.6", rate: "10.50", currency: "5.08 (USD/BRL)",
+    gdp: "2.2", inflation: "4.6", rate: "10.50", currency: "5.20 (USD/BRL)",
     riskScore: 58,
     companies: [
         {
@@ -472,7 +472,7 @@ export const countryStats = {
     }
   },
   MX: {
-    gdp: "1.4", inflation: "4.8", rate: "11.00", currency: "17.15 (USD/MXN)",
+    gdp: "1.4", inflation: "4.8", rate: "11.00", currency: "17.04 (USD/MXN)",
     riskScore: 52,
     companies: [
         {
@@ -805,7 +805,7 @@ export const countryStats = {
     }
   },
   SG: {
-    gdp: "0.50", inflation: "2.7", rate: "3.68", currency: "1.34 (USD/SGD)",
+    gdp: "0.50", inflation: "2.7", rate: "3.68", currency: "1.35 (USD/SGD)",
     riskScore: 8,
     companies: [
         {
@@ -842,7 +842,7 @@ export const countryStats = {
     }
   },
   CH: {
-    gdp: "0.81", inflation: "1.4", rate: "1.50", currency: "0.89 (USD/CHF)",
+    gdp: "0.81", inflation: "1.4", rate: "1.50", currency: "0.91 (USD/CHF)",
     riskScore: 5,
     companies: [
         {
@@ -916,7 +916,7 @@ export const countryStats = {
     }
   },
   NL: {
-    gdp: "1.10", inflation: "2.8", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "1.10", inflation: "2.8", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 14,
     companies: [
         {
@@ -953,7 +953,7 @@ export const countryStats = {
     }
   },
   SE: {
-    gdp: "0.60", inflation: "4.1", rate: "3.75", currency: "10.58 (USD/SEK)",
+    gdp: "0.60", inflation: "4.1", rate: "3.75", currency: "10.81 (USD/SEK)",
     riskScore: 18,
     companies: [
         {
@@ -990,7 +990,7 @@ export const countryStats = {
     }
   },
   NO: {
-    gdp: "0.59", inflation: "3.6", rate: "4.50", currency: "10.68 (USD/NOK)",
+    gdp: "0.59", inflation: "3.6", rate: "4.50", currency: "10.75 (USD/NOK)",
     riskScore: 10,
     companies: [
         {
@@ -1360,7 +1360,7 @@ export const countryStats = {
     }
   },
   ES: {
-    gdp: "1.6", inflation: "3.3", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "1.6", inflation: "3.3", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 22,
     companies: [
         {
@@ -1471,7 +1471,7 @@ export const countryStats = {
     }
   },
   PT: {
-    gdp: "0.29", inflation: "2.2", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "0.29", inflation: "2.2", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 20,
     companies: [
         {
@@ -1508,7 +1508,7 @@ export const countryStats = {
     }
   },
   GR: {
-    gdp: "0.24", inflation: "2.4", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "0.24", inflation: "2.4", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 38,
     companies: [
         {
@@ -1545,7 +1545,7 @@ export const countryStats = {
     }
   },
   IE: {
-    gdp: "0.51", inflation: "1.7", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "0.51", inflation: "1.7", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 15,
     companies: [
         {
@@ -1582,7 +1582,7 @@ export const countryStats = {
     }
   },
   FI: {
-    gdp: "0.30", inflation: "1.5", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "0.30", inflation: "1.5", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 16,
     companies: [
         {
@@ -1619,7 +1619,7 @@ export const countryStats = {
     }
   },
   BE: {
-    gdp: "0.63", inflation: "2.2", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "0.63", inflation: "2.2", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 18,
     companies: [
         {
@@ -1656,7 +1656,7 @@ export const countryStats = {
     }
   },
   AT: {
-    gdp: "0.52", inflation: "2.1", rate: "4.50", currency: "1.08 (EUR/USD)",
+    gdp: "0.52", inflation: "2.1", rate: "4.50", currency: "1.0850 (EUR/USD)",
     riskScore: 15,
     companies: [
         {
@@ -1804,7 +1804,7 @@ export const countryStats = {
     }
   },
   HK: {
-    gdp: "0.39", inflation: "1.5", rate: "5.75", currency: "7.82 (USD/HKD)",
+    gdp: "0.39", inflation: "1.5", rate: "5.75", currency: "7.8250 (USD/HKD)",
     riskScore: 32,
     companies: [
         {
@@ -2588,7 +2588,14 @@ export function getCountryStats(isoCode) {
       VU: 'VUV', WS: 'WST', YE: 'YER', ZW: 'ZWG'
     };
     const cCode = ISO_TO_CURR[cleanIso] || (cleanIso + 'D');
-    const currencyStr = `${fxVal} (USD/${cCode})`;
+    let currencyStr;
+    if (cCode === 'USD') {
+      currencyStr = "1.00 (USD/USD)";
+    } else if (cCode === 'EUR') {
+      currencyStr = "1.0850 (EUR/USD)";
+    } else {
+      currencyStr = `${fxVal} (USD/${cCode})`;
+    }
 
     const fallback = {
       gdp: gdpVal,

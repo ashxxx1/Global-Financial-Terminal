@@ -817,14 +817,86 @@ export const STOCKS_BY_COUNTRY = {
   ],
 };
 
+function getSeed(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash);
+}
+
+function getRnd(str, seedOffset) {
+  const seed = getSeed(str) + seedOffset;
+  const s = Math.sin(seed) * 10000;
+  return s - Math.floor(s);
+}
+
+function populateStockDetails(stock, countryCode) {
+  const symbol = stock.symbol || stock.ticker;
+  const price = stock.price;
+  const currency = stock.currency || "$";
+  
+  const seedStr = symbol + countryCode;
+  
+  // Deterministic technical & financial metrics
+  const pe = 10 + getRnd(seedStr, 1) * 25; // P/E between 10 and 35
+  const eps = price / pe;
+  
+  // Market cap calculation: price * shares
+  const sharesMultiplier = getRnd(seedStr, 2) > 0.6 ? 1000000000 : 50000000;
+  const shares = 10000000 + Math.floor(getRnd(seedStr, 3) * sharesMultiplier);
+  const mcapVal = price * shares;
+  let marketCap = "";
+  if (mcapVal >= 1e12) {
+    marketCap = currency + (mcapVal / 1e12).toFixed(2) + "T";
+  } else if (mcapVal >= 1e9) {
+    marketCap = currency + (mcapVal / 1e9).toFixed(2) + "B";
+  } else {
+    marketCap = currency + (mcapVal / 1e6).toFixed(2) + "M";
+  }
+  
+  // Volume: deterministic between 10K and 5M
+  const volVal = 10000 + Math.floor(getRnd(seedStr, 4) * 4990000);
+  let volume = "";
+  if (volVal >= 1e6) {
+    volume = (volVal / 1e6).toFixed(2) + "M";
+  } else {
+    volume = Math.floor(volVal / 1000) + "K";
+  }
+  
+  const week52High = price * (1 + getRnd(seedStr, 5) * 0.3);
+  const week52Low = price * (1 - getRnd(seedStr, 6) * 0.3);
+  
+  // Sparkline history: 7 data points
+  const sparkline = [];
+  let currPrice = price * (1 - getRnd(seedStr, 7) * 0.05);
+  for (let i = 0; i < 7; i++) {
+    sparkline.push(currPrice);
+    currPrice += (getRnd(seedStr, 8 + i) - 0.48) * 0.02 * price;
+  }
+  sparkline[6] = price; // Ensure last matches current price
+  
+  const description = `${stock.name} is a leading player in the ${stock.sector.toLowerCase()} sector, focused on delivering value and innovation to its domestic and international customers.`;
+
+  return {
+    ...stock,
+    symbol,
+    country: countryCode,
+    pe,
+    eps,
+    marketCap,
+    volume,
+    week52High,
+    week52Low,
+    sparkline,
+    description
+  };
+}
+
 export function getStocksForCountry(countryCode) {
   const code = (countryCode || "").toUpperCase();
   const list = STOCKS_BY_COUNTRY[code] || [];
-  return list.map(stock => ({
-    ...stock,
-    symbol: stock.symbol || stock.ticker,
-    country: code
-  }));
+  return list.map(stock => populateStockDetails(stock, code));
 }
 
 export function searchStocks(query) {
@@ -836,11 +908,7 @@ export function searchStocks(query) {
       const sym = (stock.symbol || stock.ticker || "").toLowerCase();
       const name = (stock.name || "").toLowerCase();
       if (sym.includes(q) || name.includes(q)) {
-        results.push({
-          ...stock,
-          symbol: stock.symbol || stock.ticker,
-          country
-        });
+        results.push(populateStockDetails(stock, country));
       }
     });
   });

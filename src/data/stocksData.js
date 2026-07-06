@@ -846,7 +846,7 @@ function populateStockDetails(stock, countryCode) {
   const sharesMultiplier = getRnd(seedStr, 2) > 0.6 ? 1000000000 : 50000000;
   const shares = 10000000 + Math.floor(getRnd(seedStr, 3) * sharesMultiplier);
   const mcapVal = price * shares;
-  let marketCap = "";
+  let marketCap;
   if (mcapVal >= 1e12) {
     marketCap = currency + (mcapVal / 1e12).toFixed(2) + "T";
   } else if (mcapVal >= 1e9) {
@@ -857,7 +857,7 @@ function populateStockDetails(stock, countryCode) {
   
   // Volume: deterministic between 10K and 5M
   const volVal = 10000 + Math.floor(getRnd(seedStr, 4) * 4990000);
-  let volume = "";
+  let volume;
   if (volVal >= 1e6) {
     volume = (volVal / 1e6).toFixed(2) + "M";
   } else {

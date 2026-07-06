@@ -226,7 +226,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
     const currentGlobe = globeRef.current;
     
     const initTimer = setTimeout(() => {
-      if (currentGlobe) {
+      if (currentGlobe && typeof currentGlobe.scene === 'function' && typeof currentGlobe.camera === 'function') {
         const scene = currentGlobe.scene();
         const camera = currentGlobe.camera();
         
@@ -239,13 +239,15 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
         ambientLight = new THREE.AmbientLight(0xffffff, 0.4); 
         scene.add(ambientLight);
 
-        const globeMaterial = currentGlobe.globeMaterial();
-        globeMaterial.bumpScale = 10;
-        new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-water.png', texture => {
-           globeMaterial.specularMap = texture;
-           globeMaterial.specular = new THREE.Color('grey');
-           globeMaterial.shininess = 20;
-        });
+        if (typeof currentGlobe.globeMaterial === 'function') {
+          const globeMaterial = currentGlobe.globeMaterial();
+          globeMaterial.bumpScale = 10;
+          new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-water.png', texture => {
+             globeMaterial.specularMap = texture;
+             globeMaterial.specular = new THREE.Color('grey');
+             globeMaterial.shininess = 20;
+          });
+        }
 
         const updateSunPosition = () => {
           const now = new Date();
@@ -254,7 +256,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           const sunLat = 23.44 * Math.sin(2 * Math.PI * (diff - 81) / 365);
           const sunLng = 180 - (now.getUTCHours() + now.getUTCMinutes() / 60) * 15;
           
-          if (currentGlobe) {
+          if (currentGlobe && typeof currentGlobe.getCoords === 'function') {
              const coords = currentGlobe.getCoords(sunLat, sunLng, 2);
              sunLight.position.set(coords.x, coords.y, coords.z);
           }
@@ -268,7 +270,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
     return () => {
        clearTimeout(initTimer);
        if (intervalSet) clearInterval(intervalSet);
-       if (currentGlobe) {
+       if (currentGlobe && typeof currentGlobe.scene === 'function') {
           const scene = currentGlobe.scene();
           if (sunLight) scene.remove(sunLight);
           if (ambientLight) scene.remove(ambientLight);
@@ -278,7 +280,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (globeRef.current) {
+      if (globeRef.current && typeof globeRef.current.controls === 'function' && typeof globeRef.current.pointOfView === 'function') {
         const controls = globeRef.current.controls();
         if (controls) {
           controls.autoRotate = true;
@@ -293,7 +295,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
   }, []);
 
   useEffect(() => {
-    if (!selectedCountry && globeRef.current) {
+    if (!selectedCountry && globeRef.current && typeof globeRef.current.controls === 'function') {
       const controls = globeRef.current.controls();
       if (controls) {
         controls.autoRotate = true;
@@ -335,7 +337,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
   };
 
   const handlePolygonClick = (polygon, event) => {
-    if (globeRef.current) {
+    if (globeRef.current && typeof globeRef.current.controls === 'function' && typeof globeRef.current.pointOfView === 'function') {
       const controls = globeRef.current.controls();
       if (controls) {
         controls.autoRotate = false;

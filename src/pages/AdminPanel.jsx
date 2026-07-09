@@ -14,7 +14,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 const ADMIN_EMAILS = ["aarushkapoor23@gmail.com", "anchitaduggal7@gmail.com", "anchitaduggal@7gmail.com"];
 const REPO_URL = "https://github.com/ashxxx1/Global-Financial-Terminal";
-const NETLIFY_URL = "https://app.netlify.com";
+const CLOUDFLARE_URL = "https://dash.cloudflare.com";
 
 // ── User row in the admin table ──────────────────────────────
 function UserRow({ user, onApprove, onReject, onRevoke }) {
@@ -100,8 +100,8 @@ function DeployPanel() {
     <div className="admin-deploy-panel">
       <div className="admin-section-title">🚀 Deployment</div>
       <div className="admin-deploy-desc">
-        Hosted on <strong>Netlify</strong> (free tier). Deploys run automatically
-        on every push to <code>main</code> in{" "}
+        Hosted on <strong>Cloudflare Pages</strong> (free tier). Deploys run
+        automatically on every push to <code>main</code> in{" "}
         <a
           href={REPO_URL}
           target="_blank"
@@ -110,8 +110,8 @@ function DeployPanel() {
         >
           GitHub/Global-Financial-Terminal
         </a>
-        . To ship a change, push (or merge a PR) to <code>main</code>; Netlify
-        rebuilds and it goes live in ~1–2 min.
+        . To ship a change, push (or merge a PR) to <code>main</code>;
+        Cloudflare rebuilds and it goes live in ~1–2 min.
       </div>
 
       <div className="admin-deploy-status success" style={{ marginBottom: 20 }}>
@@ -120,12 +120,12 @@ function DeployPanel() {
 
       <div className="admin-deploy-links">
         <a
-          href={NETLIFY_URL}
+          href={CLOUDFLARE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="admin-link-btn"
         >
-          🌐 Netlify Dashboard
+          ☁️ Cloudflare Pages
         </a>
         <a
           href={REPO_URL}

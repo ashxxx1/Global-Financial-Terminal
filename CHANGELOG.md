@@ -104,4 +104,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - User Authentication (Firebase Auth) with a secure routing system.
 - Administrative Panel with user access management capabilities.
 - Dynamic scrolling header ticker.
-- Configured Vercel and Firebase hosting deployment variables.
+- Configured Firebase and hosting deployment variables.

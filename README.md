@@ -2,7 +2,7 @@
 
 > **Bloomberg-style financial terminal** — a real-time 3D world globe that maps global news and its impact on stock markets across 25+ countries.
 
-![GlobalFin Terminal](./preview.png)
+> ⚙️ **Status:** runs **locally** in development (`npm run dev`). No cloud hosting is configured.
 
 ---
 
@@ -42,15 +42,15 @@
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/global-financial-terminal.git
-cd global-financial-terminal
+git clone https://github.com/ashxxx1/Global-Financial-Terminal.git
+cd Global-Financial-Terminal
 
 # 2. Install dependencies
 npm install
 
 # 3. Set up environment variables
-cp .env.example .env
-# Fill in your API keys in .env
+cp .env.example .env.local
+# Fill in your Firebase config (required for login) + optional API keys in .env.local
 
 # 4. Start the dev server
 npm run dev
@@ -60,17 +60,20 @@ The app will be available at **http://localhost:5173**
 
 ---
 
-## 🔑 API Keys
+## 🔑 Environment Variables
 
-All API keys are optional for the MVP — the app runs on rich mock data by default.
+Copy `.env.example` to `.env.local` and fill these in. **Never commit `.env.local` to git.**
+
+**Firebase (required for login & data)** — get these from [Firebase Console](https://console.firebase.google.com) → Project settings → *Your apps* → SDK config:
+
+`VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`
+
+**Market data (optional)** — the app runs on rich mock data without these:
 
 | Service | Free Tier | Purpose | Get Key |
 |---------|-----------|---------|---------|
 | GNews | 100 req/day | Country news | [gnews.io](https://gnews.io) |
 | Alpha Vantage | 25 req/day | Stock data | [alphavantage.co](https://www.alphavantage.co) |
-| News API | 100 req/day | Broader news | [newsapi.org](https://newsapi.org) |
-
-Add keys to `.env` (copy from `.env.example`). **Never commit `.env` to git.**
 
 ---
 

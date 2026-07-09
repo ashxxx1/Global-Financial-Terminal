@@ -14,7 +14,6 @@ import { useAuth } from "../contexts/AuthContext";
 
 const ADMIN_EMAILS = ["aarushkapoor23@gmail.com", "anchitaduggal7@gmail.com", "anchitaduggal@7gmail.com"];
 const REPO_URL = "https://github.com/ashxxx1/Global-Financial-Terminal";
-const CLOUDFLARE_URL = "https://dash.cloudflare.com";
 
 // ── User row in the admin table ──────────────────────────────
 function UserRow({ user, onApprove, onReject, onRevoke }) {
@@ -98,10 +97,12 @@ function UserRow({ user, onApprove, onReject, onRevoke }) {
 function DeployPanel() {
   return (
     <div className="admin-deploy-panel">
-      <div className="admin-section-title">🚀 Deployment</div>
+      <div className="admin-section-title">🖥️ Environment</div>
       <div className="admin-deploy-desc">
-        Hosted on <strong>Cloudflare Pages</strong> (free tier). Deploys run
-        automatically on every push to <code>main</code> in{" "}
+        Running <strong>locally</strong> in development. Start the app with{" "}
+        <code>npm run dev</code> and open{" "}
+        <code>http://localhost:5173</code>. No cloud hosting is configured yet.
+        Source lives in{" "}
         <a
           href={REPO_URL}
           target="_blank"
@@ -110,23 +111,14 @@ function DeployPanel() {
         >
           GitHub/Global-Financial-Terminal
         </a>
-        . To ship a change, push (or merge a PR) to <code>main</code>;
-        Cloudflare rebuilds and it goes live in ~1–2 min.
+        .
       </div>
 
       <div className="admin-deploy-status success" style={{ marginBottom: 20 }}>
-        ✓ Continuous deployment active — push to <code>main</code> to release
+        ✓ Local dev — <code>npm run dev</code> → http://localhost:5173
       </div>
 
       <div className="admin-deploy-links">
-        <a
-          href={CLOUDFLARE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="admin-link-btn"
-        >
-          ☁️ Cloudflare Pages
-        </a>
         <a
           href={REPO_URL}
           target="_blank"
@@ -210,7 +202,7 @@ export default function AdminPanel() {
             { key: "pending", label: "Pending", icon: "⏳", count: pendingUsers.length },
             { key: "approved", label: "Approved", icon: "✓", count: approvedUsers.length },
             { key: "rejected", label: "Rejected", icon: "✕", count: rejectedUsers.length },
-            { key: "deploy", label: "Deploy", icon: "🚀", count: null },
+            { key: "deploy", label: "Environment", icon: "🖥️", count: null },
           ].map((item) => (
             <button
               key={item.key}

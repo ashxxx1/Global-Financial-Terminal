@@ -10,7 +10,7 @@
   to = "/index.html"
   status = 200
 
-# Security headers (ported from the old vercel.json)
+# Security headers
 [[headers]]
   for = "/*"
   [headers.values]

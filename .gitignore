@@ -29,4 +29,9 @@ dist-ssr/
 .DS_Store
 Thumbs.db
 
-.vercel
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Claude Code local settings
+.claude/

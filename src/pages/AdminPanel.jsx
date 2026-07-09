@@ -13,7 +13,9 @@ import { db } from "../services/firebase";
 import { useAuth } from "../contexts/AuthContext";
 
 const ADMIN_EMAILS = ["aarushkapoor23@gmail.com", "anchitaduggal7@gmail.com", "anchitaduggal@7gmail.com"];
-const DEPLOY_HOOK = import.meta.env.VITE_VERCEL_DEPLOY_HOOK || "";
+const REPO_URL = "https://github.com/ashxxx1/Global-Financial-Terminal";
+const ACTIONS_URL = `${REPO_URL}/actions`;
+const FIREBASE_HOSTING_URL = "https://console.firebase.google.com/project/_/hosting/sites";
 
 // ── User row in the admin table ──────────────────────────────
 function UserRow({ user, onApprove, onReject, onRevoke }) {
@@ -95,74 +97,39 @@ function UserRow({ user, onApprove, onReject, onRevoke }) {
 
 // ── Deploy panel ─────────────────────────────────────────────
 function DeployPanel() {
-  const [deploying, setDeploying] = useState(false);
-  const [lastDeploy, setLastDeploy] = useState(null);
-  const [deployStatus, setDeployStatus] = useState(null);
-
-  async function triggerDeploy() {
-    if (!DEPLOY_HOOK) {
-      setDeployStatus("error");
-      return;
-    }
-    setDeploying(true);
-    setDeployStatus(null);
-    try {
-      await fetch(DEPLOY_HOOK, { method: "POST" });
-      setLastDeploy(new Date().toLocaleTimeString());
-      setDeployStatus("success");
-    } catch {
-      setDeployStatus("error");
-    } finally {
-      setDeploying(false);
-    }
-  }
-
   return (
     <div className="admin-deploy-panel">
       <div className="admin-section-title">🚀 Deployment</div>
       <div className="admin-deploy-desc">
-        Trigger a fresh Vercel deployment pulling latest code from{" "}
+        Hosted on <strong>Firebase Hosting</strong>. Deploys run automatically
+        via GitHub Actions on every push to <code>main</code> in{" "}
         <a
-          href="https://github.com/ashxxx1/Global-Financial-Terminal"
+          href={REPO_URL}
           target="_blank"
           rel="noopener noreferrer"
           style={{ color: "var(--accent-blue)" }}
         >
           GitHub/Global-Financial-Terminal
         </a>
+        . To ship a change, push (or merge a PR) to <code>main</code> and watch
+        the run under GitHub → Actions; it goes live in ~1–2 min.
       </div>
 
-      <div className="admin-deploy-row">
-        <button
-          className={`admin-deploy-btn ${deploying ? "loading" : ""}`}
-          onClick={triggerDeploy}
-          disabled={deploying || !DEPLOY_HOOK}
-          id="trigger-deploy-btn"
-        >
-          {deploying ? (
-            <>
-              <span className="admin-deploy-spinner" /> Deploying…
-            </>
-          ) : (
-            "⚡ Trigger Deploy"
-          )}
-        </button>
-
-        {deployStatus === "success" && (
-          <div className="admin-deploy-status success">
-            ✓ Deploy triggered at {lastDeploy} — live in ~60s
-          </div>
-        )}
-        {deployStatus === "error" && (
-          <div className="admin-deploy-status error">
-            ✕ {DEPLOY_HOOK ? "Deploy failed. Check your Vercel hook URL." : "No deploy hook configured. Add VITE_VERCEL_DEPLOY_HOOK to environment."}
-          </div>
-        )}
+      <div className="admin-deploy-status success" style={{ marginBottom: 20 }}>
+        ✓ Continuous deployment active — push to <code>main</code> to release
       </div>
 
       <div className="admin-deploy-links">
         <a
-          href="https://github.com/ashxxx1/Global-Financial-Terminal"
+          href={ACTIONS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="admin-link-btn"
+        >
+          ⚙️ GitHub Actions
+        </a>
+        <a
+          href={REPO_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="admin-link-btn"
@@ -170,12 +137,12 @@ function DeployPanel() {
           📂 GitHub Repo
         </a>
         <a
-          href="https://vercel.com/dashboard"
+          href={FIREBASE_HOSTING_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="admin-link-btn"
         >
-          🔺 Vercel Dashboard
+          🔥 Firebase Hosting
         </a>
       </div>
     </div>

@@ -2,8 +2,8 @@
 
 > **Bloomberg-style financial terminal** — a real-time 3D world globe that maps global news and its impact on stock markets across 25+ countries.
 
-> ⚙️ **Status:** runs **locally** in development — no cloud hosting configured.
-> **Local URL:** [http://localhost:5173](http://localhost:5173) (after `npm run dev`)
+> 🌍 **Live site:** **https://global-financial-terminal.netlify.app**
+> 💻 **Local dev:** [http://localhost:5173](http://localhost:5173) (after `npm run dev`)
 
 ---
 

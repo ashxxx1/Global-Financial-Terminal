@@ -3,6 +3,7 @@ import { Cpu, Globe, Pin } from "lucide-react";
 import { getCountryStats } from "./data";
 import { getLocalNewsOutlets, getLocalHeadlines, generateGeopoliticalSummary } from "../NewsPanel/localNewsData";
 import useTerminalStore from "../../store/terminalStore";
+import CountryIntel from "./CountryIntel";
 
 // ── Typewriter (preserved exactly) ────────────────────────────
 function TypewriterSummary({ text, speed = 10 }) {
@@ -141,6 +142,9 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
 
       {/* ── Scrollable body ── */}
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-5">
+
+        {/* ── Live news → stock signals (Phase 1: US, IN, GB, JP, CN) ── */}
+        <CountryIntel iso={iso} />
 
         {/* ── AI Geopolitical synthesis ── */}
         <div>

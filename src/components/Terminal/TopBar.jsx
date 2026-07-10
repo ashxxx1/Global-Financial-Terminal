@@ -110,7 +110,7 @@ export function TopBar({ currentView, onSetView }) {
                   background: "rgba(212,175,55,0.08)",
                 }}
               >
-                v0.5.1
+                v0.6.0
               </span>
               <span
                 className="flex items-center gap-1 px-1.5 py-[1px] rounded-sm"

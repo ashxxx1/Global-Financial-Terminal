@@ -139,7 +139,7 @@ export default function LoginPage() {
         </div>
 
         <div className="px-6 py-3 flex items-center justify-center gap-2" style={{ borderTop: "1px solid var(--nx-border)", fontFamily: "var(--nx-font-mono)", fontSize: "8px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.08em" }}>
-          <span>Global Financial Terminal v0.6</span><span>·</span><span>Private Beta</span><span>·</span><span>© 2026</span>
+          <span>Global Financial Terminal v0.6.0</span><span>·</span><span>Private Beta</span><span>·</span><span>© 2026</span>
         </div>
       </div>
 

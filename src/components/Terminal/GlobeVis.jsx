@@ -234,18 +234,20 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
         const dirLights = camera.children.filter((c) => c.isDirectionalLight || c.type === 'DirectionalLight');
         dirLights.forEach((light) => camera.remove(light));
 
-        sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
+        sunLight = new THREE.DirectionalLight(0xffffff, 1.25);
         scene.add(sunLight);
-        ambientLight = new THREE.AmbientLight(0xffffff, 0.4); 
+        ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
         scene.add(ambientLight);
 
         if (typeof currentGlobe.globeMaterial === 'function') {
           const globeMaterial = currentGlobe.globeMaterial();
-          globeMaterial.bumpScale = 10;
+          globeMaterial.bumpScale = 0.55; // was 10 — caused spiky terrain artifacts
           new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-water.png', texture => {
              globeMaterial.specularMap = texture;
-             globeMaterial.specular = new THREE.Color('grey');
-             globeMaterial.shininess = 20;
+             // Deep, low-gloss water sheen so oceans read navy — not washed-out cyan
+             globeMaterial.specular = new THREE.Color('#123047');
+             globeMaterial.shininess = 8;
+             globeMaterial.needsUpdate = true;
           });
         }
 

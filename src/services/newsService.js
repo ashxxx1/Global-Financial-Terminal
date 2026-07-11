@@ -1,17 +1,25 @@
 /**
  * newsService.js — fetches real-time business news per country.
  *
- * Uses the free GNews API when VITE_GNEWS_API_KEY is set (100 req/day free tier);
- * otherwise returns realistic mock headlines so the feature runs with no key.
- * Results are shaped uniformly for the signal engine (newsSignals.js).
+ * Uses the free GNews API when VITE_GNEWS_API_KEY is set (100 req/day) for the
+ * countries GNews supports; otherwise (or for unsupported countries) generates
+ * realistic sample headlines derived from that country's own stocks + sectors,
+ * so EVERY country produces sensible, self-consistent signals with no key.
  *
  * Item shape: { title, description, source, publishedAt, url }
  */
+import { STOCKS_BY_COUNTRY } from "../data/stocksData";
 
 const GNEWS_KEY = import.meta.env.VITE_GNEWS_API_KEY || "";
 
-// Phase 1 — 5 countries. Add more codes here to expand coverage.
-export const SUPPORTED_COUNTRIES = ["US", "IN", "GB", "JP", "CN"];
+// Every country that has stock data is supported.
+export const SUPPORTED_COUNTRIES = Object.keys(STOCKS_BY_COUNTRY);
+
+// Countries GNews' /top-headlines endpoint accepts (others fall back to sample).
+const GNEWS_COUNTRIES = new Set([
+  "AU","BR","CA","CN","EG","FR","DE","GR","HK","IN","IE","IL","IT","JP","NL","NO",
+  "PK","PE","PH","PT","RO","RU","SG","ES","SE","CH","TW","UA","GB","US",
+]);
 
 export function isCountrySupported(code) {
   return SUPPORTED_COUNTRIES.includes((code || "").toUpperCase());
@@ -34,73 +42,113 @@ async function fetchFromGNews(code) {
   }));
 }
 
-// ── Mock fallback (runs with no API key) ─────────────────────────────────────
-// Small seed of realistic business headlines per country, spread across sectors
-// and sentiment so the signal engine produces varied output immediately.
-const MOCK = {
-  US: [
-    { title: "Tech rally lifts markets as chip demand surges on AI boom", description: "Semiconductor and software stocks jump on strong cloud spending." },
-    { title: "Fed signals it may hold interest rates, banks rally", description: "Lending outlook improves as rate fears ease for major banks." },
-    { title: "Oil prices drop on rising inventories, energy shares slip", description: "Crude falls as supply builds, pressuring energy majors." },
-    { title: "Automaker beats delivery estimates as EV demand grows", description: "Electric vehicle sales strength boosts the auto sector." },
-    { title: "Retail sales miss forecasts, consumer spending weakens", description: "Shoppers pull back, weighing on consumer stocks." },
-  ],
-  IN: [
-    { title: "Indian IT firms surge on record export orders and AI deals", description: "Technology sector rallies on strong global demand." },
-    { title: "RBI holds rates steady, banking stocks gain on credit growth", description: "Lending momentum lifts major Indian banks." },
-    { title: "Crude imports weigh on rupee, energy refiners under pressure", description: "Rising oil costs pressure energy and fuel companies." },
-    { title: "Auto sales hit festive-season record as demand booms", description: "Vehicle makers report strong growth." },
-    { title: "Pharma exports jump on new drug approvals abroad", description: "Healthcare sector strengthens on export wins." },
-  ],
-  GB: [
-    { title: "FTSE banks rally as Bank of England signals rate cuts", description: "Lower rates brighten the outlook for UK lenders." },
-    { title: "North Sea oil output falls, energy shares decline", description: "Crude production drop hits UK energy majors." },
-    { title: "UK retailers warn of weak consumer spending amid inflation", description: "Cost pressures weigh on the consumer sector." },
-    { title: "London tech startups attract record investment", description: "Technology funding surges in the capital." },
-    { title: "Housing market rebounds as mortgage rates ease", description: "Property and homebuilders gain on recovery." },
-  ],
-  JP: [
-    { title: "Nikkei climbs as automakers post record export profits", description: "Vehicle exporters lead gains on a weak yen." },
-    { title: "Japan chipmakers surge on global semiconductor demand", description: "Technology sector rallies on AI-driven orders." },
-    { title: "Bank of Japan holds policy, financial stocks steady", description: "Lenders hold firm as rate policy stays unchanged." },
-    { title: "Energy importers hit by rising crude and gas costs", description: "Fuel costs pressure Japanese utilities." },
-    { title: "Retail spending slumps as households cut back", description: "Weak demand weighs on consumer names." },
-  ],
-  CN: [
-    { title: "China tech giants rally on new AI and cloud push", description: "Technology shares surge on policy support." },
-    { title: "Property sector slumps as developer default fears grow", description: "Real estate weakness deepens amid a debt crisis." },
-    { title: "Beijing unveils stimulus, banks and industrials gain", description: "Lending and manufacturing get a boost." },
-    { title: "EV makers report record sales as battery demand booms", description: "Automotive sector strengthens on export growth." },
-    { title: "Steel and mining output falls on weak construction demand", description: "Metals producers under pressure." },
-  ],
+// ── Sample-news generation (runs with no key, for every country) ─────────────
+// Templates carry sector keywords so the signal engine re-detects the sector.
+// { pos, neg } phrasings per sector.
+const SECTOR_TEMPLATES = {
+  "Energy": {
+    pos: "Oil and gas producers rally as crude demand strengthens",
+    neg: "Oil prices drop on rising inventories, energy shares slip",
+  },
+  "Banking & Finance": {
+    pos: "Banks gain as the central bank signals interest-rate cuts and credit growth",
+    neg: "Financial stocks fall on weak lending and rising bad-loan fears",
+  },
+  "Technology": {
+    pos: "Tech shares surge on strong chip demand and AI software growth",
+    neg: "Technology stocks decline as chip demand weakens",
+  },
+  "Automotive": {
+    pos: "Automakers climb as vehicle and EV demand grows",
+    neg: "Auto sales miss estimates, carmakers under pressure",
+  },
+  "Healthcare": {
+    pos: "Pharma stocks rise on new drug approvals and export wins",
+    neg: "Healthcare shares slip after a clinical-trial setback",
+  },
+  "Consumer": {
+    pos: "Retail stocks gain as consumer spending strengthens",
+    neg: "Retail sales miss forecasts as consumer spending weakens",
+  },
+  "Telecom": {
+    pos: "Telecom operators rally on 5G network subscriber growth",
+    neg: "Telecom shares fall on price war and weak mobile revenue",
+  },
+  "Mining & Resources": {
+    pos: "Miners surge as metal and commodity prices climb",
+    neg: "Mining stocks slump as metal and ore prices decline",
+  },
+  "Industrial": {
+    pos: "Industrials gain on strong manufacturing output and export orders",
+    neg: "Factory output falls, industrial stocks under pressure",
+  },
+  "Real Estate": {
+    pos: "Property stocks rebound as mortgage rates ease and housing recovers",
+    neg: "Real estate shares slump on weak property demand and default fears",
+  },
+  "Utilities": {
+    pos: "Utilities rise on renewable power expansion and steady demand",
+    neg: "Power utilities slip as fuel and energy costs climb",
+  },
+  "Transportation": {
+    pos: "Airlines and shipping gain on strong freight and travel demand",
+    neg: "Airline and logistics shares fall on rising fuel costs",
+  },
+  "Defence": {
+    pos: "Defence contractors rally on new military orders",
+    neg: "Defence shares slip as arms budgets tighten",
+  },
 };
 
-function mockNews(code) {
-  const seeds = MOCK[code] || MOCK.US;
+/** Average changePct per sector for a country's stocks. */
+function sectorSentiment(stocks) {
+  const agg = {};
+  for (const s of stocks) {
+    const a = (agg[s.sector] ||= { sum: 0, n: 0 });
+    a.sum += s.changePct || 0;
+    a.n += 1;
+  }
+  return Object.entries(agg)
+    .map(([sector, a]) => ({ sector, avg: a.sum / a.n, n: a.n }))
+    .sort((x, y) => y.n - x.n); // biggest sectors first
+}
+
+/** Generate sample headlines for a country from its own sectors + movement. */
+function generateSampleNews(code) {
+  const stocks = STOCKS_BY_COUNTRY[code] || [];
+  const sectors = sectorSentiment(stocks).slice(0, 6);
   const now = Date.now();
-  return seeds.map((s, i) => ({
-    ...s,
-    source: "Sample Feed",
-    // stagger timestamps over the last few hours
-    publishedAt: new Date(now - i * 45 * 60 * 1000).toISOString(),
-    url: "#",
-  }));
+  return sectors
+    .map((s, i) => {
+      const t = SECTOR_TEMPLATES[s.sector];
+      if (!t) return null;
+      const title = s.avg >= 0 ? t.pos : t.neg;
+      return {
+        title,
+        description: title,
+        source: "Sample Feed",
+        publishedAt: new Date(now - i * 40 * 60 * 1000).toISOString(),
+        url: "#",
+      };
+    })
+    .filter(Boolean);
 }
 
 /**
- * Fetch news for a country. Real when a key is set, mock otherwise.
+ * Fetch news for a country. Real when a key is set and GNews supports it,
+ * otherwise self-consistent sample headlines.
  * @returns {{ items, live, error }}
  */
 export async function fetchCountryNews(code) {
   const cc = (code || "").toUpperCase();
-  if (GNEWS_KEY) {
+  if (GNEWS_KEY && GNEWS_COUNTRIES.has(cc)) {
     try {
       const items = await fetchFromGNews(cc);
       if (items.length) return { items, live: true, error: null };
-      return { items: mockNews(cc), live: false, error: "No live articles returned" };
+      return { items: generateSampleNews(cc), live: false, error: "No live articles" };
     } catch (e) {
-      return { items: mockNews(cc), live: false, error: e.message };
+      return { items: generateSampleNews(cc), live: false, error: e.message };
     }
   }
-  return { items: mockNews(cc), live: false, error: null };
+  return { items: generateSampleNews(cc), live: false, error: null };
 }

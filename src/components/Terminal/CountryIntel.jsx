@@ -10,6 +10,7 @@ import { RefreshCw, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { fetchCountryNews, isCountrySupported, SUPPORTED_COUNTRIES } from "../../services/newsService";
 import { analyzeCountryNews } from "../../lib/newsSignals";
 import { STOCKS_BY_COUNTRY } from "../../data/stocksData";
+import { intelApi } from "../../services/intelApi";
 
 const MONO = "'JetBrains Mono', monospace";
 
@@ -32,6 +33,7 @@ export default function CountryIntel({ iso }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [live, setLive] = useState(false);
+  const [backend, setBackend] = useState(null); // { markets, economy } when backend is up
   const supported = isCountrySupported(iso);
 
   useEffect(() => {
@@ -49,8 +51,21 @@ export default function CountryIntel({ iso }) {
     }
     run(true);
     const t = setInterval(() => run(false), 60000); // self-refresh every 60s
-    return () => { active = false; clearInterval(t); };
+
+    // Pull real markets + economy from the backend (fails soft → stays hidden).
+    async function loadBackend() {
+      const [markets, economy] = await Promise.all([intelApi.markets(iso), intelApi.economy(iso)]);
+      if (!active) return;
+      if (markets?.indices?.length || economy?.indicators) setBackend({ markets, economy });
+      else setBackend(null);
+    }
+    loadBackend();
+    const bt = setInterval(loadBackend, 60000);
+
+    return () => { active = false; clearInterval(t); clearInterval(bt); };
   }, [iso, supported]);
+
+  const fmtBig = (n) => (n == null ? "—" : n >= 1e12 ? `$${(n / 1e12).toFixed(1)}T` : n >= 1e9 ? `$${(n / 1e9).toFixed(0)}B` : `${n}`);
 
   if (!supported) {
     return (
@@ -66,6 +81,46 @@ export default function CountryIntel({ iso }) {
 
   return (
     <div>
+      {backend && (
+        <div style={{ marginBottom: "14px" }}>
+          {backend.markets?.indices?.length > 0 && (
+            <div style={{ marginBottom: "12px" }}>
+              <SectionLabel>Live Markets · real</SectionLabel>
+              {backend.markets.indices.map((ix) => (
+                <div key={ix.symbol} className="flex items-center justify-between"
+                  style={{ fontFamily: MONO, fontSize: "11px", padding: "2px 0" }}>
+                  <span style={{ color: "#c9bea3" }}>{ix.name}</span>
+                  <span style={{ color: "#7a7360" }}>
+                    {ix.price.toLocaleString()}{" "}
+                    <span style={{ color: ix.changePct >= 0 ? "#4fd1a5" : "#e06c6c" }}>
+                      {ix.changePct >= 0 ? "+" : ""}{ix.changePct}%
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+          {backend.economy?.indicators && (
+            <div>
+              <SectionLabel>Economy · real (World Bank)</SectionLabel>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 12px",
+                fontFamily: MONO, fontSize: "10px" }}>
+                {[
+                  ["GDP", backend.economy.indicators.gdpUsd ? fmtBig(backend.economy.indicators.gdpUsd.value) : "—"],
+                  ["Growth", backend.economy.indicators.gdpGrowth ? backend.economy.indicators.gdpGrowth.value.toFixed(1) + "%" : "—"],
+                  ["Inflation", backend.economy.indicators.inflation ? backend.economy.indicators.inflation.value.toFixed(1) + "%" : "—"],
+                  ["Unemploy.", backend.economy.indicators.unemployment ? backend.economy.indicators.unemployment.value.toFixed(1) + "%" : "—"],
+                ].map(([l, v]) => (
+                  <div key={l} className="flex items-center justify-between">
+                    <span style={{ color: "#5c5546" }}>{l}</span>
+                    <span style={{ color: "#c9bea3" }}>{v}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       <div className="flex items-center justify-between" style={{ marginBottom: "10px" }}>
         <SectionLabel>Live News → Signals</SectionLabel>
         <span style={{ fontFamily: MONO, fontSize: "8px", letterSpacing: "0.1em",

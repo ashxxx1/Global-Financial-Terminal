@@ -1838,7 +1838,8 @@ export function ChartTerminal() {
             placeholder="Label..."
             onKeyDown={e => {
               if (e.key === "Enter") {
-                setDrawingsList(prev => [...prev, { id: Date.now(), type: "text", x1: textInput.x, y1: textInput.y, label: e.target.value }]);
+                const addText = textInput.paneId === 1 ? setDrawings : setDrawings2;
+                addText(prev => [...prev, { id: Date.now(), type: "text", x1: textInput.x, y1: textInput.y, label: e.target.value }]);
                 setTextInput({ visible: false, x: 0, y: 0, paneId: null });
                 setDrawTool("cursor");
               } else if (e.key === "Escape") {

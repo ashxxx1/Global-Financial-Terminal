@@ -241,14 +241,12 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
 
         if (typeof currentGlobe.globeMaterial === 'function') {
           const globeMaterial = currentGlobe.globeMaterial();
-          globeMaterial.bumpScale = 0.55; // was 10 — caused spiky terrain artifacts
-          new THREE.TextureLoader().load('https://unpkg.com/three-globe/example/img/earth-water.png', texture => {
-             globeMaterial.specularMap = texture;
-             // Deep, low-gloss water sheen so oceans read navy — not washed-out cyan
-             globeMaterial.specular = new THREE.Color('#123047');
-             globeMaterial.shininess = 8;
-             globeMaterial.needsUpdate = true;
-          });
+          // No exaggerated relief (bumpScale 10 was creating spiky speckle artifacts)
+          // and a very low, dark ocean gloss so water reads deep-blue not washed cyan.
+          globeMaterial.bumpScale = 0;
+          globeMaterial.specular = new THREE.Color('#0a1420');
+          globeMaterial.shininess = 6;
+          globeMaterial.needsUpdate = true;
         }
 
         const updateSunPosition = () => {
@@ -371,7 +369,6 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           height={dimensions.height}
           backgroundColor="rgba(0,0,0,0)"
           globeImageUrl="https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-          bumpImageUrl="https://unpkg.com/three-globe/example/img/earth-topology.png"
           showAtmosphere={true}
           atmosphereColor="#d4af37"
           atmosphereAltitude={0.18}

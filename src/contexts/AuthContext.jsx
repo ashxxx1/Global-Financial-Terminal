@@ -91,13 +91,16 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    window.setPlaywrightTestUser = (userStr) => {
+    // Dev/test-only login bypass for Playwright — stripped from production builds.
+    if (import.meta.env.DEV) {
+      window.setPlaywrightTestUser = (userStr) => {
         const testUser = JSON.parse(userStr);
         setCurrentUser(testUser);
         setUserStatus("approved");
         setUserProfileData({ displayName: testUser.displayName, username: testUser.username || "testuser" });
         setLoading(false);
-    };
+      };
+    }
 
     // Handle the redirect result when returning from Google on mobile
     getRedirectResult(auth)

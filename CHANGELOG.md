@@ -1,107 +1,98 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [0.5.1] - 2026-06-22
-
-### Added
-- **Integrated Premium Tailwind UI** — Replaced the legacy vanilla CSS interface with the advanced glassmorphism layout, featuring Tailwind v4 `@theme` integrations, LeftNav routing, and a clean TopBar shell with dynamic time zones.
-- **Interactive Globe & Country Details** — Migrated NASA Blue Marble rendering to `react-globe.gl` with Three.js sun tracking, trade arcs, and country sentiment highlight colors.
-- **Geopolitical news & Outlets** — Upgraded the details panel with economic metrics, strategic equities listings, 10 news channel outlets from `localNewsData.js`, and typewriter geopolitical summary animations.
-- **Real-Time Social Feed & Private Chat** — Unified the roster, direct messages (DMs) chat history, friend requests management, profile settings with Dicebear seeds presets, and community feed synced with active Firestore queries.
-- **Portfolio Center Convergence** — Wired the manual simulator and Alpaca API paper broker credentials persistence, dynamic SVG Pie charts, capital inputs, and AI-powered beta/risk reports.
-
-## [0.5.0] - 2026-06-22
-
-### Added
-- **Unified X-Style Social network** — Merged Forum and Community views into a single cohesive Social tab.
-- **Auto-Incrementing User IDs** — Integrated atomic Firestore counter transaction ensuring every user receives a unique `#ID <number>` sequentially next to their handle/name.
-- **Feed Interactions** — Added Firestore-backed Liking (double-like protection), Disliking, Reposting (copying text as a quoted post reference), and inline Comments replies.
-- **Media Attachments** — Allowed adding images and HTML5 video attachments in the composer.
-- **Clean Slate DB Feed** — Removed all mock posts, allowing the database to dynamically load real posts or show a welcoming empty state.
-
-### Changed
-- **Header Navigation Cleaned** — Removed the legacy Forum button, keeping the unified Social button.
-- **Legacy Redirects** — Added a wild-card route redirecting old `/forum/*` paths to `/social` automatically.
-
-## [0.4.0] - 2026-06-22
-
-### Added
-- **Gmail Auth & Username claims** — Integrated Google Sign-In with real-time uniqueness validation for custom usernames (@handles) on new registration onboarding.
-- **Custom Profile Pictures** — Enabled editing custom photoURLs in the profile card editor, with built-in Dicebear presets (Identicon, Bottts, Avataaars) generated on UID seeds.
-- **Global Profile Propagation** — Custom display names, handles, and avatars are fully propagated across the Header dropdown, Forum thread cards, Forum thread pages, sub-replies, and Social chats/posts.
-
-### Changed
-- **Bloomberg-Stripe Premium Aesthetic** — Upgraded the visual style: changed neon glows to flat deep steel-grey (`#0d0e15`), muted text (`#94a3b8`), and precise emerald green (`#10b981`).
-- **Outlines Overhaul** — Removed all glowing drop shadows and neon box-shadow highlights in favor of thin, sharp borders (`1px solid rgba(255,255,255,0.06)`).
-
-## [0.3.0] - 2026-06-22
-
-### Added
-- **Social Trading Hub** — Added trader profiles, user bios, direct direct-messages with active friends, community feed to publish updates, like updates, and reputation badges.
-- **Brokerage Sync Integration** — Added Alpaca, Interactive Brokers, and Robinhood connectivity. Supports direct sync of paper trade positions or manually allocating portfolios.
-- **AI Portfolio recommendations** — Real-time Beta calculation, tech sector concentration alert, and portfolio hedging advice.
-- **Geopolitical News Aggregator** — Connected 10 national news channels per country (US, IN, CN, DE, JP) and integrated an AI geopolitical risk typewriter summary inside the News Panel.
-- **Support for Virtual Category All** — Displays all forum threads across all categories combined under `/forum/all`.
-- **Trader Redirect Flow** — Clicking `$TICKER` inside the forum now automatically navigates back to the main terminal dashboard and opens the stock panel instantly.
-
-### Changed
-- **Version Tracking**: Updated active shell version to `v0.3.0-alpha`.
-- **UI Harmonization**: Removed neon colors in place of slate overlays and standardized panel borders for a more editorial human feel.
-
-## [0.2.0] - 2026-06-22
-
-### Added
-- **Satellite Earth Globe** — Switched to NASA Blue Marble high-resolution earth texture for a photorealistic 3D globe.
-- **Globe Graticules Grid** — Added geographic latitude/longitude grid lines for a professional navigation feel.
-- **Globe Physics Damping** — Smooth orbit damping (dampingFactor: 0.08) for a premium, weighty globe movement experience.
-- **Space Grotesk Font** — Added modern geometric sans-serif font for a more premium typographic feel.
-- **Glassmorphism Header** — Header now uses `backdrop-filter: blur` for a frosted-glass transparent effect.
-- **Glassmorphism Sidebar** — Sidebar upgraded with glass blur layering for depth.
-- **Nebula Space Background** — Globe area now has a multi-layer radial nebula gradient (blue/green deep space) behind the earth.
-- **Pixel-Perfect Corner Badges** — Corner labels now styled as frosted glass badge chips with borders.
-- **Cursor Interactivity** — Globe now changes cursor to pointer when hovering over tracked countries.
-- **Premium Country Tooltips** — Globe hover tooltip redesigned with ISO code badge, full market data, and sentiment border color.
-
-### Changed
-- **Color Palette Refined**: Switched from neon green to a more balanced `#00e87a` with proper glow tokens.
-- **Ticker Strip Redesigned**: Gradient background (dark → slightly lighter → dark), smaller font, bolder values with border tags.
-- **News Panel Deepened**: Background deepened to near-black with stronger glassmorphism and directional glow shadow.
-- **Globe Atmosphere**: Upgraded atmosphere color to `rgba(80,160,255,0.20)` for a blue ionosphere effect.
-- **Loading Screen**: Loading screen now uses space gradient background and glowing text.
-- Responsive sidebar breakpoints updated (1024px → 200px sidebar).
+Format: [ISO date] | [SemVer] | [type] | description
 
 ---
 
-## [0.1.1] - 2026-06-22
+## [0.0.1] - 2026-07-13
 
 ### Added
-- Integrated a new **Investment Disclaimer Footer** displaying regulatory warning messages to ensure compliance.
-- Created custom `Footer.jsx` React component.
-- Added responsive layout grid integration for the new footer component.
-- Patched 3D Globe visualization to display the **official map boundary of India** (Jammu, Kashmir, and Ladakh represented accurately) using Survey of India / land-simplified GIS coordinates.
+- **Intelligence Backend (server/)** — independent Node.js event-driven service
+  - Real-time news collection via Google News RSS (free, no key; GNews API optional)
+  - AI analysis pipeline: sentiment → sector → historical correlation → weighted predictions
+  - Append-only knowledge database (server/data/*.json)
+  - Server-Sent Events (SSE) live push to frontend
+  - REST API: `/api/country/:code`, `/api/economy/:code`, `/api/markets/:code`, `/api/recent`, `/api/stats`, `/health`
+  - Background poll worker (configurable interval, default 8s)
+  - Self-learning accuracy tracking (Step 7 scaffold)
+  - **Free data sources**: Google News RSS, World Bank macroeconomic data, Yahoo Finance indices
+  - Deployment configs: `render.yaml` (Render), `Procfile` (Heroku), `Dockerfile` (any host)
+
+- **Frontend ↔ Backend Integration**
+  - `src/services/intelApi.js` — fail-soft client (VITE_INTEL_API env, localhost:8787 default)
+  - SSE subscription in CountryIntel
+  - Real Live Markets panel (S&P, Nifty, Nikkei, etc.)
+  - Real Economy panel (GDP, growth, inflation, unemployment — World Bank)
+  - Both panels hidden when backend absent (safe fallback on live site)
+
+- **News Signals for All 68 Countries**
+  - Sector-aware sample news generation derived from stock price movement
+  - Consistent signal engine across all supported countries
+  - Self-sufficient (no API key required to run)
+
+- **Error Boundary Component**
+  - Prevents white-screen crashes
+  - User-friendly fallback UI with reload button
+  - Graceful degradation of individual component failures
+
+- **npm run server** — simplified backend startup
+- **npm run start** — production backend start (via package.json)
+
+### Fixed
+- **ChartTerminal.jsx:1841** — ReferenceError crash on text-label Enter (undefined `setDrawingsList`)
+- **AuthContext.jsx** — Playwright test-login hook now dev-only (stripped from production build)
+- **GlobeVis.jsx** — attempted fixes to bump map / specular sheen (partial; needs visual verification)
 
 ### Changed
-- **UI Enhancements**:
-  - Upgraded sidebar items with dynamic active-glowing left borders and inset glow styling on hover.
-  - Implemented glassmorphic visual improvements and inset glow shadows for article cards in the News Panel.
-- **Performance Optimizations**:
-  - Resolved WebGL context memory leaks by cleaning up the Three.js/Globe.gl canvas instances upon component unmount.
-- Updated project metadata configuration.
+- `server/sources.js` — priority: GNews (if key) → Google News RSS (free) → sample fallback
+- `CountryIntel.jsx` — added real markets/economy fetch from backend
+- Package.json — added `start` script, engines constraint (Node >=18)
+- `.gitignore` — server/data/*.json (runtime DB, excluded from git)
+
+### Infrastructure
+- `render.yaml` — one-click free Render deployment (blueprint)
+- `server/README.md` — backend architecture, endpoints, free data sources, roadmap
 
 ---
 
-## [0.1.0] - 2026-06-21
+## What's Implemented (Spec Coverage)
 
-### Added
-- **Initial Release** of the simulated Global Financial Terminal.
-- Core 3D Globe visualization (`GlobeView`, `GlobeArea`) utilizing WebGL/Three.js showing real-time market data across tracked countries.
-- Sidebar panel displaying live Equity, FX, Commodities, and Crypto indices.
-- News Panel with AI sentiment analysis scoring (Bullish/Bearish/Neutral tags) and index performance sparkline SVGs.
-- User Authentication (Firebase Auth) with a secure routing system.
-- Administrative Panel with user access management capabilities.
-- Dynamic scrolling header ticker.
-- Configured Firebase and hosting deployment variables.
+| Spec Step | Status | Notes |
+|-----------|--------|-------|
+| Step 1: Real-time collection | ✅ | Google News RSS + optional GNews API |
+| Step 2: News processing | ✅ | Country, sectors, sentiment, importance, urgency detection |
+| Step 3: AI analysis | ✅ | Heuristic (labeled `generated:"ai"`); LLM upgrade pending |
+| Step 4: Correlation patterns | ✅ | Historical knock-on effects (oil→energy↑/airlines↓) |
+| Step 5: Stock predictions | ✅ | Weighted multi-factor (prob up/down, confidence, reasoning) |
+| Step 6: Knowledge DB | ✅ | Append-only, persistent, historical intelligence |
+| Step 7: Self-learning | ⚠️ | Scaffold ready; outcome feedback loop not yet wired to price feed |
+| Economy panel | ✅ | Real World Bank data |
+| Markets panel | ✅ | Real Yahoo Finance indices |
+| Real-time push (SSE) | ✅ | Live updates, no refresh needed |
+| Facts vs forecasts | ✅ | Labeled `generated:"fact"` (verified) vs `generated:"ai"` (forecast) |
+| Premium globe | ❌ | Pending UI/cinematic redesign |
+| Glassmorphism panels | ❌ | Pending UI/animation pass |
+
+---
+
+## Known Limitations / Roadmap
+
+- **Backend not always-on yet** — requires deployment to Render/Fly.io/Koyeb/Oracle (free tier options available)
+- **Self-learning feedback loop** — needs live price feed integration to score predictions vs actual moves
+- **LLM analysis** — currently heuristic; needs Claude API key for deeper "why it matters" essays (server-side)
+- **Globe rendering** — bumpScale/specular adjustments attempted; needs visual verification on live site
+- **Mobile responsiveness** — tested on desktop; mobile layout dead-space noted but deferred
+
+---
+
+## How to Contribute
+
+**All commits must include a CHANGELOG entry** in this file before merging. See [CONTRIBUTING.md](CONTRIBUTING.md) for the process.
+
+Format:
+```
+- [Component] — brief description
+```
+
+Keep entries terse, scannable, and focused on *what changed* (not internal details).

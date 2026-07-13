@@ -5,6 +5,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import "./styles/index.css";
 import "./styles/nexus-theme.css";
+import "./styles/ui-polish.css";
 import "./index.css";
 
 // ── Terminal UI (pulled from merge) ──────────────────────────────────────────

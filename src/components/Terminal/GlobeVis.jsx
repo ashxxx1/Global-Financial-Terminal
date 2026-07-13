@@ -234,18 +234,18 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
         const dirLights = camera.children.filter((c) => c.isDirectionalLight || c.type === 'DirectionalLight');
         dirLights.forEach((light) => camera.remove(light));
 
-        sunLight = new THREE.DirectionalLight(0xffffff, 1.25);
+        // Balanced lighting: sun at ~45° to mimic real Earth
+        sunLight = new THREE.DirectionalLight(0xffffff, 1.1);
+        sunLight.position.set(1, 0.7, 1);
         scene.add(sunLight);
-        ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
+        ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
         scene.add(ambientLight);
 
         if (typeof currentGlobe.globeMaterial === 'function') {
           const globeMaterial = currentGlobe.globeMaterial();
-          // No exaggerated relief (bumpScale 10 was creating spiky speckle artifacts)
-          // and a very low, dark ocean gloss so water reads deep-blue not washed cyan.
-          globeMaterial.bumpScale = 0;
-          globeMaterial.specular = new THREE.Color('#0a1420');
-          globeMaterial.shininess = 6;
+          globeMaterial.bumpScale = 0; // no bump map exaggeration
+          globeMaterial.specular = new THREE.Color('#1a3a52'); // deep ocean blue, subtle gloss
+          globeMaterial.shininess = 4; // low gloss (not plastic-y)
           globeMaterial.needsUpdate = true;
         }
 
@@ -360,7 +360,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100"
         style={{
-          filter: 'drop-shadow(0 0 90px rgba(212,175,55,0.18))',
+          filter: 'drop-shadow(0 0 50px rgba(79,209,165,0.06))',
         }}
       >
         <Globe
@@ -369,9 +369,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           height={dimensions.height}
           backgroundColor="rgba(0,0,0,0)"
           globeImageUrl="https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-          showAtmosphere={true}
-          atmosphereColor="#d4af37"
-          atmosphereAltitude={0.18}
+          showAtmosphere={false}
           polygonsData={countries.features}
           polygonAltitude={d => d === hoverD ? 0.08 : 0.001}
           polygonCapColor={d => {
@@ -379,11 +377,12 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
              const stats = getCountryStats(iso);
              const fallback = stats.marketReturns["1D"];
              const score = stats.marketReturns[timeframe] !== undefined ? stats.marketReturns[timeframe] : fallback;
-             
-             const baseAlpha = d === hoverD ? '0.6' : '0.1'; 
-             if (score > 1.0) return `rgba(79, 209, 165, ${baseAlpha})`; 
-             if (score < -1.0) return `rgba(232, 99, 90, ${baseAlpha})`;
-             return `rgba(201, 123, 74, ${baseAlpha})`; 
+
+             // muted: reduce saturation, lower alpha to let the Earth texture show through
+             const baseAlpha = d === hoverD ? '0.4' : '0.05';
+             if (score > 1.0) return `rgba(100, 200, 160, ${baseAlpha})`; // muted green
+             if (score < -1.0) return `rgba(200, 100, 90, ${baseAlpha})`; // muted red
+             return `rgba(150, 130, 110, ${baseAlpha})`; // muted brown
           }}
           polygonSideColor={() => 'rgba(15, 23, 42, 0.0)'} 
           polygonStrokeColor={() => 'rgba(212, 175, 55, 0.05)'} 

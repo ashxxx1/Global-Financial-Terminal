@@ -29,9 +29,18 @@ supported country per tick to respect the free-tier limit.
 
 - `GET /stream` — Server-Sent Events; pushes each new event live (no polling)
 - `GET /api/country/:code` — stored intelligence for a country
+- `GET /api/economy/:code` — **real** macro data (World Bank, free/no key)
 - `GET /api/recent?limit=40` — most recent processed events
 - `GET /api/stats` — prediction accuracy stats
 - `GET /health` — worker ticks, event count, connected clients
+
+## Free data sources (no key required)
+
+- **Google News RSS** — real business headlines per country, fetched server-side
+  (no CORS/key). Used automatically when `GNEWS_API_KEY` is unset.
+- **World Bank API** — real GDP, growth, inflation, unemployment, population.
+
+Deploy free with `render.yaml` (Render Blueprint) — see repo root.
 
 ## Notes / roadmap
 

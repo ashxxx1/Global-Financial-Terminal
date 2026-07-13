@@ -1,0 +1,22 @@
+# Render Blueprint — deploy the intelligence backend on Render's FREE tier.
+# 1. Push this repo to GitHub (done).
+# 2. Go to render.com -> New -> Blueprint -> pick this repo. It reads this file.
+# 3. (Optional) add GNEWS_API_KEY in the dashboard for richer news.
+#
+# Note: the free web service spins DOWN after ~15 min of inactivity and cold-starts
+# on the next request — not truly 24/7, but free. Upgrade to a paid instance (or
+# Fly.io / a small VPS) for continuous operation.
+services:
+  - type: web
+    name: gft-intel
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/index.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: POLL_MS
+        value: "10000"
+      # - key: GNEWS_API_KEY   # optional — add your free gnews.io key in the dashboard
+      #   sync: false

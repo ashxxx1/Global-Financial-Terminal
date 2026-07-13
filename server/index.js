@@ -13,6 +13,7 @@ import http from "node:http";
 import { collect } from "./sources.js";
 import { processEvent } from "./engine.js";
 import { store } from "./store.js";
+import { fetchEconomy } from "./economy.js";
 
 const PORT = Number(process.env.PORT || 8787);
 const POLL_MS = Number(process.env.POLL_MS || 8000);
@@ -71,6 +72,13 @@ const server = http.createServer((req, res) => {
   if (url.pathname.startsWith("/api/country/")) {
     const code = url.pathname.split("/").pop().toUpperCase();
     return json(res, 200, { country: code, live, events: store.forCountry(code) });
+  }
+  if (url.pathname.startsWith("/api/economy/")) {
+    const code = url.pathname.split("/").pop().toUpperCase();
+    fetchEconomy(code)
+      .then((data) => json(res, 200, data))
+      .catch((e) => json(res, 502, { error: e.message }));
+    return;
   }
   if (url.pathname === "/stream") {
     res.writeHead(200, {

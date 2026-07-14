@@ -12,6 +12,8 @@
  */
 import { useState, useEffect, useRef } from "react";
 import { X, Search } from "lucide-react";
+import MeridianPanel from "./MeridianPanel";
+import { intelApi } from "../../services/intelApi";
 
 const HUD_CYAN = "#3ec6ff";
 const GREEN_UP = "#39d6a3";
@@ -30,7 +32,7 @@ function HUDCorners({ chromeOpacity }) {
     width: "30px",
     height: "30px",
     borderColor: HUD_CYAN,
-    zIndex: 7,
+    zIndex: 50,
     opacity: chromeOpacity,
     transition: "opacity 0.7s ease",
     pointerEvents: "none",
@@ -51,11 +53,11 @@ function HUDCorners({ chromeOpacity }) {
 function HeaderChrome({ chromeOpacity, clockStr }) {
   return (
     <>
-      <div style={{ position: "absolute", top: "32px", left: "56px", zIndex: 6, opacity: chromeOpacity, transition: "opacity 0.7s ease", pointerEvents: "none" }}>
+      <div style={{ position: "absolute", top: "32px", left: "56px", zIndex: 50, opacity: chromeOpacity, transition: "opacity 0.7s ease", pointerEvents: "none" }}>
         <div style={{ color: "#f2f4f8", fontWeight: 800, fontSize: "15px", letterSpacing: "0.28em" }}>MERIDIAN</div>
         <div style={{ color: "#5b6472", fontSize: "10px", letterSpacing: "0.14em", marginTop: "2px" }}>GLOBAL INTELLIGENCE TERMINAL</div>
       </div>
-      <div style={{ position: "absolute", top: "34px", right: "56px", zIndex: 6, opacity: chromeOpacity, transition: "opacity 0.7s ease", textAlign: "right", pointerEvents: "none" }}>
+      <div style={{ position: "absolute", top: "34px", right: "56px", zIndex: 50, opacity: chromeOpacity, transition: "opacity 0.7s ease", textAlign: "right", pointerEvents: "none" }}>
         <div style={{ color: "#8a93a3", fontFamily: "'JetBrains Mono', monospace", fontSize: "12.5px" }}>{clockStr} UTC</div>
         <div style={{ color: GREEN_UP, fontSize: "10.5px", letterSpacing: "0.1em", display: "flex", alignItems: "center", gap: "6px", justifyContent: "flex-end", marginTop: "3px" }}>
           <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: GREEN_UP, animation: "blinkDot 1.4s infinite" }} />
@@ -71,7 +73,7 @@ function HeaderChrome({ chromeOpacity, clockStr }) {
  */
 function BreakingTicker({ chromeOpacity, tickerItems }) {
   return (
-    <div style={{ position: "absolute", top: "76px", left: "56px", right: "56px", height: "24px", overflow: "hidden", zIndex: 6, opacity: chromeOpacity, transition: "opacity 0.7s ease", pointerEvents: "none" }}>
+    <div style={{ position: "absolute", top: "76px", left: "56px", right: "56px", height: "24px", overflow: "hidden", zIndex: 50, opacity: chromeOpacity, transition: "opacity 0.7s ease", pointerEvents: "none" }}>
       <div style={{ position: "absolute", display: "flex", gap: "38px", whiteSpace: "nowrap", animation: "marquee 46s linear infinite", alignItems: "center", height: "100%", fontSize: "11.5px", fontFamily: "'JetBrains Mono', monospace" }}>
         {tickerItems.map((ti, i) => (
           <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
@@ -89,7 +91,7 @@ function BreakingTicker({ chromeOpacity, tickerItems }) {
  */
 function OrbitLensSelector({ chromeOpacity, lenses, selectedLens, onLensChange }) {
   return (
-    <div style={{ position: "absolute", top: "50%", left: "50%", width: "780px", height: "780px", margin: "-390px 0 0 -390px", zIndex: 4, pointerEvents: "none", animation: "orbitSpin 100s linear infinite" }}>
+    <div style={{ position: "absolute", top: "50%", left: "50%", width: "780px", height: "780px", margin: "-390px 0 0 -390px", zIndex: 30, pointerEvents: "none", animation: "orbitSpin 100s linear infinite" }}>
       {lenses.map((lens, i) => (
         <div
           key={lens.id}
@@ -145,7 +147,7 @@ function OrbitLensSelector({ chromeOpacity, lenses, selectedLens, onLensChange }
  */
 function GlobalWireWidget({ chromeOpacity, wireOpen, onToggleWire, headlines }) {
   return (
-    <div style={{ position: "absolute", bottom: "38px", right: "44px", zIndex: 11, opacity: chromeOpacity, transition: "opacity 0.7s ease" }}>
+    <div style={{ position: "absolute", bottom: "38px", right: "44px", zIndex: 50, opacity: chromeOpacity, transition: "opacity 0.7s ease" }}>
       {wireOpen && (
         <div style={{ width: "300px", maxHeight: "220px", overflowY: "auto", background: "rgba(9,11,16,0.94)", backdropFilter: "blur(16px)", border: `1px solid ${BORDER_SUBTLE}`, borderRadius: "10px", marginBottom: "8px", boxShadow: "0 20px 50px rgba(0,0,0,0.55)" }}>
           <div style={{ padding: "6px 14px 10px" }}>
@@ -188,17 +190,22 @@ function GlobalWireWidget({ chromeOpacity, wireOpen, onToggleWire, headlines }) 
 /**
  * Command Palette — search dock
  */
-function CommandPalette({ chromeOpacity, commandOpen, onToggleCommand, countries = [] }) {
+function CommandPalette({ chromeOpacity, commandOpen, onToggleCommand, countries = [], onCountrySelect = () => {} }) {
   const [searchText, setSearchText] = useState("");
   const results = countries.filter((c) => c.name.toLowerCase().includes(searchText.toLowerCase())).slice(0, 6);
 
+  const handleSelect = (country) => {
+    onCountrySelect(country);
+    setSearchText("");
+  };
+
   return (
-    <div style={{ position: "absolute", bottom: "38px", left: "50%", transform: "translateX(-50%)", zIndex: 11, display: "flex", flexDirection: "column", alignItems: "center", opacity: chromeOpacity, transition: "opacity 0.7s ease" }}>
+    <div style={{ position: "absolute", bottom: "38px", left: "50%", transform: "translateX(-50%)", zIndex: 50, display: "flex", flexDirection: "column", alignItems: "center", opacity: chromeOpacity, transition: "opacity 0.7s ease" }}>
       {commandOpen && (
         <div style={{ width: "440px", maxHeight: "280px", overflowY: "auto", background: "rgba(9,11,16,0.95)", backdropFilter: "blur(20px)", border: `1px solid rgba(255,255,255,0.12)`, borderRadius: "16px", marginBottom: "10px", boxShadow: "0 24px 60px rgba(0,0,0,0.6)", animation: "fadeUp 0.2s cubic-bezier(0.16,1,0.3,1)" }}>
           <div style={{ padding: "8px" }}>
             {results.map((c, i) => (
-              <div key={i} style={{ padding: "10px 12px", borderRadius: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", color: "#e8ecf3", fontSize: "13px", transition: "background 0.15s" }} onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(62,198,255,0.14)")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+              <div key={i} onClick={() => handleSelect(c)} style={{ padding: "10px 12px", borderRadius: "9px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", color: "#e8ecf3", fontSize: "13px", transition: "background 0.15s" }} onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(62,198,255,0.14)")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
                 <span>{c.name}</span>
                 <span style={{ color: "#5b6472", fontSize: "10.5px", fontFamily: "'JetBrains Mono', monospace" }}>{c.region}</span>
               </div>
@@ -253,7 +260,7 @@ function CommandPalette({ chromeOpacity, commandOpen, onToggleCommand, countries
 function HoverTooltip({ hovered, hoverX, hoverY, changeColor, changeStr }) {
   if (!hovered) return null;
   return (
-    <div style={{ position: "absolute", left: `${hoverX}px`, top: `${hoverY}px`, transform: "translate(16px,-50%)", background: "rgba(13,17,26,0.97)", border: `1px solid #323d4d`, borderRadius: "8px", padding: "10px 14px", pointerEvents: "none", zIndex: 9, boxShadow: "0 12px 32px rgba(0,0,0,0.6)", animation: "fadeUp 0.15s ease" }}>
+    <div style={{ position: "absolute", left: `${hoverX}px`, top: `${hoverY}px`, transform: "translate(16px,-50%)", background: "rgba(13,17,26,0.97)", border: `1px solid #323d4d`, borderRadius: "8px", padding: "10px 14px", pointerEvents: "none", zIndex: 60, boxShadow: "0 12px 32px rgba(0,0,0,0.6)", animation: "fadeUp 0.15s ease" }}>
       <div style={{ color: "#f2f4f8", fontWeight: 700, fontSize: "13px", whiteSpace: "nowrap" }}>{hovered.name}</div>
       <div style={{ color: changeColor, fontFamily: "'JetBrains Mono', monospace", fontSize: "12px", fontWeight: 600 }}>{changeStr}</div>
     </div>
@@ -263,7 +270,7 @@ function HoverTooltip({ hovered, hoverX, hoverY, changeColor, changeStr }) {
 /**
  * Main MeridianLayout
  */
-export default function MeridianLayout({ children, selectedCountry = null }) {
+export default function MeridianLayout({ children, selectedCountry = null, onCountrySelect = () => {}, countries = [] }) {
   const [chromeOpacity, setChromeOpacity] = useState(1);
   const [wireOpen, setWireOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
@@ -272,7 +279,46 @@ export default function MeridianLayout({ children, selectedCountry = null }) {
   const [hovered, setHovered] = useState(null);
   const [hoverX, setHoverX] = useState(0);
   const [hoverY, setHoverY] = useState(0);
+  const [panelCountry, setPanelCountry] = useState(selectedCountry);
+  const [headlines, setHeadlines] = useState([
+    "Oil prices surge on OPEC+ output cut announcement",
+    "Central bank signals potential rate cut amid cooling inflation",
+    "Chipmakers rally on record AI semiconductor demand",
+    "Banking stocks under pressure on credit concerns",
+  ]);
   const idleTimerRef = useRef(null);
+
+  useEffect(() => {
+    setPanelCountry(selectedCountry);
+  }, [selectedCountry]);
+
+  useEffect(() => {
+    intelApi.recent().then((data) => {
+      if (data?.events) {
+        const headlineTexts = data.events
+          .slice(0, 4)
+          .map((e) => e.title || `${e.country}: ${e.sector} news`)
+          .filter(Boolean);
+        if (headlineTexts.length > 0) {
+          setHeadlines(headlineTexts);
+        }
+      }
+    });
+    const interval = setInterval(() => {
+      intelApi.recent().then((data) => {
+        if (data?.events) {
+          const headlineTexts = data.events
+            .slice(0, 4)
+            .map((e) => e.title || `${e.country}: ${e.sector} news`)
+            .filter(Boolean);
+          if (headlineTexts.length > 0) {
+            setHeadlines(headlineTexts);
+          }
+        }
+      });
+    }, 12000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -321,22 +367,14 @@ export default function MeridianLayout({ children, selectedCountry = null }) {
     { glyph: "△", label: "RISK", color: RED_DOWN, text: "Volatility elevated across markets" },
   ];
 
-  const globalHeadlines = [
-    "Oil prices surge on OPEC+ output cut announcement",
-    "Central bank signals potential rate cut amid cooling inflation",
-    "Chipmakers rally on record AI semiconductor demand",
-    "Banking stocks under pressure on credit concerns",
-  ];
-
   return (
     <div
       style={{
-        position: "relative",
-        width: "100%",
-        height: "100vh",
-        background: DARK_BG,
+        position: "absolute",
+        inset: 0,
+        background: "transparent",
         overflow: "hidden",
-        onMouseMove: handleStageMove,
+        pointerEvents: "auto",
         cursor: "grab",
       }}
       onMouseMove={handleStageMove}
@@ -348,8 +386,8 @@ export default function MeridianLayout({ children, selectedCountry = null }) {
         @keyframes orbitSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       `}</style>
 
-      {/* Globe canvas container */}
-      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>{children}</div>
+      {/* Globe canvas container — behind all HUD */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "auto", zIndex: 1 }}>{children}</div>
 
       {/* HUD chrome */}
       <HUDCorners chromeOpacity={chromeOpacity} />
@@ -363,10 +401,13 @@ export default function MeridianLayout({ children, selectedCountry = null }) {
       <HoverTooltip hovered={hovered} hoverX={hoverX} hoverY={hoverY} changeColor={hovered ? (Math.random() > 0.5 ? GREEN_UP : RED_DOWN) : "#8793a5"} changeStr={hovered ? (Math.random() > 0.5 ? "+2.34%" : "-1.12%") : ""} />
 
       {/* Global Wire widget */}
-      <GlobalWireWidget chromeOpacity={chromeOpacity} wireOpen={wireOpen} onToggleWire={() => setWireOpen(!wireOpen)} headlines={globalHeadlines} />
+      <GlobalWireWidget chromeOpacity={chromeOpacity} wireOpen={wireOpen} onToggleWire={() => setWireOpen(!wireOpen)} headlines={headlines} />
 
       {/* Command palette */}
-      <CommandPalette chromeOpacity={chromeOpacity} commandOpen={commandOpen} onToggleCommand={() => setCommandOpen(!commandOpen)} countries={[{ name: "United States", region: "Americas" }, { name: "India", region: "Asia" }, { name: "Germany", region: "Europe" }, { name: "Japan", region: "Asia" }, { name: "Brazil", region: "Americas" }, { name: "United Kingdom", region: "Europe" }]} />
+      <CommandPalette chromeOpacity={chromeOpacity} commandOpen={commandOpen} onToggleCommand={() => setCommandOpen(!commandOpen)} countries={countries} onCountrySelect={(c) => { setPanelCountry(c); onCountrySelect(c); }} />
+
+      {/* Meridian Panel */}
+      {panelCountry && <MeridianPanel country={panelCountry} lens={selectedLens} onClose={() => setPanelCountry(null)} onLensChange={setSelectedLens} />}
     </div>
   );
 }

@@ -21,6 +21,7 @@ import SocialPage from "./pages/Social/SocialPage";
 import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
 import { CountryLeftPanel } from "./components/Terminal/CountryLeftPanel";
 import { CountryRightPanel } from "./components/Terminal/CountryRightPanel";
+import MeridianLayout    from "./components/Terminal/MeridianLayout";
 import Ticker           from "./components/Ticker/Ticker";
 import Footer           from "./components/Footer/Footer";
 
@@ -139,11 +140,24 @@ function TerminalApp() {
       <LeftNav currentView={activeView} onSetView={setActiveView} />
 
       {/* Main content area */}
-      <main className="globe-area" style={{ 
-        position: "relative", 
+      <main className="globe-area" style={{
+        position: "relative",
         overflow: activeView === "globe" ? "hidden" : "auto",
         touchAction: activeView === "globe" ? "none" : "auto"
       }}>
+        {/* MERIDIAN HUD overlay for globe view */}
+        {activeView === "globe" && (
+          <div style={{ position: "absolute", inset: 0, zIndex: 100, pointerEvents: "none" }}>
+            <MeridianLayout
+              selectedCountry={selectedCountry}
+              onCountrySelect={handleCountryClick}
+              countries={[]}
+              style={{ pointerEvents: "auto" }}
+            >
+              <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }} />
+            </MeridianLayout>
+          </div>
+        )}
         {activeView === "globe" ? (
           <div className="flex w-full h-full">
             {/* Left Panel: Market overview & Risk radar OR Country Info */}

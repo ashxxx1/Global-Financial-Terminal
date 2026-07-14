@@ -26,6 +26,7 @@ export const intelApi = {
   economy: (code) => get(`/api/economy/${code}`),
   markets: (code) => get(`/api/markets/${code}`),
   country: (code) => get(`/api/country/${code}`),
+  recent: () => get(`/api/recent`),
   health: () => get(`/health`, { timeout: 2500 }),
 
   /** Subscribe to the live SSE event stream. Returns an unsubscribe fn (or no-op). */

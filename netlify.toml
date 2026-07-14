@@ -1,0 +1,46 @@
+# Netlify Configuration for Global Financial Terminal
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18.18.0"
+  NPM_VERSION = "10.1.0"
+
+# Redirect all non-file requests to index.html for client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cache control headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cache static assets aggressively
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, immutable, max-age=31536000"
+
+# Don't cache HTML files
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Environment variables for production
+[context.production.environment]
+  VITE_FIREBASE_API_KEY = "AIzaSyAYEHwXwC9dFzkus2P8j3fqgvLUINOHQoo"
+  VITE_FIREBASE_AUTH_DOMAIN = "global-financial-terminal.firebaseapp.com"
+  VITE_FIREBASE_PROJECT_ID = "global-financial-terminal"
+  VITE_FIREBASE_STORAGE_BUCKET = "global-financial-terminal.firebasestorage.app"
+  VITE_FIREBASE_MESSAGING_SENDER_ID = "141571673436"
+  VITE_FIREBASE_APP_ID = "1:141571673436:web:d351f692f29f68390e8599"
+  VITE_ADMIN_EMAIL = "aarushkapoor23@gmail.com"

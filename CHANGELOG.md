@@ -5,6 +5,30 @@ Format: [ISO date] | [SemVer] | [type] | description
 
 ---
 
+## [0.0.2-dev] - 2026-07-14 (Meridian UI — In Progress)
+
+### Added
+- **MERIDIAN UI Framework** — premium terminal layout from Claude Design handoff
+  - HUD corner brackets (idle-fade, cyan)
+  - MERIDIAN wordmark + "GLOBAL INTELLIGENCE TERMINAL" subtitle
+  - UTC clock + animated LIVE indicator
+  - Breaking ticker with marquee animation (market data, macro, risk)
+  - Orbit lens selector (5 rotating lenses: MARKETS, FX, MACRO, RISK, NEWS)
+  - Global Wire widget (expandable headlines pill, bottom-right)
+  - Command palette dock (country/index search, bottom-center)
+  - Hover tooltip (country name + market change)
+  - Full glassmorphism styling (backdrop-filter blur, rgba, borders)
+  - Smooth animations (idle-fade, marquee, orbit, fade-up)
+
+### In Progress / TODO
+- Wire MeridianLayout into Terminal.jsx (wraps GlobeVis)
+- Rebuild right panel to match MERIDIAN design (MeridianPanel component)
+- Connect lens selector to panel tab switching
+- Bind command palette to country selection + globe focus
+- Connect real data streams (countries, headlines, market prices)
+
+---
+
 ## [0.0.1] - 2026-07-13
 
 ### Added

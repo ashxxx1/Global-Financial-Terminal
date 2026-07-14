@@ -5,27 +5,53 @@ Format: [ISO date] | [SemVer] | [type] | description
 
 ---
 
-## [0.0.2-dev] - 2026-07-14 (Meridian UI — In Progress)
+## [0.0.2-dev] - 2026-07-14 (Meridian UI — Complete)
 
 ### Added
 - **MERIDIAN UI Framework** — premium terminal layout from Claude Design handoff
-  - HUD corner brackets (idle-fade, cyan)
-  - MERIDIAN wordmark + "GLOBAL INTELLIGENCE TERMINAL" subtitle
-  - UTC clock + animated LIVE indicator
-  - Breaking ticker with marquee animation (market data, macro, risk)
-  - Orbit lens selector (5 rotating lenses: MARKETS, FX, MACRO, RISK, NEWS)
-  - Global Wire widget (expandable headlines pill, bottom-right)
-  - Command palette dock (country/index search, bottom-center)
-  - Hover tooltip (country name + market change)
-  - Full glassmorphism styling (backdrop-filter blur, rgba, borders)
-  - Smooth animations (idle-fade, marquee, orbit, fade-up)
+  - HUD corner brackets (idle-fade, cyan) ✅
+  - MERIDIAN wordmark + "GLOBAL INTELLIGENCE TERMINAL" subtitle ✅
+  - UTC clock + animated LIVE indicator ✅
+  - Breaking ticker with marquee animation (market data, macro, risk) ✅
+  - Orbit lens selector (5 rotating lenses: MARKETS, FX, MACRO, RISK, NEWS) ✅
+  - Global Wire widget (expandable headlines pill, bottom-right) ✅
+  - Command palette dock (country/index search, bottom-center) ✅
+  - Hover tooltip (country name + market change) ✅
+  - Full glassmorphism styling (backdrop-filter blur, rgba, borders) ✅
+  - Smooth animations (idle-fade, marquee, orbit, fade-up) ✅
 
-### In Progress / TODO
-- Wire MeridianLayout into Terminal.jsx (wraps GlobeVis)
-- Rebuild right panel to match MERIDIAN design (MeridianPanel component)
-- Connect lens selector to panel tab switching
-- Bind command palette to country selection + globe focus
-- Connect real data streams (countries, headlines, market prices)
+- **MeridianPanel.jsx** — redesigned right panel with 4 tabs
+  - Overview tab: index + FX + AI sentiment
+  - News tab: market narrative + news cards with confidence scoring
+  - Markets tab: sector performance + top gainers/losers
+  - Economy tab: macro indicators (GDP, inflation, rate) + latest headlines
+  - Real backend data integration (markets/economy APIs)
+  - Glassmorphism styling matching MERIDIAN design
+  - Slide-in animation on panel open
+  - Close button and lens tab switching
+
+- **Lens Selector Wiring** ✅
+  - Clicking lenses triggers panel tab switching
+  - Visual feedback (active lens highlighted in cyan)
+  - 5 rotating lenses in orbit around globe center
+  - Smooth animations on hover
+
+- **Command Palette Integration** ✅
+  - Search box for country selection
+  - Opens country panel on result selection
+  - Real-time search filtering
+  - Keyboard shortcut indicator (⌘K)
+
+- **Global Wire Real Headlines** ✅
+  - Connected to intelApi.recent() for live news
+  - Updates every 12 seconds from backend
+  - Expandable pill widget (bottom-right)
+  - Fallback sample headlines if backend unavailable
+
+### Fixed
+- z-index layering: globe visible under HUD chrome (z:1 < HUD:50)
+- Full-screen overlay positioning for MeridianLayout
+- Pointer events routing for interactive lens selector
 
 ---
 
@@ -103,10 +129,13 @@ Format: [ISO date] | [SemVer] | [type] | description
 ## Known Limitations / Roadmap
 
 - **Backend not always-on yet** — requires deployment to Render/Fly.io/Koyeb/Oracle (free tier options available)
+  - After deploy: set VITE_INTEL_API env var in Netlify to enable live markets/economy/headlines
+- **Command palette needs country data** — currently empty array; needs to pull from GlobeVis countries list
 - **Self-learning feedback loop** — needs live price feed integration to score predictions vs actual moves
 - **LLM analysis** — currently heuristic; needs Claude API key for deeper "why it matters" essays (server-side)
 - **Globe rendering** — bumpScale/specular adjustments attempted; needs visual verification on live site
 - **Mobile responsiveness** — tested on desktop; mobile layout dead-space noted but deferred
+- **Lens selector data binding** — MARKETS/FX/MACRO/RISK/NEWS tabs should filter data by lens (currently always shows MARKETS)
 
 ---
 

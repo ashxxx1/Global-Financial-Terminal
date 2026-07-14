@@ -203,7 +203,12 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
     const updateSize = () => {
       const w = container.clientWidth || 800;
       const h = container.clientHeight || 800;
-      setDimensions({ width: w, height: h });
+      setDimensions(prev => {
+        if (Math.abs(prev.width - w) < 3 && Math.abs(prev.height - h) < 3) {
+          return prev;
+        }
+        return { width: w, height: h };
+      });
     };
 
     updateSize();
@@ -292,6 +297,26 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
     }, 200);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Force WebGL context disposal on unmount to release GPU resources
+  useEffect(() => {
+    return () => {
+      if (globeRef.current) {
+        try {
+          const renderer = globeRef.current.renderer();
+          if (renderer) {
+            renderer.dispose();
+            const extension = renderer.getContext()?.getExtension('WEBGL_lose_context');
+            if (extension) {
+              extension.loseContext();
+            }
+          }
+        } catch (e) {
+          console.warn("Could not dispose WebGL context:", e);
+        }
+      }
+    };
   }, []);
 
   useEffect(() => {

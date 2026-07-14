@@ -29,7 +29,7 @@ function fuzzyMatch(str, query) {
 export default function CommandPalette() {
   const [query, setQuery] = useState("");
   const [activeIdx, setActiveIdx] = useState(0);
-  const { commandPaletteOpen, setCommandPaletteOpen, setSelectedStock, setSelectedCountry, setActiveView } = useTerminalStore();
+  const { commandPaletteOpen, setCommandPaletteOpen, setSelectedStock, setSelectedCountry, setActiveView, setSelectedSector } = useTerminalStore();
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -66,6 +66,19 @@ export default function CommandPalette() {
       .filter((c) => fuzzyMatch(c.name + " " + c.code, q))
       .slice(0, 4)
       .forEach((c) => items.push({ id: "c_" + c.code, icon: "🌍", label: c.name, desc: `${c.marketIndex} · ${c.currency}`, type: "country", data: c }));
+
+    // Sectors
+    const sectors = ["Technology", "Energy", "Financials", "Healthcare", "Consumer", "Industrials", "Materials", "Real Estate"];
+    sectors
+      .filter((sec) => fuzzyMatch(sec, q))
+      .forEach((sec) => items.push({
+        id: "sec_" + sec.toLowerCase(),
+        icon: "⚡",
+        label: sec + " Sector",
+        desc: "Global financial sector intelligence",
+        type: "sector",
+        data: sec
+      }));
 
     // Stocks
     searchStocks(q).slice(0, 5).forEach((s) => {
@@ -124,14 +137,18 @@ export default function CommandPalette() {
       else if (item.action.startsWith("view:")) setActiveView(item.action.slice(5));
     } else if (item.type === "country") {
       setSelectedCountry(item.data);
+      setActiveView("globe");
+    } else if (item.type === "sector") {
+      setSelectedSector(item.data);
     } else if (item.type === "stock") {
       setSelectedStock(item.data);
+      setActiveView("globe");
     } else if (item.type === "forum") {
       navigate(`/forum/thread/${item.data.id}`);
     } else if (item.type === "forum-cat") {
       navigate(`/forum/${item.data.id}`);
     }
-  }, [navigate, setCommandPaletteOpen, setSelectedCountry, setSelectedStock, setActiveView]);
+  }, [navigate, setCommandPaletteOpen, setSelectedCountry, setSelectedStock, setActiveView, setSelectedSector]);
 
   const handleKeyDown = (e) => {
     if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx((i) => Math.min(i + 1, results.length - 1)); }

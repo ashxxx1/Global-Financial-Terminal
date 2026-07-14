@@ -50,6 +50,40 @@ import SetupUsername  from "./pages/SetupUsername";
 // ── State ────────────────────────────────────────────────────────────────────
 import useTerminalStore from "./store/terminalStore";
 
+// ── Countries list for command palette ────────────────────────────────────────
+const COUNTRIES_LIST = [
+  { name: "United States", code: "US", region: "Americas" },
+  { name: "United Kingdom", code: "GB", region: "Europe" },
+  { name: "Germany", code: "DE", region: "Europe" },
+  { name: "France", code: "FR", region: "Europe" },
+  { name: "Japan", code: "JP", region: "Asia" },
+  { name: "China", code: "CN", region: "Asia" },
+  { name: "India", code: "IN", region: "Asia" },
+  { name: "Brazil", code: "BR", region: "Americas" },
+  { name: "Canada", code: "CA", region: "Americas" },
+  { name: "Australia", code: "AU", region: "Oceania" },
+  { name: "Mexico", code: "MX", region: "Americas" },
+  { name: "South Korea", code: "KR", region: "Asia" },
+  { name: "Russia", code: "RU", region: "Europe" },
+  { name: "Saudi Arabia", code: "SA", region: "Middle East" },
+  { name: "Singapore", code: "SG", region: "Asia" },
+  { name: "Hong Kong", code: "HK", region: "Asia" },
+  { name: "Switzerland", code: "CH", region: "Europe" },
+  { name: "Netherlands", code: "NL", region: "Europe" },
+  { name: "Sweden", code: "SE", region: "Europe" },
+  { name: "Norway", code: "NO", region: "Europe" },
+  { name: "South Africa", code: "ZA", region: "Africa" },
+  { name: "Turkey", code: "TR", region: "Middle East" },
+  { name: "Thailand", code: "TH", region: "Asia" },
+  { name: "Philippines", code: "PH", region: "Asia" },
+  { name: "Indonesia", code: "ID", region: "Asia" },
+  { name: "Vietnam", code: "VN", region: "Asia" },
+  { name: "Pakistan", code: "PK", region: "Asia" },
+  { name: "Bangladesh", code: "BD", region: "Asia" },
+  { name: "Egypt", code: "EG", region: "Africa" },
+  { name: "Nigeria", code: "NG", region: "Africa" },
+];
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Main Terminal Application
 // ─────────────────────────────────────────────────────────────────────────────
@@ -151,7 +185,7 @@ function TerminalApp() {
             <MeridianLayout
               selectedCountry={selectedCountry}
               onCountrySelect={handleCountryClick}
-              countries={[]}
+              countries={COUNTRIES_LIST}
               style={{ pointerEvents: "auto" }}
             >
               <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }} />

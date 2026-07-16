@@ -21,7 +21,7 @@ import SocialPage from "./pages/Social/SocialPage";
 import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
 import { CountryLeftPanel } from "./components/Terminal/CountryLeftPanel";
 import { CountryRightPanel } from "./components/Terminal/CountryRightPanel";
-import MeridianTerminal  from "./components/Terminal/MeridianTerminal";
+import MeridianTerminalV2  from "./components/Terminal/MeridianTerminalV2";
 import Ticker           from "./components/Ticker/Ticker";
 import Footer           from "./components/Footer/Footer";
 
@@ -188,9 +188,9 @@ function TerminalApp() {
         width: "100%",
         height: isMeridianMode ? "100vh" : "auto",
       }}>
-        {/* MERIDIAN Terminal with integrated engines */}
+        {/* MERIDIAN Terminal V2 - Redesigned UI */}
         {isMeridianMode ? (
-          <MeridianTerminal
+          <MeridianTerminalV2
             selectedCountry={selectedCountry}
             onCountrySelect={handleCountryClick}
             countries={COUNTRIES_LIST}

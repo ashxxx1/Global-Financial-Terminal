@@ -21,7 +21,6 @@ import SocialPage from "./pages/Social/SocialPage";
 import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
 import { CountryLeftPanel } from "./components/Terminal/CountryLeftPanel";
 import { CountryRightPanel } from "./components/Terminal/CountryRightPanel";
-import MeridianLayout    from "./components/Terminal/MeridianLayout";
 import PremiumTerminal   from "./components/Terminal/PremiumTerminal";
 import Ticker           from "./components/Ticker/Ticker";
 import Footer           from "./components/Footer/Footer";
@@ -137,11 +136,16 @@ function TerminalApp() {
   const [bottomCollapsed, setBottomCollapsed] = useState(true);
 
   useEffect(() => {
-    if (selectedCountry) {
-      if (leftCollapsed) setLeftCollapsed(false);
-      if (rightCollapsed) setRightCollapsed(false);
+    if (selectedCountry && leftCollapsed) {
+      setLeftCollapsed(false);
     }
-  }, [selectedCountry, leftCollapsed, rightCollapsed]);
+  }, [selectedCountry, leftCollapsed]);
+
+  useEffect(() => {
+    if (selectedCountry && rightCollapsed) {
+      setRightCollapsed(false);
+    }
+  }, [selectedCountry, rightCollapsed]);
 
   const handleCountryClick = useCallback((country, event) => {
     if (event && event.shiftKey && selectedCountry) {

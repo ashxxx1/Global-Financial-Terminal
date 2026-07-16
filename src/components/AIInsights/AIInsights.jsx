@@ -7,10 +7,12 @@ function TypewriterText({ text, speed = 18 }) {
   const idxRef = useRef(0);
 
   useEffect(() => {
+    if (!text) {
+      setDisplayed("");
+      setDone(false);
+      return;
+    }
     idxRef.current = 0;
-    setDisplayed("");
-    setDone(false);
-    if (!text) return;
     const interval = setInterval(() => {
       idxRef.current += 1;
       setDisplayed(text.slice(0, idxRef.current));
@@ -19,7 +21,11 @@ function TypewriterText({ text, speed = 18 }) {
         clearInterval(interval);
       }
     }, speed);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      setDisplayed("");
+      setDone(false);
+    };
   }, [text, speed]);
 
   return (
@@ -36,9 +42,6 @@ export default function AIInsights({ country, stock }) {
   const [key, setKey] = useState(0);
 
   useEffect(() => {
-    setVisible(false);
-    setNarrative("");
-
     if (country) {
       const timer = setTimeout(() => {
         const text = generateNarrative(country.code, country.sentiment || "neutral");
@@ -55,6 +58,9 @@ export default function AIInsights({ country, stock }) {
         setVisible(true);
       }, 400);
       return () => clearTimeout(timer);
+    } else {
+      setVisible(false);
+      setNarrative("");
     }
   }, [country, stock]);
 

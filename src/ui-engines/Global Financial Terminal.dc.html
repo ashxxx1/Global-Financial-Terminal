@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #0b0d12; }
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    @keyframes blinkDot { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+    @keyframes fadeUp { 0% { opacity: 0; transform: translateY(6px); } 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes scanGlow { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+    @keyframes orbitPulseOnce { 0% { box-shadow: 0 0 0 0 rgba(62,198,255,0.5); } 70% { box-shadow: 0 0 0 14px rgba(62,198,255,0); } 100% { box-shadow: 0 0 0 0 rgba(62,198,255,0); } }
+    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+    @keyframes orbitSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    [data-focusable]:focus-visible { outline: 2px solid #3ec6ff; outline-offset: 2px; border-radius: 6px; }
+    [data-focusable]:focus { outline: none; }
+    [data-focusable]:focus-visible { outline: 2px solid #3ec6ff; outline-offset: 2px; }
+  </style>
+
+  <script type="module">
+    window.__gftImport = async () => {
+      const [countryMod, marketMod, globeMod, centersMod, intelMod, riskMod, aiMod, crisisMod] = await Promise.all([
+        import('./country-data.js'), import('./market-engine.js'), import('./dot-globe.js'), import('./financial-centers.js'), import('./intel-events.js'), import('./risk-engine.js'), import('./ai-assistant.js'), import('./crisis-engine.js')
+      ]);
+      return { ...countryMod, ...marketMod, ...globeMod, ...centersMod, ...intelMod, ...riskMod, ...aiMod, ...crisisMod };
+    };
+  </script>
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#0b0d12"/>
+      <circle cx="50" cy="50" r="28" fill="none" stroke="#2ee6a6" stroke-width="1.5" opacity="0.6"/>
+      <circle cx="42" cy="40" r="3" fill="#2ee6a6"/>
+      <circle cx="60" cy="55" r="3" fill="#ff5c68"/>
+      <circle cx="55" cy="30" r="2.4" fill="#e8ecf3"/>
+    </svg>
+  </template>
+</helmet>
+
+<section id="final" style="background:#07080b; padding: 40px; min-height: 100vh; font-family: 'Inter', sans-serif; overflow-x: auto;">
+
+  <div style="width:1600px; margin: 0 auto; position:relative;">
+    <div style="width:1600px; height:960px; background:#050608; border:1px solid #1a1e26; border-radius:10px; overflow:hidden; position:relative; box-shadow:0 30px 80px rgba(0,0,0,0.6); cursor:grab;" onMouseMove="{{ e.onStageMove }}">
+
+      <canvas ref="{{ refE }}" style="width:100%; height:100%; display:block;"></canvas>
+      <div style="position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at 50% 46%, transparent 55%, rgba(5,6,8,0.5) 100%);"></div>
+
+      <!-- HUD corner brackets -->
+      <div style="position:absolute; top:18px; left:18px; width:30px; height:30px; border-top:2px solid #3ec6ff; border-left:2px solid #3ec6ff; z-index:7; opacity:{{ e.chromeOpacity }}; transition:opacity 0.7s ease; pointer-events:none;"></div>
+      <div style="position:absolute; top:18px; right:18px; width:30px; height:30px; border-top:2px solid #3ec6ff; border-right:2px solid #3ec6ff; z-index:7; opacity:{{ e.chromeOpacity }}; transition:opacity 0.7s ease; pointer-events:none;"></div>
+      <div style="position:absolute; bottom:18px; left:18px; width:30px; height:30px; border-bottom:2px solid #3ec6ff; border-left:2px solid #3ec6ff; z-index:7; opacity:{{ e.chromeOpacity }}; transition:opacity 0.7s ease; pointer-events:none;"></div>
+      <div style="position:absolute; bottom:18px; right:18px; width:30px; height:30px; border-bottom:2px solid #3ec6ff; border-right:2px solid #3ec6ff; z-index:7; opacity:{{ e.chromeOpacity }}; transition:opacity 0.7s ease; pointer-events:none;"></div>
+
+      <!-- wordmark + clock, idle-fade -->
+      <div style="position:absolute; top:32px; left:56px; z-index:6; opacity:{{ e.chromeOpacity }}; transition:opacity 0.7s ease; pointer-events:none;">
+        <div style="color:#f2f4f8; font-weight:800; font-size:15px; letter-spacing:0.28em;">MERIDIAN</div>
+        <div style="color:#5b6472; font-size:10px; letter-spacing:0.14em; margin-top:2px;">GLOBAL INTELLIGENCE TERMINAL</div>
+      </div>
+      <div style="position:absolute; top:34px; right:56px; z-index:6; opacity:{{ e.chromeOpacity }}; transition:opacity 0.7s ease; text-align:right; pointer-events:auto;">
+        <div style="color:#8a93a3; font-family:'JetBrains Mono',monospace; font-size:12.5px;">{{ clockStr }} UTC</div>
+        <div style="color:#39d6a3; font-size:10.5px; letter-spacing:0.1em; display:flex; align-items:center; gap:6px; justify-content:flex-end; margin-top:3px;"><span style="width:5px; height:5px; border-radius:50%; background:#39d6a3; animation:blinkDot 1.4s infinite;"></span>LIVE</div>
+        <div style="display:flex; flex-direction:column; gap:3px; margin-top:10px; align-items:flex-end;">
+          <sc-for list="{{ e.marketClocks }}" as="mc" hint-placeholder-count="5">
+            <div style="display:flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:10px;">
+              <span style="color:#5b6472;">{{ mc.flag }} {{ mc.city }}</span>
+              <span style="color:#c3cad6;">{{ mc.time }}</span>
+              <span style="width:5px; height:5px; border-radius:50%; background:{{ mc.openColor }};"></span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px; justify-content:flex-end; align-items:center;">
+          <div onClick="{{ e.toggleShortcuts }}" tabindex="0" data-focusable title="Keyboard shortcuts (?)" style="width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.14); display:flex; align-items:center; justify-content:center; cursor:pointer; color:#8a93a3; font-size:11px; font-family:'JetBrains Mono',monospace;" style-hover="border-color:#3ec6ff; color:#3ec6ff;">?</div>
+          <div style="position:relative;">
+            <div onClick="{{ e.toggleIntelHub }}" tabindex="0" data-focusable style="padding:6px 14px; border-radius:16px; font-size:10px; font-weight:700; letter-spacing:0.06em; cursor:pointer; display:flex; align-items:center; gap:6px; background:{{ e.intelHubOpen ? 'rgba(139,92,246,0.16)' : 'rgba(255,255,255,0.05)' }}; border:1px solid {{ e.intelHubOpen ? '#8b5cf6' : 'rgba(255,255,255,0.14)' }}; color:{{ e.intelHubOpen ? '#d8c9ff' : '#8a93a3' }}; transition:all 0.25s ease;" style-hover="border-color:#8b5cf6;">
+              🧠 INTELLIGENCE
+              <sc-if value="{{ e.intelActiveCount }}" hint-placeholder-val="{{ false }}">
+                <span style="width:5px; height:5px; border-radius:50%; background:#8b5cf6; box-shadow:0 0 5px #8b5cf6;"></span>
+              </sc-if>
+            </div>
+            <sc-if value="{{ e.intelHubOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute; top:38px; right:0; width:220px; background:rgba(14,12,20,0.96); backdrop-filter:blur(20px); border:1px solid rgba(139,92,246,0.25); border-radius:14px; box-shadow:0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06); z-index:15; padding:6px; animation:fadeUp 0.22s cubic-bezier(0.22,1,0.36,1);">
+                <sc-for list="{{ e.intelMenuItems }}" as="im" hint-placeholder-count="4">
+                  <div onClick="{{ im.onClick }}" tabindex="0" data-focusable style="display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; cursor:pointer; color:{{ im.active ? '#d8c9ff' : '#c3cad6' }}; background:{{ im.active ? 'rgba(139,92,246,0.14)' : 'transparent' }};" style-hover="background:rgba(139,92,246,0.1);">
+                    <span style="font-size:13px; width:16px;">{{ im.icon }}</span>
+                    <span style="font-size:12px; font-weight:600; flex:1;">{{ im.label }}</span>
+                    <sc-if value="{{ im.badge }}" hint-placeholder-val="{{ false }}"><span style="background:#ff5b68; color:#1a0507; font-size:8px; font-weight:800; border-radius:8px; padding:1px 5px;">{{ im.badge }}</span></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{ e.shortcutsOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ e.toggleShortcuts }}" style="position:absolute; inset:0; z-index:20; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; animation:fadeUp 0.2s ease;">
+          <div onClick="{{ e.stopProp }}" style="width:360px; background:rgba(14,16,22,0.98); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:22px; box-shadow:0 30px 70px rgba(0,0,0,0.5);">
+            <div style="color:#f2f4f8; font-size:14px; font-weight:800; margin-bottom:14px;">Keyboard Shortcuts</div>
+            <sc-for list="{{ e.shortcutList }}" as="sk" hint-placeholder-count="7">
+              <div style="display:flex; justify-content:space-between; padding:7px 0; border-top:1px solid rgba(255,255,255,0.06);">
+                <span style="color:#8a93a3; font-size:12px;">{{ sk.desc }}</span>
+                <span style="color:#c3cad6; font-family:'JetBrains Mono',monospace; font-size:11px; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:4px;">{{ sk.key }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- Crisis banner -->
+      <sc-if value="{{ e.crisisActive }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; top:0; left:0; right:0; z-index:13; display:flex; justify-content:center; pointer-events:none;">
+          <div style="margin-top:14px; pointer-events:auto; display:flex; align-items:center; gap:10px; background:linear-gradient(90deg, rgba(255,91,104,0.16), rgba(224,138,60,0.12)); border:1px solid rgba(255,91,104,0.4); border-radius:10px; padding:9px 18px; box-shadow:0 10px 30px rgba(255,91,104,0.15); animation:fadeUp 0.4s ease;">
+            <span style="width:7px; height:7px; border-radius:50%; background:#ff5b68; box-shadow:0 0 8px #ff5b68; animation:blinkDot 1s infinite;"></span>
+            <span style="color:#ffb3b8; font-size:10.5px; font-weight:800; letter-spacing:0.08em;">CRISIS MODE — {{ e.crisis.type }}</span>
+            <span style="width:1px; height:14px; background:rgba(255,255,255,0.15);"></span>
+            <span style="color:{{ e.crisis.color }}; font-size:10.5px; font-weight:700;">{{ e.crisis.severity }} SEVERITY</span>
+            <span onClick="{{ e.toggleCrisisPanel }}" tabindex="0" data-focusable style="color:#c3cad6; font-size:10px; cursor:pointer; margin-left:8px; border-left:1px solid rgba(255,255,255,0.15); padding-left:10px;">{{ e.crisisPanelToggleLabel }}</span>
+          </div>
+        </div>
+
+        <sc-if value="{{ e.alertsOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; top:150px; right:{{ e.alertsPanelRight }}; width:320px; max-height:300px; overflow-y:auto; z-index:13; background:rgba(9,11,16,0.96); backdrop-filter:blur(20px); border:1px solid rgba(255,91,104,0.3); border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.55); animation:fadeUp 0.25s ease;">
+            <div style="padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.08); color:#ffb3b8; font-size:11px; font-weight:800; letter-spacing:0.06em;">ALERT CENTER</div>
+            <sc-for list="{{ e.crisis.alerts }}" as="al" hint-placeholder-count="4">
+              <div style="padding:10px 14px; border-top:1px solid rgba(255,255,255,0.06); display:flex; gap:8px; align-items:flex-start;">
+                <span style="width:6px; height:6px; border-radius:50%; background:{{ al.color }}; margin-top:5px; flex-shrink:0;"></span>
+                <div>
+                  <div style="color:{{ al.color }}; font-size:9.5px; font-weight:700; letter-spacing:0.05em; margin-bottom:2px;">{{ al.kind }}</div>
+                  <div style="color:#c3cad6; font-size:11.5px; line-height:1.4;">{{ al.text }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- Crisis Dashboard — left dock -->
+        <div style="position:absolute; top:150px; left:56px; width:380px; max-height:calc(100% - 200px); z-index:11; background:rgba(12,9,9,0.94); backdrop-filter:blur(18px); border:1px solid rgba(255,91,104,0.28); border-radius:14px; box-shadow:0 24px 60px rgba(0,0,0,0.6); display:flex; flex-direction:column; overflow:hidden; transform:translateX({{ e.crisisPanelTransform }}); opacity:{{ e.crisisPanelOpacity }}; transition:all 0.45s cubic-bezier(0.16,1,0.3,1);">
+          <div style="padding:14px 16px; border-bottom:1px solid rgba(255,91,104,0.2); display:flex; align-items:center; gap:8px;">
+            <span style="color:#ff5b68; font-size:14px;">⚠</span>
+            <span style="color:#ffb3b8; font-size:12.5px; font-weight:800; letter-spacing:0.05em;">CRISIS COMMAND CENTER</span>
+          </div>
+          <div style="flex:1; overflow-y:auto; padding:14px 16px; display:flex; flex-direction:column; gap:12px;">
+
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+              <div style="color:#8793a5; font-size:10.5px; letter-spacing:0.06em; margin-bottom:8px;">SITUATION OVERVIEW</div>
+              <div style="color:#e8ecf3; font-size:12.5px; line-height:1.6; margin-bottom:8px;">{{ e.crisis.overview }}</div>
+              <div style="color:#8a93a3; font-size:11.5px; line-height:1.55; margin-bottom:6px;"><b style="color:#c3cad6;">Why it matters: </b>{{ e.crisis.whyItMatters }}</div>
+              <div style="color:#8a93a3; font-size:11.5px; line-height:1.55; margin-bottom:6px;"><b style="color:#c3cad6;">Countries affected: </b>{{ e.crisis.affectedNames }}</div>
+              <div style="color:#8a93a3; font-size:11.5px; line-height:1.55;"><b style="color:#c3cad6;">Economic consequences: </b>{{ e.crisis.economicConsequences }}</div>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+              <div style="color:#8793a5; font-size:10.5px; letter-spacing:0.06em; margin-bottom:8px;">MARKET IMPACT</div>
+              <sc-for list="{{ e.crisis.indices }}" as="ix" hint-placeholder-count="3">
+                <div style="display:flex; justify-content:space-between; padding:4px 0;"><span style="color:#c3cad6; font-size:11.5px;">{{ ix.name }}</span><span style="color:{{ ix.color }}; font-size:11.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ ix.str }}</span></div>
+              </sc-for>
+              <div style="display:flex; justify-content:space-between; padding:4px 0; border-top:1px solid rgba(255,255,255,0.06); margin-top:4px;"><span style="color:#c3cad6; font-size:11.5px;">{{ e.crisis.oilName }}</span><span style="color:{{ e.crisis.oilColor }}; font-size:11.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.crisis.oilStr }}</span></div>
+              <div style="display:flex; justify-content:space-between; padding:4px 0;"><span style="color:#c3cad6; font-size:11.5px;">{{ e.crisis.goldName }}</span><span style="color:{{ e.crisis.goldColor }}; font-size:11.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.crisis.goldStr }}</span></div>
+              <div style="display:flex; justify-content:space-between; padding:4px 0;"><span style="color:#c3cad6; font-size:11.5px;">{{ e.crisis.btcName }}</span><span style="color:{{ e.crisis.btcColor }}; font-size:11.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.crisis.btcStr }}</span></div>
+              <sc-for list="{{ e.crisis.currencies }}" as="cu" hint-placeholder-count="2">
+                <div style="display:flex; justify-content:space-between; padding:4px 0;"><span style="color:#c3cad6; font-size:11.5px;">{{ cu.name }}</span><span style="color:{{ cu.color }}; font-size:11.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ cu.str }}</span></div>
+              </sc-for>
+              <div style="display:flex; justify-content:space-between; padding:4px 0; border-top:1px solid rgba(255,255,255,0.06); margin-top:4px;"><span style="color:#c3cad6; font-size:11.5px;">{{ e.crisis.bondName }}</span><span style="color:#e8ecf3; font-size:11.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.crisis.bondStr }}</span></div>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+              <div style="color:#8793a5; font-size:10.5px; letter-spacing:0.06em; margin-bottom:8px;">RISK ANALYSIS</div>
+              <sc-for list="{{ e.crisis.risks }}" as="rk" hint-placeholder-count="6">
+                <div style="margin-bottom:8px;">
+                  <div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span style="color:#c3cad6; font-size:11px;">{{ rk.label }}</span><span style="color:{{ rk.color }}; font-size:11px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ rk.score }}</span></div>
+                  <div style="height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; margin-bottom:3px;"><div style="width:{{ rk.score }}%; height:100%; background:{{ rk.color }};"></div></div>
+                  <div style="color:#5b6472; font-size:10.5px; line-height:1.4;">{{ rk.why }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+              <div style="color:#8793a5; font-size:10.5px; letter-spacing:0.06em; margin-bottom:10px;">LIVE TIMELINE</div>
+              <sc-for list="{{ e.crisis.timeline }}" as="tl" hint-placeholder-count="5">
+                <div style="display:flex; gap:10px; padding:6px 0; border-top:1px solid rgba(255,255,255,0.06);">
+                  <span style="color:#ff5b68; font-size:10.5px; font-family:'JetBrains Mono',monospace; font-weight:700; flex-shrink:0; width:44px;">{{ tl.time }}</span>
+                  <div><div style="color:#e8ecf3; font-size:11.5px; font-weight:600;">{{ tl.label }}</div><div style="color:#8a93a3; font-size:11px; line-height:1.4;">{{ tl.detail }}</div></div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="background:rgba(57,214,163,0.06); border:1px solid rgba(57,214,163,0.2); border-radius:10px; padding:14px;">
+              <div style="color:#39d6a3; font-size:10.5px; letter-spacing:0.06em; margin-bottom:8px;">AI RECOMMENDATIONS</div>
+              <sc-for list="{{ e.crisis.recommendations }}" as="rc" hint-placeholder-count="5">
+                <div style="padding:6px 0; border-top:1px solid rgba(57,214,163,0.12); color:#c3cad6; font-size:11.5px; line-height:1.5;">→ {{ rc }}</div>
+              </sc-for>
+            </div>
+
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- AI Global Intelligence Assistant -->
+      <sc-if value="{{ e.askOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; top:150px; right:{{ e.askPanelRight }}; width:380px; max-height:520px; z-index:12; background:rgba(9,11,16,0.96); backdrop-filter:blur(20px); border:1px solid rgba(62,198,255,0.25); border-radius:14px; box-shadow:0 24px 60px rgba(0,0,0,0.6); display:flex; flex-direction:column; transition:right 0.4s cubic-bezier(0.16,1,0.3,1); animation:fadeUp 0.3s ease;">
+          <div style="padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:8px;">
+            <span style="color:#3ec6ff; font-size:14px;">✦</span>
+            <span style="color:#eaf6ff; font-size:12.5px; font-weight:800; letter-spacing:0.05em;">AI GLOBAL INTELLIGENCE</span>
+            <span onClick="{{ e.toggleAsk }}" tabindex="0" data-focusable style="margin-left:auto; color:#8a93a3; cursor:pointer; font-size:16px;">×</span>
+          </div>
+          <div style="flex:1; overflow-y:auto; padding:12px 16px; display:flex; flex-direction:column; gap:10px; max-height:340px;">
+            <sc-if value="{{ e.askHistoryEmpty }}" hint-placeholder-val="{{ true }}">
+              <div style="color:#5b6472; font-size:11.5px; line-height:1.6;">Ask about countries, industries, or global markets. Try:</div>
+              <sc-for list="{{ e.samplePrompts }}" as="sp" hint-placeholder-count="4">
+                <div onClick="{{ sp.onClick }}" tabindex="0" data-focusable style="padding:8px 10px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:#c3cad6; font-size:11.5px; cursor:pointer;" style-hover="border-color:#3ec6ff;">{{ sp.text }}</div>
+              </sc-for>
+            </sc-if>
+            <sc-for list="{{ e.askHistory }}" as="ah" hint-placeholder-count="0">
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <div style="color:#eaf6ff; font-size:12px; font-weight:600; align-self:flex-end; background:rgba(62,198,255,0.12); padding:6px 10px; border-radius:8px; max-width:88%;">{{ ah.question }}</div>
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px;">
+                  <div style="color:#3ec6ff; font-size:11px; font-weight:700; letter-spacing:0.04em; margin-bottom:4px;">{{ ah.answer.title }}</div>
+                  <div style="color:#8a93a3; font-size:11px; line-height:1.5; margin-bottom:8px;">{{ ah.answer.summary }}</div>
+                  <sc-for list="{{ ah.answer.rows }}" as="row" hint-placeholder-count="5">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:5px 0; border-top:1px solid rgba(255,255,255,0.06);">
+                      <span style="color:#c3cad6; font-size:11.5px;">{{ row.label }}</span>
+                      <span style="display:flex; align-items:center; gap:8px;">
+                        <span style="color:#e8ecf3; font-size:11px; font-family:'JetBrains Mono',monospace;">{{ row.value }}</span>
+                        <span style="font-size:9.5px; font-weight:700; padding:2px 6px; border-radius:4px; color:{{ row.tagColor }}; background:rgba(255,255,255,0.04);">{{ row.tag }}</span>
+                      </span>
+                    </div>
+                  </sc-for>
+                  <div style="color:#3c4656; font-size:9.5px; letter-spacing:0.04em; margin-top:8px;">{{ ah.answer.sourcesStr }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="padding:12px 16px; border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:8px;">
+            <input value="{{ e.askQuery }}" onInput="{{ e.onAskInput }}" onKeyDown="{{ e.onAskKeyDown }}" placeholder="Ask a question…" style="flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#e8ecf3; font-size:12px; padding:8px 10px; outline:none;" />
+            <div onClick="{{ e.onAskSubmit }}" tabindex="0" data-focusable style="background:#3ec6ff; color:#04141c; font-weight:700; font-size:11.5px; padding:8px 14px; border-radius:8px; cursor:pointer;">Ask</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- breaking ticker, thin strip below top HUD, idle-fades with chrome -->
+      <div style="position:absolute; top:76px; left:56px; right:56px; height:24px; overflow:hidden; z-index:9; opacity:{{ e.chromeOpacity }}; transition:opacity 0.7s ease; pointer-events:none;">
+        <div style="position:absolute; display:flex; gap:38px; white-space:nowrap; animation:marquee 46s linear infinite; align-items:center; height:100%; font-size:11.5px; font-family:'JetBrains Mono',monospace;">
+          <sc-for list="{{ tickerItems }}" as="ti3" hint-placeholder-count="8">
+            <span style="display:inline-flex; align-items:center; gap:8px;">
+              <span style="color:{{ ti3.color }}; font-weight:700; font-size:9.5px; letter-spacing:0.08em;">{{ ti3.glyph }} {{ ti3.label }}</span>
+              <span style="color:#7a828f;">{{ ti3.text }}</span>
+            </span>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- orbit ring lens selector -->
+      <div style="position:absolute; top:50%; left:50%; width:620px; height:620px; margin:-310px 0 0 -310px; z-index:4; pointer-events:none; animation:orbitSpin 100s linear infinite;">
+        <sc-if value="{{ e.orbitHintShown }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, 210px); width:230px; text-align:center; background:rgba(14,16,22,0.94); backdrop-filter:blur(14px); border:1px solid rgba(62,198,255,0.28); border-radius:12px; padding:12px 14px; color:#c3cad6; font-size:11px; line-height:1.5; box-shadow:0 16px 40px rgba(0,0,0,0.4); pointer-events:none; animation:fadeUp 0.4s ease;">
+            Click the ring to switch analysis views
+          </div>
+        </sc-if>
+        <sc-for list="{{ e.lenses }}" as="ln3" hint-placeholder-count="5">
+          <div onClick="{{ ln3.onClick }}" style="position:absolute; top:50%; left:50%; width:64px; height:64px; margin:-32px 0 0 -32px; transform:rotate({{ ln3.angleDeg }}deg) translate(310px) rotate({{ ln3.counterDeg }}deg); pointer-events:auto;">
+            <div style="width:100%; height:100%; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; background:{{ ln3.bg }}; border:1px solid {{ ln3.border }}; backdrop-filter:blur(10px); transform:{{ ln3.activeLift }}; box-shadow:{{ ln3.activeShadow }}; transition:transform 0.45s cubic-bezier(0.22,1,0.36,1), background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; opacity:{{ e.chromeOpacity }}; animation:{{ e.orbitHintShown ? 'orbitPulseOnce 1.6s ease 1' : 'none' }};" style-hover="transform:translateY(-3px) scale(1.04); background:rgba(255,255,255,0.08); border-color:rgba(62,198,255,0.5); box-shadow:0 10px 22px rgba(0,0,0,0.35), 0 0 14px rgba(62,198,255,0.28);">
+              <div style="font-size:13px; line-height:1; color:{{ ln3.iconColor }};">{{ ln3.glyph }}</div>
+              <div style="font-size:7px; line-height:1; font-weight:700; letter-spacing:0.05em; color:{{ ln3.textColor }};">{{ ln3.label }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ e.hovered }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; left:{{ e.hoverX }}px; top:{{ e.hoverY }}px; transform:translate(16px,-50%); background:rgba(13,17,26,0.97); border:1px solid #323d4d; border-radius:8px; padding:10px 14px; pointer-events:none; z-index:9; box-shadow:0 12px 32px rgba(0,0,0,0.6); animation:fadeUp 0.15s ease;">
+          <div style="color:#f2f4f8; font-weight:700; font-size:13px; white-space:nowrap;">{{ e.hovered.name }}</div>
+          <div style="color:{{ e.hoveredChangeColor }}; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600;">{{ e.hoveredChangeStr }}</div>
+        </div>
+      </sc-if>
+
+      <!-- full Country Intelligence Dashboard, glass-styled, slides from right -->
+      <div style="position:absolute; top:0; right:0; width:400px; height:100%; background:rgba(9,11,16,0.86); backdrop-filter:blur(18px); border-left:1px solid rgba(255,255,255,0.08); box-shadow:inset 1px 0 0 rgba(255,255,255,0.04); z-index:10; transform:translateX({{ e.panelShift }}); transition:transform 0.55s cubic-bezier(0.16,1,0.3,1); display:flex; flex-direction:column; box-sizing:border-box;">
+        <sc-if value="{{ e.selected }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:22px 22px 0;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px;">
+              <div>
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.1em; margin-bottom:4px;">{{ e.market.region }} · {{ e.localTimeStr }} LOCAL</div>
+                <div style="color:#f2f4f8; font-size:22px; font-weight:800;">{{ e.selected.name }}</div>
+                <div style="display:flex; align-items:center; gap:5px; margin-top:5px;">
+                  <span style="width:5px; height:5px; border-radius:50%; background:#39d6a3; box-shadow:0 0 5px #39d6a3;"></span>
+                  <span style="color:#5b6472; font-size:10px; font-family:'JetBrains Mono',monospace;">Updated {{ e.updatedAgoStr }} · Live</span>
+                </div>
+              </div>
+              <div onClick="{{ e.close }}" tabindex="0" data-focusable aria-label="Close panel" style="color:#8a93a3; cursor:pointer; font-size:20px; line-height:1; padding:6px; border-radius:6px;" style-hover="color:#fff; background:rgba(255,255,255,0.06);">×</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+              <span style="display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; letter-spacing:0.05em; color:{{ e.marketStatusColor }};"><span style="width:6px; height:6px; border-radius:50%; background:{{ e.marketStatusColor }};"></span>MARKET {{ e.marketStatusLabel }}</span>
+              <span style="color:#333c4a;">·</span>
+              <span style="font-size:10.5px; font-weight:700; letter-spacing:0.04em; padding:2px 8px; border-radius:5px; color:{{ e.sentColor }}; background:rgba(255,255,255,0.04);">{{ e.sentimentLabel }}</span>
+              <span style="margin-left:auto; color:#3c4656; font-size:9.5px; letter-spacing:0.05em;">SIMULATED</span>
+            </div>
+            <div style="display:flex; gap:2px; border-bottom:1px solid rgba(255,255,255,0.08);">
+              <sc-for list="{{ e.tabs }}" as="tb3" hint-placeholder-count="4">
+                <div onClick="{{ tb3.onClick }}" tabindex="0" data-focusable style="padding:9px 4px; margin-right:16px; font-size:12px; font-weight:600; cursor:pointer; color:{{ tb3.active ? '#f2f4f8' : '#5b6472' }}; border-bottom:2px solid {{ tb3.active ? '#3ec6ff' : 'transparent' }};">{{ tb3.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="flex:1; overflow-y:auto; padding:20px 26px 26px; display:flex; flex-direction:column; gap:20px;">
+
+            <sc-if value="{{ e.executiveBrief }}" hint-placeholder-val="{{ false }}">
+              <div style="background:linear-gradient(135deg, rgba(62,198,255,0.10), rgba(57,214,163,0.05)); border:1px solid rgba(62,198,255,0.28); border-radius:12px; padding:16px; animation:fadeUp 0.4s ease;">
+                <div style="display:flex; align-items:center; gap:7px; margin-bottom:9px;">
+                  <span style="width:6px; height:6px; border-radius:50%; background:#3ec6ff; box-shadow:0 0 8px #3ec6ff;"></span>
+                  <span style="color:#eaf6ff; font-size:10.5px; font-weight:800; letter-spacing:0.1em;">AI EXECUTIVE BRIEF</span>
+                </div>
+                <div style="color:#dbe6f0; font-size:13px; line-height:1.65;">{{ e.executiveBrief }}</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ e.showSkeleton }}" hint-placeholder-val="{{ false }}">
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px; height:96px; overflow:hidden; position:relative;">
+                <div style="position:absolute; inset:0; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); animation:shimmer 1.3s infinite;"></div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ e.showOverview }}" hint-placeholder-val="{{ false }}">
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px; animation:fadeUp 0.45s ease 0.05s both;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:6px;">{{ e.market.indexName }}</div>
+                <div style="display:flex; align-items:baseline; gap:10px;">
+                  <div style="color:#f2f4f8; font-size:24px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.indexValueStr }}</div>
+                  <div style="color:{{ e.changeColor }}; font-size:14px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.changeStr }}</div>
+                </div>
+                <svg width="100%" height="46" viewBox="0 0 220 46" style="margin-top:8px; display:block;">
+                  <polyline points="{{ e.sparkPoints }}" fill="none" stroke="{{ e.changeColor }}" stroke-width="2"></polyline>
+                </svg>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px; animation:fadeUp 0.45s ease 0.1s both;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:8px;">FX — {{ e.market.currencyCode }}/USD</div>
+                <div style="display:flex; align-items:baseline; gap:10px;">
+                  <div style="color:#f2f4f8; font-size:20px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.fxRateStr }}</div>
+                  <div style="color:{{ e.fxChangeColor }}; font-size:13px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.fxChangeStr }}</div>
+                </div>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:10px;">AI MARKET SENTIMENT</div>
+                <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:6px;">
+                  <div style="color:{{ e.sentColor }}; font-size:17px; font-weight:800;">{{ e.sentimentLabel }}</div>
+                  <div style="color:#5b6472; font-size:11.5px; font-family:'JetBrains Mono',monospace;">{{ e.sentimentConf }} confidence</div>
+                </div>
+                <div style="color:#8a93a3; font-size:12px; line-height:1.55;">{{ e.sentimentBlurb }}</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ e.showNews }}" hint-placeholder-val="{{ false }}">
+              <div style="background:rgba(232,204,168,0.04); border:1px solid rgba(232,204,168,0.14); border-radius:10px; padding:14px;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:6px;">AI NEWS → MARKET NARRATIVE</div>
+                <div style="color:#c3cad6; font-size:12.5px; line-height:1.6;">{{ e.marketNarrative }}</div>
+              </div>
+              <sc-for list="{{ e.aiCards }}" as="ac3" hint-placeholder-count="3">
+                <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:13px 14px;">
+                  <div style="color:#e8ecf3; font-size:12.5px; font-weight:650; line-height:1.4; margin-bottom:8px;">{{ ac3.headline }}</div>
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:9px;">
+                    <span style="font-size:10px; font-weight:800; letter-spacing:0.05em; color:{{ ac3.stanceColor }}; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:5px;">{{ ac3.stanceLabel }}</span>
+                    <span style="color:#4c5666; font-size:10.5px; font-family:'JetBrains Mono',monospace;">{{ ac3.confidence }}% confidence</span>
+                  </div>
+                  <div style="color:#8a93a3; font-size:11.5px; line-height:1.55;">{{ ac3.why }}</div>
+                </div>
+              </sc-for>
+            </sc-if>
+
+            <sc-if value="{{ e.showMarkets }}" hint-placeholder-val="{{ false }}">
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:10px;">SECTOR PERFORMANCE</div>
+                <sc-for list="{{ e.sectors }}" as="sec3" hint-placeholder-count="6">
+                  <div style="display:flex; align-items:center; gap:10px; padding:6px 0;">
+                    <div style="width:78px; color:#c3cad6; font-size:11.5px;">{{ sec3.name }}</div>
+                    <div style="flex:1; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;"><div style="width:{{ sec3.barPct }}%; height:100%; background:{{ sec3.color }};"></div></div>
+                    <div style="width:56px; text-align:right; color:{{ sec3.color }}; font-size:11.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ sec3.changeStr }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:8px;">TOP GAINERS / LOSERS</div>
+                <sc-for list="{{ e.gainers }}" as="g3" hint-placeholder-count="3">
+                  <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-top:1px solid rgba(255,255,255,0.06);">
+                    <div style="flex:1; min-width:0;"><div style="color:#e8ecf3; font-size:11.5px; font-weight:600; font-family:'JetBrains Mono',monospace;">{{ g3.ticker }}</div></div>
+                    <div style="text-align:right; color:#39d6a3; font-size:10.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ g3.changeStr }}</div>
+                  </div>
+                </sc-for>
+                <sc-for list="{{ e.losers }}" as="l3" hint-placeholder-count="3">
+                  <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-top:1px solid rgba(255,255,255,0.06);">
+                    <div style="flex:1; min-width:0;"><div style="color:#e8ecf3; font-size:11.5px; font-weight:600; font-family:'JetBrains Mono',monospace;">{{ l3.ticker }}</div></div>
+                    <div style="text-align:right; color:#ff5b68; font-size:10.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ l3.changeStr }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ e.showEconomy }}" hint-placeholder-val="{{ false }}">
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                <div><div style="color:#5b6472; font-size:10.5px; letter-spacing:0.06em;">GDP GROWTH</div><div style="display:flex; align-items:baseline; gap:6px;"><div style="color:#f2f4f8; font-size:16px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.gdpStr }}</div><span style="color:#39d6a3; font-size:11px;">▲</span></div></div>
+                <div><div style="color:#5b6472; font-size:10.5px; letter-spacing:0.06em;">INTEREST RATE</div><div style="display:flex; align-items:baseline; gap:6px;"><div style="color:#f2f4f8; font-size:16px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.rateStr }}</div><span style="color:#8793a5; font-size:11px;">→</span></div></div>
+                <div><div style="color:#5b6472; font-size:10.5px; letter-spacing:0.06em;">INFLATION</div><div style="display:flex; align-items:baseline; gap:6px;"><div style="color:#f2f4f8; font-size:16px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.cpiStr }}</div><span style="color:{{ e.cpiTrendColor }}; font-size:11px;">{{ e.cpiTrendArrow }}</span></div></div>
+                <div><div style="color:#5b6472; font-size:10.5px; letter-spacing:0.06em;">CREDIT RATING</div><div style="color:#f2f4f8; font-size:16px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.creditRating }}</div></div>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:10px;">LATEST — {{ e.selected.name }}</div>
+                <sc-for list="{{ e.market.headlines }}" as="hl3" hint-placeholder-count="3">
+                  <div style="padding:9px 0; border-top:1px solid rgba(255,255,255,0.06); color:#c3cad6; font-size:12.5px; line-height:1.5;">{{ hl3 }}</div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ e.showRisk }}" hint-placeholder-val="{{ false }}">
+              <div style="background:rgba(224,138,60,0.05); border:1px solid rgba(224,138,60,0.16); border-radius:10px; padding:14px;">
+                <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px;">
+                  <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em;">COMPOSITE RISK SCORE</div>
+                  <div style="font-size:11px; font-weight:700; letter-spacing:0.04em; color:{{ e.risk.color }};">{{ e.risk.glyph }} {{ e.risk.tier }}</div>
+                </div>
+                <div style="color:#f2f4f8; font-size:28px; font-weight:800; font-family:'JetBrains Mono',monospace;">{{ e.risk.overall }}<span style="font-size:14px; color:#5b6472;">/100</span></div>
+                <svg width="100%" height="40" viewBox="0 0 220 40" style="margin-top:8px; display:block;">
+                  <polyline points="{{ e.riskTrendPoints }}" fill="none" stroke="{{ e.risk.color }}" stroke-width="2"></polyline>
+                </svg>
+                <div style="color:#8a93a3; font-size:11.5px; line-height:1.55; margin-top:8px;">{{ e.risk.explanation }}</div>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:10px;">RISK BREAKDOWN</div>
+                <sc-for list="{{ e.riskRows }}" as="rr" hint-placeholder-count="13">
+                  <div style="display:flex; align-items:center; gap:10px; padding:5px 0;">
+                    <div style="width:150px; color:#c3cad6; font-size:11px;">{{ rr.label }}</div>
+                    <div style="flex:1; height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden;"><div style="width:{{ rr.barPct }}%; height:100%; background:{{ rr.color }};"></div></div>
+                    <div style="width:30px; text-align:right; color:{{ rr.color }}; font-size:10.5px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ rr.score }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:8px;">RECENT EVENTS AFFECTING SCORE</div>
+                <sc-for list="{{ e.risk.recentEvents }}" as="rev" hint-placeholder-count="3">
+                  <div style="padding:7px 0; border-top:1px solid rgba(255,255,255,0.06); color:#c3cad6; font-size:11.5px; line-height:1.5;">{{ rev }}</div>
+                </sc-for>
+              </div>
+              <div style="background:rgba(57,214,163,0.06); border:1px solid rgba(57,214,163,0.2); border-radius:10px; padding:14px;">
+                <div style="color:#39d6a3; font-size:11px; letter-spacing:0.06em; margin-bottom:8px;">OPPORTUNITIES DESPITE RISK</div>
+                <sc-for list="{{ e.risk.opportunities }}" as="op" hint-placeholder-count="2">
+                  <div style="padding:6px 0; border-top:1px solid rgba(57,214,163,0.12); color:#c3cad6; font-size:11.5px; line-height:1.5;">{{ op }}</div>
+                </sc-for>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:8px;">SUGGESTED MITIGATION STRATEGIES</div>
+                <sc-for list="{{ e.risk.mitigations }}" as="mi" hint-placeholder-count="3">
+                  <div style="padding:6px 0; border-top:1px solid rgba(255,255,255,0.06); color:#c3cad6; font-size:11.5px; line-height:1.5;">{{ mi }}</div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ e.showOutlook }}" hint-placeholder-val="{{ false }}">
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px; animation:fadeUp 0.4s ease;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:10px;">INVESTMENT OUTLOOK</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+                  <div><div style="color:#5b6472; font-size:10px;">FDI (ANNUAL)</div><div style="color:#f2f4f8; font-size:15px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.outlook.fdiStr }}</div></div>
+                  <div><div style="color:#5b6472; font-size:10px;">EASE OF BUSINESS</div><div style="color:#f2f4f8; font-size:15px; font-weight:700; font-family:'JetBrains Mono',monospace;">{{ e.outlook.easeRank }}</div></div>
+                </div>
+                <div style="color:#5b6472; font-size:10.5px; margin-bottom:10px;">Key growth industries: <span style="color:#c3cad6;">{{ e.outlook.industriesStr }}</span></div>
+                <sc-for list="{{ e.outlook.opportunities }}" as="op" hint-placeholder-count="3">
+                  <div style="padding:6px 0; border-top:1px solid rgba(255,255,255,0.06); color:#c3cad6; font-size:11.5px; line-height:1.5;">→ {{ op }}</div>
+                </sc-for>
+              </div>
+
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:10px;">TRADE &amp; SUPPLY CHAIN</div>
+                <div style="color:#5b6472; font-size:10.5px; margin-bottom:8px;">EXPORT PARTNERS</div>
+                <sc-for list="{{ e.trade.exportPartners }}" as="ep" hint-placeholder-count="4">
+                  <div style="display:flex; justify-content:space-between; padding:4px 0;"><span style="color:#c3cad6; font-size:11.5px;">{{ ep.name }}</span><span style="color:#8a93a3; font-size:11px; font-family:'JetBrains Mono',monospace;">{{ ep.pctStr }}</span></div>
+                </sc-for>
+                <div style="color:#5b6472; font-size:10.5px; margin:10px 0 8px; border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">IMPORT PARTNERS</div>
+                <sc-for list="{{ e.trade.importPartners }}" as="ip" hint-placeholder-count="4">
+                  <div style="display:flex; justify-content:space-between; padding:4px 0;"><span style="color:#c3cad6; font-size:11.5px;">{{ ip.name }}</span><span style="color:#8a93a3; font-size:11px; font-family:'JetBrains Mono',monospace;">{{ ip.pctStr }}</span></div>
+                </sc-for>
+                <div style="color:#5b6472; font-size:10.5px; margin-top:10px; border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">Key industries: <span style="color:#c3cad6;">{{ e.trade.keyIndustriesStr }}</span></div>
+              </div>
+
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:14px;">
+                <div style="color:#5b6472; font-size:11px; letter-spacing:0.06em; margin-bottom:10px;">RELATED COUNTRIES</div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  <sc-for list="{{ e.related }}" as="rc" hint-placeholder-count="4">
+                    <div onClick="{{ rc.onClick }}" tabindex="0" data-focusable style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:7px; cursor:pointer; background:rgba(255,255,255,0.02);" style-hover="background:rgba(62,198,255,0.08);">
+                      <span style="color:#e8ecf3; font-size:12px; font-weight:600;">{{ rc.name }}</span>
+                      <span style="color:#5b6472; font-size:10px;">{{ rc.region }} →</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- Global Wire, bottom-right expandable pill (Quantum-style) -->
+      <div style="position:absolute; bottom:38px; right:44px; z-index:11; opacity:{{ e.chromeOpacity }}; transition:opacity 0.7s ease;">
+        <sc-if value="{{ e.wireOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="width:300px; max-height:220px; overflow-y:auto; background:rgba(9,11,16,0.94); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.1); border-radius:10px; margin-bottom:8px; box-shadow:0 20px 50px rgba(0,0,0,0.55);">
+            <div style="padding:6px 14px 10px;">
+              <sc-for list="{{ globalHeadlines }}" as="gw3" hint-placeholder-count="5">
+                <div style="padding:7px 0; border-top:1px solid rgba(255,255,255,0.06); color:#a7afbd; font-size:11.5px; line-height:1.5;">{{ gw3 }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <div onClick="{{ e.toggleWire }}" tabindex="0" data-focusable style="background:rgba(9,11,16,0.9); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.14); box-shadow:inset 0 1px 0 rgba(255,255,255,0.06); color:#e8ecf3; font-weight:700; font-size:11.5px; letter-spacing:0.06em; padding:9px 16px; border-radius:20px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:border-color 0.2s ease, transform 0.2s cubic-bezier(0.22,1,0.36,1);" style-hover="border-color:#3ec6ff;" style-active="transform:scale(0.97);">
+          <span style="width:6px; height:6px; border-radius:50%; background:#39d6a3; animation:blinkDot 1.6s infinite;"></span>GLOBAL WIRE {{ e.wireCaret }}
+        </div>
+      </div>
+
+      <!-- command dock -->
+      <div style="position:absolute; bottom:38px; left:50%; transform:translateX(-50%); z-index:11; display:flex; flex-direction:column; align-items:center; opacity:{{ e.chromeOpacity }}; transition:opacity 0.7s ease;">
+        <sc-if value="{{ e.commandOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="width:440px; max-height:280px; overflow-y:auto; background:rgba(9,11,16,0.95); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.12); border-radius:16px; margin-bottom:10px; box-shadow:0 24px 60px rgba(0,0,0,0.6); animation:fadeUp 0.2s cubic-bezier(0.16,1,0.3,1);">
+            <div style="padding:8px;">
+              <sc-for list="{{ e.searchResults }}" as="res3" hint-placeholder-count="6">
+                <div onClick="{{ res3.onClick }}" tabindex="0" data-focusable style="padding:10px 12px; border-radius:9px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; color:#e8ecf3; font-size:13px;" style-hover="background:rgba(62,198,255,0.14);">
+                  <span>{{ res3.name }}</span>
+                  <span style="color:#5b6472; font-size:10.5px; font-family:'JetBrains Mono',monospace;">{{ res3.region }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <div onClick="{{ e.toggleCommand }}" tabindex="0" data-focusable aria-label="Open command search" style="width:{{ e.dockWidth }}; background:rgba(9,11,16,0.9); backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,0.12); border-radius:26px; padding:13px 22px; display:flex; align-items:center; gap:10px; cursor:pointer; box-shadow:inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,0.3); transition:width 0.3s ease, transform 0.2s cubic-bezier(0.22,1,0.36,1);" style-hover="border-color:#3ec6ff;" style-active="transform:scale(0.97);">
+          <span style="color:#3ec6ff; font-size:14px;">◎</span>
+          <span style="color:#8a93a3; font-size:12.5px; flex:1;">Search any country, index, or headline…</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:9.5px; color:#5b6472; border:1px solid rgba(255,255,255,0.14); border-radius:4px; padding:2px 6px;">⌘K</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;earthQuality&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;ultra&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;options&quot;: [&quot;standard&quot;, &quot;ultra&quot;], &quot;section&quot;: &quot;Globe&quot;}}">
+class Component extends DCLogic {
+  state = {
+    ready: false,
+    clock: new Date(),
+    globalHeadlines: [],
+    a: { selected: null, hovered: null, hoverEvent: null, hoverKind: null, hoverX: 0, hoverY: 0, market: null, panelTab: 'overview', panelLoading: false },
+    sun: null,
+    activeEventId: null,
+    readIds: {},
+    feedFilter: 'all',
+    b: { selected: null, hovered: null, hoverEvent: null, hoverKind: null, hoverX: 0, hoverY: 0, market: null },
+    c: { selected: null, hovered: null, hoverEvent: null, hoverKind: null, hoverX: 0, hoverY: 0, market: null, dockOpen: false },
+    d: { selected: null, hovered: null, hoverX: 0, hoverY: 0, market: null, lens: 'markets', commandOpen: false, chromeVisible: true },
+    e: { selected: null, hovered: null, hoverEvent: null, hoverKind: null, hoverX: 0, hoverY: 0, market: null, panelTab: 'overview', panelLoading: false, lens: 'markets', commandOpen: false, chromeVisible: true, riskMode: false, askOpen: false, askQuery: '', askHistory: [], crisisActive: false, crisisScenario: null, crisisPanelOpen: true, alertsOpen: false, shortcutsOpen: false, selectedAt: 0, intelHubOpen: false, orbitHintShown: false },
+  };
+
+  constructor(props) {
+    super(props);
+    this.refA = React.createRef();
+    this.refB = React.createRef();
+    this.refC = React.createRef();
+    this.refD = React.createRef();
+    this.refE = React.createRef();
+    this._lastHover = { a: 0, b: 0, c: 0, d: 0, e: 0 };
+  }
+
+  async componentDidMount() {
+    const mod = await window.__gftImport();
+    this.mod = mod;
+    const centers = mod.FINANCIAL_CENTERS.map(fc => ({
+      ...fc,
+      country: mod.COUNTRIES.find(c => c.name === fc.countryName) || { name: fc.countryName, region: '—', lat: fc.lat, lon: fc.lon },
+    }));
+
+    const themes = {
+      a: { up: '#39d6a3', down: '#ff5b68', neutral: '#8793a5', vol: '#e5aa52', sphereFallback: '#0d131c', atmoColor: '#7bc8e8' },
+      b: { up: '#39d6a3', down: '#ff5b68', neutral: '#8793a5', vol: '#e5aa52', sphereFallback: '#0a121c', atmoColor: '#7fc9ff' },
+      c: { up: '#39d6a3', down: '#ff5b68', neutral: '#8793a5', vol: '#e5aa52', sphereFallback: '#12100a', atmoColor: '#cfe0ea' },
+      d: { up: '#39d6a3', down: '#ff5b68', neutral: '#9d90bb', vol: '#e5aa52', sphereFallback: '#0c0814', atmoColor: '#a78bfa' },
+      e: { up: '#39d6a3', down: '#ff5b68', neutral: '#8f97a8', vol: '#e5aa52', sphereFallback: '#0a0c12', atmoColor: '#7bc8e8' },
+    };
+
+    const DAY_TEX_STD = 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
+    const CLOUD_TEX_STD = 'https://raw.githubusercontent.com/turban/webgl-earth/master/images/fair_clouds_4k.png';
+    const NIGHT_TEX_STD = 'https://unpkg.com/three-globe/example/img/earth-night.jpg';
+    const SPEC_TEX = 'https://unpkg.com/three-globe/example/img/earth-water.png';
+    // Ultra set: NASA-sourced 8K day/night + 4K cloud alpha (CC-licensed, solarsystemscope.com).
+    // Each falls back to the standard three-globe asset above if the 8K fetch fails (offline/CDN block).
+    const DAY_TEX_ULTRA = 'https://www.solarsystemscope.com/textures/download/8k_earth_daymap.jpg';
+    const NIGHT_TEX_ULTRA = 'https://www.solarsystemscope.com/textures/download/8k_earth_nightmap.jpg';
+    const CLOUD_TEX_ULTRA = 'https://www.solarsystemscope.com/textures/download/8k_earth_clouds.jpg';
+
+    const highRes = (this.props.earthQuality ?? 'ultra') === 'ultra';
+    const DAY_TEX = highRes ? DAY_TEX_ULTRA : DAY_TEX_STD;
+    const NIGHT_TEX = highRes ? NIGHT_TEX_ULTRA : NIGHT_TEX_STD;
+    const CLOUD_TEX = highRes ? CLOUD_TEX_ULTRA : CLOUD_TEX_STD;
+
+    ['a', 'b', 'c', 'd', 'e'].forEach((key) => {
+      const canvas = this[`ref${key.toUpperCase()}`].current;
+      if (!canvas) return;
+      const engine = new mod.DotGlobe(canvas, {
+        centers,
+        countries: mod.COUNTRIES,
+        events: mod.EVENTS,
+        categoryColor: (cat) => (mod.CATEGORIES[cat] || {}).color || '#3ec6ff',
+        getMarket: (country) => mod.getCountryMarket(country),
+        getRiskColor: (country) => mod.getRiskTierColor(mod.getCountryRisk(country).overall),
+        riskMode: false,
+        theme: themes[key],
+        dayTextureUrl: DAY_TEX,
+        cloudTextureUrl: CLOUD_TEX,
+        nightTextureUrl: NIGHT_TEX,
+        specTextureUrl: SPEC_TEX,
+        dayTextureFallback: DAY_TEX_STD,
+        cloudTextureFallback: CLOUD_TEX_STD,
+        nightTextureFallback: NIGHT_TEX_STD,
+        highRes,
+        autoSpeed: 0.035,
+        onHover: (payload, x, y) => {
+          const now = performance.now();
+          if (now - this._lastHover[key] < 40 && payload) return;
+          this._lastHover[key] = now;
+          const hovered = payload && payload.kind === 'center' ? payload.country : null;
+          const hoverEvent = payload && payload.kind === 'event' ? payload.event : null;
+          this.setState(s => ({ ...s, [key]: { ...s[key], hovered, hoverEvent, hoverKind: payload ? payload.kind : null, hoverX: x || 0, hoverY: y || 0 } }));
+        },
+        onSelect: (country) => {
+          const market = mod.getCountryMarket(country);
+          const selectToken = (this._selectToken = (this._selectToken || 0) + 1);
+          this.setState(s => ({ ...s, activeEventId: key === 'a' ? null : s.activeEventId, [key]: { ...s[key], selected: country, market, panelTab: 'overview', panelLoading: true, selectedAt: Date.now(), dockOpen: key === 'c' ? true : s.c.dockOpen } }));
+          clearTimeout(this[`_loadTimer_${key}`]);
+          this[`_loadTimer_${key}`] = setTimeout(() => {
+            if (selectToken !== this._selectToken) return; // a newer selection superseded this one
+            this.setState(s => ({ ...s, [key]: { ...s[key], panelLoading: false } }));
+          }, 450);
+        },
+        onEventSelect: (ev) => {
+          this.setState(s => ({ ...s, activeEventId: ev.id, readIds: { ...s.readIds, [ev.id]: true } }));
+        },
+        onSunUpdate: key === 'a' ? (info) => {
+          this.setState(s => ({ sun: info }));
+        } : undefined,
+      });
+      this[`engine${key.toUpperCase()}`] = engine;
+      window[`__engine${key.toUpperCase()}`] = engine;
+    });
+
+    this.setState({
+      ready: true,
+      globalHeadlines: mod.getGlobalHeadlines(8, ['Asia', 'Europe', 'the Americas', 'Africa', 'the Gulf']),
+      feedEvents: mod.EVENTS.slice().sort((a, b) => a.mins - b.mins),
+    });
+
+    this._clockTimer = setInterval(() => this.setState({ clock: new Date() }), 1000);
+    try {
+      if (!localStorage.getItem('gft_orbit_hint_seen')) {
+        setTimeout(() => this.setState(st => ({ e: { ...st.e, orbitHintShown: true } })), 900);
+        setTimeout(() => { this.setState(st => ({ e: { ...st.e, orbitHintShown: false } })); localStorage.setItem('gft_orbit_hint_seen', '1'); }, 7500);
+      }
+    } catch (err) {}
+    this._onKeyDown = (ev) => {
+      const tag = (ev.target && ev.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || ev.target.isContentEditable) return;
+      if (ev.key === '?') { this.setState(st => ({ e: { ...st.e, shortcutsOpen: !st.e.shortcutsOpen } })); return; }
+      if (ev.key === 'Escape') { this.setState(st => ({ e: { ...st.e, shortcutsOpen: false, intelHubOpen: false } })); return; }
+      const k = ev.key.toLowerCase();
+      if (k === 'r') this.setState(st => ({ e: { ...st.e, riskMode: !st.e.riskMode } }));
+      if (k === 'a') this.setState(st => ({ e: { ...st.e, askOpen: !st.e.askOpen } }));
+      if (k === 'n' && this.state.e.selected) this.setState(st => ({ e: { ...st.e, panelTab: 'news' } }));
+      if (k === 'm' && this.state.e.selected) this.setState(st => ({ e: { ...st.e, panelTab: 'markets' } }));
+    };
+    window.addEventListener('keydown', this._onKeyDown);
+  }
+
+  componentWillUnmount() {
+    ['A', 'B', 'C', 'D', 'E'].forEach(k => this[`engine${k}`] && this[`engine${k}`].destroy());
+    clearInterval(this._clockTimer);
+    clearTimeout(this._idleTimer);
+    window.removeEventListener('keydown', this._onKeyDown);
+  }
+
+  buildSpark(series, w, h) {
+    if (!series || !series.length) return '';
+    const min = Math.min(...series), max = Math.max(...series);
+    const range = (max - min) || 1;
+    return series.map((v, i) => {
+      const x = (i / (series.length - 1)) * w;
+      const y = h - ((v - min) / range) * h;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  }
+
+  fmtPct(v) { return (v >= 0 ? '+' : '') + v.toFixed(2) + '%'; }
+  fmtNum(v) { return v.toLocaleString(undefined, { maximumFractionDigits: 2 }); }
+  fmtCap(b) { return b >= 1 ? '$' + b.toFixed(1) + 'B' : '$' + (b * 1000).toFixed(0) + 'M'; }
+  _hexA(hex, a) {
+    const h = hex.replace('#', '');
+    const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  // ---- FINAL combined variant (e): Atlas intel panel + HALO shell ----
+  onStageMoveE() {
+    if (!this.state.e.chromeVisible) this.setState(s => ({ e: { ...s.e, chromeVisible: true } }));
+    clearTimeout(this._idleTimerE);
+    this._idleTimerE = setTimeout(() => {
+      this.setState(s => (s.e.selected || s.e.commandOpen) ? s : { e: { ...s.e, chromeVisible: false } });
+    }, 3200);
+  }
+
+  runAskE(q) {
+    const s = this.state.e;
+    const mod = this.mod;
+    const question = (q || s.askQuery || '').trim();
+    if (!question || !mod) return;
+    const answer = mod.askIntelligence(question, mod.COUNTRIES);
+    this.setState(st => ({ e: { ...st.e, askQuery: '', askHistory: [{ question, answer, id: Date.now() }, ...st.e.askHistory].slice(0, 6) } }));
+  }
+
+  toggleCrisisMode(forceScenario) {
+    const mod = this.mod;
+    const s = this.state.e;
+    if (s.crisisActive && !forceScenario) {
+      this.setState(st => ({ e: { ...st.e, crisisActive: false, crisisScenario: null } }));
+      if (this.engineE) this.engineE.setCrisisHotspots([]);
+      return;
+    }
+    const scenario = mod.buildCrisisState(forceScenario || mod.pickAutoCrisis(), Date.now());
+    this.setState(st => ({ e: { ...st.e, crisisActive: true, crisisScenario: scenario, crisisPanelOpen: true, chromeVisible: true } }));
+    if (this.engineE) this.engineE.setCrisisHotspots(mod.getHotspots(scenario));
+  }
+
+  computeVariantFinal() {
+    const base = this.computeVariant('e');
+    const s = this.state.e;
+    const mod = this.mod;
+    const LENS_DEFS = [
+      { id: 'markets', glyph: '◆', label: 'MARKETS' },
+      { id: 'fx',      glyph: '⇄', label: 'FX' },
+      { id: 'macro',   glyph: '▤', label: 'MACRO' },
+      { id: 'risk',    glyph: '△', label: 'RISK' },
+      { id: 'news',    glyph: '◈', label: 'NEWS' },
+    ];
+    const n = LENS_DEFS.length;
+    const lenses = LENS_DEFS.map((l, i) => {
+      const angleDeg = (360 / n) * i;
+      const active = s.lens === l.id;
+      return {
+        ...l, angleDeg, counterDeg: -angleDeg,
+        bg: active ? 'rgba(62,198,255,0.14)' : 'rgba(10,13,19,0.55)',
+        border: active ? 'rgba(62,198,255,0.55)' : 'rgba(255,255,255,0.08)',
+        activeShadow: active ? '0 0 0 1px rgba(62,198,255,0.35), 0 0 16px rgba(62,198,255,0.25)' : 'none',
+        activeLift: active ? 'translateY(-2px)' : 'translateY(0)',
+        iconColor: active ? '#eaf6ff' : '#8a93a3',
+        textColor: active ? '#eaf6ff' : '#5b6472',
+        onClick: () => this.setState(st => ({ e: { ...st.e, lens: l.id, panelTab: l.id === 'fx' ? 'overview' : (l.id === 'news' ? 'news' : l.id === 'macro' ? 'economy' : l.id === 'risk' ? 'risk' : 'overview') } })),
+      };
+    });
+    const s2 = this.state.e;
+    const crisisView = s2.crisisScenario ? (() => {
+      const cs = s2.crisisScenario;
+      const mi = cs.marketImpact;
+      return {
+        type: cs.type, severity: cs.severity, color: cs.color,
+        overview: cs.overview, whyItMatters: cs.whyItMatters, economicConsequences: cs.economicConsequences,
+        affectedNames: cs.affectedWithColor.map(a => a.name).join(', '),
+        indices: mi.indices.map(x => ({ name: x.name, str: (x.changePct >= 0 ? '+' : '') + x.changePct.toFixed(1) + '%', color: x.changePct >= 0 ? '#39d6a3' : '#ff5b68' })),
+        oilStr: (mi.oil.changePct >= 0 ? '+' : '') + mi.oil.changePct.toFixed(1) + '%', oilColor: mi.oil.changePct >= 0 ? '#39d6a3' : '#ff5b68', oilName: mi.oil.name,
+        goldStr: (mi.gold.changePct >= 0 ? '+' : '') + mi.gold.changePct.toFixed(1) + '%', goldColor: mi.gold.changePct >= 0 ? '#39d6a3' : '#ff5b68', goldName: mi.gold.name,
+        btcStr: (mi.bitcoin.changePct >= 0 ? '+' : '') + mi.bitcoin.changePct.toFixed(1) + '%', btcColor: mi.bitcoin.changePct >= 0 ? '#39d6a3' : '#ff5b68', btcName: mi.bitcoin.name,
+        currencies: mi.currencies.map(x => ({ name: x.name, str: (x.changePct >= 0 ? '+' : '') + x.changePct.toFixed(1) + '%', color: x.changePct >= 0 ? '#39d6a3' : '#ff5b68' })),
+        bondStr: (mi.bondYield.changeBps >= 0 ? '+' : '') + mi.bondYield.changeBps + 'bps', bondName: mi.bondYield.name,
+        risks: cs.risks.map(r => ({ ...r, color: r.score >= 78 ? '#ff5b68' : r.score >= 55 ? '#e08a3c' : r.score >= 30 ? '#e5c04d' : '#39d6a3' })),
+        timeline: cs.timeline,
+        recommendations: cs.recommendations,
+        alerts: cs.alerts,
+      };
+    })() : null;
+    return {
+      ...base,
+      lenses,
+      chromeOpacity: s.chromeVisible ? 1 : 0,
+      onStageMove: () => this.onStageMoveE(),
+      riskMode: s.riskMode,
+      toggleRiskMode: () => {
+        const next = !s.riskMode;
+        this.setState(st => ({ e: { ...st.e, riskMode: next, chromeVisible: true } }));
+        if (this.engineE) this.engineE.setRiskMode(next);
+      },
+      askOpen: s.askOpen,
+      askPanelRight: s.selected ? '456px' : '56px',      askQuery: s.askQuery,
+      askHistory: s.askHistory.map(h => ({ ...h, answer: { ...h.answer, sourcesStr: (h.answer.sources || []).join(' · ') } })),
+      askHistoryEmpty: s.askHistory.length === 0,
+      toggleAsk: () => this.setState(st => ({ e: { ...st.e, askOpen: !st.e.askOpen, chromeVisible: true } })),
+      samplePrompts: (mod ? mod.SAMPLE_PROMPTS.slice(0, 4) : []).map(text => ({
+        text, onClick: () => this.runAskE(text),
+      })),
+      onAskInput: (ev) => this.setState(st => ({ e: { ...st.e, askQuery: ev.target.value } })),
+      onAskKeyDown: (ev) => { if (ev.key === 'Enter') this.runAskE(); },
+      onAskSubmit: () => this.runAskE(),
+      crisisActive: !!s.crisisActive,
+      toggleCrisisMode: () => this.toggleCrisisMode(),
+      crisisPanelOpen: s.crisisPanelOpen,
+      crisisPanelToggleLabel: s.crisisPanelOpen ? 'Hide Dashboard' : 'Show Dashboard',
+      crisisPanelTransform: s.crisisPanelOpen ? '0' : '-440px',
+      crisisPanelOpacity: s.crisisPanelOpen ? 1 : 0,
+      toggleCrisisPanel: () => this.setState(st => ({ e: { ...st.e, crisisPanelOpen: !st.e.crisisPanelOpen } })),
+      crisis: crisisView,
+      alertsOpen: s.alertsOpen,
+      alertsPanelRight: s.askOpen ? (s.selected ? '856px' : '456px') : (s.selected ? '456px' : '56px'),
+      toggleAlerts: () => this.setState(st => ({ e: { ...st.e, alertsOpen: !st.e.alertsOpen } })),
+      alertCount: (s.crisisScenario && s.crisisScenario.alerts || []).length,
+      intelHubOpen: s.intelHubOpen,
+      toggleIntelHub: () => this.setState(st => ({ e: { ...st.e, intelHubOpen: !st.e.intelHubOpen } })),
+      intelActiveCount: (s.riskMode ? 1 : 0) + (s.askOpen ? 1 : 0) + (s.crisisActive ? 1 : 0) + (s.alertsOpen ? 1 : 0),
+      orbitHintShown: s.orbitHintShown,
+      intelMenuItems: [
+        { icon: '✦', label: 'Ask AI', active: s.askOpen, onClick: () => this.setState(st => ({ e: { ...st.e, askOpen: !st.e.askOpen, intelHubOpen: false, chromeVisible: true } })) },
+        { icon: '△', label: 'Risk Analysis', active: s.riskMode, onClick: () => this.setState(st => ({ e: { ...st.e, riskMode: !st.e.riskMode, intelHubOpen: false, chromeVisible: true } })) },
+        { icon: '⚠', label: 'Crisis Center', active: s.crisisActive, onClick: () => { this.setState(st => ({ e: { ...st.e, intelHubOpen: false } })); this.toggleCrisisMode(); } },
+        { icon: '🔔', label: 'Live Alerts', active: s.alertsOpen, badge: (s.crisisScenario && s.crisisScenario.alerts || []).length || null, onClick: () => this.setState(st => ({ e: { ...st.e, alertsOpen: !st.e.alertsOpen, intelHubOpen: false } })) },
+      ],
+      commandOpen: s.commandOpen,
+      dockWidth: s.commandOpen ? '440px' : '400px',
+      toggleCommand: () => this.setState(st => ({ e: { ...st.e, commandOpen: !st.e.commandOpen, chromeVisible: true } })),
+      searchResults: (mod ? mod.COUNTRIES.slice(0, 8) : []).map(c => ({
+        name: c.name, region: c.region,
+        onClick: () => {
+          const mkt = mod.getCountryMarket(c);
+          this.setState(st => ({ e: { ...st.e, selected: c, market: mkt, commandOpen: false, panelTab: 'overview' } }));
+          if (this.engineE) this.engineE.focusOn(c);
+        },
+      })),
+      wireOpen: s.wireOpen,
+      wireCaret: s.wireOpen ? '▾' : '▸',
+      toggleWire: () => this.setState(st => ({ e: { ...st.e, wireOpen: !st.e.wireOpen } })),
+    };
+  }
+
+  // ---- HALO (variant d) helpers ----
+  onStageMoveD() {
+    if (!this.state.d.chromeVisible) this.setState(s => ({ d: { ...s.d, chromeVisible: true } }));
+    clearTimeout(this._idleTimer);
+    this._idleTimer = setTimeout(() => {
+      this.setState(s => (s.d.selected || s.d.commandOpen) ? s : { d: { ...s.d, chromeVisible: false } });
+    }, 3200);
+  }
+
+  computeVariantD() {
+    const s = this.state.d;
+    const mod = this.mod;
+    const market = s.market;
+    const hoveredMarket = s.hovered && mod ? mod.getCountryMarket(s.hovered) : null;
+    const LENS_DEFS = [
+      { id: 'markets', glyph: '◆', label: 'MARKETS' },
+      { id: 'fx',      glyph: '⇄', label: 'FX' },
+      { id: 'macro',   glyph: '▤', label: 'MACRO' },
+      { id: 'risk',    glyph: '△', label: 'RISK' },
+      { id: 'news',    glyph: '◈', label: 'NEWS' },
+    ];
+    const n = LENS_DEFS.length;
+    const lenses = LENS_DEFS.map((l, i) => {
+      const angleDeg = (360 / n) * i;
+      const active = s.lens === l.id;
+      return {
+        ...l,
+        angleDeg, counterDeg: -angleDeg,
+        bg: active ? 'rgba(167,139,250,0.22)' : 'rgba(15,10,24,0.65)',
+        border: active ? '#a78bfa' : '#382f52',
+        iconColor: active ? '#efe8ff' : '#8a7fa8',
+        textColor: active ? '#efe8ff' : '#6b6280',
+        onClick: () => this.setState(st => ({ d: { ...st.d, lens: l.id } })),
+      };
+    });
+    const lensLabel = (LENS_DEFS.find(l => l.id === s.lens) || {}).label || 'MARKETS';
+
+    let cards = [];
+    if (market) {
+      const changeColor = market.change >= 0 ? '#39d6a3' : '#ff5b68';
+      const fxColor = market.fxChange >= 0 ? '#39d6a3' : '#ff5b68';
+      const allCards = {
+        markets: { label: market.indexName, value: this.fmtNum(market.indexValue), delta: this.fmtPct(market.change), deltaColor: changeColor },
+        fx:      { label: 'FX — ' + market.currencyCode + '/USD', value: market.fxRate.toFixed(3), delta: this.fmtPct(market.fxChange), deltaColor: fxColor },
+        macro:   { label: 'GDP GROWTH', value: '+' + market.gdp.toFixed(1) + '%', delta: 'RATE ' + market.rate.toFixed(2) + '%', deltaColor: '#8a7fa8', sub: 'CPI ' + market.inflation.toFixed(1) + '%' },
+        risk:    { label: 'VOLATILITY SIGNAL', value: Math.abs(market.change) > 2 ? 'ELEVATED' : 'NORMAL', delta: this.fmtPct(market.change), deltaColor: changeColor },
+        news:    { label: 'LATEST HEADLINE', value: '', delta: '', deltaColor: '#8a7fa8', sub: market.headlines && market.headlines[0] },
+      };
+      const order = [s.lens, ...Object.keys(allCards).filter(k => k !== s.lens)];
+      cards = order.map((k, i) => ({ ...allCards[k], id: k, opacity: 1, translateY: '0px', delay: (i * 0.06) + 's' }));
+    }
+
+    return {
+      selected: s.selected, hovered: s.hovered, hoverX: s.hoverX, hoverY: s.hoverY,
+      hoveredChangeColor: hoveredMarket ? (hoveredMarket.change >= 0 ? '#39d6a3' : '#ff5b68') : '#c9d1dc',
+      hoveredChangeStr: hoveredMarket ? this.fmtPct(hoveredMarket.change) : '',
+      market, lenses, lensLabel, cards,
+      arcOpen: s.selected ? 1 : 0,
+      arcShiftX: s.selected ? '0px' : '24px',
+      chromeOpacity: s.chromeVisible ? 1 : 0,
+      cursorStyle: 'grab',
+      onStageMove: () => this.onStageMoveD(),
+      close: () => this.setState(st => ({ d: { ...st.d, selected: null, market: null } })),
+      commandOpen: s.commandOpen,
+      dockWidth: s.commandOpen ? '440px' : '400px',
+      toggleCommand: () => this.setState(st => ({ d: { ...st.d, commandOpen: !st.d.commandOpen, chromeVisible: true } })),
+      searchResults: (mod ? mod.COUNTRIES.slice(0, 8) : []).map(c => ({
+        name: c.name, region: c.region,
+        onClick: () => {
+          const mkt = mod.getCountryMarket(c);
+          this.setState(st => ({ d: { ...st.d, selected: c, market: mkt, commandOpen: false } }));
+          if (this.engineD) this.engineD.selectFocus ? this.engineD.selectFocus(c) : this.engineD.focusOn(c);
+        },
+      })),
+    };
+  }
+
+  computeVariant(key, panelHint) {
+    const s = this.state[key];
+    const market = s.market;
+    const hoveredMarket = s.hovered && this.mod ? this.mod.getCountryMarket(s.hovered) : null;
+    const he = s.hoverEvent;
+    const heCat = he && this.mod ? this.mod.CATEGORIES[he.cat] : null;
+    const intel = (s.selected && market && this.mod) ? this.mod.getCountryIntel(s.selected, market) : null;
+    const tab = s.panelTab || 'overview';
+    const setTab = (t) => this.setState(st => ({ ...st, [key]: { ...st[key], panelTab: t } }));
+    const tabs = ['overview','news','markets','economy','risk','outlook'].map(id => ({
+      id, label: id[0].toUpperCase() + id.slice(1),
+      active: tab === id,
+      onClick: () => setTab(id),
+    }));
+    if (key === 'e') {
+      tabs.push({ id: 'risk', label: 'Risk', active: tab === 'risk', onClick: () => setTab('risk') });
+    }
+    const sentColor = intel ? (intel.overallSentiment.label.includes('Bullish') ? '#39d6a3' : intel.overallSentiment.label.includes('Bearish') ? '#ff5b68' : '#8793a5') : '#8793a5';
+    const executiveBrief = intel ? `${s.selected.name}'s markets are ${intel.overallSentiment.label.toLowerCase()} today, with ${market.indexName} ${market.change >= 0 ? 'up' : 'down'} ${Math.abs(market.change).toFixed(1)}% as ${(intel.sectors[0] && intel.sectors[0].name || 'sector').toLowerCase()} leads. ${intel.marketNarrative} Inflation sits at ${market.inflation.toFixed(1)}% against a policy rate of ${market.rate.toFixed(2)}%, and the sovereign credit profile stands at ${intel.creditRating}. Watch: ${(intel.aiAnalyses[0] && intel.aiAnalyses[0].headline) || 'no major headline flagged this session'}.` : '';
+    const panelLoading = !!s.panelLoading;
+    const noHeadlines = !!(intel && (!market.headlines || market.headlines.length === 0));
+    const noSectors = !!(intel && (!intel.sectors || intel.sectors.length === 0));
+    const noMovers = !!(intel && (!intel.gainers || intel.gainers.length === 0) && (!intel.losers || intel.losers.length === 0));
+    const noAiCards = !!(intel && (!intel.aiAnalyses || intel.aiAnalyses.length === 0));
+    const risk = (s.selected && this.mod) ? this.mod.getCountryRisk(s.selected) : null;
+    const nowMs = this.state.clock.getTime();
+    const secsAgo = s.selectedAt ? Math.max(0, Math.floor((nowMs - s.selectedAt) / 1000)) : 0;
+    const updatedAgoStr = secsAgo < 60 ? secsAgo + 's ago' : Math.floor(secsAgo / 60) + 'm ago';
+    const cpiVal = market ? market.inflation : 0;
+    const cpiTrendArrow = cpiVal > 4 ? '▲' : cpiVal < 2 ? '▼' : '→';
+    const cpiTrendColor = cpiVal > 4 ? '#ff5b68' : cpiVal < 2 ? '#39d6a3' : '#8793a5';
+    const outlookRaw = (s.selected && this.mod) ? this.mod.getInvestmentOutlook(s.selected) : null;
+    const outlook = outlookRaw ? {
+      industriesStr: outlookRaw.industries.join(' · '),
+      fdiStr: '$' + outlookRaw.fdiBillions.toFixed(1) + 'B',
+      easeRank: '#' + outlookRaw.easeRank,
+      trend: outlookRaw.trend,
+      opportunities: outlookRaw.opportunities,
+    } : null;
+    const tradeRaw = (s.selected && this.mod) ? this.mod.getTradePartners(s.selected) : null;
+    const trade = tradeRaw ? {
+      exportPartners: tradeRaw.exportPartners.map(p => ({ name: p.name, pctStr: p.pct.toFixed(0) + '%' })),
+      importPartners: tradeRaw.importPartners.map(p => ({ name: p.name, pctStr: p.pct.toFixed(0) + '%' })),
+      keyIndustriesStr: tradeRaw.keyIndustries.join(' · '),
+    } : null;
+    const related = (s.selected && this.mod) ? this.mod.getRelatedCountries(s.selected, this.mod.COUNTRIES).map(c => ({
+      name: c.name, region: c.region,
+      onClick: () => { this.setState(st => ({ e: { ...st.e, panelTab: 'overview' } })); if (this.engineE) { const node = this.engineE.nodes.find(n => n.country.name === c.name); if (node) { this.engineE.focusOn(node); this.setState(st => ({ e: { ...st.e, selected: c, market: this.mod.getCountryMarket(c) } })); } }
+      },
+    })) : [];
+    const riskRows = risk ? risk.categories.map(c => ({
+      label: c.label, score: c.score, color: c.color, tier: c.tier, barPct: c.score,
+    })) : [];
+    const riskTrendPoints = risk ? this.buildSpark(risk.trend, 220, 40) : '';
+    return {
+      showSkeleton: panelLoading,
+      showContent: !panelLoading,
+      noHeadlines, noSectors, noMovers, noAiCards,
+      selected: s.selected,
+      hovered: s.hovered,
+      hoverEvent: he,
+      hoverKind: s.hoverKind,
+      hoverEventCat: heCat ? heCat.label : '',
+      hoverEventColor: heCat ? heCat.color : '#3ec6ff',
+      hoverX: s.hoverX,
+      hoverY: s.hoverY,
+      hoveredChangeColor: hoveredMarket ? (hoveredMarket.change >= 0 ? '#2ee6a6' : '#ff5c68') : '#c9d1dc',
+      hoveredChangeStr: hoveredMarket ? this.fmtPct(hoveredMarket.change) : '',
+      market: market,
+      indexValueStr: market ? this.fmtNum(market.indexValue) : '',
+      changeStr: market ? this.fmtPct(market.change) : '',
+      changeColor: market ? (market.change >= 0 ? '#2ee6a6' : '#ff5c68') : '#c9d1dc',
+      fxRateStr: market ? market.fxRate.toFixed(3) : '',
+      fxChangeStr: market ? this.fmtPct(market.fxChange) : '',
+      fxChangeColor: market ? (market.fxChange >= 0 ? '#2ee6a6' : '#ff5c68') : '#c9d1dc',
+      gdpStr: market ? '+' + market.gdp.toFixed(1) + '%' : '',
+      rateStr: market ? market.rate.toFixed(2) + '%' : '',
+      cpiStr: market ? market.inflation.toFixed(1) + '%' : '',
+      sparkPoints: market ? this.buildSpark(market.series, 220, 46) : '',
+      sparkPointsSmall: market ? this.buildSpark(market.series, 220, 30) : '',
+      panelShift: s.selected ? '0' : '100%',
+      panelOpacity: s.selected ? 1 : 0,
+      panelTranslate: s.selected ? '0' : '-10px',
+      drawerShift: s.selected ? '0' : '100%',
+      dockOpen: s.dockOpen,
+      dockCaret: s.dockOpen ? '▾' : '▸',
+      dockBottom: s.selected ? '246px' : '26px',
+      close: () => this.setState(st => ({ ...st, [key]: { ...st[key], selected: null, market: null } })),
+      countryCount: this.mod ? this.mod.COUNTRIES.length : 195,
+      tabs,
+      panelTab: tab,
+      showOverview: !panelLoading && tab === 'overview', showNews: !panelLoading && tab === 'news', showMarkets: !panelLoading && tab === 'markets', showEconomy: !panelLoading && tab === 'economy',
+      showRisk: !panelLoading && tab === 'risk',
+      showOutlook: !panelLoading && tab === 'outlook',
+      outlook, trade, related,
+      risk, riskRows, riskTrendPoints,
+      intel,
+      sentColor,
+      updatedAgoStr, cpiTrendArrow, cpiTrendColor,
+      executiveBrief,
+      sentimentLabel: intel ? intel.overallSentiment.label : '',
+      sentimentConf: intel ? intel.overallSentiment.confidence + '%' : '',
+      sentimentBlurb: intel ? intel.overallSentiment.blurb : '',
+      marketNarrative: intel ? intel.marketNarrative : '',
+      localTimeStr: intel ? intel.localTimeStr : '',
+      marketStatusLabel: intel ? (intel.marketOpen ? 'OPEN' : 'CLOSED') : '',
+      marketStatusColor: intel ? (intel.marketOpen ? '#39d6a3' : '#8793a5') : '#8793a5',
+      unemploymentStr: intel ? intel.unemployment.toFixed(1) + '%' : '',
+      govDebtStr: intel ? intel.govDebtPctGdp.toFixed(0) + '% GDP' : '',
+      creditRating: intel ? intel.creditRating : '',
+      sectors: intel ? intel.sectors.map(sec => ({
+        name: sec.name, changeStr: this.fmtPct(sec.change), color: sec.change >= 0 ? '#39d6a3' : '#ff5b68',
+        barPct: Math.min(100, Math.abs(sec.change) / 4 * 100),
+      })) : [],
+      gainers: intel ? intel.gainers.map(m => ({ ...m, priceStr: '$'+m.price.toFixed(2), changeStr: this.fmtPct(m.change), capStr: this.fmtCap(m.capB) })) : [],
+      losers: intel ? intel.losers.map(m => ({ ...m, priceStr: '$'+m.price.toFixed(2), changeStr: this.fmtPct(m.change), capStr: this.fmtCap(m.capB) })) : [],
+      aiCards: intel ? intel.aiAnalyses.map((an, i) => ({
+        ...an, id: i,
+        stanceColor: an.stance === 'bullish' ? '#39d6a3' : an.stance === 'bearish' ? '#ff5b68' : '#8793a5',
+        stanceLabel: an.stance.toUpperCase(),
+        industriesStr: an.industries.join(' · '),
+        benefitsStr: an.benefits.join(', ') || '—',
+        hurtsStr: an.hurts.join(', ') || '—',
+      })) : [],
+    };
+  }
+
+  renderVals() {
+    const c = this.state.clock;
+    const clockStr = [c.getUTCHours(), c.getUTCMinutes(), c.getUTCSeconds()].map(n => String(n).padStart(2, '0')).join(':');
+    const HUBS = [
+      { flag: '🇺🇸', city: 'New York', offset: -4 },
+      { flag: '🇬🇧', city: 'London', offset: 1 },
+      { flag: '🇩🇪', city: 'Frankfurt', offset: 2 },
+      { flag: '🇸🇬', city: 'Singapore', offset: 8 },
+      { flag: '🇯🇵', city: 'Tokyo', offset: 9 },
+    ];
+    const marketClocks = HUBS.map(h => {
+      const local = new Date(c.getTime() + h.offset * 3600000);
+      const hh = local.getUTCHours(), mm = local.getUTCMinutes();
+      const isOpen = hh >= 9 && hh < 17;
+      return { flag: h.flag, city: h.city, time: String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0'), openColor: isOpen ? '#39d6a3' : '#5b6472' };
+    });
+    const shortcutList = [
+      { key: 'R', desc: 'Toggle Risk Analysis mode' },
+      { key: 'A', desc: 'Toggle Ask AI panel' },
+      { key: 'N', desc: 'Jump to News tab (country selected)' },
+      { key: 'M', desc: 'Jump to Markets tab (country selected)' },
+      { key: 'Esc', desc: 'Close overlays' },
+      { key: '?', desc: 'Show this shortcuts overlay' },
+    ];
+    const sun = this.state.sun;
+    const fmtCoord = (v, pos, neg) => Math.abs(v).toFixed(0) + '° ' + (v >= 0 ? pos : neg);
+    let sunLat = '—', sunLon = '—', selDayLabel = '', selDayColor = '#8793a5';
+    if (sun) {
+      sunLat = fmtCoord(sun.subLat, 'N', 'S');
+      sunLon = fmtCoord(sun.subLon, 'E', 'W');
+      if (sun.selDayFactor != null) {
+        if (sun.selDayFactor > 0.15) { selDayLabel = 'DAYLIGHT'; selDayColor = '#e5aa52'; }
+        else if (sun.selDayFactor < -0.15) { selDayLabel = 'NIGHT'; selDayColor = '#6f8bd6'; }
+        else { selDayLabel = 'TWILIGHT'; selDayColor = '#c98f6a'; }
+      }
+    }
+    const mod = this.mod;
+    const CAT = mod ? mod.CATEGORIES : {};
+    const SENT = mod ? mod.SENTIMENT : {};
+    const allEvents = this.state.feedEvents || [];
+    const filter = this.state.feedFilter;
+    const activeId = this.state.activeEventId;
+    const readIds = this.state.readIds;
+
+    // category filter chips (only categories present in the feed)
+    const presentCats = mod ? Array.from(new Set(allEvents.map(e => e.cat))) : [];
+    const filters = [{ id: 'all', label: 'All', color: '#c3cad6', active: filter === 'all', count: allEvents.length }]
+      .concat(presentCats.map(cat => ({
+        id: cat, label: (CAT[cat] || {}).label || cat, color: (CAT[cat] || {}).color || '#8793a5',
+        glyph: (CAT[cat] || {}).glyph || '•', active: filter === cat,
+        count: allEvents.filter(e => e.cat === cat).length,
+      })))
+      .map(f => ({
+        ...f,
+        onClick: () => this.setState({ feedFilter: f.id }),
+        bg: f.active ? this._hexA(f.color, 0.16) : '#0d1119',
+        borderColor: f.active ? this._hexA(f.color, 0.5) : '#1b212c',
+        textColor: f.active ? f.color : '#8a93a3',
+      }));
+
+    const feed = allEvents
+      .filter(e => filter === 'all' || e.cat === filter)
+      .map(e => {
+        const cat = CAT[e.cat] || {};
+        const catColor = cat.color || '#8793a5';
+        const sentColor = SENT[e.sentiment] || '#8793a5';
+        const active = e.id === activeId;
+        const unread = !readIds[e.id];
+        const isCritical = e.sentiment === 'critical';
+        const isHighImpact = e.impact >= 4;
+        return {
+          id: e.id, headline: e.headline, summary: e.summary, source: e.source,
+          flag: e.flag, city: e.city, country: e.country,
+          catLabel: cat.label || e.cat, catColor, catGlyph: cat.glyph || '•',
+          catBg: this._hexA(catColor, 0.14),
+          sentColor,
+          sentLabel: (e.sentiment || '').toUpperCase(),
+          impact: e.impact,
+          impactBars: [1,2,3,4,5].map(n => ({ color: n <= e.impact ? catColor : '#242c3a' })),
+          ago: mod ? mod.fmtAgo(e.mins) : e.mins + 'm',
+          active, unread,
+          isBreaking: isCritical || isHighImpact,
+          breakingLabel: isCritical ? 'CRITICAL' : 'HIGH IMPACT',
+          breakingColor: isCritical ? '#ff2d40' : '#e5aa52',
+          accent: active ? catColor : (isCritical ? '#ff2d40' : (unread ? this._hexA(catColor, 0.55) : 'transparent')),
+          bg: active ? this._hexA(catColor, 0.10) : '#0d1119',
+          borderColor: active ? this._hexA(catColor, 0.55) : '#1b212c',
+          onClick: () => {
+            this.setState(s => ({ ...s, activeEventId: e.id, readIds: { ...s.readIds, [e.id]: true } }));
+            if (this.engineA) this.engineA.selectEventById(e.id, true);
+          },
+        };
+      });
+
+    const activeEvent = activeId && mod ? (() => {
+      const e = allEvents.find(x => x.id === activeId);
+      if (!e) return null;
+      const cat = CAT[e.cat] || {};
+      return { ...e, catLabel: cat.label, catColor: cat.color, catGlyph: cat.glyph,
+        sentColor: SENT[e.sentiment] || '#8793a5', sentLabel: (e.sentiment || '').toUpperCase(),
+        ago: mod.fmtAgo(e.mins) };
+    })() : null;
+
+    const selectFeedEvent = (id) => {
+      this.setState(s => ({ ...s, activeEventId: id, readIds: { ...s.readIds, [id]: true } }));
+      if (this.engineA) this.engineA.selectEventById(id, true);
+    };
+    const setFilter = (id) => this.setState({ feedFilter: id });
+    const clearActive = () => this.setState({ activeEventId: null });
+
+    const tickerItems = allEvents.map(e => {
+      const cat = CAT[e.cat] || {};
+      return {
+        glyph: cat.glyph || '•', label: (cat.label || e.cat).toUpperCase(), color: cat.color || '#8793a5', text: e.headline,
+        onClick: () => {
+          this.setState(s => ({ ...s, activeEventId: e.id, readIds: { ...s.readIds, [e.id]: true } }));
+          if (this.engineA) this.engineA.selectEventById(e.id, true);
+        },
+      };
+    });
+
+    return {
+      refA: this.refA, refB: this.refB, refC: this.refC, refD: this.refD, refE: this.refE,
+      loading: !this.state.ready,
+      readyOpacity: this.state.ready ? 1 : 0,
+      clockStr,
+      hasSun: !!sun,
+      sunLat, sunLon, selDayLabel, selDayColor,
+      globalHeadlines: this.state.globalHeadlines,
+      feed, filters, activeEvent, tickerItems,
+      feedCount: feed.length,
+      hasActive: !!activeEvent,
+      selectFeedEvent, setFilter, clearActive,
+      a: this.computeVariant('a'),
+      b: this.computeVariant('b'),
+      c: this.computeVariant('c'),
+      d: this.computeVariantD(),
+      e: { ...this.computeVariantFinal(), marketClocks, shortcutsOpen: this.state.e.shortcutsOpen, shortcutList, toggleShortcuts: () => this.setState(st => ({ e: { ...st.e, shortcutsOpen: !st.e.shortcutsOpen } })), stopProp: (ev) => ev && ev.stopPropagation && ev.stopPropagation() },
+      toggleDock: () => this.setState(st => ({ c: { ...st.c, dockOpen: !st.c.dockOpen } })),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

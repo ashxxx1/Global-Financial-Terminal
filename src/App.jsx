@@ -22,6 +22,7 @@ import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
 import { CountryLeftPanel } from "./components/Terminal/CountryLeftPanel";
 import { CountryRightPanel } from "./components/Terminal/CountryRightPanel";
 import MeridianLayout    from "./components/Terminal/MeridianLayout";
+import PremiumTerminal   from "./components/Terminal/PremiumTerminal";
 import Ticker           from "./components/Ticker/Ticker";
 import Footer           from "./components/Footer/Footer";
 
@@ -39,7 +40,6 @@ import CausalChainMap            from "./components/Terminal/CausalChainMap";
 import SignalDesk                from "./components/Terminal/SignalDesk";
 import GravityFieldGrid          from "./components/Terminal/GravityFieldGrid";
 import ComparePanel              from "./components/Terminal/ComparePanel";
-import { startIntelligencePipeline, stopIntelligencePipeline } from "./services/intelligenceBrain";
 
 // ── Pages ────────────────────────────────────────────────────────────────────
 import LoginPage      from "./pages/LoginPage";
@@ -111,28 +111,18 @@ function TerminalApp() {
     compareCountry,
     setCompareCountry,
     closeCompareMode,
-    refreshInterval,
   } = useTerminalStore();
 
-  // Initialize Meridian Intelligence pipeline
-  useEffect(() => {
-    const unsub = startIntelligencePipeline(useTerminalStore);
-    return () => {
-      unsub();
-      stopIntelligencePipeline();
-    };
-  }, []);
-
-  // Time-scrub playback tick (optimized functional state updates)
+  // Time-scrub playback tick
   useEffect(() => {
     let interval = null;
     if (isScrubPlaying) {
       interval = setInterval(() => {
-        setScrubStep(prev => (prev + 4) % 104);
+        setScrubStep((scrubStep + 4) % 104);
       }, 350);
     }
     return () => clearInterval(interval);
-  }, [isScrubPlaying, setScrubStep]);
+  }, [isScrubPlaying, scrubStep, setScrubStep]);
 
   // Mobile sidebar sheet state
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -194,25 +184,14 @@ function TerminalApp() {
         width: "100%",
         height: isMeridianMode ? "100vh" : "auto",
       }}>
-        {/* Single persistent GlobeVis instance to prevent WebGL context loss */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            background: "radial-gradient(ellipse 70% 60% at 50% 45%, rgba(22,49,79,0.28) 0%, #05070d 65%)",
-          }}
-        >
-          <GlobeVis selectedCountry={selectedCountry} onCountryClick={handleCountryClick} timeframe={timeframe} />
-        </div>
-
-        {/* MERIDIAN full-screen layout */}
+        {/* Premium Terminal with integrated engines */}
         {isMeridianMode ? (
-          <MeridianLayout
+          <PremiumTerminal
             selectedCountry={selectedCountry}
             onCountrySelect={handleCountryClick}
             countries={COUNTRIES_LIST}
-          >
-            <div className="absolute inset-0 pointer-events-none" />
-          </MeridianLayout>
+            timeframe={timeframe}
+          />
         ) : (
           /* Old layout for non-globe views */
           <div className="flex w-full h-full">
@@ -426,10 +405,15 @@ function TerminalApp() {
                   MERIDIAN · LIVE
                 </div>
 
-                {/* ── Globe background spacer ── */}
+                {/* ── Globe background ── */}
                 <div
-                  className="absolute inset-0 z-0 pointer-events-none"
-                />
+                  className="absolute inset-0 z-0"
+                  style={{
+                    background: "radial-gradient(ellipse 70% 60% at 50% 45%, rgba(22,49,79,0.28) 0%, #05070d 65%)",
+                  }}
+                >
+                  <GlobeVis selectedCountry={selectedCountry} onCountryClick={handleCountryClick} timeframe={timeframe} />
+                </div>
 
                 {/* Gravity Field Grid Layer */}
                 <GravityFieldGrid />

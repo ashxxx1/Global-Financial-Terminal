@@ -156,8 +156,14 @@ function MeridianPanel({ country, onClose, lens = "markets", onLensChange = () =
                 borderBottom: `2px solid ${activeTab === tab.id ? "#3ec6ff" : "transparent"}`,
                 background: "transparent",
                 border: "none",
+                borderTop: "none",
+                borderLeft: "none",
+                borderRight: "none",
                 transition: "all 0.2s",
+                pointerEvents: "auto",
               }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = TEXT_PRIMARY; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = activeTab === tab.id ? TEXT_PRIMARY : TEXT_MUTED; }}
             >
               {tab.label}
             </button>

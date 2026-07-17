@@ -7,7 +7,6 @@ import useTerminalStore from "../../store/terminalStore";
 
 export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) {
   const [countries, setCountries] = useState({ features: [] });
-  const [hoverD, setHoverD] = useState(null);
   const containerRef = useRef(null);
   const globeRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 800 });
@@ -396,21 +395,29 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           globeImageUrl="https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
           showAtmosphere={false}
           polygonsData={countries.features}
-          polygonAltitude={d => d === hoverD ? 0.08 : 0.001}
+          polygonAltitude={0.008}
           polygonCapColor={d => {
+             // Only the selected country is tinted. react-globe.gl does not depth-occlude
+             // the transparent polygon caps against the Earth sphere, so tinting every
+             // country stacks front+far-side caps into a solid wash that hides the globe.
+             // Keeping all-but-selected transparent lets the blue-marble Earth read cleanly.
              const iso = d.properties?.ISO_A2 || '';
+             const selIso = selectedCountry?.properties?.ISO_A2 || selectedCountry?.code || '';
+             if (!selIso || iso !== selIso) return 'rgba(0, 0, 0, 0)';
+
              const stats = getCountryStats(iso);
              const fallback = stats.marketReturns["1D"];
              const score = stats.marketReturns[timeframe] !== undefined ? stats.marketReturns[timeframe] : fallback;
-
-             // muted: reduce saturation, lower alpha to let the Earth texture show through
-             const baseAlpha = d === hoverD ? '0.4' : '0.05';
-             if (score > 1.0) return `rgba(100, 200, 160, ${baseAlpha})`; // muted green
-             if (score < -1.0) return `rgba(200, 100, 90, ${baseAlpha})`; // muted red
-             return `rgba(150, 130, 110, ${baseAlpha})`; // muted brown
+             if (score < -1.0) return 'rgba(230, 95, 85, 0.55)';   // red — declining
+             if (score > 1.0) return 'rgba(90, 210, 150, 0.55)';   // green — advancing
+             return 'rgba(212, 175, 55, 0.45)';                    // gold — neutral highlight
           }}
-          polygonSideColor={() => 'rgba(15, 23, 42, 0.0)'} 
-          polygonStrokeColor={() => 'rgba(212, 175, 55, 0.05)'} 
+          polygonSideColor={() => 'rgba(212, 175, 55, 0.15)'}
+          polygonStrokeColor={d => {
+             const iso = d.properties?.ISO_A2 || '';
+             const selIso = selectedCountry?.properties?.ISO_A2 || selectedCountry?.code || '';
+             return (selIso && iso === selIso) ? 'rgba(212, 175, 55, 0.9)' : 'rgba(212, 175, 55, 0.12)';
+          }}
           polygonLabel={(d) => {
             const props = d?.properties || {};
             return `
@@ -419,7 +426,6 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
               <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:#d4af37;letter-spacing:0.1em;text-transform:uppercase;">↗ CLICK FOR AI INTEL</div>
             </div>
           `}}
-          onPolygonHover={setHoverD}
           onPolygonClick={handlePolygonClick}
           htmlElementsData={combinedHtmlData}
           arcsData={trafficArcs}

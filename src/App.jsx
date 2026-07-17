@@ -21,7 +21,6 @@ import SocialPage from "./pages/Social/SocialPage";
 import PortfolioPanel   from "./components/Terminal/PortfolioPanel";
 import { CountryLeftPanel } from "./components/Terminal/CountryLeftPanel";
 import { CountryRightPanel } from "./components/Terminal/CountryRightPanel";
-import MeridianTerminalV2  from "./components/Terminal/MeridianTerminalV2";
 import Ticker           from "./components/Ticker/Ticker";
 import Footer           from "./components/Footer/Footer";
 
@@ -160,7 +159,6 @@ function TerminalApp() {
   }, [selectedCountry, compareCountry, setSelectedCountry, setCompareCountry, closeCompareMode]);
 
   const anySheetOpen = mobileSidebarOpen || isNewsPanelOpen || isStockPanelOpen;
-  const isMeridianMode = activeView === "globe";
 
   return (
     <div className="app-shell nexus">
@@ -171,33 +169,24 @@ function TerminalApp() {
         <div className="nexus-ambient__aurora nexus-ambient__aurora--3" />
       </div>
 
-      {/* Hide top chrome in MERIDIAN mode */}
-      {!isMeridianMode && <TopBar currentView={activeView} onSetView={setActiveView} />}
+      <TopBar currentView={activeView} onSetView={setActiveView} />
 
       {/* Ticker scrolling strip */}
-      {!isMeridianMode && <Ticker />}
+      <Ticker />
 
       {/* Left nav — icon sidebar for view switching */}
-      {!isMeridianMode && <LeftNav currentView={activeView} onSetView={setActiveView} />}
+      <LeftNav currentView={activeView} onSetView={setActiveView} />
 
       {/* Main content area */}
       <main className="globe-area" style={{
         position: "relative",
-        overflow: isMeridianMode ? "hidden" : "auto",
-        touchAction: isMeridianMode ? "none" : "auto",
+        overflow: activeView === "globe" ? "hidden" : "auto",
+        touchAction: activeView === "globe" ? "none" : "auto",
         width: "100%",
-        height: isMeridianMode ? "100vh" : "auto",
+        height: activeView === "globe" ? "100vh" : "auto",
       }}>
-        {/* MERIDIAN Terminal V2 - Redesigned UI */}
-        {isMeridianMode ? (
-          <MeridianTerminalV2
-            selectedCountry={selectedCountry}
-            onCountrySelect={handleCountryClick}
-            countries={COUNTRIES_LIST}
-            timeframe={timeframe}
-          />
-        ) : (
-          /* Old layout for non-globe views */
+        {/* Globe terminal — the primary MERIDIAN view */}
+        {activeView === "globe" ? (
           <div className="flex w-full h-full">
             {/* Left Panel: Market overview & Risk radar OR Country Info */}
             <div className={`sidebar nx-panel nx-scanlines ${mobileSidebarOpen ? "mobile-open" : ""} ${leftCollapsed ? "w-0 border-r-0" : "w-[350px]"} h-full flex flex-col border-r flex-shrink-0 transition-all duration-300 overflow-y-auto`} style={{ borderColor: "var(--nx-border)" }}>
@@ -445,10 +434,8 @@ function TerminalApp() {
               )}
             </div>
           </div>
-        )}
-
-        {/* Non-globe views (news, charts, portfolio, etc.) */}
-        {!isMeridianMode && (
+        ) : (
+          /* Non-globe views (news, charts, portfolio, etc.) */
           <div className="absolute inset-0 z-10 flex flex-col w-full h-full overflow-hidden" style={{ background: "var(--nx-void)" }}>
             {activeView === "news"        && <GlobalNews />}
             {activeView === "social"      && <SocialPage />}
@@ -492,7 +479,7 @@ function TerminalApp() {
       </main>
 
       {/* Footer — disclaimer strip at bottom */}
-      {!isMeridianMode && <Footer />}
+      <Footer />
 
       {/* Stock detail panel */}
       {isStockPanelOpen && selectedStock && (
@@ -517,7 +504,7 @@ function TerminalApp() {
         }}
       />
 
-      {!isMeridianMode && <nav className="mobile-nav nexus-mobile-nav" aria-label="Mobile navigation">
+      <nav className="mobile-nav nexus-mobile-nav" aria-label="Mobile navigation">
         <button
           className={`mobile-nav__btn${activeView === "globe" ? " active" : ""}`}
           onClick={() => { setActiveView("globe"); setMobileViewsOpen(false); }}
@@ -555,7 +542,7 @@ function TerminalApp() {
           <span className="mobile-nav__btn-icon">☰</span>
           VIEWS
         </button>
-      </nav>}
+      </nav>
       {/* Mobile Views Menu Sheet */}
       {mobileViewsOpen && (
         <div className="fixed inset-0 z-[400] flex flex-col justify-end bg-black/60 backdrop-blur-sm pointer-events-auto" onClick={() => setMobileViewsOpen(false)}>

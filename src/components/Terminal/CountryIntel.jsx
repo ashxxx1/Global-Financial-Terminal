@@ -14,7 +14,7 @@ import { intelApi } from "../../services/intelApi";
 
 const MONO = "'JetBrains Mono', monospace";
 
-const LABEL_COLOR = { Bullish: "#4fd1a5", Bearish: "#e06c6c", Neutral: "#c9bea3" };
+const LABEL_COLOR = { Bullish: "#46d38a", Bearish: "#e06c6c", Neutral: "#c9bea3" };
 const LabelIcon = ({ label }) =>
   label === "Bullish" ? <TrendingUp className="w-3 h-3" /> :
   label === "Bearish" ? <TrendingDown className="w-3 h-3" /> :
@@ -92,7 +92,7 @@ export default function CountryIntel({ iso }) {
                   <span style={{ color: "#c9bea3" }}>{ix.name}</span>
                   <span style={{ color: "#7a7360" }}>
                     {ix.price.toLocaleString()}{" "}
-                    <span style={{ color: ix.changePct >= 0 ? "#4fd1a5" : "#e06c6c" }}>
+                    <span style={{ color: ix.changePct >= 0 ? "#46d38a" : "#e06c6c" }}>
                       {ix.changePct >= 0 ? "+" : ""}{ix.changePct}%
                     </span>
                   </span>
@@ -124,7 +124,7 @@ export default function CountryIntel({ iso }) {
       <div className="flex items-center justify-between" style={{ marginBottom: "10px" }}>
         <SectionLabel>Live News → Signals</SectionLabel>
         <span style={{ fontFamily: MONO, fontSize: "8px", letterSpacing: "0.1em",
-          color: live ? "#4fd1a5" : "#7a7360", display: "flex", alignItems: "center", gap: 4 }}>
+          color: live ? "#46d38a" : "#7a7360", display: "flex", alignItems: "center", gap: 4 }}>
           {loading ? <RefreshCw className="w-3 h-3 animate-spin" /> : null}
           {live ? "● LIVE" : "○ SAMPLE"}
         </span>
@@ -149,7 +149,7 @@ export default function CountryIntel({ iso }) {
           {/* Sector signals */}
           <div className="flex flex-col gap-2" style={{ marginBottom: "14px" }}>
             {data.analysis.sectorSignals.slice(0, 5).map((s) => (
-              <div key={s.sector} style={{ border: "1px solid rgba(212,175,55,0.12)",
+              <div key={s.sector} style={{ border: "1px solid rgba(245, 177, 61,0.12)",
                 borderRadius: "4px", padding: "8px 10px" }}>
                 <div className="flex items-center justify-between">
                   <span style={{ fontFamily: MONO, fontSize: "11px", color: "#c9bea3" }}>{s.sector}</span>
@@ -189,7 +189,7 @@ export default function CountryIntel({ iso }) {
 
           {/* Disclaimer */}
           <div style={{ fontFamily: MONO, fontSize: "8px", color: "#5c5546", lineHeight: 1.5,
-            borderTop: "1px solid rgba(212,175,55,0.1)", paddingTop: "8px" }}>
+            borderTop: "1px solid rgba(245, 177, 61,0.1)", paddingTop: "8px" }}>
             ⚠ {data.analysis.disclaimer}
           </div>
         </>

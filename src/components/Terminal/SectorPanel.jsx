@@ -23,7 +23,7 @@ function TypewriterSummary({ text, speed = 8 }) {
     <span style={{ fontSize: "11px", color: "#c9bea3", lineHeight: "1.6", fontFamily: "'JetBrains Mono', monospace" }}>
       {displayed}
       {displayed.length < (text?.length || 0) && (
-        <span style={{ display: "inline-block", width: "6px", height: "12px", background: "#d4af37", marginLeft: "2px", verticalAlign: "text-bottom" }}
+        <span style={{ display: "inline-block", width: "6px", height: "12px", background: "#f5b13d", marginLeft: "2px", verticalAlign: "text-bottom" }}
           className="animate-pulse">▋</span>
       )}
     </span>
@@ -125,8 +125,8 @@ const SECTOR_METRICS = {
 
 const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Fraunces', Georgia, serif";
-const BRASS = "#d4af37";
-const HAIRLINE = "rgba(212,175,55,0.14)";
+const BRASS = "#f5b13d";
+const HAIRLINE = "rgba(245, 177, 61,0.14)";
 
 function SectionLabel({ children }) {
   return (
@@ -164,19 +164,19 @@ export function SectorPanel() {
       style={{ fontFamily: "'Space Grotesk', sans-serif" }}
     >
       {/* Decorative corners */}
-      <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#d4af37]/35" />
-      <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#d4af37]/35" />
-      <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#d4af37]/35" />
-      <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#d4af37]/35" />
+      <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#f5b13d]/35" />
+      <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#f5b13d]/35" />
+      <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#f5b13d]/35" />
+      <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#f5b13d]/35" />
 
       {/* Header */}
-      <div className="flex justify-between items-center mb-6 border-b border-[#d4af37]/10 pb-4 shrink-0">
+      <div className="flex justify-between items-center mb-6 border-b border-[#f5b13d]/10 pb-4 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded bg-[#d4af37]/10 border border-[#d4af37]/30 flex items-center justify-center text-[#d4af37] font-mono text-xs font-bold">
+          <div className="w-8 h-8 rounded bg-[#f5b13d]/10 border border-[#f5b13d]/30 flex items-center justify-center text-[#f5b13d] font-mono text-xs font-bold">
             SEC
           </div>
           <div>
-            <span className="text-[10px] font-mono tracking-widest text-[#d4af37] uppercase font-bold">Sector Intelligence Hub</span>
+            <span className="text-[10px] font-mono tracking-widest text-[#f5b13d] uppercase font-bold">Sector Intelligence Hub</span>
             <h2 className="text-[15px] font-bold text-slate-100 uppercase tracking-wider">
               {selectedSector} Global Sector View
             </h2>
@@ -210,7 +210,7 @@ export function SectorPanel() {
             </div>
             <div className="flex flex-col gap-0.5 p-3 rounded bg-white/[0.015]" style={{ border: `1px solid ${HAIRLINE}` }}>
               <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, color: "#5c5546" }}>PERFORMANCE</span>
-              <span className="flex items-center gap-1 font-mono text-xs font-bold" style={{ color: sectorData.isUp ? "#4fd1a5" : "#e8635a" }}>
+              <span className="flex items-center gap-1 font-mono text-xs font-bold" style={{ color: sectorData.isUp ? "#46d38a" : "#e8635a" }}>
                 {sectorData.isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                 {sectorData.performance}
               </span>
@@ -239,16 +239,16 @@ export function SectorPanel() {
                     });
                     setSelectedSector(null);
                   }}
-                  className="flex justify-between items-center p-2.5 rounded bg-[#0a0f1d] hover:bg-[#d4af37]/4 border border-white/5 cursor-pointer transition-all"
+                  className="flex justify-between items-center p-2.5 rounded bg-[#0a0f1d] hover:bg-[#f5b13d]/4 border border-white/5 cursor-pointer transition-all"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: stock.isUp ? "#4fd1a5" : "#e8635a" }} />
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: stock.isUp ? "#46d38a" : "#e8635a" }} />
                     <span className="font-mono text-[11px] font-bold text-slate-200">{stock.ticker}</span>
                     <span className="text-[10px] text-slate-400 font-medium ml-1">{stock.name}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="font-mono text-[11px] text-slate-300">{stock.price}</span>
-                    <span className="font-mono text-[10px] font-bold" style={{ color: stock.isUp ? "#4fd1a5" : "#e8635a" }}>
+                    <span className="font-mono text-[10px] font-bold" style={{ color: stock.isUp ? "#46d38a" : "#e8635a" }}>
                       {stock.change}
                     </span>
                   </div>
@@ -263,7 +263,7 @@ export function SectorPanel() {
           {/* AI Synthesis */}
           <div>
             <SectionLabel>AI Sector Synthesis</SectionLabel>
-            <div className="relative overflow-hidden p-4 rounded bg-[#0a0f1d] border border-[#d4af37]/25 flex flex-col gap-2">
+            <div className="relative overflow-hidden p-4 rounded bg-[#0a0f1d] border border-[#f5b13d]/25 flex flex-col gap-2">
               <div className="absolute left-0 top-0 bottom-0 w-[2px]"
                 style={{ background: `linear-gradient(180deg, ${BRASS}, transparent)` }} />
               
@@ -290,11 +290,11 @@ export function SectorPanel() {
                 </div>
               ) : (
                 relatedEvents.map(evt => {
-                  const sentColor = evt.sentimentLabel === "Bullish" ? "#4fd1a5" : evt.sentimentLabel === "Bearish" ? "#e8635a" : "#d4af37";
+                  const sentColor = evt.sentimentLabel === "Bullish" ? "#46d38a" : evt.sentimentLabel === "Bearish" ? "#e8635a" : "#f5b13d";
                   return (
                     <div
                       key={evt.id}
-                      className="p-3 rounded flex flex-col gap-1.5 bg-[#0a0f1d] border border-white/5 hover:border-[#d4af37]/30 transition-all"
+                      className="p-3 rounded flex flex-col gap-1.5 bg-[#0a0f1d] border border-white/5 hover:border-[#f5b13d]/30 transition-all"
                     >
                       <div className="flex items-center justify-between">
                         <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold tracking-wider"

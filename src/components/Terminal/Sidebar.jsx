@@ -23,14 +23,14 @@ export function Sidebar() {
 
   const riskMetrics = [
     { label: "Geopolitical", val: "84/100", color: "#e8635a" },
-    { label: "Systemic",     val: "62/100", color: "#d4af37" },
-    { label: "Credit",       val: "38/100", color: "#4fd1a5" },
-    { label: "Volatility",   val: "55/100", color: "#d4af37" },
+    { label: "Systemic",     val: "62/100", color: "#f5b13d" },
+    { label: "Credit",       val: "38/100", color: "#46d38a" },
+    { label: "Volatility",   val: "55/100", color: "#f5b13d" },
   ];
 
   const liquidityItems = [
-    { label: "USD ONR (O/N Repo)", val: "5.32%", pct: 85, color: "#4fd1a5" },
-    { label: "EUR SOFR",           val: "3.90%", pct: 60, color: "#d4af37" },
+    { label: "USD ONR (O/N Repo)", val: "5.32%", pct: 85, color: "#46d38a" },
+    { label: "EUR SOFR",           val: "3.90%", pct: 60, color: "#f5b13d" },
     { label: "Dark Pool Index",    val: "42.1%", pct: 42, color: "#c97b4a" },
   ];
 
@@ -50,7 +50,7 @@ export function Sidebar() {
       <div
         className="flex flex-col p-3 shrink-0"
         style={{
-          borderBottom: "1px solid rgba(212,175,55,0.14)",
+          borderBottom: "1px solid rgba(245, 177, 61,0.14)",
           background: "rgba(5,7,13,0.7)",
         }}
       >
@@ -58,7 +58,7 @@ export function Sidebar() {
           <div className="flex items-center gap-2">
             <div
               className="h-1.5 w-1.5 rounded-full motion-safe:animate-pulse"
-              style={{ background: "#4fd1a5", boxShadow: "0 0 8px rgba(79,209,165,0.8)" }}
+              style={{ background: "#46d38a", boxShadow: "0 0 8px rgba(70, 211, 138,0.8)" }}
             />
             <span style={{ ...sectionHead, letterSpacing: "0.14em" }}>
               Global Node · Online
@@ -67,9 +67,9 @@ export function Sidebar() {
           <button
             onClick={handleSync}
             className="flex items-center gap-1 transition-colors cursor-pointer"
-            style={{ ...sectionHead, color: "#d4af37" }}
+            style={{ ...sectionHead, color: "#f5b13d" }}
             onMouseEnter={e => e.currentTarget.style.color = "#f0c84a"}
-            onMouseLeave={e => e.currentTarget.style.color = "#d4af37"}
+            onMouseLeave={e => e.currentTarget.style.color = "#f5b13d"}
           >
             <RefreshCcw className={`h-3 w-3 ${isSyncing ? "animate-spin" : ""}`} />
             Sync
@@ -83,7 +83,7 @@ export function Sidebar() {
         <div
           className="p-4 relative"
           style={{
-            borderBottom: "1px solid rgba(212,175,55,0.12)",
+            borderBottom: "1px solid rgba(245, 177, 61,0.12)",
             background: "linear-gradient(180deg, rgba(22,49,79,0.15) 0%, transparent 100%)",
           }}
         >
@@ -110,7 +110,7 @@ export function Sidebar() {
                 fontWeight: 700,
                 color: "#6b6354",
                 background: "#0f1525",
-                border: "1px solid rgba(212,175,55,0.14)",
+                border: "1px solid rgba(245, 177, 61,0.14)",
                 letterSpacing: "0.1em",
               }}
             >
@@ -125,7 +125,7 @@ export function Sidebar() {
               color: "#c9bea3",
               lineHeight: "1.65",
               background: "#05070d",
-              border: "1px solid rgba(212,175,55,0.14)",
+              border: "1px solid rgba(245, 177, 61,0.14)",
               borderRadius: "2px",
               padding: "12px 12px 12px 16px",
             }}
@@ -133,7 +133,7 @@ export function Sidebar() {
             {/* Left accent bar */}
             <div
               className="absolute left-0 top-0 bottom-0 w-[2px]"
-              style={{ background: "rgba(212,175,55,0.55)" }}
+              style={{ background: "rgba(245, 177, 61,0.55)" }}
             />
             {(() => {
               const parts = briefText.split(/(`\[.*?\]`)/);
@@ -153,18 +153,18 @@ export function Sidebar() {
                             letterSpacing: "0.08em",
                             padding: "1px 5px",
                             borderRadius: "2px",
-                            background: "rgba(212,175,55,0.12)",
-                            border: "1px solid rgba(212,175,55,0.35)",
-                            color: "#d4af37",
+                            background: "rgba(245, 177, 61,0.12)",
+                            border: "1px solid rgba(245, 177, 61,0.35)",
+                            color: "#f5b13d",
                             textTransform: "uppercase",
                           }}
                           onMouseEnter={e => {
-                            e.currentTarget.style.background = "#d4af37";
+                            e.currentTarget.style.background = "#f5b13d";
                             e.currentTarget.style.color = "#05070d";
                           }}
                           onMouseLeave={e => {
-                            e.currentTarget.style.background = "rgba(212,175,55,0.12)";
-                            e.currentTarget.style.color = "#d4af37";
+                            e.currentTarget.style.background = "rgba(245, 177, 61,0.12)";
+                            e.currentTarget.style.color = "#f5b13d";
                           }}
                           onClick={() => alert(`Navigating to citation: ${label}`)}
                         >
@@ -181,7 +181,7 @@ export function Sidebar() {
         </div>
 
         {/* ── Market Overview ── */}
-        <div className="p-4" style={{ borderBottom: "1px solid rgba(212,175,55,0.10)" }}>
+        <div className="p-4" style={{ borderBottom: "1px solid rgba(245, 177, 61,0.10)" }}>
           <div className="flex items-center gap-2 mb-4">
             <LineChart className="w-4 h-4" style={{ color: "#a89c84" }} />
             <h3 style={sectionHead}>MARKET OVERVIEW</h3>
@@ -192,7 +192,7 @@ export function Sidebar() {
                 key={index.name}
                 className="group flex cursor-pointer items-center justify-between p-1.5 -mx-1.5 rounded-sm transition-all"
                 style={{ background: "transparent" }}
-                onMouseEnter={e => e.currentTarget.style.background = "rgba(212,175,55,0.05)"}
+                onMouseEnter={e => e.currentTarget.style.background = "rgba(245, 177, 61,0.05)"}
                 onMouseLeave={e => e.currentTarget.style.background = "transparent"}
               >
                 <span
@@ -211,7 +211,7 @@ export function Sidebar() {
                       textAlign: "right",
                       fontSize: "12px",
                       fontWeight: 700,
-                      color: index.isPositive ? "#4fd1a5" : "#e8635a",
+                      color: index.isPositive ? "#46d38a" : "#e8635a",
                     }}
                   >
                     {index.change}
@@ -223,7 +223,7 @@ export function Sidebar() {
         </div>
 
         {/* ── Risk Radar ── */}
-        <div className="p-4" style={{ borderBottom: "1px solid rgba(212,175,55,0.10)" }}>
+        <div className="p-4" style={{ borderBottom: "1px solid rgba(245, 177, 61,0.10)" }}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Radar className="w-4 h-4" style={{ color: "#e8635a" }} />
@@ -250,7 +250,7 @@ export function Sidebar() {
                 className="flex flex-col gap-1 p-3 rounded-sm"
                 style={{
                   background: "#05070d",
-                  border: "1px solid rgba(212,175,55,0.12)",
+                  border: "1px solid rgba(245, 177, 61,0.12)",
                 }}
               >
                 <span
@@ -281,9 +281,9 @@ export function Sidebar() {
         </div>
 
         {/* ── Sentiment / Fear & Greed ── */}
-        <div className="p-4" style={{ borderBottom: "1px solid rgba(212,175,55,0.10)" }}>
+        <div className="p-4" style={{ borderBottom: "1px solid rgba(245, 177, 61,0.10)" }}>
           <div className="flex items-center gap-2 mb-4">
-            <Gauge className="w-4 h-4" style={{ color: "#d4af37" }} />
+            <Gauge className="w-4 h-4" style={{ color: "#f5b13d" }} />
             <h3 style={sectionHead}>SENTIMENT</h3>
           </div>
           <div className="flex items-center gap-5">
@@ -293,13 +293,13 @@ export function Sidebar() {
               style={{
                 width: "76px",
                 height: "76px",
-                border: "5px solid rgba(212,175,55,0.22)",
+                border: "5px solid rgba(245, 177, 61,0.22)",
               }}
             >
               <div
                 className="absolute inset-0 rounded-full rotate-45"
                 style={{
-                  border: "5px solid #d4af37",
+                  border: "5px solid #f5b13d",
                   borderTopColor: "transparent",
                   borderRightColor: "transparent",
                 }}
@@ -334,11 +334,11 @@ export function Sidebar() {
                   style={{
                     width: "8px",
                     flexShrink: 0,
-                    background: "#d4af37",
-                    boxShadow: "0 0 8px rgba(212,175,55,0.7)",
+                    background: "#f5b13d",
+                    boxShadow: "0 0 8px rgba(245, 177, 61,0.7)",
                   }}
                 />
-                <div className="h-full flex-1 rounded-r-sm" style={{ background: "rgba(79,209,165,0.12)" }} />
+                <div className="h-full flex-1 rounded-r-sm" style={{ background: "rgba(70, 211, 138,0.12)" }} />
               </div>
               <div
                 className="flex justify-between mt-1"

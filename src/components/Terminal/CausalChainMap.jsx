@@ -363,9 +363,9 @@ export function CausalChainMap({ eventId, eventTitle, onClose }) {
             className="w-full max-w-[420px] overflow-hidden text-left relative" 
             style={{
               background: "rgba(5,7,13,0.99)",
-              border: "1px solid rgba(212,175,55,0.35)",
+              border: "1px solid rgba(245, 177, 61,0.35)",
               borderRadius: "4px",
-              boxShadow: "0 0 60px rgba(0,0,0,0.95), 0 0 0 1px rgba(212,175,55,0.08), inset 0 1px 0 rgba(212,175,55,0.12)",
+              boxShadow: "0 0 60px rgba(0,0,0,0.95), 0 0 0 1px rgba(245, 177, 61,0.08), inset 0 1px 0 rgba(245, 177, 61,0.12)",
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -373,20 +373,20 @@ export function CausalChainMap({ eventId, eventTitle, onClose }) {
             {["top-0 left-0 border-t border-l", "top-0 right-0 border-t border-r",
               "bottom-0 left-0 border-b border-l", "bottom-0 right-0 border-b border-r"].map((cls, i) => (
               <div key={i} className={`absolute w-3 h-3 ${cls}`}
-                style={{ borderColor: "rgba(212,175,55,0.5)" }} />
+                style={{ borderColor: "rgba(245, 177, 61,0.5)" }} />
             ))}
 
             {/* Header */}
             <div 
               className="flex justify-between items-center px-4 py-3 shrink-0"
-              style={{ borderBottom: "1px solid rgba(212,175,55,0.12)" }}
+              style={{ borderBottom: "1px solid rgba(245, 177, 61,0.12)" }}
             >
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#d4af37", boxShadow: "0 0 6px #d4af37" }} />
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#f5b13d", boxShadow: "0 0 6px #f5b13d" }} />
                 <span style={{
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: "9px", fontWeight: 700,
-                  letterSpacing: "0.2em", color: "#d4af37",
+                  letterSpacing: "0.2em", color: "#f5b13d",
                 }}>
                   TERMINAL SYSTEM LINK
                 </span>
@@ -396,7 +396,7 @@ export function CausalChainMap({ eventId, eventTitle, onClose }) {
                 className="text-slate-500 hover:text-white p-1 hover:bg-white/5 rounded transition-colors cursor-pointer"
                 aria-label="Close modal"
               >
-                <span className="font-sans text-xs font-bold text-[#d4af37]">✕</span>
+                <span className="font-sans text-xs font-bold text-[#f5b13d]">✕</span>
               </button>
             </div>
             
@@ -425,16 +425,16 @@ export function CausalChainMap({ eventId, eventTitle, onClose }) {
             {/* Footer */}
             <div 
               className="p-4 flex justify-end"
-              style={{ borderTop: "1px solid rgba(212,175,55,0.08)" }}
+              style={{ borderTop: "1px solid rgba(245, 177, 61,0.08)" }}
             >
               <button 
                 onClick={() => setActiveFeedNode(null)}
                 className="px-4 py-1.5 text-[10px] font-bold rounded transition-all cursor-pointer"
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
-                  background: "rgba(212,175,55,0.1)",
-                  border: "1px solid rgba(212,175,55,0.3)",
-                  color: "#d4af37",
+                  background: "rgba(245, 177, 61,0.1)",
+                  border: "1px solid rgba(245, 177, 61,0.3)",
+                  color: "#f5b13d",
                   letterSpacing: "0.08em",
                 }}
               >

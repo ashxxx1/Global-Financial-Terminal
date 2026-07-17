@@ -38,8 +38,8 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
     const N = 40;
     return [...Array(N).keys()].map(() => {
       const type = Math.random();
-      let color = ['rgba(79, 209, 165, 0.8)', 'rgba(79, 209, 165, 0.1)']; // Trade (Rise)
-      if (type > 0.6) color = ['rgba(212, 175, 55, 0.8)', 'rgba(212, 175, 55, 0.1)']; // Capital flows (Brass)
+      let color = ['rgba(70, 211, 138, 0.8)', 'rgba(70, 211, 138, 0.1)']; // Trade (Rise)
+      if (type > 0.6) color = ['rgba(245, 177, 61, 0.8)', 'rgba(245, 177, 61, 0.1)']; // Capital flows (Brass)
       if (type > 0.8) color = ['rgba(232, 99, 90, 0.8)', 'rgba(232, 99, 90, 0.1)']; // Military/Air (Fall)
       
       return {
@@ -384,7 +384,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
       <div
         className="absolute inset-0 flex items-center justify-center opacity-100"
         style={{
-          filter: 'drop-shadow(0 0 50px rgba(79,209,165,0.06))',
+          filter: 'drop-shadow(0 0 50px rgba(70,211,138,0.06))',
         }}
       >
         <Globe
@@ -410,20 +410,20 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
              const score = stats.marketReturns[timeframe] !== undefined ? stats.marketReturns[timeframe] : fallback;
              if (score < -1.0) return 'rgba(230, 95, 85, 0.55)';   // red — declining
              if (score > 1.0) return 'rgba(90, 210, 150, 0.55)';   // green — advancing
-             return 'rgba(212, 175, 55, 0.45)';                    // gold — neutral highlight
+             return 'rgba(245, 177, 61, 0.45)';                    // gold — neutral highlight
           }}
-          polygonSideColor={() => 'rgba(212, 175, 55, 0.15)'}
+          polygonSideColor={() => 'rgba(245, 177, 61, 0.15)'}
           polygonStrokeColor={d => {
              const iso = d.properties?.ISO_A2 || '';
              const selIso = selectedCountry?.properties?.ISO_A2 || selectedCountry?.code || '';
-             return (selIso && iso === selIso) ? 'rgba(212, 175, 55, 0.9)' : 'rgba(212, 175, 55, 0.12)';
+             return (selIso && iso === selIso) ? 'rgba(245, 177, 61, 0.9)' : 'rgba(245, 177, 61, 0.12)';
           }}
           polygonLabel={(d) => {
             const props = d?.properties || {};
             return `
-            <div style="background:rgba(5,7,13,0.95);border:1px solid rgba(212,175,55,0.4);padding:8px 12px;border-radius:2px;box-shadow:0 4px 20px rgba(0,0,0,0.8),0 0 0 1px rgba(212,175,55,0.08);min-width:130px;backdrop-filter:blur(12px);">
+            <div style="background:rgba(5,7,13,0.95);border:1px solid rgba(245,177,61,0.4);padding:8px 12px;border-radius:2px;box-shadow:0 4px 20px rgba(0,0,0,0.8),0 0 0 1px rgba(245,177,61,0.08);min-width:130px;backdrop-filter:blur(12px);">
               <div style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:#f0e6d2;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:3px;">${props.ADMIN || 'Unknown'}</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:#d4af37;letter-spacing:0.1em;text-transform:uppercase;">↗ CLICK FOR AI INTEL</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;color:#f5b13d;letter-spacing:0.1em;text-transform:uppercase;">↗ CLICK FOR AI INTEL</div>
             </div>
           `}}
           onPolygonClick={handlePolygonClick}
@@ -473,8 +473,8 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
       <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
         <button 
            className="w-10 h-10 rounded-sm flex items-center justify-center transition-all cursor-pointer"
-           style={{ background: "#0a0e1a", border: "1px solid rgba(212,175,55,0.25)", color: "#a89c84", boxShadow: "0 0 15px rgba(0,0,0,0.5)" }}
-           onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(212,175,55,0.1)"; }}
+           style={{ background: "#0a0e1a", border: "1px solid rgba(245,177,61,0.25)", color: "#a89c84", boxShadow: "0 0 15px rgba(0,0,0,0.5)" }}
+           onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(245,177,61,0.1)"; }}
            onMouseLeave={e => { e.currentTarget.style.color = "#a89c84"; e.currentTarget.style.background = "#0a0e1a"; }}
            onClick={() => globeRef.current?.pointOfView({ lat: 20, lng: 0, altitude: 1.7 }, 1000)}
            aria-label="Reset view"
@@ -483,8 +483,8 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
         </button>
         <button 
            className="w-10 h-10 rounded-sm flex items-center justify-center transition-all cursor-pointer"
-           style={{ background: "#0a0e1a", border: "1px solid rgba(212,175,55,0.25)", color: "#a89c84", boxShadow: "0 0 15px rgba(0,0,0,0.5)" }}
-           onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(212,175,55,0.1)"; }}
+           style={{ background: "#0a0e1a", border: "1px solid rgba(245,177,61,0.25)", color: "#a89c84", boxShadow: "0 0 15px rgba(0,0,0,0.5)" }}
+           onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(245,177,61,0.1)"; }}
            onMouseLeave={e => { e.currentTarget.style.color = "#a89c84"; e.currentTarget.style.background = "#0a0e1a"; }}
            onClick={() => {
              if (globeRef.current) {
@@ -496,11 +496,11 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
         >
           <RotateCcw className="w-5 h-5" />
         </button>
-        <div className="flex flex-col rounded-sm overflow-hidden mt-2" style={{ background: "#0a0e1a", border: "1px solid rgba(212,175,55,0.25)", boxShadow: "0 0 15px rgba(0,0,0,0.5)" }}>
+        <div className="flex flex-col rounded-sm overflow-hidden mt-2" style={{ background: "#0a0e1a", border: "1px solid rgba(245,177,61,0.25)", boxShadow: "0 0 15px rgba(0,0,0,0.5)" }}>
            <button 
              className="w-10 h-10 flex items-center justify-center transition-all cursor-pointer"
-             style={{ color: "#a89c84", borderBottom: "1px solid rgba(212,175,55,0.18)" }}
-             onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(212,175,55,0.1)"; }}
+             style={{ color: "#a89c84", borderBottom: "1px solid rgba(245,177,61,0.18)" }}
+             onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(245,177,61,0.1)"; }}
              onMouseLeave={e => { e.currentTarget.style.color = "#a89c84"; e.currentTarget.style.background = "transparent"; }}
              onClick={() => globeRef.current && globeRef.current.pointOfView({ altitude: globeRef.current.pointOfView().altitude - 0.2 }, 300)}
              aria-label="Zoom in"
@@ -510,7 +510,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
            <button 
              className="w-10 h-10 flex items-center justify-center transition-all cursor-pointer"
              style={{ color: "#a89c84" }}
-             onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(212,175,55,0.1)"; }}
+             onMouseEnter={e => { e.currentTarget.style.color = "#f0e6d2"; e.currentTarget.style.background = "rgba(245,177,61,0.1)"; }}
              onMouseLeave={e => { e.currentTarget.style.color = "#a89c84"; e.currentTarget.style.background = "transparent"; }}
              onClick={() => globeRef.current && globeRef.current.pointOfView({ altitude: globeRef.current.pointOfView().altitude + 0.2 }, 300)}
              aria-label="Zoom out"

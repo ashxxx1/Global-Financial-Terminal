@@ -109,7 +109,7 @@ export default function LoginPage() {
               fontWeight: 600,
               letterSpacing: "0.08em",
               border: "1px solid var(--nx-border-strong)",
-              background: "rgba(0,229,255,0.06)",
+              background: "rgba(63, 211, 232,0.06)",
               color: "var(--nx-cyan)",
             }}
             id="google-signin-btn"

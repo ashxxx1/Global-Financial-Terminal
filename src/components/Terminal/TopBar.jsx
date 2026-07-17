@@ -44,8 +44,8 @@ export function TopBar({ currentView, onSetView }) {
   ];
 
   const sessionColor =
-    marketSession === "US OPEN" ? "#4fd1a5"
-    : marketSession === "EU OPEN" ? "#d4af37"
+    marketSession === "US OPEN" ? "#46d38a"
+    : marketSession === "EU OPEN" ? "#f5b13d"
     : marketSession === "ASIA OPEN" ? "#c97b4a"
     : "#6b6354";
 
@@ -53,8 +53,8 @@ export function TopBar({ currentView, onSetView }) {
     <header className="flex h-14 items-center justify-between border-b px-4 text-sm font-medium z-50 shrink-0"
       style={{
         background: "linear-gradient(180deg, #0a0e1a 0%, #05070d 100%)",
-        borderColor: "rgba(212,175,55,0.2)",
-        boxShadow: "0 1px 0 rgba(212,175,55,0.06), 0 4px 24px rgba(0,0,0,0.6)",
+        borderColor: "rgba(245, 177, 61,0.2)",
+        boxShadow: "0 1px 0 rgba(245, 177, 61,0.06), 0 4px 24px rgba(0,0,0,0.6)",
       }}
     >
       {/* ── Logo ── */}
@@ -65,7 +65,7 @@ export function TopBar({ currentView, onSetView }) {
             className="rounded-[3px] p-1.5 flex items-center justify-center"
             style={{
               background: "linear-gradient(135deg, #f0c84a 0%, #8a7228 100%)",
-              boxShadow: "0 0 14px rgba(212,175,55,0.3), 0 0 4px rgba(212,175,55,0.15)",
+              boxShadow: "0 0 14px rgba(245, 177, 61,0.3), 0 0 4px rgba(245, 177, 61,0.15)",
             }}
           >
             <Activity className="h-4 w-4" style={{ color: "#05070d", strokeWidth: 2.5 }} />
@@ -105,9 +105,9 @@ export function TopBar({ currentView, onSetView }) {
                   fontSize: "8px",
                   fontWeight: 700,
                   letterSpacing: "0.1em",
-                  color: "#d4af37",
-                  borderColor: "rgba(212,175,55,0.35)",
-                  background: "rgba(212,175,55,0.08)",
+                  color: "#f5b13d",
+                  borderColor: "rgba(245, 177, 61,0.35)",
+                  background: "rgba(245, 177, 61,0.08)",
                 }}
               >
                 v0.6.0
@@ -136,7 +136,7 @@ export function TopBar({ currentView, onSetView }) {
         <div className="relative w-full flex items-center">
           <span
             className="absolute left-3 font-bold select-none"
-            style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: "#d4af37" }}
+            style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: "#f5b13d" }}
           >
             &gt;_
           </span>
@@ -153,17 +153,17 @@ export function TopBar({ currentView, onSetView }) {
               textTransform: "uppercase",
               color: "#f0e6d2",
               background: "#05070d",
-              border: "1px solid rgba(212,175,55,0.18)",
+              border: "1px solid rgba(245, 177, 61,0.18)",
               borderRadius: "2px",
               outline: "none",
             }}
             onFocus={e => {
-              e.target.style.borderColor = "rgba(212,175,55,0.7)";
-              e.target.style.boxShadow = "0 0 0 2px rgba(212,175,55,0.12), 0 0 16px rgba(212,175,55,0.08)";
+              e.target.style.borderColor = "rgba(245, 177, 61,0.7)";
+              e.target.style.boxShadow = "0 0 0 2px rgba(245, 177, 61,0.12), 0 0 16px rgba(245, 177, 61,0.08)";
               e.target.style.background = "#0a0e1a";
             }}
             onBlur={e => {
-              e.target.style.borderColor = "rgba(212,175,55,0.18)";
+              e.target.style.borderColor = "rgba(245, 177, 61,0.18)";
               e.target.style.boxShadow = "none";
               e.target.style.background = "#05070d";
             }}
@@ -180,7 +180,7 @@ export function TopBar({ currentView, onSetView }) {
           className="hidden xl:flex items-center gap-4 rounded-sm px-3 py-1.5"
           style={{
             background: "#05070d",
-            border: "1px solid rgba(212,175,55,0.14)",
+            border: "1px solid rgba(245, 177, 61,0.14)",
           }}
         >
           {topTicks.map((tick) => (
@@ -191,7 +191,7 @@ export function TopBar({ currentView, onSetView }) {
             >
               <span style={{ color: "#a89c84", fontWeight: 700 }}>{tick.name}</span>
               <span style={{ color: "#f0e6d2", fontWeight: 700 }}>{tick.value}</span>
-              <span style={{ color: tick.isPositive ? "#4fd1a5" : "#e8635a", fontWeight: 700 }}>
+              <span style={{ color: tick.isPositive ? "#46d38a" : "#e8635a", fontWeight: 700 }}>
                 {tick.change}
               </span>
             </div>
@@ -199,7 +199,7 @@ export function TopBar({ currentView, onSetView }) {
         </div>
 
         {/* Divider */}
-        <div className="h-8 w-px" style={{ background: "rgba(212,175,55,0.14)" }} />
+        <div className="h-8 w-px" style={{ background: "rgba(245, 177, 61,0.14)" }} />
 
         {/* Time display */}
         <div className="hidden sm:flex flex-col text-right leading-tight">
@@ -208,7 +208,7 @@ export function TopBar({ currentView, onSetView }) {
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: "11px",
               fontWeight: 700,
-              color: "#4fd1a5",
+              color: "#46d38a",
               letterSpacing: "0.08em",
             }}
           >
@@ -231,9 +231,9 @@ export function TopBar({ currentView, onSetView }) {
           onClick={() => onSetView("social")}
           className="relative flex items-center justify-center transition-all p-1.5 rounded-sm"
           style={{
-            background: currentView === "social" ? "rgba(212,175,55,0.12)" : "#05070d",
-            border: currentView === "social" ? "1px solid #d4af37" : "1px solid rgba(212,175,55,0.2)",
-            color: currentView === "social" ? "#d4af37" : "#a89c84",
+            background: currentView === "social" ? "rgba(245, 177, 61,0.12)" : "#05070d",
+            border: currentView === "social" ? "1px solid #f5b13d" : "1px solid rgba(245, 177, 61,0.2)",
+            color: currentView === "social" ? "#f5b13d" : "#a89c84",
           }}
           aria-label="Alerts & Social"
           onMouseEnter={e => { if (currentView !== "social") { e.currentTarget.style.color = "#f0e6d2"; } }}
@@ -251,9 +251,9 @@ export function TopBar({ currentView, onSetView }) {
           <div
             className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center"
             style={{
-              border: "1px solid rgba(212,175,55,0.35)",
+              border: "1px solid rgba(245, 177, 61,0.35)",
               background: "#0f1525",
-              boxShadow: "0 0 8px rgba(212,175,55,0.12)",
+              boxShadow: "0 0 8px rgba(245, 177, 61,0.12)",
             }}
           >
             {userProfileData?.photoURL ? (
@@ -264,7 +264,7 @@ export function TopBar({ currentView, onSetView }) {
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: "10px",
                   fontWeight: 700,
-                  color: "#d4af37",
+                  color: "#f5b13d",
                 }}
               >
                 {(userProfileData?.displayName || "U")[0].toUpperCase()}
@@ -292,7 +292,7 @@ export function TopBar({ currentView, onSetView }) {
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: "8px",
                   fontWeight: 700,
-                  color: "#d4af37",
+                  color: "#f5b13d",
                   marginTop: "2px",
                 }}
               >

@@ -6,27 +6,27 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700&display=swap');
 
 :root {
-  /* Warm palette aligned with GFT Social */
-  --nx-void: #131210;
-  --nx-deep: #1c1a17;
-  --nx-panel: rgba(28, 26, 23, 0.88);
-  --nx-panel-solid: #252320;
+  /* ── Instrument Console — unified cyan/amber on deep navy ── */
+  --nx-void: #06090f;
+  --nx-deep: #0b1220;
+  --nx-panel: rgba(15, 25, 39, 0.88);
+  --nx-panel-solid: #0f1927;
 
-  /* Accents */
-  --nx-cyan: #d4845a;
-  --nx-cyan-dim: rgba(212, 132, 90, 0.14);
-  --nx-cyan-glow: rgba(212, 132, 90, 0.35);
-  --nx-gold: #e09972;
-  --nx-gold-dim: rgba(224, 153, 114, 0.12);
-  --nx-mint: #6aab7a;
-  --nx-mint-dim: rgba(106, 171, 122, 0.12);
-  --nx-rose: #d46a6a;
-  --nx-rose-dim: rgba(212, 106, 106, 0.12);
-  --nx-violet: #7eb8d4;
+  /* Accents — cyan primary, amber signal, green/red reserved for market direction */
+  --nx-cyan: #3fd3e8;
+  --nx-cyan-dim: rgba(63, 211, 232, 0.14);
+  --nx-cyan-glow: rgba(63, 211, 232, 0.35);
+  --nx-gold: #f5b13d;
+  --nx-gold-dim: rgba(245, 177, 61, 0.12);
+  --nx-mint: #46d38a;
+  --nx-mint-dim: rgba(70, 211, 138, 0.12);
+  --nx-rose: #ff5f6d;
+  --nx-rose-dim: rgba(255, 95, 109, 0.12);
+  --nx-violet: #8aa2ff;
 
-  /* Typography */
-  --nx-font-display: "Source Serif 4", "DM Sans", system-ui, sans-serif;
-  --nx-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  /* Typography — sans display, mono data (a terminal wears no serif) */
+  --nx-font-display: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --nx-font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   /* Layout */
   --nx-header-h: 56px;
@@ -34,10 +34,10 @@
   --nx-leftnav-w: 76px;
   --nx-footer-h: 28px;
 
-  /* Borders & chrome */
-  --nx-border: rgba(255, 248, 240, 0.08);
-  --nx-border-strong: rgba(255, 248, 240, 0.14);
-  --nx-bracket: rgba(212, 132, 90, 0.45);
+  /* Borders & chrome — cool, biased toward the accent */
+  --nx-border: rgba(150, 180, 220, 0.11);
+  --nx-border-strong: rgba(150, 180, 220, 0.22);
+  --nx-bracket: rgba(63, 211, 232, 0.5);
 
   --nx-transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -55,8 +55,8 @@
   position: absolute;
   inset: -50%;
   background-image:
-    linear-gradient(rgba(0, 229, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 229, 255, 0.025) 1px, transparent 1px);
+    linear-gradient(rgba(63, 211, 232, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 211, 232, 0.025) 1px, transparent 1px);
   background-size: 48px 48px;
   animation: nx-grid-drift 60s linear infinite;
   mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, black 20%, transparent 75%);
@@ -75,7 +75,7 @@
   height: 55vw;
   top: -20%;
   left: 10%;
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.15), transparent 70%);
+  background: radial-gradient(circle, rgba(63, 211, 232, 0.15), transparent 70%);
 }
 
 .nexus-ambient__aurora--2 {
@@ -83,7 +83,7 @@
   height: 45vw;
   bottom: -15%;
   right: 5%;
-  background: radial-gradient(circle, rgba(124, 92, 255, 0.12), transparent 70%);
+  background: radial-gradient(circle, rgba(138, 162, 255, 0.12), transparent 70%);
   animation-delay: -7s;
 }
 
@@ -92,7 +92,7 @@
   height: 30vw;
   top: 40%;
   left: 45%;
-  background: radial-gradient(circle, rgba(255, 157, 0, 0.08), transparent 70%);
+  background: radial-gradient(circle, rgba(245, 177, 61, 0.08), transparent 70%);
   animation-delay: -3s;
 }
 
@@ -153,8 +153,8 @@
     0deg,
     transparent,
     transparent 2px,
-    rgba(0, 229, 255, 0.012) 2px,
-    rgba(0, 229, 255, 0.012) 4px
+    rgba(63, 211, 232, 0.012) 2px,
+    rgba(63, 211, 232, 0.012) 4px
   );
   pointer-events: none;
   z-index: 1;
@@ -249,7 +249,7 @@
   font-weight: 600;
   letter-spacing: 0.2em;
   color: var(--nx-gold);
-  border: 1px solid rgba(255, 157, 0, 0.35);
+  border: 1px solid rgba(245, 177, 61, 0.35);
   padding: 2px 6px;
   border-radius: 2px;
   background: var(--nx-gold-dim);
@@ -280,14 +280,14 @@
 }
 
 .nx-cmd__input::placeholder {
-  color: rgba(0, 229, 255, 0.25);
+  color: rgba(63, 211, 232, 0.25);
   letter-spacing: 0.1em;
 }
 
 .nx-cmd__input:focus {
   border-color: var(--nx-cyan);
-  box-shadow: 0 0 0 1px rgba(0, 229, 255, 0.15), 0 0 24px rgba(0, 229, 255, 0.08);
-  background: rgba(0, 229, 255, 0.03);
+  box-shadow: 0 0 0 1px rgba(63, 211, 232, 0.15), 0 0 24px rgba(63, 211, 232, 0.08);
+  background: rgba(63, 211, 232, 0.03);
 }
 
 .nx-cmd__prompt {
@@ -305,7 +305,7 @@
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: rgba(0, 229, 255, 0.3);
+  color: rgba(63, 211, 232, 0.3);
 }
 
 /* Session ring (market hours) */
@@ -430,9 +430,9 @@
   content: "";
   position: absolute;
   inset: 4px 8px;
-  border: 1px solid rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(63, 211, 232, 0.12);
   border-radius: 4px;
-  background: rgba(0, 229, 255, 0.04);
+  background: rgba(63, 211, 232, 0.04);
   pointer-events: none;
 }
 
@@ -476,8 +476,8 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   color: var(--nx-gold);
-  background: rgba(255, 157, 0, 0.06);
-  border-right: 1px solid rgba(255, 157, 0, 0.15);
+  background: rgba(245, 177, 61, 0.06);
+  border-right: 1px solid rgba(245, 177, 61, 0.15);
   writing-mode: vertical-rl;
   text-orientation: mixed;
   transform: rotate(180deg);
@@ -584,7 +584,7 @@
   letter-spacing: 0.1em;
   color: var(--nx-mint);
   border-left: 1px solid var(--nx-border);
-  background: rgba(0, 255, 136, 0.04);
+  background: rgba(70, 211, 138, 0.04);
 }
 
 .nx-ticker__live-dot {
@@ -631,7 +631,7 @@
   padding: 2px 6px;
   border: 1px solid var(--nx-border);
   border-radius: 2px;
-  color: rgba(0, 229, 255, 0.6);
+  color: rgba(63, 211, 232, 0.6);
 }
 
 .nx-footer__chip-dot {
@@ -685,7 +685,7 @@
 
 .nx-tf-btn:hover {
   color: var(--nx-cyan);
-  background: rgba(0, 229, 255, 0.06);
+  background: rgba(63, 211, 232, 0.06);
 }
 
 .nx-tf-btn.active {
@@ -721,8 +721,8 @@
 .nx-panel-toggle.on {
   border-color: var(--nx-cyan);
   color: var(--nx-cyan);
-  background: rgba(0, 229, 255, 0.08);
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+  background: rgba(63, 211, 232, 0.08);
+  box-shadow: 0 0 20px rgba(63, 211, 232, 0.1);
 }
 
 .nx-panel-toggle__badge {
@@ -745,7 +745,7 @@
   background: rgba(2, 5, 12, 0.92);
   backdrop-filter: blur(20px);
   border: 1px solid var(--nx-border-strong);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 229, 255, 0.06);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(63, 211, 232, 0.06);
   position: relative;
 }
 
@@ -766,7 +766,7 @@
   justify-content: space-between;
   padding: 10px 12px;
   border-bottom: 1px solid var(--nx-border);
-  background: rgba(0, 229, 255, 0.03);
+  background: rgba(63, 211, 232, 0.03);
 }
 
 .nx-brief__title {
@@ -782,9 +782,9 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   padding: 2px 6px;
-  border: 1px solid rgba(124, 92, 255, 0.4);
+  border: 1px solid rgba(138, 162, 255, 0.4);
   color: var(--nx-violet);
-  background: rgba(124, 92, 255, 0.1);
+  background: rgba(138, 162, 255, 0.1);
   border-radius: 2px;
 }
 
@@ -815,7 +815,7 @@
 }
 
 .app-shell.nexus .globe-area {
-  background: radial-gradient(ellipse 90% 80% at 50% 50%, rgba(0, 229, 255, 0.03) 0%, var(--nx-void) 55%);
+  background: radial-gradient(ellipse 90% 80% at 50% 50%, rgba(63, 211, 232, 0.03) 0%, var(--nx-void) 55%);
 }
 
 /* Collapse rail toggle */
@@ -840,7 +840,7 @@
 
 .nx-rail-toggle:hover {
   border-color: var(--nx-cyan);
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.15);
+  box-shadow: 0 0 12px rgba(63, 211, 232, 0.15);
 }
 
 .nx-rail-toggle--left {
@@ -939,7 +939,7 @@
   overflow: hidden;
   position: relative;
   z-index: 10;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 229, 255, 0.05);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(63, 211, 232, 0.05);
 }
 
 .nx-login-card::before {
@@ -972,7 +972,7 @@
 }
 
 .nx-login-feature:hover {
-  background: rgba(0, 229, 255, 0.04);
+  background: rgba(63, 211, 232, 0.04);
   border-color: var(--nx-border);
 }
 
@@ -1059,7 +1059,7 @@
 }
 
 .nexus-social-nav-btn.active {
-  background: rgba(0, 229, 255, 0.1) !important;
+  background: rgba(63, 211, 232, 0.1) !important;
   color: var(--nx-cyan) !important;
   border: 1px solid var(--nx-border-strong) !important;
 }
@@ -1075,7 +1075,7 @@
 .nexus-social-server-btn.active,
 .nexus-social-server-btn:hover {
   border-color: var(--nx-cyan);
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.15);
+  box-shadow: 0 0 16px rgba(63, 211, 232, 0.15);
 }
 
 .nexus-social-server-btn.active::before {
@@ -1098,7 +1098,7 @@
 }
 
 .nexus-social-glow {
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.08), transparent 70%) !important;
+  background: radial-gradient(circle, rgba(63, 211, 232, 0.08), transparent 70%) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1132,7 +1132,7 @@
 .nexus-module .economic-calendar__filter-btn.active {
   color: var(--nx-cyan) !important;
   border-color: var(--nx-border-strong) !important;
-  background: rgba(0, 229, 255, 0.08) !important;
+  background: rgba(63, 211, 232, 0.08) !important;
 }
 
 .nexus-chart-root {
@@ -1172,7 +1172,7 @@
 .nexus-chip:hover {
   border-color: var(--nx-cyan);
   color: var(--nx-cyan);
-  background: rgba(0, 229, 255, 0.08);
+  background: rgba(63, 211, 232, 0.08);
 }
 
 @media (max-width: 1100px) {

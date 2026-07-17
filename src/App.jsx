@@ -224,10 +224,10 @@ function TerminalApp() {
                   style={{
                     background: "rgba(10,14,26,0.92)",
                     backdropFilter: "blur(12px)",
-                    border: "1px solid rgba(212,175,55,0.35)",
+                    border: "1px solid rgba(245,177,61,0.35)",
                     padding: "6px 14px",
                     borderRadius: "2px",
-                    boxShadow: "0 4px 24px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.08)",
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.6), 0 0 0 1px rgba(245,177,61,0.08)",
                   }}
                 >
                   <span
@@ -242,12 +242,12 @@ function TerminalApp() {
                   >
                     Atlas View
                   </span>
-                  <div style={{ width: "1px", height: "14px", background: "rgba(212,175,55,0.25)" }} />
+                  <div style={{ width: "1px", height: "14px", background: "rgba(245,177,61,0.25)" }} />
                   <div
                     className="flex items-center p-0.5 rounded-sm"
                     style={{
                       background: "rgba(5,7,13,0.7)",
-                      border: "1px solid rgba(212,175,55,0.18)",
+                      border: "1px solid rgba(245,177,61,0.18)",
                     }}
                   >
                     {["1D", "1W", "1M", "YTD"].map((tf) => (
@@ -264,9 +264,9 @@ function TerminalApp() {
                           padding: "4px 10px",
                           ...(timeframe === tf
                             ? {
-                                background: "#d4af37",
+                                background: "#f5b13d",
                                 color: "#05070d",
-                                boxShadow: "0 0 10px rgba(212,175,55,0.4)",
+                                boxShadow: "0 0 10px rgba(245,177,61,0.4)",
                               }
                             : {
                                 background: "transparent",
@@ -276,7 +276,7 @@ function TerminalApp() {
                         onMouseEnter={e => {
                           if (timeframe !== tf) {
                             e.currentTarget.style.color = "#f0e6d2";
-                            e.currentTarget.style.background = "rgba(212,175,55,0.1)";
+                            e.currentTarget.style.background = "rgba(245,177,61,0.1)";
                           }
                         }}
                         onMouseLeave={e => {
@@ -303,10 +303,10 @@ function TerminalApp() {
                   style={{
                     background: "rgba(10,14,26,0.96)",
                     backdropFilter: "blur(20px)",
-                    border: "1px solid rgba(212,175,55,0.3)",
+                    border: "1px solid rgba(245,177,61,0.3)",
                     padding: "8px 18px",
                     borderRadius: "2px",
-                    boxShadow: "0 0 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(212,175,55,0.06)",
+                    boxShadow: "0 0 40px rgba(0,0,0,0.8), 0 0 0 1px rgba(245,177,61,0.06)",
                   }}
                 >
                   <span
@@ -339,12 +339,12 @@ function TerminalApp() {
                         padding: "6px 14px",
                         border: panel.on
                           ? "1px solid #f0c84a"
-                          : "1px solid rgba(212,175,55,0.2)",
+                          : "1px solid rgba(245,177,61,0.2)",
                         background: panel.on
-                          ? "#d4af37"
-                          : "rgba(212,175,55,0.05)",
+                          ? "#f5b13d"
+                          : "rgba(245,177,61,0.05)",
                         color: panel.on ? "#05070d" : "#a89c84",
-                        boxShadow: panel.on ? "0 0 14px rgba(212,175,55,0.3)" : "none",
+                        boxShadow: panel.on ? "0 0 14px rgba(245,177,61,0.3)" : "none",
                       }}
                     >
                       <span>{panel.icon}</span>
@@ -355,7 +355,7 @@ function TerminalApp() {
                           fontSize: "7px",
                           padding: "1px 5px",
                           letterSpacing: "0.08em",
-                          background: panel.on ? "rgba(5,7,13,0.2)" : "rgba(212,175,55,0.1)",
+                          background: panel.on ? "rgba(5,7,13,0.2)" : "rgba(245,177,61,0.1)",
                           color: panel.on ? "#05070d" : "#6b6354",
                         }}
                       >
@@ -375,7 +375,7 @@ function TerminalApp() {
                     color: "#6b6354",
                   }}
                 >
-                  <svg width="10" height="10" viewBox="0 0 10 10" style={{ color: "rgba(212,175,55,0.5)" }}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" style={{ color: "rgba(245,177,61,0.5)" }}>
                     <path d="M5 0v10M0 5h10" stroke="currentColor" strokeWidth="0.6" />
                   </svg>
                   20.0°N · 0.0°E
@@ -393,7 +393,7 @@ function TerminalApp() {
                 >
                   <span
                     className="w-1.5 h-1.5 rounded-full animate-pulse"
-                    style={{ background: "#4fd1a5", boxShadow: "0 0 4px #4fd1a5" }}
+                    style={{ background: "#46d38a", boxShadow: "0 0 4px #46d38a" }}
                   />
                   MERIDIAN · LIVE
                 </div>

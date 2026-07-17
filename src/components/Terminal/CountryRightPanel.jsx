@@ -24,7 +24,7 @@ function TypewriterSummary({ text, speed = 10 }) {
     <p style={{ fontSize: "11.5px", color: "#c9bea3", lineHeight: "1.65", margin: 0, minHeight: "56px" }}>
       {displayed}
       {displayed.length < (text?.length || 0) && (
-        <span style={{ display: "inline-block", width: "6px", height: "12px", background: "#d4af37", marginLeft: "2px", verticalAlign: "text-bottom" }}
+        <span style={{ display: "inline-block", width: "6px", height: "12px", background: "#f5b13d", marginLeft: "2px", verticalAlign: "text-bottom" }}
           className="animate-pulse">▋</span>
       )}
     </p>
@@ -61,8 +61,8 @@ function getSupplyChainExposure(iso) {
 // ── Style tokens ──────────────────────────────────────────────
 const MONO    = "'JetBrains Mono', monospace";
 const SERIF   = "'Fraunces', Georgia, serif";
-const BRASS   = "#d4af37";
-const HAIRLINE = "rgba(212,175,55,0.14)";
+const BRASS   = "#f5b13d";
+const HAIRLINE = "rgba(245, 177, 61,0.14)";
 
 function SectionLabel({ children }) {
   return (
@@ -129,12 +129,12 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
           className="flex items-center gap-1 rounded-sm px-2 py-0.5"
           style={{
             fontFamily: MONO, fontSize: "8px", fontWeight: 700,
-            letterSpacing: "0.1em", color: "#4fd1a5",
-            background: "rgba(79,209,165,0.08)",
-            border: "1px solid rgba(79,209,165,0.2)",
+            letterSpacing: "0.1em", color: "#46d38a",
+            background: "rgba(70, 211, 138,0.08)",
+            border: "1px solid rgba(70, 211, 138,0.2)",
           }}
         >
-          <span className="w-1 h-1 rounded-full animate-pulse" style={{ background: "#4fd1a5" }} />
+          <span className="w-1 h-1 rounded-full animate-pulse" style={{ background: "#46d38a" }} />
           SECURE
         </span>
       </div>
@@ -152,12 +152,12 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
             className="relative overflow-hidden p-4 rounded-sm"
             style={{
               background: "rgba(10,14,26,0.8)",
-              border: `1px solid rgba(212,175,55,0.25)`,
+              border: `1px solid rgba(245, 177, 61,0.25)`,
             }}
           >
             {/* Left brass bar */}
             <div className="absolute left-0 top-0 bottom-0 w-[2px]"
-              style={{ background: "linear-gradient(180deg, rgba(212,175,55,0.8), rgba(212,175,55,0.1))" }} />
+              style={{ background: "linear-gradient(180deg, rgba(245, 177, 61,0.8), rgba(245, 177, 61,0.1))" }} />
             <div className="flex items-center gap-2 mb-3 pl-2">
               <Cpu className="w-3.5 h-3.5 shrink-0" style={{ color: BRASS }} />
               <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#a89c84" }}>
@@ -189,18 +189,18 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
                   fontFamily: MONO, fontSize: "9px", fontWeight: 700,
                   letterSpacing: "0.08em", textTransform: "uppercase",
                   padding: "5px 10px",
-                  background: "rgba(212,175,55,0.06)",
-                  border: "1px solid rgba(212,175,55,0.22)",
+                  background: "rgba(245, 177, 61,0.06)",
+                  border: "1px solid rgba(245, 177, 61,0.22)",
                   color: "#a89c84",
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.background = "rgba(212,175,55,0.14)";
-                  e.currentTarget.style.borderColor = "rgba(212,175,55,0.5)";
+                  e.currentTarget.style.background = "rgba(245, 177, 61,0.14)";
+                  e.currentTarget.style.borderColor = "rgba(245, 177, 61,0.5)";
                   e.currentTarget.style.color = "#f0e6d2";
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.background = "rgba(212,175,55,0.06)";
-                  e.currentTarget.style.borderColor = "rgba(212,175,55,0.22)";
+                  e.currentTarget.style.background = "rgba(245, 177, 61,0.06)";
+                  e.currentTarget.style.borderColor = "rgba(245, 177, 61,0.22)";
                   e.currentTarget.style.color = "#a89c84";
                 }}
               >
@@ -254,7 +254,7 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
                   background: "rgba(255,255,255,0.02)",
                   border: `1px solid ${HAIRLINE}`,
                 }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(212,175,55,0.3)"}
+                onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(245, 177, 61,0.3)"}
                 onMouseLeave={e => e.currentTarget.style.borderColor = HAIRLINE}
               >
                 <span style={{ fontSize: "12px", color: "#c9bea3", lineHeight: "1.5", fontWeight: 500 }}>
@@ -288,7 +288,7 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") handlePinNote(); }}
-              onFocus={e => { e.target.style.borderColor = "rgba(212,175,55,0.5)"; e.target.style.boxShadow = "0 0 0 2px rgba(212,175,55,0.08)"; }}
+              onFocus={e => { e.target.style.borderColor = "rgba(245, 177, 61,0.5)"; e.target.style.boxShadow = "0 0 0 2px rgba(245, 177, 61,0.08)"; }}
               onBlur={e => { e.target.style.borderColor = HAIRLINE; e.target.style.boxShadow = "none"; }}
             />
             <button
@@ -297,12 +297,12 @@ export function CountryRightPanel({ country, timeframe = "1D" }) {
               style={{
                 fontFamily: MONO, fontSize: "9px", fontWeight: 700,
                 letterSpacing: "0.1em", textTransform: "uppercase",
-                background: "rgba(212,175,55,0.12)",
-                border: "1px solid rgba(212,175,55,0.35)",
+                background: "rgba(245, 177, 61,0.12)",
+                border: "1px solid rgba(245, 177, 61,0.35)",
                 color: BRASS,
               }}
               onMouseEnter={e => { e.currentTarget.style.background = BRASS; e.currentTarget.style.color = "#05070d"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = "rgba(212,175,55,0.12)"; e.currentTarget.style.color = BRASS; }}
+              onMouseLeave={e => { e.currentTarget.style.background = "rgba(245, 177, 61,0.12)"; e.currentTarget.style.color = BRASS; }}
             >
               <Pin className="w-3 h-3" />
               PIN

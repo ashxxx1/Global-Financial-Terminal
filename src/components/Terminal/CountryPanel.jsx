@@ -23,7 +23,7 @@ function TypewriterSummary({ text, speed = 10 }) {
     <p style={{ fontSize: "12px", color: "#c9bea3", lineHeight: "1.65", margin: 0, minHeight: "56px" }}>
       {displayed}
       {displayed.length < (text?.length || 0) && (
-        <span style={{ display: "inline-block", width: "6px", height: "12px", background: "#d4af37", marginLeft: "2px", verticalAlign: "text-bottom" }}
+        <span style={{ display: "inline-block", width: "6px", height: "12px", background: "#f5b13d", marginLeft: "2px", verticalAlign: "text-bottom" }}
           className="animate-pulse">▋</span>
       )}
     </p>
@@ -32,8 +32,8 @@ function TypewriterSummary({ text, speed = 10 }) {
 
 const MONO    = "'JetBrains Mono', monospace";
 const SERIF   = "'Fraunces', Georgia, serif";
-const BRASS   = "#d4af37";
-const HAIRLINE = "rgba(212,175,55,0.16)";
+const BRASS   = "#f5b13d";
+const HAIRLINE = "rgba(245, 177, 61,0.16)";
 
 function SectionLabel({ children }) {
   return (
@@ -60,8 +60,8 @@ export function CountryPanel({ country, onClose, timeframe = "1D" }) {
 
   const riskColor =
     stats.riskScore > 75 ? "#e8635a" :
-    stats.riskScore > 40 ? "#d4af37" : "#4fd1a5";
-  const inflColor = parseFloat(stats.inflation) > 4 ? "#e8635a" : "#4fd1a5";
+    stats.riskScore > 40 ? "#f5b13d" : "#46d38a";
+  const inflColor = parseFloat(stats.inflation) > 4 ? "#e8635a" : "#46d38a";
 
   return (
     <div
@@ -88,8 +88,8 @@ export function CountryPanel({ country, onClose, timeframe = "1D" }) {
             className="flex items-center justify-center rounded-sm shrink-0"
             style={{
               width: 40, height: 40,
-              background: "rgba(212,175,55,0.08)",
-              border: `1px solid rgba(212,175,55,0.3)`,
+              background: "rgba(245, 177, 61,0.08)",
+              border: `1px solid rgba(245, 177, 61,0.3)`,
               fontFamily: MONO, fontSize: "11px", fontWeight: 700,
               color: BRASS, letterSpacing: "0.06em",
             }}
@@ -106,8 +106,8 @@ export function CountryPanel({ country, onClose, timeframe = "1D" }) {
             </h2>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full motion-safe:animate-pulse"
-                style={{ background: "#4fd1a5", boxShadow: "0 0 4px rgba(79,209,165,0.8)" }} />
-              <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#4fd1a5" }}>
+                style={{ background: "#46d38a", boxShadow: "0 0 4px rgba(70, 211, 138,0.8)" }} />
+              <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#46d38a" }}>
                 LIVE DATA
               </span>
             </div>
@@ -172,9 +172,9 @@ export function CountryPanel({ country, onClose, timeframe = "1D" }) {
 
           {/* AI synthesis */}
           <div className="md:col-span-2 relative overflow-hidden p-4 rounded-sm"
-            style={{ background: "rgba(10,14,26,0.8)", border: `1px solid rgba(212,175,55,0.25)` }}>
+            style={{ background: "rgba(10,14,26,0.8)", border: `1px solid rgba(245, 177, 61,0.25)` }}>
             <div className="absolute left-0 top-0 bottom-0 w-[2px]"
-              style={{ background: "linear-gradient(180deg, rgba(212,175,55,0.8), rgba(212,175,55,0.1))" }} />
+              style={{ background: "linear-gradient(180deg, rgba(245, 177, 61,0.8), rgba(245, 177, 61,0.1))" }} />
             <div className="pl-3">
               <div className="flex items-center gap-2 mb-2">
                 <Cpu className="w-3.5 h-3.5" style={{ color: BRASS }} />

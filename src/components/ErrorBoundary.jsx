@@ -38,7 +38,7 @@ export default class ErrorBoundary extends Component {
           textAlign: "center",
         }}
       >
-        <div style={{ fontSize: "20px", color: "#d4af37", letterSpacing: "0.1em" }}>
+        <div style={{ fontSize: "20px", color: "#f5b13d", letterSpacing: "0.1em" }}>
           ⚠ SOMETHING WENT WRONG
         </div>
         <div style={{ fontSize: "12px", maxWidth: "440px", lineHeight: 1.6, color: "#7a7360" }}>
@@ -50,8 +50,8 @@ export default class ErrorBoundary extends Component {
           style={{
             marginTop: "8px",
             padding: "10px 22px",
-            background: "rgba(212,175,55,0.12)",
-            border: "1px solid rgba(212,175,55,0.4)",
+            background: "rgba(245, 177, 61,0.12)",
+            border: "1px solid rgba(245, 177, 61,0.4)",
             borderRadius: "4px",
             color: "#f0e6d2",
             fontFamily: "inherit",

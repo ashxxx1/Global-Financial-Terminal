@@ -11,7 +11,7 @@ export default function Footer() {
           Simulated platform · Not financial advice · Educational use only
         </span>
       </div>
-      <div style={{ color: "rgba(0,229,255,0.45)", letterSpacing: "0.12em" }}>
+      <div style={{ color: "rgba(63, 211, 232,0.45)", letterSpacing: "0.12em" }}>
         GLOBAL FINANCIAL TERMINAL · GFT-SECURE · v0.6.0
       </div>
     </footer>

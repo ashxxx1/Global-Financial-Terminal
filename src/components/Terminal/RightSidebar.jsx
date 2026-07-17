@@ -43,7 +43,7 @@ function SocialFeedPreview({ onSetView }) {
     <div className="flex flex-col h-full bg-transparent">
       <div className="p-4 border-b border-white/5 flex justify-between items-center bg-black/20">
         <div className="flex items-center gap-2">
-          <Hash className="w-4 h-4" style={{ color: "#d4af37" }} />
+          <Hash className="w-4 h-4" style={{ color: "#f5b13d" }} />
           <h2
             style={{
               fontFamily: "'JetBrains Mono', monospace",
@@ -64,16 +64,16 @@ function SocialFeedPreview({ onSetView }) {
             onClick={() => onSetView('social')}
             className="p-3 cursor-pointer transition-all duration-200 rounded-sm"
             style={{
-              background: "rgba(212,175,55,0.04)",
-              border: "1px solid rgba(212,175,55,0.1)",
+              background: "rgba(245, 177, 61,0.04)",
+              border: "1px solid rgba(245, 177, 61,0.1)",
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = "rgba(212,175,55,0.08)";
-              e.currentTarget.style.borderColor = "rgba(212,175,55,0.22)";
+              e.currentTarget.style.background = "rgba(245, 177, 61,0.08)";
+              e.currentTarget.style.borderColor = "rgba(245, 177, 61,0.22)";
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.background = "rgba(212,175,55,0.04)";
-              e.currentTarget.style.borderColor = "rgba(212,175,55,0.1)";
+              e.currentTarget.style.background = "rgba(245, 177, 61,0.04)";
+              e.currentTarget.style.borderColor = "rgba(245, 177, 61,0.1)";
             }}
           >
             <div className="flex items-center justify-between mb-1.5 text-[11px]">
@@ -126,7 +126,7 @@ export function RightSidebar({ onSetView }) {
         className="flex p-1.5 shrink-0"
         style={{
           background: "rgba(5,7,13,0.7)",
-          borderBottom: "1px solid rgba(212,175,55,0.14)",
+          borderBottom: "1px solid rgba(245, 177, 61,0.14)",
         }}
       >
         <button
@@ -135,7 +135,7 @@ export function RightSidebar({ onSetView }) {
           style={{
             fontFamily: "'JetBrains Mono', monospace",
             ...(view === 'INTEL'
-              ? { background: "rgba(212,175,55,0.12)", color: "#d4af37", border: "1px solid rgba(212,175,55,0.35)" }
+              ? { background: "rgba(245, 177, 61,0.12)", color: "#f5b13d", border: "1px solid rgba(245, 177, 61,0.35)" }
               : { color: "rgba(240,230,210,0.35)", border: "1px solid transparent" }),
           }}
         >
@@ -148,7 +148,7 @@ export function RightSidebar({ onSetView }) {
           style={{
             fontFamily: "'JetBrains Mono', monospace",
             ...(view === 'SOCIAL'
-              ? { background: "rgba(212,175,55,0.12)", color: "#d4af37", border: "1px solid rgba(212,175,55,0.35)" }
+              ? { background: "rgba(245, 177, 61,0.12)", color: "#f5b13d", border: "1px solid rgba(245, 177, 61,0.35)" }
               : { color: "rgba(240,230,210,0.35)", border: "1px solid transparent" }),
           }}
         >

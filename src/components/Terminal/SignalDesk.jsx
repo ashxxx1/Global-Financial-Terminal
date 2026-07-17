@@ -70,8 +70,8 @@ function SignalDeskInner({ country }) {
   const score     = metrics.score;          // 0-100
   const arcDeg    = (score / 100) * 270;    // 270° sweep
   const scoreColor =
-    score >= 60 ? "#4fd1a5" :
-    score <= 40 ? "#e8635a" : "#d4af37";
+    score >= 60 ? "#46d38a" :
+    score <= 40 ? "#e8635a" : "#f5b13d";
 
   // Reasoning
   const reasoning = useMemo(() => {
@@ -94,7 +94,7 @@ function SignalDeskInner({ country }) {
   }, [iso]);
 
   const getModelColor = (v) =>
-    v === "BULLISH" ? "#4fd1a5" : v === "BEARISH" ? "#e8635a" : "#d4af37";
+    v === "BULLISH" ? "#46d38a" : v === "BEARISH" ? "#e8635a" : "#f5b13d";
 
   const factors = [
     { key: "macro",      weight: 0.20, maxTerm: 0.6  },
@@ -116,32 +116,32 @@ function SignalDeskInner({ country }) {
           width: "300px",
           background: "rgba(5,7,13,0.97)",
           backdropFilter: "blur(20px)",
-          border: "1px solid rgba(212,175,55,0.35)",
+          border: "1px solid rgba(245, 177, 61,0.35)",
           borderRadius: "4px",
-          boxShadow: "0 0 60px rgba(0,0,0,0.95), 0 0 0 1px rgba(212,175,55,0.08), inset 0 1px 0 rgba(212,175,55,0.12)",
+          boxShadow: "0 0 60px rgba(0,0,0,0.95), 0 0 0 1px rgba(245, 177, 61,0.08), inset 0 1px 0 rgba(245, 177, 61,0.12)",
         }}
       >
         {/* Corner accents */}
         {["top-0 left-0 border-t border-l", "top-0 right-0 border-t border-r",
           "bottom-0 left-0 border-b border-l", "bottom-0 right-0 border-b border-r"].map((cls, i) => (
           <div key={i} className={`absolute w-3 h-3 ${cls}`}
-            style={{ borderColor: "rgba(212,175,55,0.5)" }} />
+            style={{ borderColor: "rgba(245, 177, 61,0.5)" }} />
         ))}
 
         {/* ── Header ── */}
         <div
           className="flex items-center justify-between px-4 py-3 shrink-0"
-          style={{ borderBottom: "1px solid rgba(212,175,55,0.12)" }}
+          style={{ borderBottom: "1px solid rgba(245, 177, 61,0.12)" }}
         >
           <div className="flex items-center gap-2">
             <div
               className="h-1.5 w-1.5 rounded-full animate-pulse"
-              style={{ background: "#4fd1a5", boxShadow: "0 0 6px rgba(79,209,165,0.8)" }}
+              style={{ background: "#46d38a", boxShadow: "0 0 6px rgba(70, 211, 138,0.8)" }}
             />
             <span style={{
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: "9px", fontWeight: 700,
-              letterSpacing: "0.2em", color: "#d4af37",
+              letterSpacing: "0.2em", color: "#f5b13d",
             }}>
               AI SIGNAL DESK
             </span>
@@ -152,9 +152,9 @@ function SignalDeskInner({ country }) {
               title="Scenario Simulator"
               className="flex items-center justify-center w-6 h-6 rounded-sm transition-all cursor-pointer"
               style={{
-                background: whatIfScenario ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.04)",
-                border: whatIfScenario ? "1px solid rgba(212,175,55,0.5)" : "1px solid rgba(255,255,255,0.08)",
-                color: whatIfScenario ? "#d4af37" : "#6b6354",
+                background: whatIfScenario ? "rgba(245, 177, 61,0.15)" : "rgba(255,255,255,0.04)",
+                border: whatIfScenario ? "1px solid rgba(245, 177, 61,0.5)" : "1px solid rgba(255,255,255,0.08)",
+                color: whatIfScenario ? "#f5b13d" : "#6b6354",
               }}
             >
               <Sliders className="w-3 h-3" />
@@ -176,7 +176,7 @@ function SignalDeskInner({ country }) {
         </div>
 
         {/* ── Score Ring + Name ── */}
-        <div className="flex items-center gap-4 px-4 py-4" style={{ borderBottom: "1px solid rgba(212,175,55,0.08)" }}>
+        <div className="flex items-center gap-4 px-4 py-4" style={{ borderBottom: "1px solid rgba(245, 177, 61,0.08)" }}>
           {/* Radial arc ring */}
           <div className="relative shrink-0" style={{ width: 72, height: 72 }}>
             <svg width="72" height="72" viewBox="0 0 72 72">
@@ -266,7 +266,7 @@ function SignalDeskInner({ country }) {
         </div>
 
         {/* ── Factor bars ── */}
-        <div className="px-4 py-3 flex flex-col gap-2" style={{ borderBottom: "1px solid rgba(212,175,55,0.08)" }}>
+        <div className="px-4 py-3 flex flex-col gap-2" style={{ borderBottom: "1px solid rgba(245, 177, 61,0.08)" }}>
           <span style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: "8px", fontWeight: 700,
@@ -280,7 +280,7 @@ function SignalDeskInner({ country }) {
             const term = Math.abs(weight * z);
             const pct  = Math.min(100, (term / Math.abs(weight * maxTerm)) * 100);
             const pos  = weight < 0 ? z < 0 : z >= 0;
-            const barColor = pos ? "#4fd1a5" : "#e8635a";
+            const barColor = pos ? "#46d38a" : "#e8635a";
             return (
               <div key={key} className="flex items-center gap-2">
                 <span style={{
@@ -314,7 +314,7 @@ function SignalDeskInner({ country }) {
         </div>
 
         {/* ── AI Reasoning trace ── */}
-        <div className="px-4 py-3 flex flex-col gap-2" style={{ borderBottom: "1px solid rgba(212,175,55,0.08)" }}>
+        <div className="px-4 py-3 flex flex-col gap-2" style={{ borderBottom: "1px solid rgba(245, 177, 61,0.08)" }}>
           <span style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: "8px", fontWeight: 700,
@@ -343,13 +343,13 @@ function SignalDeskInner({ country }) {
                             fontSize: "7px", fontWeight: 700,
                             letterSpacing: "0.08em",
                             padding: "1px 5px", borderRadius: "2px",
-                            background: "rgba(212,175,55,0.1)",
-                            border: "1px solid rgba(212,175,55,0.3)",
-                            color: "#d4af37",
+                            background: "rgba(245, 177, 61,0.1)",
+                            border: "1px solid rgba(245, 177, 61,0.3)",
+                            color: "#f5b13d",
                             textTransform: "uppercase",
                           }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "#d4af37"; e.currentTarget.style.color = "#05070d"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "rgba(212,175,55,0.1)"; e.currentTarget.style.color = "#d4af37"; }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "#f5b13d"; e.currentTarget.style.color = "#05070d"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "rgba(245, 177, 61,0.1)"; e.currentTarget.style.color = "#f5b13d"; }}
                           onClick={() => setActiveCitation(label)}
                         >
                           {label}
@@ -377,9 +377,9 @@ function SignalDeskInner({ country }) {
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "7px", color: "#6b6354" }}>
               p5 <strong style={{ color: "#e8635a" }}>{metrics.monteCarlo.p5}</strong>
               {" "}·{" "}
-              p50 <strong style={{ color: "#d4af37" }}>{metrics.monteCarlo.p50}</strong>
+              p50 <strong style={{ color: "#f5b13d" }}>{metrics.monteCarlo.p50}</strong>
               {" "}·{" "}
-              p95 <strong style={{ color: "#4fd1a5" }}>{metrics.monteCarlo.p95}</strong>
+              p95 <strong style={{ color: "#46d38a" }}>{metrics.monteCarlo.p95}</strong>
             </span>
           </div>
           <div className="relative w-full overflow-hidden" style={{ height: "8px", background: "rgba(255,255,255,0.04)", borderRadius: "4px" }}>
@@ -388,9 +388,9 @@ function SignalDeskInner({ country }) {
               style={{
                 left: `${metrics.monteCarlo.p5}%`,
                 width: `${metrics.monteCarlo.p95 - metrics.monteCarlo.p5}%`,
-                background: "linear-gradient(90deg, rgba(212,175,55,0.05), rgba(212,175,55,0.35), rgba(212,175,55,0.05))",
-                borderLeft: "1px solid rgba(212,175,55,0.4)",
-                borderRight: "1px solid rgba(212,175,55,0.4)",
+                background: "linear-gradient(90deg, rgba(245, 177, 61,0.05), rgba(245, 177, 61,0.35), rgba(245, 177, 61,0.05))",
+                borderLeft: "1px solid rgba(245, 177, 61,0.4)",
+                borderRight: "1px solid rgba(245, 177, 61,0.4)",
               }}
             />
             <div
@@ -429,7 +429,7 @@ function SignalDeskInner({ country }) {
             width: "260px",
             background: "rgba(5,7,13,0.97)",
             backdropFilter: "blur(20px)",
-            border: "1px solid rgba(212,175,55,0.3)",
+            border: "1px solid rgba(245, 177, 61,0.3)",
             borderRadius: "4px",
             boxShadow: "0 0 60px rgba(0,0,0,0.95)",
           }}
@@ -444,7 +444,7 @@ function SignalDeskInner({ country }) {
           {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3 shrink-0"
-            style={{ borderBottom: "1px solid rgba(212,175,55,0.1)" }}
+            style={{ borderBottom: "1px solid rgba(245, 177, 61,0.1)" }}
           >
             <span style={{
               fontFamily: "'JetBrains Mono', monospace",
@@ -488,8 +488,8 @@ function SignalDeskInner({ country }) {
                       <div
                         className="w-3.5 h-3.5 rounded-sm flex items-center justify-center cursor-pointer transition-all"
                         style={{
-                          background: isOn ? "#d4af37" : "transparent",
-                          border: isOn ? "1px solid #d4af37" : "1px solid rgba(255,255,255,0.15)",
+                          background: isOn ? "#f5b13d" : "transparent",
+                          border: isOn ? "1px solid #f5b13d" : "1px solid rgba(255,255,255,0.15)",
                         }}
                         onClick={() => handleToggle(k)}
                       >
@@ -502,7 +502,7 @@ function SignalDeskInner({ country }) {
                       <span style={{
                         fontFamily: "'JetBrains Mono', monospace",
                         fontSize: "10px", fontWeight: isOn ? 700 : 500,
-                        color: isOn ? "#d4af37" : "#a89c84",
+                        color: isOn ? "#f5b13d" : "#a89c84",
                         letterSpacing: "0.04em",
                       }}>
                         {label}{isOn ? " ⚡" : ""}
@@ -511,7 +511,7 @@ function SignalDeskInner({ country }) {
                     <span style={{
                       fontFamily: "'JetBrains Mono', monospace",
                       fontSize: "9px", fontWeight: 700,
-                      color: isOn ? "#d4af37" : "#5c5546",
+                      color: isOn ? "#f5b13d" : "#5c5546",
                     }}>
                       {val > 0 ? "+" : ""}{val.toFixed(1)}
                     </span>
@@ -527,7 +527,7 @@ function SignalDeskInner({ country }) {
                         height: "3px",
                         appearance: "none",
                         background: isOn
-                          ? `linear-gradient(to right, #d4af37 ${((val + 3) / 6) * 100}%, rgba(255,255,255,0.1) ${((val + 3) / 6) * 100}%)`
+                          ? `linear-gradient(to right, #f5b13d ${((val + 3) / 6) * 100}%, rgba(255,255,255,0.1) ${((val + 3) / 6) * 100}%)`
                           : "rgba(255,255,255,0.08)",
                         borderRadius: "2px",
                         outline: "none",
@@ -543,7 +543,7 @@ function SignalDeskInner({ country }) {
           <div className="px-4 pb-4 flex flex-col gap-1.5">
             <div
               className="p-3 rounded-sm"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(212,175,55,0.1)" }}
+              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(245, 177, 61,0.1)" }}
             >
               <span style={{
                 fontFamily: "'JetBrains Mono', monospace",
@@ -556,9 +556,9 @@ function SignalDeskInner({ country }) {
                 <div className="absolute h-full" style={{
                   left: `${metrics.monteCarlo.p5}%`,
                   width: `${metrics.monteCarlo.p95 - metrics.monteCarlo.p5}%`,
-                  background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.4), transparent)",
-                  borderLeft: "1px solid rgba(212,175,55,0.5)",
-                  borderRight: "1px solid rgba(212,175,55,0.5)",
+                  background: "linear-gradient(90deg, transparent, rgba(245, 177, 61,0.4), transparent)",
+                  borderLeft: "1px solid rgba(245, 177, 61,0.5)",
+                  borderRight: "1px solid rgba(245, 177, 61,0.5)",
                 }} />
                 <div className="absolute top-0 bottom-0 w-px" style={{
                   left: `${metrics.monteCarlo.p50}%`,
@@ -568,8 +568,8 @@ function SignalDeskInner({ country }) {
               <div className="flex justify-between mt-1.5">
                 {[
                   { label: "BEAR", val: metrics.monteCarlo.p5,  color: "#e8635a" },
-                  { label: "BASE", val: metrics.monteCarlo.p50, color: "#d4af37" },
-                  { label: "BULL", val: metrics.monteCarlo.p95, color: "#4fd1a5" },
+                  { label: "BASE", val: metrics.monteCarlo.p50, color: "#f5b13d" },
+                  { label: "BULL", val: metrics.monteCarlo.p95, color: "#46d38a" },
                 ].map(({ label, val: v, color }) => (
                   <div key={label} className="flex flex-col items-center">
                     <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "7px", color: "#5c5546", letterSpacing: "0.1em" }}>{label}</span>
@@ -594,9 +594,9 @@ function SignalDeskInner({ country }) {
             className="w-full max-w-[420px] overflow-hidden text-left relative" 
             style={{
               background: "rgba(5,7,13,0.99)",
-              border: "1px solid rgba(212,175,55,0.35)",
+              border: "1px solid rgba(245, 177, 61,0.35)",
               borderRadius: "4px",
-              boxShadow: "0 0 60px rgba(0,0,0,0.95), 0 0 0 1px rgba(212,175,55,0.08), inset 0 1px 0 rgba(212,175,55,0.12)",
+              boxShadow: "0 0 60px rgba(0,0,0,0.95), 0 0 0 1px rgba(245, 177, 61,0.08), inset 0 1px 0 rgba(245, 177, 61,0.12)",
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -604,20 +604,20 @@ function SignalDeskInner({ country }) {
             {["top-0 left-0 border-t border-l", "top-0 right-0 border-t border-r",
               "bottom-0 left-0 border-b border-l", "bottom-0 right-0 border-b border-r"].map((cls, i) => (
               <div key={i} className={`absolute w-3 h-3 ${cls}`}
-                style={{ borderColor: "rgba(212,175,55,0.5)" }} />
+                style={{ borderColor: "rgba(245, 177, 61,0.5)" }} />
             ))}
 
             {/* Header */}
             <div 
               className="flex justify-between items-center px-4 py-3 shrink-0"
-              style={{ borderBottom: "1px solid rgba(212,175,55,0.12)" }}
+              style={{ borderBottom: "1px solid rgba(245, 177, 61,0.12)" }}
             >
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#d4af37", boxShadow: "0 0 6px #d4af37" }} />
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#f5b13d", boxShadow: "0 0 6px #f5b13d" }} />
                 <span style={{
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: "9px", fontWeight: 700,
-                  letterSpacing: "0.2em", color: "#d4af37",
+                  letterSpacing: "0.2em", color: "#f5b13d",
                 }}>
                   CITATION REFERENCE
                 </span>
@@ -627,7 +627,7 @@ function SignalDeskInner({ country }) {
                 className="text-slate-500 hover:text-white p-1 hover:bg-white/5 rounded transition-colors cursor-pointer"
                 aria-label="Close modal"
               >
-                <span className="font-sans text-xs font-bold text-[#d4af37]">✕</span>
+                <span className="font-sans text-xs font-bold text-[#f5b13d]">✕</span>
               </button>
             </div>
             
@@ -656,16 +656,16 @@ function SignalDeskInner({ country }) {
             {/* Footer */}
             <div 
               className="p-4 flex justify-end"
-              style={{ borderTop: "1px solid rgba(212,175,55,0.08)" }}
+              style={{ borderTop: "1px solid rgba(245, 177, 61,0.08)" }}
             >
               <button 
                 onClick={() => setActiveCitation(null)}
                 className="px-4 py-1.5 text-[10px] font-bold rounded transition-all cursor-pointer"
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
-                  background: "rgba(212,175,55,0.1)",
-                  border: "1px solid rgba(212,175,55,0.3)",
-                  color: "#d4af37",
+                  background: "rgba(245, 177, 61,0.1)",
+                  border: "1px solid rgba(245, 177, 61,0.3)",
+                  color: "#f5b13d",
                   letterSpacing: "0.08em",
                 }}
               >

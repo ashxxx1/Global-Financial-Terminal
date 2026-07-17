@@ -99,7 +99,7 @@ export function MarketBrief() {
             key={item.region}
             className="flex items-center gap-1 px-2 py-1"
             style={{
-              background: "rgba(0,229,255,0.04)",
+              background: "rgba(63, 211, 232,0.04)",
               border: "1px solid var(--nx-border)",
               borderRadius: "2px",
             }}

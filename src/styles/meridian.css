@@ -13,8 +13,8 @@
   --m-ink-700: #161e36;
 
   /* Hairlines — brass @ low opacity */
-  --m-hairline:        rgba(212, 175, 55, 0.16);
-  --m-hairline-strong: rgba(212, 175, 55, 0.32);
+  --m-hairline:        rgba(245, 177, 61, 0.16);
+  --m-hairline-strong: rgba(245, 177, 61, 0.32);
 
   /* Parchment (text scale) */
   --m-parchment:      #f0e6d2;
@@ -22,17 +22,17 @@
   --m-parchment-faint:#6b6354;
 
   /* Brass (primary accent) */
-  --m-brass:       #d4af37;
+  --m-brass:       #f5b13d;
   --m-brass-bright:#f0c84a;
   --m-brass-dim:   #8a7228;
-  --m-brass-soft:  rgba(212, 175, 55, 0.12);
+  --m-brass-soft:  rgba(245, 177, 61, 0.12);
 
   /* Copper (secondary / neutral) */
   --m-copper: #c97b4a;
 
   /* Market colours */
-  --m-rise:       #4fd1a5;
-  --m-rise-soft:  rgba(79, 209, 165, 0.14);
+  --m-rise:       #46d38a;
+  --m-rise-soft:  rgba(70, 211, 138, 0.14);
   --m-fall:       #e8635a;
   --m-fall-soft:  rgba(232, 99, 90, 0.14);
 
@@ -132,16 +132,16 @@ body,
    ──────────────────────────────────────────────────────────── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(212, 175, 55, 0.2) transparent;
+  scrollbar-color: rgba(245, 177, 61, 0.2) transparent;
 }
 *::-webkit-scrollbar { width: 4px; height: 4px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.2);
+  background: rgba(245, 177, 61, 0.2);
   border-radius: 2px;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 175, 55, 0.45);
+  background: rgba(245, 177, 61, 0.45);
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -163,18 +163,18 @@ body,
    NEXUS AMBIENT — shift aurora hue towards warm brass
    ──────────────────────────────────────────────────────────── */
 .nexus-ambient__aurora--1 {
-  background: radial-gradient(ellipse 60% 40% at 20% 20%, rgba(212,175,55,0.07), transparent) !important;
+  background: radial-gradient(ellipse 60% 40% at 20% 20%, rgba(245, 177, 61,0.07), transparent) !important;
 }
 .nexus-ambient__aurora--2 {
   background: radial-gradient(ellipse 50% 35% at 80% 70%, rgba(201,123,74,0.05), transparent) !important;
 }
 .nexus-ambient__aurora--3 {
-  background: radial-gradient(ellipse 70% 50% at 50% 90%, rgba(79,209,165,0.04), transparent) !important;
+  background: radial-gradient(ellipse 70% 50% at 50% 90%, rgba(70, 211, 138,0.04), transparent) !important;
 }
 .nexus-ambient__grid {
   background-image:
-    linear-gradient(rgba(212,175,55,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(212,175,55,0.04) 1px, transparent 1px) !important;
+    linear-gradient(rgba(245, 177, 61,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 177, 61,0.04) 1px, transparent 1px) !important;
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -191,7 +191,7 @@ body,
    ──────────────────────────────────────────────────────────── */
 button:focus-visible,
 input:focus-visible {
-  outline: 1px solid rgba(212, 175, 55, 0.6) !important;
+  outline: 1px solid rgba(245, 177, 61, 0.6) !important;
   outline-offset: 1px !important;
 }
 
@@ -208,6 +208,6 @@ input:focus-visible {
    SELECTION HIGHLIGHT — brass tint
    ──────────────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(212, 175, 55, 0.25);
+  background: rgba(245, 177, 61, 0.25);
   color: var(--m-parchment);
 }

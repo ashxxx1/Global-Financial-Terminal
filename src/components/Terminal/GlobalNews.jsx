@@ -59,7 +59,7 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
                       onClick={() => { setFilter(f); setPage(1); }}
                       className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold transition-colors cursor-pointer ${
                         filter === f
-                          ? "text-[var(--nx-cyan)] border border-[var(--nx-border-strong)] bg-[rgba(0,229,255,0.08)]"
+                          ? "text-[var(--nx-cyan)] border border-[var(--nx-border-strong)] bg-[rgba(63, 211, 232,0.08)]"
                           : "text-[rgba(255,255,255,0.4)] border border-[var(--nx-border)] hover:text-[var(--nx-cyan)]"
                       }`}
                       style={{ fontFamily: "var(--nx-font-mono)", borderRadius: "2px", letterSpacing: "0.08em" }}
@@ -128,7 +128,7 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
                   </div>
                   <div className="flex flex-col">
                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest" style={{ fontFamily: "var(--nx-font-mono)", color: "var(--nx-cyan)", background: "rgba(0,229,255,0.08)", border: "1px solid var(--nx-border)", borderRadius: "2px" }}>{news.type}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 uppercase tracking-widest" style={{ fontFamily: "var(--nx-font-mono)", color: "var(--nx-cyan)", background: "rgba(63, 211, 232,0.08)", border: "1px solid var(--nx-border)", borderRadius: "2px" }}>{news.type}</span>
                         <span className="text-[11px] font-mono text-slate-500">{news.time} • {news.source}</span>
                      </div>
                      <h3 className="text-[13px] font-bold text-slate-200 group-hover:text-white transition-colors">{news.title}</h3>
@@ -159,9 +159,9 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
             className="w-full max-w-[480px] overflow-hidden text-left relative" 
             style={{
               background: "rgba(5,7,13,0.99)",
-              border: "1px solid rgba(212,175,55,0.35)",
+              border: "1px solid rgba(245, 177, 61,0.35)",
               borderRadius: "4px",
-              boxShadow: "0 0 60px rgba(0,0,0,0.95), 0 0 0 1px rgba(212,175,55,0.08), inset 0 1px 0 rgba(212,175,55,0.12)",
+              boxShadow: "0 0 60px rgba(0,0,0,0.95), 0 0 0 1px rgba(245, 177, 61,0.08), inset 0 1px 0 rgba(245, 177, 61,0.12)",
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -169,20 +169,20 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
             {["top-0 left-0 border-t border-l", "top-0 right-0 border-t border-r",
               "bottom-0 left-0 border-b border-l", "bottom-0 right-0 border-b border-r"].map((cls, i) => (
               <div key={i} className={`absolute w-3 h-3 ${cls}`}
-                style={{ borderColor: "rgba(212,175,55,0.5)" }} />
+                style={{ borderColor: "rgba(245, 177, 61,0.5)" }} />
             ))}
 
             {/* Header */}
             <div 
               className="flex justify-between items-center px-4 py-3 shrink-0"
-              style={{ borderBottom: "1px solid rgba(212,175,55,0.12)" }}
+              style={{ borderBottom: "1px solid rgba(245, 177, 61,0.12)" }}
             >
               <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#d4af37", boxShadow: "0 0 6px #d4af37" }} />
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#f5b13d", boxShadow: "0 0 6px #f5b13d" }} />
                 <span style={{
                   fontFamily: "'JetBrains Mono', monospace",
                   fontSize: "9px", fontWeight: 700,
-                  letterSpacing: "0.2em", color: "#d4af37",
+                  letterSpacing: "0.2em", color: "#f5b13d",
                 }}>
                   QUANT RECONNAISSANCE DESK
                 </span>
@@ -192,7 +192,7 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
                 className="text-slate-500 hover:text-white p-1 hover:bg-white/5 rounded transition-colors cursor-pointer"
                 aria-label="Close modal"
               >
-                <span className="font-sans text-xs font-bold text-[#d4af37]">✕</span>
+                <span className="font-sans text-xs font-bold text-[#f5b13d]">✕</span>
               </button>
             </div>
             
@@ -204,9 +204,9 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
                   fontSize: "9px", fontWeight: 700,
                   letterSpacing: "0.08em",
                   padding: "1px 5px", borderRadius: "2px",
-                  background: "rgba(212,175,55,0.1)",
-                  border: "1px solid rgba(212,175,55,0.3)",
-                  color: "#d4af37",
+                  background: "rgba(245, 177, 61,0.1)",
+                  border: "1px solid rgba(245, 177, 61,0.3)",
+                  color: "#f5b13d",
                   textTransform: "uppercase",
                 }}>
                   {activeNews.type}
@@ -247,7 +247,7 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
                   }}
                 >
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#5c5546" }}>TRANSMISSION</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: 700, color: "#4fd1a5" }}>ACTIVE</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: 700, color: "#46d38a" }}>ACTIVE</span>
                 </div>
                 <div 
                   className="p-2.5 rounded flex flex-col gap-0.5"
@@ -257,7 +257,7 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
                   }}
                 >
                   <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#5c5546" }}>SIGNAL SECURITY</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: 700, color: "#d4af37" }}>92% SECURE</span>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: 700, color: "#f5b13d" }}>92% SECURE</span>
                 </div>
               </div>
             </div>
@@ -265,16 +265,16 @@ export function GlobalNews({ isCollapsed = false, onToggle }) {
             {/* Footer */}
             <div 
               className="p-4 flex justify-end"
-              style={{ borderTop: "1px solid rgba(212,175,55,0.08)" }}
+              style={{ borderTop: "1px solid rgba(245, 177, 61,0.08)" }}
             >
               <button 
                 onClick={() => setActiveNews(null)}
                 className="px-4 py-1.5 text-[10px] font-bold rounded transition-all cursor-pointer"
                 style={{
                   fontFamily: "'JetBrains Mono', monospace",
-                  background: "rgba(212,175,55,0.1)",
-                  border: "1px solid rgba(212,175,55,0.3)",
-                  color: "#d4af37",
+                  background: "rgba(245, 177, 61,0.1)",
+                  border: "1px solid rgba(245, 177, 61,0.3)",
+                  color: "#f5b13d",
                   letterSpacing: "0.08em",
                 }}
               >

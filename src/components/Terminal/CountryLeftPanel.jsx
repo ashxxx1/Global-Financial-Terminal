@@ -34,10 +34,10 @@ function getSentimentData(iso) {
       Math.round(Math.max(0, Math.min(100, 50 + Math.sin(i + seed) * 15 + metrics.factors.sentiment * 5)))
     );
     const label = score > 58 ? "BULLISH" : score < 42 ? "BEARISH" : "NEUTRAL";
-    const color = score > 58 ? "#4fd1a5" : score < 42 ? "#e8635a" : "#d4af37";
+    const color = score > 58 ? "#46d38a" : score < 42 ? "#e8635a" : "#f5b13d";
     return { score, label, color, history };
   } catch {
-    return { score: 50, label: "NEUTRAL", color: "#d4af37", history: Array(10).fill(50) };
+    return { score: 50, label: "NEUTRAL", color: "#f5b13d", history: Array(10).fill(50) };
   }
 }
 
@@ -76,9 +76,9 @@ function getHistoricalAnalog(iso) {
 // ── Shared style tokens ───────────────────────────────────────
 const MONO = "'JetBrains Mono', monospace";
 const SERIF = "'Fraunces', Georgia, serif";
-const BRASS = "#d4af37";
-const BRASS_SOFT = "rgba(212,175,55,0.1)";
-const HAIRLINE = "rgba(212,175,55,0.14)";
+const BRASS = "#f5b13d";
+const BRASS_SOFT = "rgba(245, 177, 61,0.1)";
+const HAIRLINE = "rgba(245, 177, 61,0.14)";
 const INK = "#05070d";
 
 function SectionLabel({ children }) {
@@ -119,13 +119,13 @@ export function CountryLeftPanel({ country, onClose, timeframe = "1D" }) {
 
   const riskColor =
     stats.riskScore > 75 ? "#e8635a" :
-    stats.riskScore > 40 ? "#d4af37" : "#4fd1a5";
+    stats.riskScore > 40 ? "#f5b13d" : "#46d38a";
 
   const riskLabel =
     stats.riskScore > 75 ? "CRITICAL" :
     stats.riskScore > 40 ? "ELEVATED" : "STABLE";
 
-  const inflColor = parseFloat(stats.inflation) > 4 ? "#e8635a" : "#4fd1a5";
+  const inflColor = parseFloat(stats.inflation) > 4 ? "#e8635a" : "#46d38a";
 
   // Sentiment data for sparkline
   const sent = getSentimentData(iso);
@@ -161,7 +161,7 @@ export function CountryLeftPanel({ country, onClose, timeframe = "1D" }) {
             style={{
               width: 36, height: 36,
               background: BRASS_SOFT,
-              border: `1px solid rgba(212,175,55,0.35)`,
+              border: `1px solid rgba(245, 177, 61,0.35)`,
               fontFamily: MONO, fontSize: "11px", fontWeight: 700,
               color: BRASS, letterSpacing: "0.08em",
             }}
@@ -179,8 +179,8 @@ export function CountryLeftPanel({ country, onClose, timeframe = "1D" }) {
             </h2>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full motion-safe:animate-pulse"
-                style={{ background: "#4fd1a5", boxShadow: "0 0 4px rgba(79,209,165,0.8)" }} />
-              <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#4fd1a5" }}>
+                style={{ background: "#46d38a", boxShadow: "0 0 4px rgba(70, 211, 138,0.8)" }} />
+              <span style={{ fontFamily: MONO, fontSize: "8px", fontWeight: 700, letterSpacing: "0.14em", color: "#46d38a" }}>
                 LIVE DATA
               </span>
             </div>
@@ -331,7 +331,7 @@ export function CountryLeftPanel({ country, onClose, timeframe = "1D" }) {
                     fontFamily: MONO, fontSize: "9px", fontWeight: 700,
                     letterSpacing: "0.06em", color: BRASS,
                     background: BRASS_SOFT,
-                    border: `1px solid rgba(212,175,55,0.28)`,
+                    border: `1px solid rgba(245, 177, 61,0.28)`,
                     whiteSpace: "nowrap",
                   }}
                 >

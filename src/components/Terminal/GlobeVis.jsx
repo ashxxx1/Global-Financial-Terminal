@@ -298,22 +298,20 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
     return () => clearInterval(interval);
   }, []);
 
-  // Force WebGL context disposal on unmount to release GPU resources
+  // Release GPU resources on unmount. NOTE: we deliberately do NOT call
+  // WEBGL_lose_context.loseContext() here — under React StrictMode the
+  // mount→unmount→remount cycle would force-lose the context during the
+  // phantom unmount, leaving the remounted globe with no canvas (the
+  // "globe only works on the second load" bug). renderer.dispose() frees
+  // resources correctly without nuking the context.
   useEffect(() => {
+    const globe = globeRef.current;
     return () => {
-      if (globeRef.current) {
-        try {
-          const renderer = globeRef.current.renderer();
-          if (renderer) {
-            renderer.dispose();
-            const extension = renderer.getContext()?.getExtension('WEBGL_lose_context');
-            if (extension) {
-              extension.loseContext();
-            }
-          }
-        } catch (e) {
-          console.warn("Could not dispose WebGL context:", e);
-        }
+      try {
+        const renderer = globe && typeof globe.renderer === 'function' ? globe.renderer() : null;
+        if (renderer) renderer.dispose();
+      } catch (e) {
+        console.warn("Could not dispose WebGL renderer:", e);
       }
     };
   }, []);

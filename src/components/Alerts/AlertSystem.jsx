@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import useTerminalStore from "../../store/terminalStore";
+import { quoteFor } from "../../services/marketData";
 
 export function AlertBell() {
   const { unreadAlertCount, setAlertPanelOpen, alertPanelOpen } = useTerminalStore();
@@ -252,18 +253,25 @@ export function AlertSystem() {
   useEffect(() => {
     if (alerts.length === 0) return;
     const interval = setInterval(() => {
-      // Simulate price movement for each alerted symbol
+      const t = Date.now();
       alerts.forEach((alert) => {
+        // Prefer the shared market-data provider so alerts evaluate against the
+        // exact prices shown in the ticker and panels. Symbols the provider
+        // doesn't track (e.g. country-code alerts) fall back to a gentle sim.
+        const q = quoteFor(alert.symbol, t);
         const prev = prevPricesRef.current[alert.symbol];
-        if (prev === undefined) {
-          // Init with some base price
+        let newPrice;
+        if (q) {
+          newPrice = q.price;
+        } else if (prev === undefined) {
           const baseStock = watchlist.find((s) => s.symbol === alert.symbol);
           prevPricesRef.current[alert.symbol] = baseStock?.price || alert.price * 0.98;
           return;
+        } else {
+          newPrice = Math.max(0.01, prev + (Math.random() - 0.48) * 0.004 * prev);
         }
-        const drift = (Math.random() - 0.48) * 0.004 * prev;
-        const newPrice = Math.max(0.01, prev + drift);
         prevPricesRef.current[alert.symbol] = newPrice;
+        if (prev === undefined) return; // need a baseline before detecting a crossing
 
         const hit =
           (alert.direction === "above" && prev < alert.price && newPrice >= alert.price) ||
@@ -271,8 +279,7 @@ export function AlertSystem() {
 
         if (hit) {
           fireAlert(alert, newPrice);
-          // Browser notification
-          if (Notification.permission === "granted") {
+          if (typeof Notification !== "undefined" && Notification.permission === "granted") {
             new Notification(`🔔 ${alert.symbol} Alert Triggered`, {
               body: `${alert.symbol} hit $${newPrice.toFixed(2)} (target: $${alert.price} ${alert.direction})`,
               icon: "/favicon.png",
@@ -280,7 +287,7 @@ export function AlertSystem() {
           }
         }
       });
-    }, 4000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [alerts, watchlist, fireAlert]);
 

@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import useTerminalStore from "../../store/terminalStore";
 import CandlestickChart from "../Charts/CandlestickChart";
 import AIInsights from "../AIInsights/AIInsights";
+import { useQuote } from "../../hooks/useMarketData";
+import SourceBadge from "../common/SourceBadge";
 import "./StockPanel.css";
 
 function getSeed(str) {
@@ -61,11 +63,13 @@ function FinancialBar({ label, value, maxValue }) {
 }
 
 export default function StockPanel() {
-  const { selectedStock, isStockPanelOpen, closeStockPanel, addToWatchlist, removeFromWatchlist, isInWatchlist } =
+  const { selectedStock, isStockPanelOpen, closeStockPanel, addToWatchlist, removeFromWatchlist, isInWatchlist, addAlert } =
     useTerminalStore();
   const [activeRange, setActiveRange] = useState("1M");
+  const [alertMsg, setAlertMsg] = useState("");
 
   const s = selectedStock;
+  const live = useQuote(s?.symbol);
   const extendedSparkline = useMemo(() => {
     if (!s) return [];
     const base = s.sparkline || [];
@@ -76,9 +80,19 @@ export default function StockPanel() {
 
   if (!selectedStock) return null;
 
-  const up = s.changePct >= 0;
-  const color = up ? "#00ff88" : "#ff2244";
+  // Live quote from the shared provider when available, else the snapshot.
+  const price = live?.price ?? s.price;
+  const changePct = live?.changePct ?? s.changePct;
+  const up = changePct >= 0;
+  const color = up ? "#46d38a" : "#ff5f6d";
   const inWatchlist = isInWatchlist(s.symbol, s.country);
+
+  const setPriceAlert = (direction) => {
+    const target = direction === "above" ? price * 1.02 : price * 0.98;
+    addAlert({ symbol: s.symbol, price: Number(target.toFixed(2)), direction });
+    setAlertMsg(`Alert set: ${s.symbol} ${direction} $${target.toFixed(2)}`);
+    setTimeout(() => setAlertMsg(""), 2600);
+  };
 
   // Simulated technicals
   const rsi = 45 + (s.changePct || 0) * 4;
@@ -102,11 +116,14 @@ export default function StockPanel() {
           </div>
         </div>
         <div className="sp-header__right">
-          <div className="sp-header__price">{s.price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          <div className="sp-header__price">{price.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
           <span className={`sp-header__badge ${up ? "up" : "down"}`}>
-            {up ? "▲" : "▼"} {Math.abs(s.changePct).toFixed(2)}%
+            {up ? "▲" : "▼"} {Math.abs(changePct).toFixed(2)}%
           </span>
-          <span className="sp-header__exchange">{s.sector}</span>
+          <span className="sp-header__exchange" style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+            {s.sector}
+            {live && <SourceBadge source={live.source} />}
+          </span>
         </div>
       </div>
 
@@ -190,8 +207,8 @@ export default function StockPanel() {
         <div className="sp-section-title">About</div>
         <div className="sp-description">{s.description}</div>
 
-        {/* ── Watchlist button ── */}
-        <div className="sp-actions">
+        {/* ── Actions: watchlist + price alerts ── */}
+        <div className="sp-actions" style={{ flexWrap: "wrap", gap: 8 }}>
           <button
             className={`sp-watchlist-btn ${inWatchlist ? "active" : ""}`}
             onClick={() =>
@@ -200,7 +217,26 @@ export default function StockPanel() {
           >
             {inWatchlist ? "★ In Watchlist" : "☆ Add to Watchlist"}
           </button>
+          <button className="sp-watchlist-btn" onClick={() => setPriceAlert("above")}>
+            🔔 Alert ↑ +2%
+          </button>
+          <button className="sp-watchlist-btn" onClick={() => setPriceAlert("below")}>
+            🔔 Alert ↓ −2%
+          </button>
         </div>
+        {alertMsg && (
+          <div
+            style={{
+              fontFamily: "var(--nx-font-mono)",
+              fontSize: 11,
+              color: "var(--nx-mint)",
+              marginTop: 8,
+              letterSpacing: "0.04em",
+            }}
+          >
+            ✓ {alertMsg}
+          </div>
+        )}
       </div>
     </div>
   );

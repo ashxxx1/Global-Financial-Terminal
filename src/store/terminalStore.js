@@ -1,6 +1,7 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-const useTerminalStore = create((set, get) => ({
+const useTerminalStore = create(persist((set, get) => ({
   // ─── Globe / Country ───
   selectedCountry: null,
   isNewsPanelOpen: false,
@@ -306,6 +307,15 @@ const useTerminalStore = create((set, get) => ({
   setSelectedSector: (sector) => set({ selectedSector: sector }),
   setRefreshInterval: (val) => set({ refreshInterval: val }),
   setSyncingIntelligence: (val) => set({ isSyncingIntelligence: val }),
+}), {
+  // Persist only the user's own collections — everything else is session state.
+  // (Portfolio positions are persisted separately by PortfolioPanel.)
+  name: "gft-terminal-v1",
+  storage: createJSONStorage(() => localStorage),
+  partialize: (s) => ({
+    watchlist: s.watchlist,
+    alerts: s.alerts,
+  }),
 }));
 
 export default useTerminalStore;

@@ -154,7 +154,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
       return p.ISO_A2 || null;
     }
 
-    fetch('https://raw.githubusercontent.com/vasturiano/react-globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+    fetch('/ne_110m_admin_0_countries.geojson')
       .then(res => res.json())
       .then(worldData => {
         const filteredFeatures = worldData.features
@@ -390,7 +390,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           width={dimensions.width}
           height={dimensions.height}
           backgroundColor="rgba(0,0,0,0)"
-          globeImageUrl="https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+          globeImageUrl="/earth-blue-marble.jpg"
           showAtmosphere={false}
           polygonsData={countries.features}
           polygonAltitude={0.008}

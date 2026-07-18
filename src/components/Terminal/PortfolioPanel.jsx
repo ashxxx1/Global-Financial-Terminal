@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import useTerminalStore from "../../store/terminalStore";
+import { quoteFor } from "../../services/marketData";
 
 const STARTING_CAPITAL = 100000;
 
@@ -123,16 +124,21 @@ export default function PortfolioPanel({ onClose }) {
   });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLivePrices((prev) => {
-        const next = { ...prev };
-        Object.keys(next).forEach((key) => {
-          const drift = (Math.random() - 0.5) * 0.003 * next[key];
-          next[key] = Math.max(0.01, next[key] + drift);
+    // Live prices come from the shared market-data provider so portfolio P&L
+    // matches the quotes shown everywhere else (ticker, stock panel).
+    const update = () => {
+      const t = Date.now();
+      setLivePrices(() => {
+        const next = {};
+        watchlist.forEach((s) => {
+          const q = quoteFor(s.symbol, t);
+          next[s.symbol + "_" + s.country] = q ? q.price : s.price;
         });
         return next;
       });
-    }, 3000);
+    };
+    update();
+    const interval = setInterval(update, 3000);
     return () => clearInterval(interval);
   }, [watchlist]);
 

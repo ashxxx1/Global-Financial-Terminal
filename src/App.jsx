@@ -27,6 +27,7 @@ import Footer           from "./components/Footer/Footer";
 // ── Global overlays ──────────────────────────────────────────────────────────
 import StockPanel               from "./components/StockPanel/StockPanel";
 import "./components/StockPanel/StockPanel.css";
+import CloudSync                 from "./components/CloudSync";
 import { AlertSystem, AlertPanel } from "./components/Alerts/AlertSystem";
 import CommandPalette            from "./components/CommandPalette/CommandPalette";
 import MacroHeatmap              from "./components/MacroHeatmap/MacroHeatmap";
@@ -493,6 +494,9 @@ function TerminalApp() {
 
       {/* Background alert watcher */}
       <AlertSystem />
+
+      {/* Cross-device sync of watchlist + alerts (fails soft to localStorage) */}
+      <CloudSync />
 
       {/* ── Mobile-only: backdrop + bottom nav ─────────────────────────── */}
       <div

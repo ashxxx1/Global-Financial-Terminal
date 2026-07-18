@@ -80,7 +80,9 @@ for (const [country, list] of Object.entries(STOCKS_BY_COUNTRY)) {
 }
 
 function parseNum(str) {
-  return parseFloat(String(str).replace(/,/g, ""));
+  // Strip everything that isn't part of the number (currency symbols, commas,
+  // spaces) so values like "$2,387.50" parse instead of becoming NaN.
+  return parseFloat(String(str).replace(/[^0-9.-]/g, ""));
 }
 
 const INDEX_KEYS = GLOBAL_INDICES.map((idx) => {
@@ -88,6 +90,7 @@ const INDEX_KEYS = GLOBAL_INDICES.map((idx) => {
   const value = String(idx.value);
   const base = parseNum(value);
   const snap = parseFloat(String(idx.change).replace(/%/g, "")) || 0;
+  const prefix = (value.match(/^[^0-9.-]+/) || [""])[0]; // e.g. "$"
   REGISTRY[key] = {
     key,
     name: idx.name,
@@ -99,7 +102,11 @@ const INDEX_KEYS = GLOBAL_INDICES.map((idx) => {
     kind: "index",
     vol: 0.004,
     ph: phases(idx.name),
-    fmt: { decimals: (value.split(".")[1] || "").length, comma: value.includes(",") },
+    fmt: {
+      decimals: (value.split(".")[1] || "").length,
+      comma: value.includes(","),
+      prefix,
+    },
   };
   return key;
 });
@@ -130,7 +137,7 @@ export function quoteFor(symbol, t = Date.now()) {
     country: m.country,
     kind: m.kind,
     source: "sim",
-    display: formatPrice(price, m.fmt),
+    display: (m.fmt.prefix || "") + formatPrice(price, m.fmt),
   };
 }
 

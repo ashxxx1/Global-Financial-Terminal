@@ -178,7 +178,7 @@ export default function UserProfile({ activeProfileId, onReset, activeServer }) 
         {userProfile.bannerUrl ? (
            <img src={userProfile.bannerUrl} className="w-full h-full object-cover" alt="Banner" />
         ) : (
-           <div className="w-full h-full" style={{ background: "linear-gradient(135deg, rgba(212,132,90,0.25), rgba(126,184,212,0.15))" }} />
+           <div className="w-full h-full" style={{ background: "linear-gradient(135deg, rgba(63, 211, 232,0.25), rgba(126,184,212,0.15))" }} />
         )}
         <div className="absolute -bottom-8 left-3 w-16 h-16 rounded-full overflow-hidden border-2" style={{ borderColor: "var(--gft-surface)", background: "var(--gft-elevated)" }}>
           <img src={userProfile.photoURL || `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser?.uid}`} alt="Avatar" className="w-full h-full object-cover" />

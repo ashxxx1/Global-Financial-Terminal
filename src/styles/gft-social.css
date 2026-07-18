@@ -6,22 +6,23 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400&display=swap');
 
 .gft-social-root {
-  --gft-bg: #131210;
-  --gft-surface: #1c1a17;
-  --gft-elevated: #252320;
-  --gft-hover: #2e2b27;
-  --gft-border: rgba(255, 248, 240, 0.07);
-  --gft-border-strong: rgba(255, 248, 240, 0.12);
-  --gft-text: #f5f0e8;
-  --gft-text-muted: #9c968d;
-  --gft-text-soft: #6b6560;
-  --gft-accent: #d4845a;
-  --gft-accent-hover: #e09972;
-  --gft-accent-dim: rgba(212, 132, 90, 0.14);
-  --gft-green: #6aab7a;
-  --gft-red: #d46a6a;
-  --gft-blue: #7eb8d4;
-  --gft-discord-rail: #141210;
+  /* Unified with the terminal's Instrument Console palette (was warm). */
+  --gft-bg: #06090f;
+  --gft-surface: #0b1220;
+  --gft-elevated: #0f1927;
+  --gft-hover: #13202f;
+  --gft-border: rgba(150, 180, 220, 0.11);
+  --gft-border-strong: rgba(150, 180, 220, 0.22);
+  --gft-text: #dbe5f2;
+  --gft-text-muted: #8494a8;
+  --gft-text-soft: #596980;
+  --gft-accent: #3fd3e8;
+  --gft-accent-hover: #6ee0f0;
+  --gft-accent-dim: rgba(63, 211, 232, 0.14);
+  --gft-green: #46d38a;
+  --gft-red: #ff5f6d;
+  --gft-blue: #8aa2ff;
+  --gft-discord-rail: #070b12;
   --gft-font: "DM Sans", system-ui, sans-serif;
   --gft-serif: "Source Serif 4", Georgia, serif;
   --gft-radius: 14px;
@@ -80,8 +81,8 @@
 .gft-rail-btn.active {
   border-radius: 12px;
   background: var(--gft-accent);
-  color: #1a1512;
-  box-shadow: 0 0 0 2px var(--gft-bg), 0 0 12px rgba(212, 132, 90, 0.35);
+  color: #06090f;
+  box-shadow: 0 0 0 2px var(--gft-bg), 0 0 12px rgba(63, 211, 232, 0.35);
 }
 
 .gft-rail-btn.active::before {
@@ -195,7 +196,7 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(19, 18, 16, 0.85);
+  background: rgba(11, 18, 32, 0.85);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--gft-border);
 }
@@ -421,7 +422,7 @@
   border: none;
   border-radius: 999px;
   background: var(--gft-accent);
-  color: #1a1512;
+  color: #06090f;
   font-family: var(--gft-font);
   font-size: 14px;
   font-weight: 700;
@@ -466,7 +467,7 @@
 }
 
 .gft-post:hover {
-  background: rgba(255, 248, 240, 0.02);
+  background: rgba(150, 180, 220, 0.02);
 }
 
 .gft-post-header {
@@ -602,7 +603,7 @@
   border: none;
   border-radius: var(--gft-radius-sm);
   background: var(--gft-accent);
-  color: #1a1512;
+  color: #06090f;
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -707,7 +708,7 @@
   left: 0;
   right: 0;
   height: 56px;
-  background: rgba(19, 18, 16, 0.95);
+  background: rgba(11, 18, 32, 0.95);
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--gft-border);
   z-index: 100;
@@ -759,13 +760,13 @@
 .gft-social-root .bg-indigo-600,
 .gft-social-root .bg-indigo-500 {
   background: var(--gft-accent) !important;
-  color: #1a1512 !important;
+  color: #06090f !important;
 }
 
 .gft-social-root .border-indigo-500,
 .gft-social-root .border-indigo-500\/30,
 .gft-social-root .border-indigo-500\/20 {
-  border-color: rgba(212, 132, 90, 0.35) !important;
+  border-color: rgba(63, 211, 232, 0.35) !important;
 }
 
 .gft-social-root .bg-indigo-500\/10,
@@ -802,8 +803,8 @@
   border-radius: 50%;
   border: none;
   background: var(--gft-accent);
-  color: #1a1512;
-  box-shadow: 0 4px 20px rgba(212, 132, 90, 0.45);
+  color: #06090f;
+  box-shadow: 0 4px 20px rgba(63, 211, 232, 0.45);
   cursor: pointer;
   z-index: 50;
   display: none;

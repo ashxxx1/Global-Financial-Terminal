@@ -96,7 +96,7 @@ export default function LoginPage() {
             Access Terminal
           </h1>
           <p style={{ fontFamily: "var(--nx-font-mono)", fontSize: "11px", color: "rgba(255,255,255,0.45)", lineHeight: 1.6, marginBottom: "16px" }}>
-            Institutional-grade global market intelligence. Sign in to request access — approved by admin.
+            Institutional-grade global market intelligence. Sign in with Google — instant access, free to join.
           </p>
 
           <button
@@ -134,12 +134,12 @@ export default function LoginPage() {
           )}
 
           <p className="mt-4 text-[9px] leading-relaxed" style={{ fontFamily: "var(--nx-font-mono)", color: "rgba(255,255,255,0.3)" }}>
-            Access is private and invite-only. New sign-ins require admin approval.
+            Open to everyone. Your data stays private to your account.
           </p>
         </div>
 
         <div className="px-6 py-3 flex items-center justify-center gap-2" style={{ borderTop: "1px solid var(--nx-border)", fontFamily: "var(--nx-font-mono)", fontSize: "8px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.08em" }}>
-          <span>Global Financial Terminal v0.6.0</span><span>·</span><span>Private Beta</span><span>·</span><span>© 2026</span>
+          <span>Global Financial Terminal v0.6.0</span><span>·</span><span>Open Access</span><span>·</span><span>© 2026</span>
         </div>
       </div>
 

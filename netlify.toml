@@ -3,8 +3,6 @@
 [build]
   command = "npm run build"
   publish = "dist"
-  # Disable strict mode to prevent ESLint warnings from blocking build
-  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20.19.0"

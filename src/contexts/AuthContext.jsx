@@ -138,18 +138,17 @@ export function AuthProvider({ children }) {
           if (data.isSuspended) {
             setUserStatus("suspended");
           } else {
+            // Open access: anyone who signs in is approved. Explicit
+            // "suspended"/"rejected" moderation states are still honored.
             setUserStatus(
-              data.status || (ADMIN_EMAILS.includes(user.email) ? "approved" : "pending")
+              data.status === "rejected" ? "rejected" : "approved"
             );
           }
           setUserProfileData(data);
         } else {
+          // No profile doc yet — still let them in (open to all).
           setUserProfileData(null);
-          if (ADMIN_EMAILS.includes(user.email)) {
-            setUserStatus("approved");
-          } else {
-            setUserStatus("pending");
-          }
+          setUserStatus("approved");
         }
       };
 

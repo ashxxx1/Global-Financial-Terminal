@@ -25,4 +25,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  preview: {
+    // Allow tunneled hosts (e.g. *.lhr.life) so the built app can be shared
+    // for auditing via `vite preview` behind a public tunnel.
+    allowedHosts: true,
+  },
 })

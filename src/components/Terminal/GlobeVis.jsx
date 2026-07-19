@@ -154,6 +154,43 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
       return p.ISO_A2 || null;
     }
 
+    // ── Winding-order canonicalization ──────────────────────────────────────
+    // A spherical polygon wound the wrong way renders as its COMPLEMENT: a cap
+    // covering the entire globe. The injected india.geojson (RFC7946, CCW
+    // outer rings) is inverted under the globe engine's shapefile-style
+    // convention — its ~71 sub-polygons each became a globe-covering cap, so
+    // whenever India was tinted the whole globe turned green (the long-lived
+    // "green screen" bug). Canonicalize to the engine's convention:
+    // outer rings CLOCKWISE in lon/lat, holes counterclockwise — matching the
+    // Natural Earth data that renders correctly.
+    function ringSignedArea(ring) {
+      let s = 0;
+      for (let i = 0; i < ring.length - 1; i++) {
+        const [x1, y1] = ring[i];
+        const [x2, y2] = ring[i + 1];
+        s += x1 * y2 - x2 * y1;
+      }
+      return s / 2; // > 0 ⇒ counterclockwise
+    }
+    function rewindPolygon(rings) {
+      return rings.map((ring, idx) => {
+        const ccw = ringSignedArea(ring) > 0;
+        const wantCcw = idx !== 0; // outer ring CW, holes CCW
+        return ccw === wantCcw ? ring : [...ring].reverse();
+      });
+    }
+    function rewindFeature(f) {
+      const g = f.geometry;
+      if (!g) return f;
+      if (g.type === 'Polygon') {
+        return { ...f, geometry: { ...g, coordinates: rewindPolygon(g.coordinates) } };
+      }
+      if (g.type === 'MultiPolygon') {
+        return { ...f, geometry: { ...g, coordinates: g.coordinates.map(rewindPolygon) } };
+      }
+      return f;
+    }
+
     fetch('/ne_110m_admin_0_countries.geojson')
       .then(res => res.json())
       .then(worldData => {
@@ -161,13 +198,13 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           .filter((d) => d.properties.ISO_A2 !== 'AQ' && d.properties.ADMIN !== 'India')
           .map((d) => {
              const resolved = resolveISO(d);
-             return {
+             return rewindFeature({
                ...d,
                properties: {
                  ...d.properties,
                  ISO_A2: resolved || d.properties.ISO_A2
                }
-             };
+             });
           });
         
         // Fetch simplified datameet india geojson
@@ -175,7 +212,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           .then(res => res.json())
           .then(indiaData => {
             const rawFeatures = indiaData.features || (indiaData.geometries ? indiaData.geometries.map(g => ({ type: 'Feature', properties: {}, geometry: g })) : []);
-            const formattedIndia = rawFeatures.map((f) => ({
+            const formattedIndia = rawFeatures.map((f) => rewindFeature({
               ...f,
               properties: {
                  ...f.properties,
@@ -290,6 +327,7 @@ export function GlobeVis({ selectedCountry, onCountryClick, timeframe = "1D" }) 
           controls.autoRotate = true;
           controls.autoRotateSpeed = 0.2;
           globeRef.current.pointOfView({ lat: 20, lng: 0, altitude: 1.7 });
+          if (import.meta.env.DEV) window.__GLOBE__ = globeRef.current;
           clearInterval(interval);
         }
       }

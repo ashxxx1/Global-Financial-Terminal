@@ -190,7 +190,12 @@ function TerminalApp() {
         {activeView === "globe" ? (
           <div className="flex w-full h-full">
             {/* Left Panel: Market overview & Risk radar OR Country Info */}
-            <div className={`sidebar nx-panel nx-scanlines ${mobileSidebarOpen ? "mobile-open" : ""} ${leftCollapsed ? "w-0 border-r-0" : "w-[350px]"} h-full flex flex-col border-r flex-shrink-0 transition-all duration-300 overflow-y-auto`} style={{ borderColor: "var(--nx-border)" }}>
+            <div
+              className={`sidebar nx-panel nx-scanlines ${mobileSidebarOpen ? "mobile-open" : ""} h-full flex flex-col flex-shrink-0 overflow-y-auto ${leftCollapsed ? "" : "border-r"}`}
+              /* width inline, no width transition — a perpetually-restarting `transition-all`
+                 froze these panels at 0px ("side dialogs broken"). Snap open instead. */
+              style={{ width: leftCollapsed ? 0 : 350, minWidth: leftCollapsed ? 0 : 350, borderColor: "var(--nx-border)" }}
+            >
               {selectedCountry ? (
                 <CountryLeftPanel country={selectedCountry} onClose={() => setSelectedCountry(null)} timeframe={timeframe} />
               ) : (
@@ -421,13 +426,22 @@ function TerminalApp() {
               </div>
               
               {/* Bottom Panel: Global News */}
-              <div className={`hidden md:flex relative nx-panel nx-scanlines ${bottomCollapsed ? "h-[44px]" : "h-[220px]"} w-full border-t flex-shrink-0 flex flex-col transition-all duration-300 overflow-hidden`} style={{ borderColor: "var(--nx-border)" }}>
+              <div
+                className="hidden md:flex relative nx-panel nx-scanlines w-full border-t flex-shrink-0 flex flex-col overflow-hidden"
+                /* height inline, no transition — same stuck-transition failure mode as the side panels */
+                style={{ height: bottomCollapsed ? 44 : 220, minHeight: bottomCollapsed ? 44 : 220, borderColor: "var(--nx-border)" }}
+              >
                 <GlobalNews isCollapsed={bottomCollapsed} onToggle={() => setBottomCollapsed(!bottomCollapsed)} />
               </div>
             </div>
 
             {/* Right Panel: Intelligence / Social OR Country Feed */}
-            <div className={`hidden md:flex nx-panel nx-scanlines ${rightCollapsed ? "w-0 border-l-0" : "w-[380px]"} h-full flex-col border-l flex-shrink-0 transition-all duration-300 overflow-y-auto`} style={{ borderColor: "var(--nx-border)" }}>
+            <div
+              className={`hidden md:flex nx-panel nx-scanlines h-full flex-col flex-shrink-0 overflow-y-auto ${rightCollapsed ? "" : "border-l"}`}
+              /* width inline, no width transition — a perpetually-restarting `transition-all`
+                 froze these panels at 0px ("side dialogs broken"). Snap open instead. */
+              style={{ width: rightCollapsed ? 0 : 380, minWidth: rightCollapsed ? 0 : 380, borderColor: "var(--nx-border)" }}
+            >
               {selectedCountry ? (
                 <CountryRightPanel country={selectedCountry} timeframe={timeframe} />
               ) : (

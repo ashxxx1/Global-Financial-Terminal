@@ -3,7 +3,7 @@ import { Activity, Bell, Terminal, LogOut } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
 export function TopBar({ currentView, onSetView }) {
-  const { userProfileData, logout } = useAuth();
+  const { currentUser, userProfileData, logout } = useAuth();
   const [timeStr, setTimeStr] = useState("");
   const [dateStr, setDateStr] = useState("");
   const [marketSession, setMarketSession] = useState("CLOSED");
@@ -132,7 +132,8 @@ export function TopBar({ currentView, onSetView }) {
       </div>
 
       {/* ── Command / Ticker search input ── */}
-      <div className="flex-1 flex max-w-xl px-6 mx-auto">
+      {/* explicit inline flex — utility classes alone let this collapse to 0 width, overlapping the logo */}
+      <div className="flex px-6 mx-auto" style={{ flex: "1 1 0%", minWidth: 160, maxWidth: "36rem" }}>
         <div className="relative w-full flex items-center">
           <span
             className="absolute left-3 font-bold select-none"
@@ -246,7 +247,25 @@ export function TopBar({ currentView, onSetView }) {
           />
         </button>
 
-        {/* User avatar + name + logout */}
+        {/* User: signed-in → avatar + logout · anonymous → Sign in */}
+        {!currentUser ? (
+          <a
+            href="/login"
+            className="px-3 py-1.5 rounded-sm transition-all cursor-pointer"
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "10px",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              color: "var(--nx-cyan)",
+              border: "1px solid var(--nx-cyan)",
+              background: "var(--nx-cyan-dim)",
+              textDecoration: "none",
+            }}
+          >
+            SIGN IN
+          </a>
+        ) : (
         <div className="flex items-center gap-2.5">
           <div
             className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center"
@@ -311,6 +330,7 @@ export function TopBar({ currentView, onSetView }) {
             <LogOut className="w-4 h-4" />
           </button>
         </div>
+        )}
       </div>
     </header>
   );

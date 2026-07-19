@@ -318,4 +318,7 @@ const useTerminalStore = create(persist((set, get) => ({
   }),
 }));
 
+// Dev-only handle for debugging/automation (stripped from production builds)
+if (import.meta.env.DEV) window.__store = useTerminalStore;
+
 export default useTerminalStore;

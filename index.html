@@ -2,27 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/globe.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Global Financial Terminal — Real-Time World Market Intelligence</title>
-    <meta name="description" content="Bloomberg-style financial terminal with 3D interactive globe. Track global news, market data, and their impact on stock prices across 68 countries in real-time." />
-    <meta name="theme-color" content="#06090f" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="GFT" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Global Financial Terminal — The World's Economy, Live</title>
+    <meta name="description" content="A real-time command center for the global economy: interactive 3D Earth, live markets, country intelligence, and AI-grade analysis across 60+ countries." />
+    <meta name="theme-color" content="#0A0A0A" />
 
-    <!-- Warm up the globe assets so the Earth texture is ready before the globe
-         mounts — prevents any untextured (green) flash on first load. -->
+    <!-- Globe assets are same-origin; warm them so the Earth is textured on first paint. -->
     <link rel="preload" as="image" href="/earth-blue-marble.jpg" />
     <link rel="prefetch" href="/ne_110m_admin_0_countries.geojson" />
 
     <style>
-      /* Prevent FOUC — navy ground matches the Instrument Console palette */
-      body { background: #06090f; }
+      /* First paint = spec black; prevents any flash before the app mounts. */
+      html, body { background: #0A0A0A; margin: 0; }
     </style>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

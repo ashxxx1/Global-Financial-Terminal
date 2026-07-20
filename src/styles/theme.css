@@ -1,0 +1,195 @@
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL FINANCIAL TERMINAL — Design System v1
+   Spec palette: black · dark navy · white · green/red · gold · blue
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Ground */
+  --bg: #0A0A0A;
+  --navy: #0D1420;
+  --navy-2: #111A2B;
+  --panel: rgba(13, 20, 32, 0.85);
+  --raised: #16213398;
+
+  /* Ink */
+  --text: #F2F5FA;
+  --muted: #8A94A6;
+  --faint: #5A6478;
+
+  /* Semantics */
+  --up: #22C55E;
+  --up-dim: rgba(34, 197, 94, 0.12);
+  --down: #EF4444;
+  --down-dim: rgba(239, 68, 68, 0.12);
+
+  /* Accents */
+  --gold: #D4A017;
+  --gold-dim: rgba(212, 160, 23, 0.12);
+  --blue: #3B82F6;
+  --blue-dim: rgba(59, 130, 246, 0.14);
+
+  /* Chrome */
+  --line: rgba(148, 170, 210, 0.10);
+  --line-strong: rgba(148, 170, 210, 0.22);
+  --shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+
+  /* Type */
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  /* Layout */
+  --nav-h: 52px;
+  --ticker-h: 34px;
+  --rail-w: 300px;
+  --r: 6px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+::selection { background: var(--blue-dim); }
+
+/* Ultra-thin scrollbars */
+* { scrollbar-width: thin; scrollbar-color: rgba(148,170,210,0.25) transparent; }
+*::-webkit-scrollbar { width: 5px; height: 5px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(148,170,210,0.22); border-radius: 3px; }
+
+a { color: var(--blue); text-decoration: none; }
+button { font-family: inherit; }
+input, select { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; border-radius: 3px; }
+
+/* ─── Shell grid ─── */
+.shell {
+  height: 100%;
+  display: grid;
+  grid-template-rows: var(--nav-h) 1fr var(--ticker-h);
+  position: relative;
+  z-index: 1;
+}
+.shell-main { display: flex; min-height: 0; }
+.shell-content { flex: 1; min-width: 0; overflow-y: auto; position: relative; }
+
+/* Subtle grid ambience */
+.ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.022) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 90% 75% at 50% 40%, black 25%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 40%, black 25%, transparent 80%);
+}
+
+/* ─── Panels ─── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line);
+}
+.panel-title {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+}
+.panel-body { padding: 14px; }
+
+/* ─── Type helpers ─── */
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.label {
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint);
+}
+.up   { color: var(--up); }
+.down { color: var(--down); }
+
+.chg { font-family: var(--mono); font-size: 11.5px; font-weight: 600; padding: 1px 7px; border-radius: 4px; white-space: nowrap; }
+.chg.up   { background: var(--up-dim); }
+.chg.down { background: var(--down-dim); }
+
+/* ─── Buttons / chips ─── */
+.chip {
+  font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+  padding: 5px 12px; border-radius: 5px; border: 1px solid var(--line);
+  background: transparent; color: var(--muted); cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.chip:hover { color: var(--text); border-color: var(--line-strong); }
+.chip.active { color: var(--gold); border-color: var(--gold); background: var(--gold-dim); }
+.chip.blue.active { color: var(--blue); border-color: var(--blue); background: var(--blue-dim); }
+
+/* ─── Tables ─── */
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th {
+  text-align: left; padding: 8px 12px; font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint);
+  border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--navy);
+  z-index: 2;
+}
+.tbl td { padding: 9px 12px; border-bottom: 1px solid var(--line); }
+.tbl tbody tr { cursor: pointer; transition: background .12s; }
+.tbl tbody tr:hover { background: rgba(59,130,246,0.06); }
+.tbl .num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+
+/* ─── Skeletons ─── */
+.skeleton {
+  border-radius: 4px;
+  background: linear-gradient(90deg, #131c2c 25%, #1a2538 50%, #131c2c 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* ─── Ticker marquee ─── */
+.marquee { display: flex; overflow: hidden; }
+.marquee-track {
+  display: flex; gap: 34px; white-space: nowrap; padding: 0 16px;
+  animation: marquee 80s linear infinite; will-change: transform;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Live pulse dot */
+.pulse-dot {
+  width: 6px; height: 6px; border-radius: 50%; display: inline-block;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
+
+/* Price flash on change */
+@keyframes flashUp   { from { color: var(--up) }   to { color: inherit } }
+@keyframes flashDown { from { color: var(--down) } to { color: inherit } }
+.flash-up   { animation: flashUp 0.9s ease-out; }
+.flash-down { animation: flashDown 0.9s ease-out; }
+
+/* Fade-in for cards/news */
+.fade-in { animation: fadeIn .35s ease-out both; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track, .pulse-dot, .skeleton, .fade-in { animation: none !important; }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  :root { --rail-w: 0px; }
+  .right-rail { display: none !important; }
+}

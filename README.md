@@ -18,14 +18,8 @@ npm run build      # production build → dist/
 
 ## Deploy
 
-**Vercel (recommended):** import this repo at vercel.com → framework auto-detects
-Vite → Deploy. `vercel.json` already configures SPA rewrites + caching. Every
-push to `main` auto-deploys.
-
-**GitHub Pages (no external account):** `.github/workflows/pages.yml` builds and
-publishes on every push using only the built-in `GITHUB_TOKEN`. Requires the
-repo to be **public** (or GitHub Pro) — then the site lives at
-`https://<owner>.github.io/Global-Financial-Terminal/`.
+Hosted on **Vercel**: the repo is imported at vercel.com and every push to
+`main` auto-deploys. `vercel.json` configures SPA rewrites + asset caching.
 
 ## History
 

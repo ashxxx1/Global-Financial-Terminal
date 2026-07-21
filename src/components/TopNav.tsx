@@ -41,6 +41,16 @@ export default function TopNav() {
         <span style={{ fontFamily: "var(--mono)", fontWeight: 800, fontSize: 13, letterSpacing: "0.12em", color: "var(--text)" }}>
           GFT<span style={{ color: "var(--gold)" }}>·</span>TERMINAL
         </span>
+        <span
+          title="Deployed from main via CI"
+          style={{
+            fontFamily: "var(--mono)", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.1em",
+            color: "var(--gold)", border: "1px solid var(--gold)", background: "var(--gold-dim)",
+            borderRadius: 3, padding: "2px 6px",
+          }}
+        >
+          v1.0.1
+        </span>
       </button>
 
       {/* Nav */}

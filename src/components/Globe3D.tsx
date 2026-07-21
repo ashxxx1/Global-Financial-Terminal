@@ -59,10 +59,10 @@ export default function Globe3D({
   const [dims, setDims] = useState({ width: 800, height: 600 });
   const [features, setFeatures] = useState<Feature[]>([]);
 
-  // Load country polygons (same-origin)
+  // Load country polygons (same-origin, base-path aware for subpath hosting)
   useEffect(() => {
     let alive = true;
-    fetch("/ne_110m_admin_0_countries.geojson")
+    fetch(import.meta.env.BASE_URL + "ne_110m_admin_0_countries.geojson")
       .then((r) => r.json())
       .then((geo) => {
         if (!alive) return;
@@ -229,7 +229,7 @@ export default function Globe3D({
         width={dims.width}
         height={dims.height}
         backgroundColor="rgba(0,0,0,0)"
-        globeImageUrl="/earth-blue-marble.jpg"
+        globeImageUrl={import.meta.env.BASE_URL + "earth-blue-marble.jpg"}
         showAtmosphere
         atmosphereColor="#3B82F6"
         atmosphereAltitude={0.12}

@@ -45,8 +45,11 @@ function Shell() {
 }
 
 export default function App() {
+  // BASE_URL is "/" at root hosting and "/Global-Financial-Terminal/" on
+  // GitHub Pages project sites; the router needs it without a trailing slash.
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename || undefined}>
       <Shell />
     </BrowserRouter>
   );

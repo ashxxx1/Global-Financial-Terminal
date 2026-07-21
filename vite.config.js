@@ -19,6 +19,9 @@ const __dirname = path.dirname(__filename)
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Root path by default (Vercel/Netlify/tunnel); GitHub Pages project sites
+  // build with VITE_BASE=/Global-Financial-Terminal/ (see .github/workflows/pages.yml).
+  base: process.env.VITE_BASE || '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

@@ -30,8 +30,19 @@ export default function Ticker() {
           })}
         </div>
       </div>
-      <div style={{ display: "flex", alignItems: "center", padding: "0 12px", borderLeft: "1px solid var(--line)" }}>
-        <SourceBadge source={quotes[0]?.source ?? "sim"} />
+      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px", borderLeft: "1px solid var(--line)" }}>
+        {(() => {
+          const liveN = quotes.filter((q) => q.source === "live").length;
+          return liveN > 0 ? (
+            <>
+              <SourceBadge source="live" title={`${liveN} instruments on real feeds (Binance · ECB)`} />
+              <span className="label" style={{ fontSize: 8 }}>{liveN}</span>
+              <SourceBadge source="sim" title="Remaining instruments simulated" />
+            </>
+          ) : (
+            <SourceBadge source={quotes[0]?.source ?? "sim"} />
+          );
+        })()}
       </div>
     </footer>
   );

@@ -1,25 +1,42 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Globe3D, { type HoverInfo, type OverlayMode } from "../components/Globe3D";
 import { globalNews } from "../lib/news";
-import { useMemo } from "react";
+import { latestQuakes, type QuakeEvent } from "../lib/feeds/quakes";
+import { subscribeBus, recentEnvelopes, relativeTime, type Envelope } from "../lib/feeds/bus";
 
-const OVERLAYS: { id: OverlayMode; label: string }[] = [
+const OVERLAYS: { id: OverlayMode; label: string; live?: boolean }[] = [
   { id: "market", label: "MARKET PERF" },
   { id: "risk", label: "RISK INDEX" },
   { id: "sentiment", label: "AI SENTIMENT" },
+  { id: "quakes", label: "LIVE EVENTS", live: true },
 ];
 
 export default function World() {
   const navigate = useNavigate();
   const [overlay, setOverlay] = useState<OverlayMode>("market");
   const [hover, setHover] = useState<HoverInfo | null>(null);
-  const breaking = useMemo(() => globalNews(1).filter((a) => a.impact === "High").slice(0, 4), []);
+  const [quakes, setQuakes] = useState<QuakeEvent[]>(latestQuakes());
+  const [liveEvents, setLiveEvents] = useState<Envelope[]>(recentEnvelopes("event", 4));
+  const simBreaking = useMemo(() => globalNews(1).filter((a) => a.impact === "High").slice(0, 3), []);
+
+  // Real-time: refresh from the bus whenever a new event lands.
+  useEffect(() => {
+    const unsub = subscribeBus((e) => {
+      if (e.kind === "event") {
+        setQuakes([...latestQuakes()]);
+        setLiveEvents(recentEnvelopes("event", 4));
+      }
+    });
+    const iv = setInterval(() => setQuakes([...latestQuakes()]), 60000);
+    return () => { unsub(); clearInterval(iv); };
+  }, []);
 
   return (
     <div style={{ position: "absolute", inset: 0 }}>
       <Globe3D
         overlay={overlay}
+        quakes={quakes}
         onHover={setHover}
         onCountryClick={(code) => navigate(`/country/${code}`)}
       />
@@ -34,18 +51,38 @@ export default function World() {
             Rotate · zoom · click any country for its dashboard
           </p>
         </div>
-        <div style={{ display: "flex", gap: 6, pointerEvents: "auto" }}>
+        <div style={{ display: "flex", gap: 6, pointerEvents: "auto", flexWrap: "wrap" }}>
           {OVERLAYS.map((o) => (
             <button key={o.id} className={`chip ${overlay === o.id ? "active" : ""}`} onClick={() => setOverlay(o.id)}>
+              {o.live && <span className="pulse-dot" style={{ background: "var(--up)", marginRight: 6, boxShadow: "0 0 5px var(--up)" }} />}
               {o.label}
+              {o.id === "quakes" && quakes.length > 0 && <span style={{ marginLeft: 6, color: "var(--faint)" }}>{quakes.length}</span>}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Breaking strip */}
+      {/* Breaking strip: REAL events (USGS) first, then high-impact wire items */}
       <div style={{ position: "absolute", right: 18, top: 16, zIndex: 10, width: 300, display: "flex", flexDirection: "column", gap: 8 }}>
-        {breaking.map((a) => (
+        {liveEvents.map((e) => (
+          <button
+            key={e.id}
+            className="panel fade-in"
+            onClick={() => e.countryTags[0] && navigate(`/country/${e.countryTags[0]}`)}
+            style={{ textAlign: "left", padding: "10px 12px", cursor: "pointer", borderColor: e.impact === "High" ? "var(--down)" : "var(--line)" }}
+          >
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4 }}>
+              <span className="label" style={{ color: "var(--up)" }}>● LIVE · {e.source}</span>
+              <span className="label">{relativeTime(e.timestamp)}</span>
+              <span className="label" style={{ marginLeft: "auto", color: e.impact === "High" ? "var(--down)" : "var(--faint)" }}>{e.impact}</span>
+            </div>
+            <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text)", lineHeight: 1.35 }}>{e.summary}</div>
+            {e.countryTags.length > 0 && (
+              <div className="label" style={{ marginTop: 4, color: "var(--gold)" }}>{e.countryTags.join(" · ")}</div>
+            )}
+          </button>
+        ))}
+        {simBreaking.map((a) => (
           <button
             key={a.id}
             className="panel fade-in"

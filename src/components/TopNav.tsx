@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUtcClock } from "../lib/hooks";
+import { liveSymbolCount } from "../lib/market";
 import { useTerminal } from "../store";
 import SourceBadge from "./SourceBadge";
 
@@ -14,6 +16,11 @@ export default function TopNav() {
   const navigate = useNavigate();
   const setSearchOpen = useTerminal((s) => s.setSearchOpen);
   const notices = useTerminal((s) => s.notices);
+  const [liveN, setLiveN] = useState(0);
+  useEffect(() => {
+    const i = setInterval(() => setLiveN(liveSymbolCount()), 3000);
+    return () => clearInterval(i);
+  }, []);
 
   return (
     <header
@@ -96,7 +103,10 @@ export default function TopNav() {
             🔔 {notices.length}
           </span>
         )}
-        <SourceBadge source="sim" />
+        <SourceBadge
+          source={liveN > 0 ? "live" : "sim"}
+          title={liveN > 0 ? `${liveN} instruments on real feeds (Binance WS · ECB) — rest simulated` : undefined}
+        />
         <span className="mono" style={{ fontSize: 12, color: "var(--up)" }}>{clock} UTC</span>
       </div>
     </header>

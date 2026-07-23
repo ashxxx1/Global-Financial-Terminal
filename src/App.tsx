@@ -3,7 +3,11 @@
  * Fully public: no authentication anywhere. Layout per spec:
  * top nav · content + right rail · bottom live ticker.
  */
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { startCryptoFeed } from "./lib/feeds/crypto";
+import { startFxFeed } from "./lib/feeds/fx";
+import { startQuakeFeed } from "./lib/feeds/quakes";
 import TopNav from "./components/TopNav";
 import Ticker from "./components/Ticker";
 import RightRail from "./components/RightRail";
@@ -19,6 +23,13 @@ import "./styles/theme.css";
 function Shell() {
   const { pathname } = useLocation();
   const onWorld = pathname === "/";
+
+  // Boot the live ingest layer once (each feed is an idempotent singleton).
+  useEffect(() => {
+    startCryptoFeed();
+    startFxFeed();
+    startQuakeFeed();
+  }, []);
 
   return (
     <div className="shell">

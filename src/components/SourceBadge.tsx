@@ -6,11 +6,11 @@ const V: Record<Source, { label: string; color: string; dim: string; pulse: bool
   sim:    { label: "SIM",    color: "var(--gold)", dim: "var(--gold-dim)", pulse: false, title: "Simulated — deterministic synthetic movement, not real market data" },
 };
 
-export default function SourceBadge({ source = "sim" as Source, style }: { source?: Source; style?: React.CSSProperties }) {
+export default function SourceBadge({ source = "sim" as Source, style, title }: { source?: Source; style?: React.CSSProperties; title?: string }) {
   const v = V[source] || V.sim;
   return (
     <span
-      title={v.title}
+      title={title || v.title}
       style={{
         display: "inline-flex", alignItems: "center", gap: 5,
         fontFamily: "var(--mono)", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.14em",

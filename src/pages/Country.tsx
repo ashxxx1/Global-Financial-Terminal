@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { COUNTRIES, stocksOf } from "../lib/market";
 import { useQuotes } from "../lib/hooks";
 import { getCountryStats } from "../data/countryStats";
-import { newsFor } from "../lib/news";
+import { fetchCountryNews, type Article } from "../lib/news";
 import SourceBadge from "../components/SourceBadge";
+import Connections from "../components/Connections";
+import { connectionsForCountry } from "../lib/graph";
 import { useTerminal } from "../store";
 
 const TABS = ["OVERVIEW", "MARKETS", "NEWS", "AI SUMMARY"] as const;
@@ -17,8 +19,22 @@ export default function Country() {
   const stats = useMemo(() => { try { return getCountryStats(iso); } catch { return null; } }, [iso]);
   const symbols = useMemo(() => stocksOf(iso), [iso]);
   const quotes = useQuotes(symbols);
-  const articles = useMemo(() => newsFor(iso, 12), [iso]);
   const [tab, setTab] = useState<(typeof TABS)[number]>("OVERVIEW");
+
+  // Country news engine: auto-fetch on selection, auto-refresh every 3 min.
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [newsLive, setNewsLive] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    const load = () => fetchCountryNews(iso, 12).then((r) => {
+      if (!alive) return;
+      setArticles(r.articles);
+      setNewsLive(r.live);
+    });
+    load();
+    const iv = setInterval(load, 180000);
+    return () => { alive = false; clearInterval(iv); };
+  }, [iso]);
   const { addWatch, removeWatch, inWatchlist } = useTerminal();
 
   const name = meta?.name || iso;
@@ -83,6 +99,7 @@ export default function Country() {
             <div className="panel-head"><span className="panel-title">AI briefing</span><span className="label">auto-generated</span></div>
             <div className="panel-body" style={{ fontSize: 13.5, color: "var(--text)", lineHeight: 1.65 }}>{aiSummary}</div>
           </div>
+          <Connections nodes={connectionsForCountry(iso)} />
         </>
       )}
 
@@ -121,6 +138,12 @@ export default function Country() {
 
       {tab === "NEWS" && (
         <div style={{ display: "grid", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <SourceBadge source={newsLive ? "live" : "sim"} />
+            <span className="label">
+              {newsLive ? "GNews wire · auto-refresh 3 min · deduped · entity-linked" : "Deterministic engine — add VITE_GNEWS_API_KEY for the live wire"}
+            </span>
+          </div>
           {articles.map((a) => (
             <article key={a.id} className="panel fade-in" style={{ padding: "14px 16px" }}>
               <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>

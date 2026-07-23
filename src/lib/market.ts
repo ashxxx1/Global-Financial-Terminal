@@ -111,9 +111,37 @@ export function formatPrice(price: number, fmt: Meta["fmt"] = { decimals: 2, com
   });
 }
 
+/* ── live-override layer ─────────────────────────────────────────────────────
+   Real feeds (Binance WS, ECB FX, …) push prices here; quoteFor prefers them
+   over the deterministic engine and the UI's SIM badges flip to LIVE
+   automatically. Overrides expire if a feed goes quiet (stale → cached). */
+interface LiveOverride { price: number; changePct: number; source: Source; at: number; }
+const LIVE: Record<string, LiveOverride> = {};
+const LIVE_TTL_MS = 5 * 60000;
+
+export function setLiveQuote(symbol: string, q: { price: number; changePct: number; source?: Source }): void {
+  LIVE[symbol] = { price: q.price, changePct: q.changePct, source: q.source || "live", at: Date.now() };
+}
+export function liveSymbolCount(): number {
+  const now = Date.now();
+  return Object.values(LIVE).filter((l) => now - l.at < LIVE_TTL_MS).length;
+}
+
 export function quoteFor(symbol: string, t: number = Date.now()): Quote | null {
   const m = REGISTRY[symbol];
   if (!m) return null;
+
+  const live = LIVE[symbol];
+  if (live) {
+    const fresh = t - live.at < LIVE_TTL_MS;
+    return {
+      symbol, name: m.name, price: live.price, changePct: live.changePct,
+      currency: m.currency, sector: m.sector, country: m.country, kind: m.kind,
+      source: fresh ? live.source : "cached",
+      display: formatPrice(live.price, m.fmt),
+    };
+  }
+
   const price = m.base * (1 + wiggle(m, t));
   const dayOpen = m.base / (1 + m.snapChange / 100);
   const changePct = ((price - dayOpen) / dayOpen) * 100;

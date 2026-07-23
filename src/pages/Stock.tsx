@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuote, useHistory } from "../lib/hooks";
 import { metaFor, COUNTRIES, type Candle } from "../lib/market";
 import SourceBadge from "../components/SourceBadge";
+import Connections from "../components/Connections";
+import { connectionsForStock } from "../lib/graph";
 import { useTerminal } from "../store";
 
 const RANGES = ["1W", "1M", "3M", "6M", "1Y"] as const;
@@ -137,6 +139,8 @@ export default function Stock() {
           </div>
         </div>
       )}
+
+      <Connections nodes={connectionsForStock(sym)} />
     </div>
   );
 }

@@ -16,8 +16,9 @@ import Globe from "react-globe.gl";
 import * as THREE from "three";
 import { COUNTRIES, type CountryMeta } from "../lib/market";
 import { getCountryStats } from "../data/countryStats";
+import type { QuakeEvent } from "../lib/feeds/quakes";
 
-export type OverlayMode = "market" | "risk" | "sentiment";
+export type OverlayMode = "market" | "risk" | "sentiment" | "quakes";
 
 interface Feature { properties: Record<string, unknown>; [k: string]: unknown; }
 
@@ -47,10 +48,12 @@ export interface HoverInfo {
 
 export default function Globe3D({
   overlay = "market",
+  quakes = [],
   onCountryClick,
   onHover,
 }: {
   overlay?: OverlayMode;
+  quakes?: QuakeEvent[];
   onCountryClick: (code: string, name: string) => void;
   onHover?: (h: HoverInfo | null) => void;
 }) {
@@ -209,18 +212,25 @@ export default function Globe3D({
     });
   }, [onHover]);
 
-  // Country indicator markers (tracked countries only) — HTML, never caps.
-  const markers = Object.values(COUNTRIES).map((c) => {
-    const stats = (() => { try { return getCountryStats(c.code); } catch { return null; } })();
-    const risk = stats?.riskScore ?? 40;
-    const ret = stats?.marketReturns?.["1D"] ?? 0;
-    let color = "var(--blue)";
-    let intensity = c.newsIntensity;
-    if (overlay === "market") { color = ret >= 0 ? "var(--up)" : "var(--down)"; intensity = Math.min(1, Math.abs(ret) / 2.5 + 0.25); }
-    if (overlay === "risk") { color = risk > 60 ? "var(--down)" : risk > 40 ? "var(--gold)" : "var(--up)"; intensity = risk / 100; }
-    if (overlay === "sentiment") { color = c.sentiment === "bullish" ? "var(--up)" : c.sentiment === "bearish" ? "var(--down)" : "var(--gold)"; }
-    return { ...c, color, intensity };
-  });
+  // Indicator markers — HTML elements, never polygon caps.
+  // "quakes" overlay plots LIVE USGS epicenters; other modes plot per-country signals.
+  const markers = overlay === "quakes"
+    ? quakes.map((q) => ({
+        code: q.id, lat: q.lat, lng: q.lng,
+        color: q.mag >= 6 ? "var(--down)" : q.mag >= 5 ? "var(--gold)" : "var(--blue)",
+        intensity: Math.min(1, q.mag / 7),
+      }))
+    : Object.values(COUNTRIES).map((c) => {
+        const stats = (() => { try { return getCountryStats(c.code); } catch { return null; } })();
+        const risk = stats?.riskScore ?? 40;
+        const ret = stats?.marketReturns?.["1D"] ?? 0;
+        let color = "var(--blue)";
+        let intensity = c.newsIntensity;
+        if (overlay === "market") { color = ret >= 0 ? "var(--up)" : "var(--down)"; intensity = Math.min(1, Math.abs(ret) / 2.5 + 0.25); }
+        if (overlay === "risk") { color = risk > 60 ? "var(--down)" : risk > 40 ? "var(--gold)" : "var(--up)"; intensity = risk / 100; }
+        if (overlay === "sentiment") { color = c.sentiment === "bullish" ? "var(--up)" : c.sentiment === "bearish" ? "var(--down)" : "var(--gold)"; }
+        return { code: c.code, lat: c.lat, lng: c.lng, color, intensity };
+      });
 
   return (
     <div ref={containerRef} style={{ position: "absolute", inset: 0, overflow: "hidden" }}>

@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { startCryptoFeed } from "./lib/feeds/crypto";
 import { startFxFeed } from "./lib/feeds/fx";
 import { startQuakeFeed } from "./lib/feeds/quakes";
+import { connectBackend, BACKEND_URL } from "./lib/feeds/backend";
 import TopNav from "./components/TopNav";
 import Ticker from "./components/Ticker";
 import RightRail from "./components/RightRail";
@@ -24,8 +25,11 @@ function Shell() {
   const { pathname } = useLocation();
   const onWorld = pathname === "/";
 
-  // Boot the live ingest layer once (each feed is an idempotent singleton).
+  // Boot the live data layer once. Prefer the hosted ingest backend (unified
+  // SSE, server-side keys, history) when VITE_API_URL is set; otherwise run the
+  // in-browser feeds. Either way the UI is fully live with no refreshes.
   useEffect(() => {
+    if (BACKEND_URL) return connectBackend();
     startCryptoFeed();
     startFxFeed();
     startQuakeFeed();

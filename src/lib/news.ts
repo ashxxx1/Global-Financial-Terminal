@@ -190,8 +190,22 @@ function scoreSentiment(text: string): number {
 
 export interface CountryNewsResult { articles: Article[]; live: boolean; }
 
+const API_URL: string = (import.meta as any).env?.VITE_API_URL || "";
+
 export async function fetchCountryNews(country: string, max = 10): Promise<CountryNewsResult> {
   const iso = country.toUpperCase();
+
+  // Prefer the hosted backend (key lives server-side, results cached + enriched).
+  if (API_URL) {
+    try {
+      const r = await fetch(`${API_URL.replace(/\/$/, "")}/api/news/${iso}?max=${max}`);
+      if (r.ok) {
+        const j = await r.json();
+        if (Array.isArray(j.articles) && j.articles.length) return { articles: j.articles, live: !!j.live };
+      }
+    } catch { /* fall through to client / deterministic */ }
+  }
+
   if (!GNEWS_KEY || !GNEWS_COUNTRIES.has(iso)) {
     return { articles: newsFor(iso, max), live: false };
   }

@@ -2,8 +2,20 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Globe3D, { type HoverInfo, type OverlayMode } from "../components/Globe3D";
 import { globalNews } from "../lib/news";
-import { latestQuakes, type QuakeEvent } from "../lib/feeds/quakes";
+import type { QuakeEvent } from "../lib/feeds/quakes";
 import { subscribeBus, recentEnvelopes, relativeTime, type Envelope } from "../lib/feeds/bus";
+
+/** Earthquake envelopes (from either the backend SSE or the in-browser feed)
+ *  carry lat/lng/mag in their payload — derive globe markers from them so both
+ *  data paths light up the same overlay. */
+function quakesFromEvents(events: Envelope[]): QuakeEvent[] {
+  return events
+    .filter((e) => e.source === "USGS" && (e.payload as any)?.lat != null)
+    .map((e) => {
+      const p = e.payload as any;
+      return { id: e.id, mag: p.mag, place: p.place, time: e.timestamp, lat: p.lat, lng: p.lng, depthKm: p.depthKm ?? 0, countries: e.countryTags, url: p.url };
+    });
+}
 
 const OVERLAYS: { id: OverlayMode; label: string; live?: boolean }[] = [
   { id: "market", label: "MARKET PERF" },
@@ -16,21 +28,22 @@ export default function World() {
   const navigate = useNavigate();
   const [overlay, setOverlay] = useState<OverlayMode>("market");
   const [hover, setHover] = useState<HoverInfo | null>(null);
-  const [quakes, setQuakes] = useState<QuakeEvent[]>(latestQuakes());
-  const [liveEvents, setLiveEvents] = useState<Envelope[]>(recentEnvelopes("event", 4));
+  const [events, setEvents] = useState<Envelope[]>(() => recentEnvelopes("event", 40));
   const simBreaking = useMemo(() => globalNews(1).filter((a) => a.impact === "High").slice(0, 3), []);
 
-  // Real-time: refresh from the bus whenever a new event lands.
+  // Real-time: re-read the event bus whenever a new event/news envelope lands
+  // (works identically for the backend SSE and the in-browser feeds).
   useEffect(() => {
-    const unsub = subscribeBus((e) => {
-      if (e.kind === "event") {
-        setQuakes([...latestQuakes()]);
-        setLiveEvents(recentEnvelopes("event", 4));
-      }
-    });
-    const iv = setInterval(() => setQuakes([...latestQuakes()]), 60000);
+    const refresh = () => setEvents([...recentEnvelopes("event", 40), ...recentEnvelopes("news", 10)]
+      .sort((a, b) => b.timestamp - a.timestamp));
+    refresh();
+    const unsub = subscribeBus((e) => { if (e.kind === "event" || e.kind === "news") refresh(); });
+    const iv = setInterval(refresh, 60000);
     return () => { unsub(); clearInterval(iv); };
   }, []);
+
+  const quakes = useMemo(() => quakesFromEvents(events), [events]);
+  const liveEvents = events.slice(0, 4);
 
   return (
     <div style={{ position: "absolute", inset: 0 }}>

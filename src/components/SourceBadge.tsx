@@ -15,7 +15,9 @@ export default function SourceBadge({ source = "sim" as Source, style, title }: 
         display: "inline-flex", alignItems: "center", gap: 5,
         fontFamily: "var(--mono)", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.14em",
         color: v.color, background: v.dim, border: `1px solid ${v.color}`,
-        borderRadius: 3, padding: "2px 6px", lineHeight: 1, ...style,
+        borderRadius: 3, padding: "2px 6px", lineHeight: 1,
+        boxShadow: v.pulse ? `0 0 0 1px ${v.dim}, 0 0 12px ${v.dim}` : undefined,
+        ...style,
       }}
     >
       <span className={v.pulse ? "pulse-dot" : undefined}

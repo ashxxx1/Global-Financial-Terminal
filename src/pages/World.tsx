@@ -80,7 +80,7 @@ export default function World() {
         {liveEvents.map((e) => (
           <button
             key={e.id}
-            className="panel fade-in"
+            className="panel fade-in card-int"
             onClick={() => e.countryTags[0] && navigate(`/country/${e.countryTags[0]}`)}
             style={{ textAlign: "left", padding: "10px 12px", cursor: "pointer", borderColor: e.impact === "High" ? "var(--down)" : "var(--line)" }}
           >
@@ -98,7 +98,7 @@ export default function World() {
         {simBreaking.map((a) => (
           <button
             key={a.id}
-            className="panel fade-in"
+            className="panel fade-in card-int"
             onClick={() => navigate(`/country/${a.country}`)}
             style={{ textAlign: "left", padding: "10px 12px", cursor: "pointer" }}
           >

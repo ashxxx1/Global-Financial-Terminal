@@ -29,7 +29,7 @@ export default function World() {
   const [overlay, setOverlay] = useState<OverlayMode>("market");
   const [hover, setHover] = useState<HoverInfo | null>(null);
   const [events, setEvents] = useState<Envelope[]>(() => recentEnvelopes("event", 40));
-  const simBreaking = useMemo(() => globalNews(1).filter((a) => a.impact === "High").slice(0, 3), []);
+  const simBreaking = useMemo(() => globalNews(1).filter((a) => a.impact === "High").slice(0, 5), []);
 
   // Real-time: re-read the event bus whenever a new event/news envelope lands
   // (works identically for the backend SSE and the in-browser feeds).
@@ -43,7 +43,11 @@ export default function World() {
   }, []);
 
   const quakes = useMemo(() => quakesFromEvents(events), [events]);
-  const liveEvents = events.slice(0, 4);
+  // Always surface 5 breaking cards: real live events first, topped up with
+  // high-impact wire items so the strip is never sparse.
+  const BREAKING_MAX = 5;
+  const liveEvents = events.slice(0, BREAKING_MAX);
+  const simFill = simBreaking.slice(0, Math.max(0, BREAKING_MAX - liveEvents.length));
 
   return (
     <div style={{ position: "absolute", inset: 0 }}>
@@ -95,7 +99,7 @@ export default function World() {
             )}
           </button>
         ))}
-        {simBreaking.map((a) => (
+        {simFill.map((a) => (
           <button
             key={a.id}
             className="panel fade-in card-int"

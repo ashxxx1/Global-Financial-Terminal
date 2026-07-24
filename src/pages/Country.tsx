@@ -164,7 +164,7 @@ export default function Country() {
                 {a.relatedStocks.map((s) => (
                   <button key={s} className="chip" style={{ fontSize: 10, padding: "3px 9px" }} onClick={() => navigate(`/stock/${s}`)}>{s}</button>
                 ))}
-                {a.url && (
+                {a.url ? (
                   <a
                     href={a.url}
                     target="_blank"
@@ -174,6 +174,10 @@ export default function Country() {
                   >
                     Read original ↗
                   </a>
+                ) : (
+                  <span className="label" title="Synthetic headline derived from live market state — not a real article.">
+                    SIM · no source
+                  </span>
                 )}
                 <span className="label" style={{ marginLeft: "auto" }}>confidence {a.confidence}%</span>
               </div>

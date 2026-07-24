@@ -3,13 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { COUNTRIES, stocksOf } from "../lib/market";
 import { useQuotes } from "../lib/hooks";
 import { getCountryStats } from "../data/countryStats";
-import { fetchCountryNews, type Article } from "../lib/news";
+import { fetchCountryNews, agoLabel, type Article } from "../lib/news";
+import { ratePick, RATING_COLOR } from "../lib/analysis";
 import SourceBadge from "../components/SourceBadge";
 import Connections from "../components/Connections";
 import { connectionsForCountry } from "../lib/graph";
 import { useTerminal } from "../store";
 
-const TABS = ["OVERVIEW", "MARKETS", "NEWS", "AI SUMMARY"] as const;
+const TABS = ["OVERVIEW", "AI PICKS", "MARKETS", "NEWS", "AI SUMMARY"] as const;
 
 export default function Country() {
   const { code = "" } = useParams();
@@ -148,7 +149,7 @@ export default function Country() {
             <article key={a.id} className="panel fade-in" style={{ padding: "14px 16px" }}>
               <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginBottom: 6 }}>
                 <span className="label" style={{ color: "var(--blue)" }}>{a.category}</span>
-                <span className="label">{a.source} · {a.minutesAgo}m ago</span>
+                <span className="label">{a.source} · {agoLabel(a.minutesAgo)}</span>
                 <span className="chg" style={{
                   marginLeft: "auto", fontSize: 10,
                   color: a.sentiment === "Bullish" ? "var(--up)" : a.sentiment === "Bearish" ? "var(--down)" : "var(--gold)",
@@ -159,15 +160,31 @@ export default function Country() {
               <p style={{ margin: "0 0 8px", fontSize: 12.5, color: "var(--muted)" }}>{a.summary}</p>
               <div style={{ fontSize: 12, color: "var(--text)" }}><b style={{ color: "var(--gold)" }}>Why it matters:</b> {a.whyItMatters}</div>
               <div style={{ fontSize: 12, color: "var(--text)", marginTop: 4 }}><b style={{ color: "var(--blue)" }}>What next:</b> {a.whatNext}</div>
-              <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap", alignItems: "center" }}>
                 {a.relatedStocks.map((s) => (
                   <button key={s} className="chip" style={{ fontSize: 10, padding: "3px 9px" }} onClick={() => navigate(`/stock/${s}`)}>{s}</button>
                 ))}
+                {a.url && (
+                  <a
+                    href={a.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="chip"
+                    style={{ fontSize: 10, padding: "3px 10px", color: "var(--blue)", borderColor: "var(--blue)", textDecoration: "none" }}
+                  >
+                    Read original ↗
+                  </a>
+                )}
                 <span className="label" style={{ marginLeft: "auto" }}>confidence {a.confidence}%</span>
               </div>
             </article>
           ))}
+          {articles.length === 0 && <div className="panel panel-body" style={{ color: "var(--faint)" }}>Loading the latest headlines…</div>}
         </div>
+      )}
+
+      {tab === "AI PICKS" && (
+        <AiPicks symbols={symbols} quotes={quotes} onOpen={(s) => navigate(`/stock/${s}`)} countryName={name} />
       )}
 
       {tab === "AI SUMMARY" && stats && (
@@ -203,6 +220,67 @@ function Metric({ label, value, tone, small }: { label: string; value: string; t
     <div className="panel" style={{ padding: "12px 14px" }}>
       <div className="label" style={{ marginBottom: 4 }}>{label}</div>
       <div className="mono" style={{ fontSize: small ? 13 : 19, fontWeight: 800, color: tone || "var(--text)" }}>{value}</div>
+    </div>
+  );
+}
+
+/** AI Stock Predictor — a ranked Buy/Hold/Sell verdict for every listed name,
+ *  blending live momentum with a seeded valuation/quality/risk profile. */
+function AiPicks({ symbols, quotes, onOpen, countryName }: {
+  symbols: string[];
+  quotes: ReturnType<typeof useQuotes>;
+  onOpen: (s: string) => void;
+  countryName: string;
+}) {
+  const byQuote = new Map(quotes.map((q) => [q.symbol, q]));
+  const picks = symbols
+    .map((s) => ratePick(s, byQuote.get(s)?.changePct ?? 0))
+    .filter((p): p is NonNullable<typeof p> => !!p)
+    .sort((a, b) => b.score - a.score);
+
+  if (picks.length === 0) {
+    return <div className="panel panel-body" style={{ color: "var(--faint)" }}>No listed equities to rate for {countryName} yet.</div>;
+  }
+  const buys = picks.filter((p) => p.action === "Buy").length;
+  const sells = picks.filter((p) => p.action === "Sell").length;
+
+  return (
+    <div className="panel" style={{ overflow: "hidden" }}>
+      <div className="panel-head">
+        <span className="panel-title">AI Stock Predictor</span>
+        <span className="label">{buys} buy · {picks.length - buys - sells} hold · {sells} sell · live-momentum blend</span>
+      </div>
+      <div style={{ maxHeight: "62vh", overflowY: "auto" }}>
+        <table className="tbl">
+          <thead>
+            <tr><th>Verdict</th><th>Symbol</th><th>Company</th><th className="num">Price</th><th className="num">1D</th><th className="num">Conf.</th><th className="num">Risk</th></tr>
+          </thead>
+          <tbody>
+            {picks.map((p) => {
+              const q = byQuote.get(p.symbol);
+              const up = (q?.changePct ?? 0) >= 0;
+              return (
+                <tr key={p.symbol} onClick={() => onOpen(p.symbol)} title={p.note}>
+                  <td>
+                    <span className="chg" style={{ fontSize: 10, color: RATING_COLOR[p.rating], background: "transparent", border: `1px solid ${RATING_COLOR[p.rating]}`, whiteSpace: "nowrap" }}>
+                      {p.rating}
+                    </span>
+                  </td>
+                  <td className="mono" style={{ fontWeight: 700 }}>{p.symbol}</td>
+                  <td style={{ fontSize: 12.5, maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</td>
+                  <td className="num">{q ? q.currency + q.display : "—"}</td>
+                  <td className="num" style={{ color: up ? "var(--up)" : "var(--down)" }}>{q ? `${up ? "+" : ""}${q.changePct.toFixed(2)}%` : "—"}</td>
+                  <td className="num">{p.confidence}%</td>
+                  <td className="num" style={{ color: p.risk > 60 ? "var(--down)" : p.risk > 40 ? "var(--gold)" : "var(--up)" }}>{p.risk}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className="panel-body" style={{ paddingTop: 10 }}>
+        <p className="label" style={{ margin: 0 }}>Verdicts blend live price momentum with a deterministic valuation/quality/risk model. Informational — not financial advice.</p>
+      </div>
     </div>
   );
 }

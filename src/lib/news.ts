@@ -18,6 +18,7 @@ export interface Article {
   headline: string;
   summary: string;
   source: string;
+  url?: string;        // link to the original article (live wire only)
   minutesAgo: number;
   sentiment: "Bullish" | "Bearish" | "Neutral";
   sentimentScore: number;      // 0..100
@@ -233,6 +234,7 @@ export async function fetchCountryNews(country: string, max = 10): Promise<Count
         headline: a.title,
         summary: a.description || "",
         source: a.source?.name || "GNews",
+        url: a.url,
         minutesAgo: Math.max(1, Math.round((Date.now() - new Date(a.publishedAt).getTime()) / 60000)),
         sentiment,
         sentimentScore: s,
@@ -257,4 +259,13 @@ export async function fetchCountryNews(country: string, max = 10): Promise<Count
   } catch {
     return { articles: newsFor(iso, max), live: false };
   }
+}
+
+/** Compact "12m ago / 3h ago / 2d ago" from an integer minutes value. */
+export function agoLabel(minutesAgo: number): string {
+  if (minutesAgo < 1) return "just now";
+  if (minutesAgo < 60) return `${minutesAgo}m ago`;
+  const h = Math.round(minutesAgo / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.round(h / 24)}d ago`;
 }

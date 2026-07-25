@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuotes } from "../lib/hooks";
 import { topMovers } from "../lib/market";
 import { useTerminal } from "../store";
+import { fetchBreakingNews, timeAgo, type LiveArticle } from "../lib/newsFeed";
 
 function Row({ symbol, name, price, changePct, onClick }: {
   symbol: string; name: string; price: string; changePct: number; onClick: () => void;
@@ -34,6 +35,20 @@ export default function RightRail() {
   const clearNotices = useTerminal((s) => s.clearNotices);
   const watchQuotes = useQuotes(watchlist.map((w) => w.symbol));
   const movers = useMemo(() => topMovers(5), []);
+
+  // Live news feed
+  const [news, setNews] = useState<LiveArticle[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    const load = () => {
+      fetchBreakingNews(5).then((articles) => {
+        if (!cancelled) setNews(articles);
+      }).catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 5 * 60 * 1000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, []);
 
   return (
     <aside
@@ -71,6 +86,82 @@ export default function RightRail() {
           ))}
         </>
       )}
+
+      {/* ─── Latest News ─── */}
+      <div className="panel-head">
+        <span className="panel-title">Latest News</span>
+        <span className="pulse-dot" style={{ background: "var(--up)", boxShadow: "0 0 5px var(--up)" }} />
+      </div>
+      {news.length === 0 ? (
+        <div style={{ padding: "12px 14px", fontSize: 11, color: "var(--faint)" }}>
+          Loading latest headlines…
+        </div>
+      ) : (
+        news.slice(0, 5).map((a) => (
+          <a
+            key={a.id}
+            href={a.url || undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "block", padding: "9px 12px",
+              borderBottom: "1px solid var(--line)", textDecoration: "none",
+              cursor: "pointer", transition: "background .13s",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(79,141,255,0.06)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "transparent";
+            }}
+          >
+            <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 3 }}>
+              <span
+                style={{
+                  fontFamily: "var(--mono)", fontSize: 8.5, fontWeight: 700,
+                  color: a.sentiment === "Bullish" ? "var(--up)" : a.sentiment === "Bearish" ? "var(--down)" : "var(--muted)",
+                }}
+              >
+                {a.sentiment === "Bullish" ? "▲" : a.sentiment === "Bearish" ? "▼" : "●"}
+              </span>
+              <span
+                className="label"
+                style={{ fontSize: 8.5, color: "var(--gold)" }}
+              >
+                {a.source}
+              </span>
+              <span className="label" style={{ fontSize: 8.5, marginLeft: "auto" }}>
+                {timeAgo(a.minutesAgo)}
+              </span>
+            </div>
+            <div style={{
+              fontSize: 11.5, fontWeight: 600, color: "var(--text)", lineHeight: 1.35,
+              overflow: "hidden", display: "-webkit-box",
+              WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+            }}>
+              {a.title}
+            </div>
+            {a.url && (
+              <div style={{
+                fontFamily: "var(--mono)", fontSize: 8, fontWeight: 700,
+                color: "var(--blue)", marginTop: 3, letterSpacing: "0.1em",
+              }}>
+                READ ↗
+              </div>
+            )}
+          </a>
+        ))
+      )}
+      <button
+        className="chip"
+        onClick={() => navigate("/news")}
+        style={{
+          margin: "8px 12px", fontSize: 10, padding: "5px 10px",
+          textAlign: "center", display: "block",
+        }}
+      >
+        VIEW ALL NEWS →
+      </button>
 
       {/* Movers */}
       <div className="panel-head"><span className="panel-title">Top gainers</span></div>

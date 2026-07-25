@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Globe3D, { type HoverInfo, type OverlayMode } from "../components/Globe3D";
 import { globalNews } from "../lib/news";
+import { fetchBreakingNews, timeAgo, type LiveArticle } from "../lib/newsFeed";
 import type { QuakeEvent } from "../lib/feeds/quakes";
 import { subscribeBus, recentEnvelopes, relativeTime, type Envelope } from "../lib/feeds/bus";
 
@@ -31,6 +32,21 @@ export default function World() {
   const [events, setEvents] = useState<Envelope[]>(() => recentEnvelopes("event", 40));
   const simBreaking = useMemo(() => globalNews(1).filter((a) => a.impact === "High").slice(0, 5), []);
 
+  // Live breaking news from RSS feeds
+  const [liveNews, setLiveNews] = useState<LiveArticle[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchBreakingNews(5).then((articles) => {
+      if (!cancelled && articles.length) setLiveNews(articles);
+    });
+    const iv = setInterval(() => {
+      fetchBreakingNews(5).then((articles) => {
+        if (!cancelled && articles.length) setLiveNews(articles);
+      });
+    }, 5 * 60 * 1000);
+    return () => { cancelled = true; clearInterval(iv); };
+  }, []);
+
   // Real-time: re-read the event bus whenever a new event/news envelope lands
   // (works identically for the backend SSE and the in-browser feeds).
   useEffect(() => {
@@ -43,11 +59,14 @@ export default function World() {
   }, []);
 
   const quakes = useMemo(() => quakesFromEvents(events), [events]);
-  // Always surface 5 breaking cards: real live events first, topped up with
-  // high-impact wire items so the strip is never sparse.
+  // Always surface 5 breaking cards: live news first, then real events, then SIM
   const BREAKING_MAX = 5;
   const liveEvents = events.slice(0, BREAKING_MAX);
-  const simFill = simBreaking.slice(0, Math.max(0, BREAKING_MAX - liveEvents.length));
+
+  // Merge live news headlines with event bus entries
+  const newsCards = liveNews.slice(0, 3);
+  const eventCards = liveEvents.slice(0, Math.max(0, BREAKING_MAX - newsCards.length));
+  const simFill = simBreaking.slice(0, Math.max(0, BREAKING_MAX - newsCards.length - eventCards.length));
 
   return (
     <div style={{ position: "absolute", inset: 0 }}>
@@ -62,7 +81,7 @@ export default function World() {
       <div style={{ position: "absolute", top: 16, left: 18, zIndex: 10, display: "flex", flexDirection: "column", gap: 10, pointerEvents: "none" }}>
         <div>
           <h1 style={{ margin: 0, fontSize: 21, fontWeight: 700, letterSpacing: "-0.01em" }}>
-            The world's economy, <span style={{ color: "var(--gold)" }}>live</span>.
+            <span className="hero-shine">The world's economy,</span> <span className="live-glow">live</span>.
           </h1>
           <p style={{ margin: "3px 0 0", fontSize: 12, color: "var(--muted)" }}>
             Rotate · zoom · click any country for its dashboard
@@ -79,12 +98,40 @@ export default function World() {
         </div>
       </div>
 
-      {/* Breaking strip: REAL events (USGS) first, then high-impact wire items */}
-      <div style={{ position: "absolute", right: 18, top: 16, zIndex: 10, width: 300, display: "flex", flexDirection: "column", gap: 8 }}>
-        {liveEvents.map((e) => (
+      {/* Breaking strip: LIVE NEWS first, then events, then SIM fill */}
+      <div style={{ position: "absolute", right: 18, top: 16, zIndex: 10, width: 310, display: "flex", flexDirection: "column", gap: 8 }}>
+        {/* Live news cards */}
+        {newsCards.map((a) => (
+          <a
+            key={a.id}
+            href={a.url || undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`panel fade-in card-int ${a.impact === "High" ? "glow-edge" : ""}`}
+            style={{
+              textAlign: "left", padding: "10px 12px", cursor: "pointer", textDecoration: "none", color: "inherit", display: "block",
+              borderColor: a.impact === "High" ? "var(--down)" : "var(--line)",
+            }}
+          >
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4 }}>
+              <span className="label" style={{ color: "var(--up)" }}>● LIVE · {a.source}</span>
+              <span className="label">{timeAgo(a.minutesAgo)}</span>
+              <span className="label" style={{ marginLeft: "auto", color: a.impact === "High" ? "var(--down)" : "var(--faint)" }}>{a.impact}</span>
+            </div>
+            <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text)", lineHeight: 1.35 }}>{a.title}</div>
+            {a.url && (
+              <div className="label" style={{ marginTop: 4, color: "var(--blue)", fontSize: 8.5 }}>
+                READ ARTICLE ↗
+              </div>
+            )}
+          </a>
+        ))}
+
+        {/* Event bus cards */}
+        {eventCards.map((e) => (
           <button
             key={e.id}
-            className="panel fade-in card-int"
+            className={`panel fade-in card-int ${e.impact === "High" ? "glow-edge" : ""}`}
             onClick={() => e.countryTags[0] && navigate(`/country/${e.countryTags[0]}`)}
             style={{ textAlign: "left", padding: "10px 12px", cursor: "pointer", borderColor: e.impact === "High" ? "var(--down)" : "var(--line)" }}
           >
@@ -99,6 +146,8 @@ export default function World() {
             )}
           </button>
         ))}
+
+        {/* SIM fill */}
         {simFill.map((a) => (
           <button
             key={a.id}

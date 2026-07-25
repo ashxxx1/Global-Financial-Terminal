@@ -27,6 +27,8 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    // Keep a single React instance for any third-party component libraries.
+    dedupe: ['react', 'react-dom'],
   },
   preview: {
     // Allow tunneled hosts (e.g. *.lhr.life) so the built app can be shared

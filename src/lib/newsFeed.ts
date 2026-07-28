@@ -159,7 +159,27 @@ interface Rss2JsonItem {
   content?: string;
 }
 
+/**
+ * Fetch a feed, preferring our own /api/rss edge function.
+ *
+ * The public rss2json proxy is a single point of failure and has been
+ * returning 500 for Google News URLs, which left every news panel empty. Our
+ * own origin has no CORS problem and no third-party dependency; rss2json stays
+ * as a fallback for local `vite dev`, where /api is not running.
+ */
 async function fetchRssFeed(feedUrl: string): Promise<Rss2JsonItem[]> {
+  // 1. Own origin.
+  try {
+    const r = await fetch(`/api/rss?url=${encodeURIComponent(feedUrl)}&count=20`);
+    if (r.ok) {
+      const j = await r.json();
+      if (j.status === "ok" && Array.isArray(j.items) && j.items.length) return j.items;
+    }
+  } catch {
+    /* fall through */
+  }
+
+  // 2. Public proxy fallback.
   try {
     const url = `${RSS2JSON}?rss_url=${encodeURIComponent(feedUrl)}&count=20`;
     const r = await fetch(url);

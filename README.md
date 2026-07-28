@@ -49,3 +49,34 @@ cd server && npm install && npm start   # :8787  (GET /health, /api/stream, …)
 
 The pre-rebuild application (v0.6, React/Firebase/Netlify era) is archived at
 git tag [`legacy-v0.6`](../../releases/tag/legacy-v0.6).
+
+## Accounts
+
+Visitors land on a sign-in screen and need an account to reach the terminal.
+Sign-in options: **Google**, **GitHub**, and email + password (with reset).
+
+Accounts are Firebase Auth; each user gets a `users/{uid}` Firestore document
+holding their profile and watchlist, so stars follow the account instead of
+living in one browser's local storage.
+
+**Setup** — in the [Firebase console](https://console.firebase.google.com):
+
+1. Authentication → Sign-in method → enable **Google**, **GitHub**, and
+   **Email/Password**
+2. Firestore Database → create a database
+3. Deploy the access rules so users can only read and write their own document:
+   ```bash
+   npx firebase deploy --only firestore:rules
+   ```
+4. Authentication → Settings → Authorized domains → add your production domain
+
+Copy the web app config into `.env.local` (see `.env.example`).
+
+If the `VITE_FIREBASE_*` keys are absent the gate is skipped and the app runs
+open — so a fresh clone works with no setup. Set `VITE_REQUIRE_AUTH=false` to
+keep it open even when Firebase *is* configured.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, project layout and the
+PR checklist.

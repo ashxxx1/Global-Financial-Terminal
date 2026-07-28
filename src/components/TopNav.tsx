@@ -4,6 +4,7 @@ import { useUtcClock } from "../lib/hooks";
 import { liveSymbolCount } from "../lib/market";
 import { useTerminal } from "../store";
 import SourceBadge from "./SourceBadge";
+import { useAuth } from "../lib/auth";
 
 const LINKS = [
   { to: "/", label: "WORLD", end: true },
@@ -108,7 +109,30 @@ export default function TopNav() {
           title={liveN > 0 ? `${liveN} instruments on real feeds (Binance WS · ECB) — rest simulated` : undefined}
         />
         <span className="mono" style={{ fontSize: 12, color: "var(--up)" }}>{clock} UTC</span>
+        <AccountChip />
       </div>
     </header>
+  );
+}
+
+/** Signed-in identity + sign out. Renders nothing when auth is off. */
+function AccountChip() {
+  const user = useAuth((s) => s.user);
+  const signOut = useAuth((s) => s.signOut);
+  if (!user) return null;
+
+  const initials = (user.displayName || user.email || "?")
+    .split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join("").toUpperCase();
+
+  return (
+    <div className="acct">
+      {user.photoURL
+        ? <img className="acct-avatar" src={user.photoURL} alt="" referrerPolicy="no-referrer" />
+        : <span className="acct-avatar">{initials}</span>}
+      <button className="chip" style={{ padding: "3px 9px", fontSize: 9.5 }}
+        onClick={() => void signOut()} title={user.email || undefined}>
+        SIGN OUT
+      </button>
+    </div>
   );
 }

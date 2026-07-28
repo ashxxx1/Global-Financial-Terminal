@@ -20,10 +20,14 @@ import Country from "./pages/Country";
 import Markets from "./pages/Markets";
 import Stock from "./pages/Stock";
 import News from "./pages/News";
+import Login from "./pages/Login";
+import { useAuth, authRequired } from "./lib/auth";
+import { useWatchlistSync } from "./lib/syncWatchlist";
 import "./styles/theme.css";
 
 function Shell() {
   const { pathname } = useLocation();
+  useWatchlistSync();
   const onWorld = pathname === "/";
 
   // Boot the live data layer once. Prefer the hosted ingest backend (unified
@@ -61,13 +65,41 @@ function Shell() {
   );
 }
 
+/**
+ * Auth gate. Visitors land on the sign-in screen; the terminal only mounts
+ * once there is a session.
+ *
+ * When Firebase is not configured `authRequired()` is false, so a fresh clone
+ * still boots straight into the app instead of a login nobody can pass.
+ */
+function Gate() {
+  const status = useAuth((s) => s.status);
+  const init = useAuth((s) => s.init);
+  useEffect(() => { init(); }, [init]);
+
+  if (!authRequired()) return <Shell />;
+
+  if (status === "loading") {
+    return (
+      <div className="auth-wrap">
+        <div className="auth-aurora" aria-hidden />
+        <div style={{ textAlign: "center" }}>
+          <div className="skeleton" style={{ width: 190, height: 9, borderRadius: 5, margin: "0 auto 10px" }} />
+          <div className="label">RESTORING SESSION…</div>
+        </div>
+      </div>
+    );
+  }
+  return status === "signedIn" ? <Shell /> : <Login />;
+}
+
 export default function App() {
   // BASE_URL is "/" at root hosting and "/Global-Financial-Terminal/" on
   // GitHub Pages project sites; the router needs it without a trailing slash.
   const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
   return (
     <BrowserRouter basename={basename || undefined}>
-      <Shell />
+      <Gate />
     </BrowserRouter>
   );
 }

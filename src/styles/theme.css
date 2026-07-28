@@ -607,3 +607,47 @@ input, select { font-family: inherit; }
   display: grid; place-items: center; font-size: 10.5px; font-weight: 700;
   font-family: var(--mono); color: var(--cyan);
 }
+
+/* ─── Sector heat map ─── */
+.heatmap-panel { overflow: hidden; }
+.heat-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 6px; padding: 12px;
+}
+.heat-cell {
+  position: relative; display: grid; gap: 2px; align-content: center;
+  min-height: 74px; padding: 10px 12px; cursor: pointer; text-align: left;
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+  color: var(--text); overflow: hidden;
+  transition: transform .18s cubic-bezier(.22,1,.36,1), border-color .18s, box-shadow .18s;
+}
+.heat-cell:hover, .heat-cell:focus-visible {
+  transform: translateY(-2px) scale(1.015);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow), var(--edge-hi);
+  z-index: 2;
+}
+.heat-name {
+  font-size: 11.5px; font-weight: 650; line-height: 1.25;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.heat-val { font-size: 17px; font-weight: 750; letter-spacing: -.02em; }
+.heat-count {
+  position: absolute; top: 7px; right: 9px;
+  font-size: 9px; color: var(--faint);
+}
+.heat-legend {
+  display: flex; align-items: center; gap: 9px;
+  padding: 0 12px 10px; flex-wrap: wrap;
+}
+.heat-ramp { display: flex; border-radius: 3px; overflow: hidden; border: 1px solid var(--line); }
+.heat-ramp span { width: 22px; height: 9px; display: block; }
+.heat-ticks { font-size: 9.5px; color: var(--faint); margin-left: auto; }
+.heat-readout {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 9px 12px; border-top: 1px solid var(--line);
+  background: rgba(8,12,20,.45); min-height: 34px; font-size: 12.5px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .heat-cell:hover, .heat-cell:focus-visible { transform: none; }
+}

@@ -4,6 +4,9 @@ import { useIndices } from "../lib/hooks";
 import { topMovers } from "../lib/market";
 import type { Quote } from "../lib/market";
 import SourceBadge from "../components/SourceBadge";
+import SectorHeatmap from "../components/SectorHeatmap";
+import { subscribe } from "../lib/market";
+import { useEffect } from "react";
 
 const GROUPS = ["INDICES", "FX", "CRYPTO", "COMMODITIES", "MOVERS"] as const;
 
@@ -11,7 +14,9 @@ export default function Markets() {
   const navigate = useNavigate();
   const all = useIndices();
   const [group, setGroup] = useState<(typeof GROUPS)[number]>("INDICES");
-  const movers = useMemo(() => topMovers(10), []);
+  const [tick, setTick] = useState(0);
+  useEffect(() => subscribe(() => setTick((t) => t + 1)), []);
+  const movers = useMemo(() => topMovers(10), [tick]);
 
   const rows: Quote[] =
     group === "INDICES" ? all.filter((q) => q.kind === "index")
@@ -30,6 +35,10 @@ export default function Markets() {
             <button key={g} className={`chip ${group === g ? "active" : ""}`} onClick={() => setGroup(g)}>{g}</button>
           ))}
         </div>
+      </div>
+
+      <div style={{ marginBottom: 14 }}>
+        <SectorHeatmap tick={tick} onOpen={(sym) => navigate(`/stock/${sym}`)} />
       </div>
 
       {group !== "MOVERS" ? (

@@ -60,6 +60,14 @@ function humanError(err: unknown): string {
       "That email is already registered with a different sign-in method.",
     "auth/too-many-requests": "Too many attempts. Wait a minute and try again.",
     "auth/network-request-failed": "Network problem — check your connection.",
+    // Setup problems. These are the operator's fault, not the visitor's, so the
+    // copy names the exact console switch instead of saying "try again".
+    "auth/operation-not-allowed":
+      "This sign-in method isn't enabled yet. Turn it on in Firebase console → Authentication → Sign-in method.",
+    "auth/unauthorized-domain":
+      "This domain isn't authorised for sign-in. Add it in Firebase console → Authentication → Settings → Authorized domains.",
+    "auth/configuration-not-found":
+      "Firebase Authentication isn't set up for this project yet. Enable it in the console, then reload.",
   };
   return map[code] || (err instanceof Error ? err.message : "Something went wrong. Try again.");
 }

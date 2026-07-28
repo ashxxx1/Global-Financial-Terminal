@@ -17,7 +17,7 @@ import {
   type User,
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db, googleProvider, githubProvider, isConfigured } from "./firebase";
+import { auth, db, googleProvider, isConfigured } from "./firebase";
 
 export interface Profile {
   uid: string;
@@ -36,7 +36,6 @@ interface AuthState {
   error: string | null;
   init: () => void;
   signInGoogle: () => Promise<void>;
-  signInGithub: () => Promise<void>;
   signInEmail: (email: string, password: string) => Promise<void>;
   signUpEmail: (name: string, email: string, password: string) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -66,6 +65,11 @@ function humanError(err: unknown): string {
       "This sign-in method isn't enabled yet. Turn it on in Firebase console → Authentication → Sign-in method.",
     "auth/unauthorized-domain":
       "This domain isn't authorised for sign-in. Add it in Firebase console → Authentication → Settings → Authorized domains.",
+    // Firebase reports this when the Email/Password provider row is off (or is
+    // set to email-link only). Sign-UP can still succeed while sign-IN fails,
+    // which strands anyone who just registered — so name it precisely.
+    "auth/admin-restricted-operation":
+      "Email sign-in is switched off for this project. Enable Firebase console → Authentication → Sign-in method → Email/Password (the first toggle, not just Email link).",
     "auth/configuration-not-found":
       "Firebase Authentication isn't set up for this project yet. Enable it in the console, then reload.",
   };
@@ -126,13 +130,6 @@ export const useAuth = create<AuthState>()((set, get) => ({
     } catch (e) { set({ error: humanError(e) }); }
   },
 
-  signInGithub: async () => {
-    if (!auth) return;
-    try {
-      set({ error: null });
-      await signInWithPopup(auth, githubProvider);
-    } catch (e) { set({ error: humanError(e) }); }
-  },
 
   signInEmail: async (email, password) => {
     if (!auth) return;

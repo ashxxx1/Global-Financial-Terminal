@@ -7,7 +7,7 @@
  * anyone having to provision a Firebase project first.
  */
 import { initializeApp, type FirebaseApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, GithubAuthProvider, type Auth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 
 const cfg = {
@@ -36,5 +36,3 @@ export const db = dbInstance;
 
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
-
-export const githubProvider = new GithubAuthProvider();

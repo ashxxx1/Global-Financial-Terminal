@@ -202,10 +202,18 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "").replace(/&[a-z]+;/gi, " ").trim().slice(0, 300);
 }
 
-function parseArticle(item: Rss2JsonItem, country: string): LiveArticle | null {
+/**
+ * @param seen Per-batch dedupe set. This must NOT be shared across calls: the
+ * intent is to drop the same story arriving from several feeds *within one
+ * result set*. A module-global set instead starved every consumer after the
+ * first — World and RightRail both fetch on mount, the second one parsed the
+ * same items to all-nulls, and then cached that empty array for the whole TTL,
+ * which is why the news panels sat empty.
+ */
+function parseArticle(item: Rss2JsonItem, country: string, seen: Set<string>): LiveArticle | null {
   const key = titleKey(item.title || "");
-  if (!key || seenTitles.has(key)) return null;
-  seenTitles.add(key);
+  if (!key || seen.has(key)) return null;
+  seen.add(key);
 
   const { cleanTitle, source } = extractSourceFromTitle(item.title || "");
   const desc = stripHtml(item.description || item.content || "");
@@ -257,11 +265,12 @@ export async function fetchGlobalNews(maxPerCategory = 10): Promise<LiveArticle[
   );
 
   const articles: LiveArticle[] = [];
+  const seen = new Set<string>();
   results.forEach((r, i) => {
     if (r.status !== "fulfilled") return;
     const cat = feeds[i][0];
     for (const item of r.value.slice(0, maxPerCategory)) {
-      const parsed = parseArticle(item, "US");
+      const parsed = parseArticle(item, "US", seen);
       if (parsed) {
         // Override category from feed name
         parsed.category = cat.charAt(0) + cat.slice(1).toLowerCase();
@@ -287,8 +296,9 @@ export async function fetchLiveCountryNews(country: string, max = 10): Promise<L
   const items = await fetchRssFeed(feedUrl);
   const articles: LiveArticle[] = [];
 
+  const seen = new Set<string>();
   for (const item of items.slice(0, max * 2)) {
-    const parsed = parseArticle(item, iso);
+    const parsed = parseArticle(item, iso, seen);
     if (parsed) articles.push(parsed);
     if (articles.length >= max) break;
   }

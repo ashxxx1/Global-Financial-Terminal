@@ -651,3 +651,58 @@ input, select { font-family: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .heat-cell:hover, .heat-cell:focus-visible { transform: none; }
 }
+
+/* ─── Market pulse gauge ─── */
+.gauge-panel { overflow: hidden; }
+.gauge-svg { width: 100%; height: auto; display: block; padding: 6px 10px 0; }
+.gauge-active { transition: stroke .5s ease; }
+.gauge-num { font-family: var(--mono); font-size: 30px; font-weight: 800; letter-spacing: -.03em; }
+.gauge-cap { font-family: var(--mono); font-size: 9px; fill: var(--faint); letter-spacing: .18em; }
+.gauge-scale {
+  display: flex; justify-content: space-between;
+  padding: 0 18px 12px; margin-top: -6px;
+}
+
+/* ─── Toasts ─── */
+.toast-stack {
+  position: fixed; right: 18px; bottom: calc(var(--ticker-h) + 16px);
+  z-index: 200; display: flex; flex-direction: column; gap: 9px;
+  max-width: 340px; pointer-events: none;
+}
+.toast {
+  position: relative; display: flex; align-items: flex-start; gap: 10px;
+  padding: 11px 12px; border-radius: var(--r); overflow: hidden;
+  border: 1px solid rgba(231,180,41,.4);
+  background: linear-gradient(180deg, rgba(38,30,10,.96), rgba(16,14,10,.96));
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow), var(--edge-hi);
+  pointer-events: auto;
+  animation: toastIn .42s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(28px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+.toast-bell { font-size: 14px; line-height: 1.3; }
+.toast-body { flex: 1; min-width: 0; }
+.toast-text { font-size: 12.5px; font-weight: 600; color: var(--gold); line-height: 1.4; }
+.toast-x {
+  background: none; border: 0; color: var(--faint); cursor: pointer;
+  font-size: 17px; line-height: 1; padding: 0 2px; transition: color .15s;
+}
+.toast-x:hover { color: var(--text); }
+.toast-timer {
+  position: absolute; left: 0; bottom: 0; height: 2px; width: 100%;
+  background: linear-gradient(90deg, var(--gold), rgba(231,180,41,.25));
+  transform-origin: left; animation: toastTimer linear forwards;
+}
+@keyframes toastTimer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* ─── Route transition ─── */
+.route-fade { animation: routeIn .34s cubic-bezier(.22,1,.36,1) both; }
+@keyframes routeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast, .route-fade { animation: none !important; }
+  .toast-timer { animation-duration: 0s; }
+}

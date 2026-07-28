@@ -5,6 +5,7 @@ import { topMovers } from "../lib/market";
 import type { Quote } from "../lib/market";
 import SourceBadge from "../components/SourceBadge";
 import SectorHeatmap from "../components/SectorHeatmap";
+import PulseGauge from "../components/PulseGauge";
 import { subscribe } from "../lib/market";
 import { useEffect } from "react";
 
@@ -37,8 +38,9 @@ export default function Markets() {
         </div>
       </div>
 
-      <div style={{ marginBottom: 14 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 260px", gap: 14, marginBottom: 14, alignItems: "start" }}>
         <SectorHeatmap tick={tick} onOpen={(sym) => navigate(`/stock/${sym}`)} />
+        <PulseGauge tick={tick} />
       </div>
 
       {group !== "MOVERS" ? (

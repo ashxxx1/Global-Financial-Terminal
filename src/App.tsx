@@ -15,6 +15,7 @@ import Ticker from "./components/Ticker";
 import RightRail from "./components/RightRail";
 import Search from "./components/Search";
 import AlertWatcher from "./components/AlertWatcher";
+import Toasts from "./components/Toasts";
 import World from "./pages/World";
 import Country from "./pages/Country";
 import Markets from "./pages/Markets";
@@ -47,6 +48,7 @@ function Shell() {
       <TopNav />
       <div className="shell-main">
         <main className="shell-content" style={{ overflowY: onWorld ? "hidden" : "auto" }}>
+          <div className="route-fade" key={pathname}>
           <Routes>
             <Route path="/" element={<World />} />
             <Route path="/country/:code" element={<Country />} />
@@ -55,12 +57,14 @@ function Shell() {
             <Route path="/news" element={<News />} />
             <Route path="*" element={<World />} />
           </Routes>
+          </div>
         </main>
         <RightRail />
       </div>
       <Ticker />
       <Search />
       <AlertWatcher />
+      <Toasts />
     </div>
   );
 }

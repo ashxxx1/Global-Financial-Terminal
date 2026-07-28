@@ -699,7 +699,15 @@ input, select { font-family: inherit; }
 @keyframes toastTimer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
 /* ─── Route transition ─── */
-.route-fade { animation: routeIn .34s cubic-bezier(.22,1,.36,1) both; }
+/* Must fill .shell-content and establish its own containing block: the World
+   page positions the globe with inset:0, and a height:auto wrapper collapses
+   to zero (the transform in routeIn also re-anchors absolute children). */
+.route-fade {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  animation: routeIn .34s cubic-bezier(.22,1,.36,1) both;
+}
 @keyframes routeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {

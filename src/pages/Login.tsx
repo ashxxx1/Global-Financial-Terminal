@@ -12,9 +12,9 @@ type Mode = "signin" | "signup" | "reset";
  * signs in — the standard split that keeps the form short without the page
  * feeling like a dead end.
  */
-export default function Login() {
+export default function Login({ initialMode = "signin", onBack }: { initialMode?: "signin" | "signup"; onBack?: () => void } = {}) {
   const { signInGoogle, signInEmail, signUpEmail, resetPassword, error, clearError } = useAuth();
-  const [mode, setMode] = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,6 +69,7 @@ export default function Login() {
 
         {/* ── Form ── */}
         <section className="auth-form">
+          {onBack && <button className="auth-back" onClick={onBack}>← Back to home</button>}
           <div className="auth-tabs" role="tablist">
             <button role="tab" aria-selected={mode === "signin"}
               className={`auth-tab ${mode === "signin" ? "on" : ""}`}

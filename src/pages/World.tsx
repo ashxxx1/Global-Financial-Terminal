@@ -19,10 +19,10 @@ function quakesFromEvents(events: Envelope[]): QuakeEvent[] {
     });
 }
 
-const OVERLAYS: { id: OverlayMode; label: string; live?: boolean }[] = [
+const OVERLAYS: { id: OverlayMode; label: string; live?: boolean; demo?: boolean }[] = [
   { id: "market", label: "MARKET PERF" },
-  { id: "risk", label: "RISK INDEX" },
-  { id: "sentiment", label: "AI SENTIMENT" },
+  { id: "risk", label: "RISK INDEX", demo: true },
+  { id: "sentiment", label: "AI SENTIMENT", demo: true },
   { id: "quakes", label: "LIVE EVENTS", live: true },
 ];
 
@@ -93,6 +93,7 @@ export default function World() {
             <button key={o.id} className={`chip ${overlay === o.id ? "active" : ""}`} onClick={() => { setOverlay(o.id); track("overlay_switched", { overlay: o.id }); }}>
               {o.live && <span className="pulse-dot" style={{ background: "var(--up)", marginRight: 6, boxShadow: "0 0 5px var(--up)" }} />}
               {o.label}
+              {o.demo && <span className="demo-tag">DEMO</span>}
               {o.id === "quakes" && quakes.length > 0 && <span style={{ marginLeft: 6, color: "var(--faint)" }}>{quakes.length}</span>}
             </button>
           ))}

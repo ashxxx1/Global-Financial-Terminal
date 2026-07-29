@@ -3,7 +3,7 @@
  * Fully public: no authentication anywhere. Layout per spec:
  * top nav · content + right rail · bottom live ticker.
  */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { startCryptoFeed } from "./lib/feeds/crypto";
 import { startFxFeed } from "./lib/feeds/fx";
@@ -22,6 +22,7 @@ import Markets from "./pages/Markets";
 import Stock from "./pages/Stock";
 import News from "./pages/News";
 import Login from "./pages/Login";
+import Landing from "./pages/Landing";
 import { useAuth, authRequired } from "./lib/auth";
 import { useWatchlistSync } from "./lib/syncWatchlist";
 import { initAnalytics, trackPageview } from "./lib/analytics";
@@ -81,6 +82,9 @@ function Shell() {
 function Gate() {
   const status = useAuth((s) => s.status);
   const init = useAuth((s) => s.init);
+  // Anonymous visitors land on the marketing page, not the login form — the
+  // pitch comes before the wall. `authView` flips to the form when they act.
+  const [authView, setAuthView] = useState<null | "signin" | "signup">(null);
   useEffect(() => { initAnalytics(); init(); }, [init]);
 
   if (!authRequired()) return <Shell />;
@@ -96,7 +100,9 @@ function Gate() {
       </div>
     );
   }
-  return status === "signedIn" ? <Shell /> : <Login />;
+  if (status === "signedIn") return <Shell />;
+  if (authView) return <Login initialMode={authView} onBack={() => setAuthView(null)} />;
+  return <Landing onGetStarted={(mode = "signup") => setAuthView(mode)} />;
 }
 
 export default function App() {

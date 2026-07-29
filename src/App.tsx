@@ -24,11 +24,13 @@ import News from "./pages/News";
 import Login from "./pages/Login";
 import { useAuth, authRequired } from "./lib/auth";
 import { useWatchlistSync } from "./lib/syncWatchlist";
+import { initAnalytics, trackPageview } from "./lib/analytics";
 import "./styles/theme.css";
 
 function Shell() {
   const { pathname } = useLocation();
   useWatchlistSync();
+  useEffect(() => { trackPageview(pathname); }, [pathname]);
   const onWorld = pathname === "/";
 
   // Boot the live data layer once. Prefer the hosted ingest backend (unified
@@ -79,7 +81,7 @@ function Shell() {
 function Gate() {
   const status = useAuth((s) => s.status);
   const init = useAuth((s) => s.init);
-  useEffect(() => { init(); }, [init]);
+  useEffect(() => { initAnalytics(); init(); }, [init]);
 
   if (!authRequired()) return <Shell />;
 

@@ -8,6 +8,7 @@
 import { create } from "zustand";
 import {
   onAuthStateChanged,
+  getAdditionalUserInfo,
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -18,6 +19,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db, googleProvider, isConfigured } from "./firebase";
+import { identify, track, resetAnalytics } from "./analytics";
 
 export interface Profile {
   uid: string;
@@ -115,6 +117,7 @@ export const useAuth = create<AuthState>()((set, get) => ({
     onAuthStateChanged(auth, (u) => {
       if (u) {
         set({ user: toProfile(u), status: "signedIn", error: null });
+        identify(u.uid, { email: u.email ?? undefined, name: u.displayName ?? undefined });
         void syncProfile(u);
       } else {
         set({ user: null, status: "signedOut" });
@@ -126,7 +129,8 @@ export const useAuth = create<AuthState>()((set, get) => ({
     if (!auth) return;
     try {
       set({ error: null });
-      await signInWithPopup(auth, googleProvider);
+      const res = await signInWithPopup(auth, googleProvider);
+      track(getAdditionalUserInfo(res)?.isNewUser ? "signed_up" : "signed_in", { method: "google" });
     } catch (e) { set({ error: humanError(e) }); }
   },
 
@@ -136,6 +140,7 @@ export const useAuth = create<AuthState>()((set, get) => ({
     try {
       set({ error: null });
       await signInWithEmailAndPassword(auth, email.trim(), password);
+      track("signed_in", { method: "email" });
     } catch (e) { set({ error: humanError(e) }); }
   },
 
@@ -146,6 +151,7 @@ export const useAuth = create<AuthState>()((set, get) => ({
       const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
       if (name.trim()) await updateProfile(cred.user, { displayName: name.trim() });
       set({ user: toProfile(cred.user) });
+      track("signed_up", { method: "email" });
       await syncProfile(cred.user);
     } catch (e) { set({ error: humanError(e) }); }
   },
@@ -161,6 +167,7 @@ export const useAuth = create<AuthState>()((set, get) => ({
   signOut: async () => {
     if (!auth) return;
     await fbSignOut(auth);
+    resetAnalytics();
     set({ user: null, status: "signedOut" });
   },
 

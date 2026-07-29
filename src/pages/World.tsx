@@ -5,6 +5,7 @@ import { globalNews } from "../lib/news";
 import { fetchBreakingNews, timeAgo, type LiveArticle } from "../lib/newsFeed";
 import type { QuakeEvent } from "../lib/feeds/quakes";
 import { subscribeBus, recentEnvelopes, relativeTime, type Envelope } from "../lib/feeds/bus";
+import { track } from "../lib/analytics";
 
 /** Earthquake envelopes (from either the backend SSE or the in-browser feed)
  *  carry lat/lng/mag in their payload — derive globe markers from them so both
@@ -89,7 +90,7 @@ export default function World() {
         </div>
         <div style={{ display: "flex", gap: 6, pointerEvents: "auto", flexWrap: "wrap" }}>
           {OVERLAYS.map((o) => (
-            <button key={o.id} className={`chip ${overlay === o.id ? "active" : ""}`} onClick={() => setOverlay(o.id)}>
+            <button key={o.id} className={`chip ${overlay === o.id ? "active" : ""}`} onClick={() => { setOverlay(o.id); track("overlay_switched", { overlay: o.id }); }}>
               {o.live && <span className="pulse-dot" style={{ background: "var(--up)", marginRight: 6, boxShadow: "0 0 5px var(--up)" }} />}
               {o.label}
               {o.id === "quakes" && quakes.length > 0 && <span style={{ marginLeft: 6, color: "var(--faint)" }}>{quakes.length}</span>}

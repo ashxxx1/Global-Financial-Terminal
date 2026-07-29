@@ -73,10 +73,10 @@ with a big roadmap and no users.
 
 ### Measurement
 - [ ] 16. Add PostHog key to `.env.local` and Vercel (code is already wired)
-- [ ] 17. Define the North Star metric (proposed: *weekly active users who view ≥2 sessions*)
-- [ ] 18. Define "active user" precisely and write it down
+- [x] 17. Define the North Star metric (proposed: *weekly active users who view ≥2 sessions*)
+- [x] 18. Define "active user" precisely and write it down
 - [ ] 19. Build the core funnel dashboard: visit → signup → activation → W1 → W4
-- [ ] 20. Instrument activation events (first watchlist add, first alert, first country open)
+- [x] 20. Instrument activation events (first watchlist add, first alert, first country open)
 - [ ] 21. Add Sentry (or equivalent) for runtime error monitoring
 - [ ] 22. Add uptime monitoring with alerting
 - [ ] 23. Set a weekly metrics review ritual (same day, same time, written)
@@ -99,10 +99,10 @@ with a big roadmap and no users.
 *Goal: prove someone actually wants this. Gate G1.*
 
 ### Know who this is for
-- [ ] 34. Write the ICP in one paragraph — who specifically, not "investors"
-- [ ] 35. Define the top 3 jobs-to-be-done the product serves
-- [ ] 36. Write the positioning statement (for X who Y, we are Z unlike W)
-- [ ] 37. Identify the 3 closest competitors and your honest wedge vs each
+- [x] 34. Write the ICP in one paragraph — who specifically, not "investors"
+- [x] 35. Define the top 3 jobs-to-be-done the product serves
+- [x] 36. Write the positioning statement (for X who Y, we are Z unlike W)
+- [x] 37. Identify the 3 closest competitors and your honest wedge vs each
 
 ### Onboarding & activation
 - [ ] 38. Design the first-run experience (what happens in the first 60 seconds)

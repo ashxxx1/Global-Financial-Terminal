@@ -10,6 +10,7 @@ import Connections from "../components/Connections";
 import { connectionsForCountry } from "../lib/graph";
 import { useTerminal } from "../store";
 import { useSeo } from "../lib/seo";
+import { track } from "../lib/analytics";
 
 const TABS = ["OVERVIEW", "AI PICKS", "MARKETS", "NEWS", "AI SUMMARY"] as const;
 
@@ -33,6 +34,9 @@ export default function Country() {
     path: `/country/${iso}`,
   });
   const [tab, setTab] = useState<(typeof TABS)[number]>("OVERVIEW");
+
+  // Value action: opening a country is the core "orientation" job.
+  useEffect(() => { if (iso) track("country_opened", { code: iso }); }, [iso]);
 
   // Country news engine: auto-fetch on selection, auto-refresh every 3 min.
   const [articles, setArticles] = useState<Article[]>([]);

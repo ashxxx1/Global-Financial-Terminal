@@ -8,6 +8,7 @@ import Sparkline from "./Sparkline";
 import AnimatedNumber from "./AnimatedNumber";
 import MarketSessions from "./MarketSessions";
 import BreadthBar from "./BreadthBar";
+import { track } from "../lib/analytics";
 
 /** Market row: symbol + name, a sparkline of where it has been, and the number. */
 function Row({ symbol, name, price, changePct, rank, onClick }: {
@@ -144,6 +145,7 @@ export default function RightRail() {
             target="_blank"
             rel="noopener noreferrer"
             className="fade-in news-row"
+            onClick={() => track("news_clicked", { source: a.source })}
             style={{
               display: "block", padding: "9px 12px",
               borderBottom: "1px solid var(--line)", textDecoration: "none",

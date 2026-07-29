@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuote, useHistory } from "../lib/hooks";
 import { metaFor, COUNTRIES, type Candle } from "../lib/market";
@@ -7,6 +7,7 @@ import Connections from "../components/Connections";
 import { connectionsForStock } from "../lib/graph";
 import { useTerminal } from "../store";
 import { useSeo } from "../lib/seo";
+import { track } from "../lib/analytics";
 
 const RANGES = ["1W", "1M", "3M", "6M", "1Y"] as const;
 
@@ -27,6 +28,8 @@ export default function Stock() {
   const { candles } = useHistory(meta ? sym : null, range);
   const { addWatch, removeWatch, inWatchlist, addAlert } = useTerminal();
   const [alertMsg, setAlertMsg] = useState("");
+
+  useEffect(() => { if (sym) track("stock_opened", { symbol: sym }); }, [sym]);
 
   const ai = useMemo(() => {
     if (!meta || !quote) return null;

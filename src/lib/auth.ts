@@ -167,6 +167,7 @@ export const useAuth = create<AuthState>()((set, get) => ({
   signOut: async () => {
     if (!auth) return;
     await fbSignOut(auth);
+    track("signed_out");
     resetAnalytics();
     set({ user: null, status: "signedOut" });
   },

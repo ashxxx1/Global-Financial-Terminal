@@ -50,6 +50,7 @@ export interface EventMap {
   search_opened: Record<string, never>;
   news_clicked: { source: string };
   upgrade_clicked: { placement: string };
+  shared: { method: "native" | "clipboard"; surface: string };
 }
 
 export function track<K extends keyof EventMap>(event: K, props?: EventMap[K]): void {

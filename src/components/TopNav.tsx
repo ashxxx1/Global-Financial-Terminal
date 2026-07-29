@@ -4,6 +4,7 @@ import { useUtcClock } from "../lib/hooks";
 import { liveSymbolCount } from "../lib/market";
 import { useTerminal } from "../store";
 import SourceBadge from "./SourceBadge";
+import ShareButton from "./ShareButton";
 import { useAuth } from "../lib/auth";
 
 const LINKS = [
@@ -108,6 +109,7 @@ export default function TopNav() {
           source={liveN > 0 ? "live" : "sim"}
           title={liveN > 0 ? `${liveN} instruments on real feeds (Binance WS · ECB) — rest simulated` : undefined}
         />
+        <ShareButton />
         <span className="mono" style={{ fontSize: 12, color: "var(--up)" }}>{clock} UTC</span>
         <AccountChip />
       </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../lib/auth";
 import { isConfigured } from "../lib/firebase";
+import { useSeo } from "../lib/seo";
 
 type Mode = "signin" | "signup" | "reset";
 
@@ -20,6 +21,12 @@ export default function Login({ initialMode = "signin", onBack }: { initialMode?
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+
+  useSeo({
+    title: "Sign in",
+    description: "Sign in to your GFT Terminal account.",
+    noindex: true,
+  });
 
   useEffect(() => { clearError(); setSent(false); }, [mode, clearError]);
 

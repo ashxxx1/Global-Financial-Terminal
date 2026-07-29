@@ -9,6 +9,7 @@ import SourceBadge from "../components/SourceBadge";
 import Connections from "../components/Connections";
 import { connectionsForCountry } from "../lib/graph";
 import { useTerminal } from "../store";
+import { useSeo } from "../lib/seo";
 
 const TABS = ["OVERVIEW", "AI PICKS", "MARKETS", "NEWS", "AI SUMMARY"] as const;
 
@@ -20,6 +21,17 @@ export default function Country() {
   const stats = useMemo(() => { try { return getCountryStats(iso); } catch { return null; } }, [iso]);
   const symbols = useMemo(() => stocksOf(iso), [iso]);
   const quotes = useQuotes(symbols);
+  // Keyword-shaped title: this is the template the programmatic country pages
+  // in plan items 89–94 will rank on.
+  useSeo({
+    title: meta
+      ? `${meta.name} Stock Market Today — Index, Currency & News`
+      : "Country Markets",
+    description: meta
+      ? `Live ${meta.name} market data: benchmark index, currency, top stocks, economic indicators and the latest financial news.`
+      : "Live country market data, indices, currencies and financial news.",
+    path: `/country/${iso}`,
+  });
   const [tab, setTab] = useState<(typeof TABS)[number]>("OVERVIEW");
 
   // Country news engine: auto-fetch on selection, auto-refresh every 3 min.

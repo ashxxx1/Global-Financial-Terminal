@@ -13,6 +13,13 @@ export default function Ticker() {
         position: "relative", zIndex: 40, overflow: "hidden",
       }}
     >
+      {/* Persistent disclaimer. Growth-plan item 12: this must be visible on
+          every data surface, not only the marketing page — the ticker is the
+          one element present on all of them. */}
+      <span className="ticker-disclaimer" title="Market data is informational only and may be delayed or simulated. Nothing here is investment advice.">
+        NOT INVESTMENT ADVICE
+      </span>
+
       <div className="marquee" style={{ flex: 1 }}>
         <div className="marquee-track" style={{ alignItems: "center" }}>
           {items.map((q, i) => {

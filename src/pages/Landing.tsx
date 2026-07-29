@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { track } from "../lib/analytics";
+import { useSeo } from "../lib/seo";
 
 // The globe is the pitch, but it is also the heaviest thing in the bundle —
 // lazy-load it so the landing's text and CTAs paint immediately.
@@ -14,6 +15,13 @@ const Globe3D = lazy(() => import("../components/Globe3D"));
  * wall comes after the pitch, not before it.
  */
 export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signin" | "signup") => void }) {
+  useSeo({
+    title: "GFT Terminal — The World's Economy, On One Screen",
+    description:
+      "A living 3D map of global markets and the news that moves them. Live indices, FX and crypto across 68 countries. Free to explore.",
+    path: "/",
+  });
+
   const start = (mode: "signin" | "signup", placement: string) => {
     track("upgrade_clicked", { placement });
     onGetStarted(mode);
@@ -162,7 +170,10 @@ const PLANS = [
     perks: ["The full 3D globe", "Live crypto & FX", "News-to-signal feed", "3-symbol watchlist", "In-app alerts"],
   },
   {
-    name: "Pro", price: "$9", per: "/mo", featured: true, cta: "Get started",
+    // $15, not $9 — see GROWTH-PLAN.md Decision 1. At a realistic 3% conversion,
+    // 20K MAU yields ~600 subscribers; $9 caps that at $65K ARR and misses the
+    // $100K target, $15 clears it at $108K.
+    name: "Pro", price: "$15", per: "/mo", featured: true, cta: "Get started",
     perks: ["Everything in Free", "Unlimited watchlist", "Email & push alerts", "Daily market digest", "Portfolio tracking", "No delay on data"],
   },
   {

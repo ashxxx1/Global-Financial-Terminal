@@ -7,6 +7,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSeo } from "../lib/seo";
 import {
   fetchGlobalNews,
   fetchBreakingNews,
@@ -34,6 +35,11 @@ const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
    ═══════════════════════════════════════════════════════════════ */
 
 export default function News() {
+  useSeo({
+    title: "Global Financial News Wire",
+    description: "Live financial headlines from around the world, mapped to the sectors and stocks they move.",
+    path: "/news",
+  });
   const navigate = useNavigate();
   const [articles, setArticles] = useState<LiveArticle[]>([]);
   const [breaking, setBreaking] = useState<LiveArticle[]>([]);

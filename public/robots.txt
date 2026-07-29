@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Auth screens carry no crawlable value
+Disallow: /login
+
+Sitemap: https://global-financial-news.vercel.app/sitemap.xml

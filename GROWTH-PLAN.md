@@ -66,7 +66,7 @@ with a big roadmap and no users.
 - [ ] 9. Terms of Service page
 - [ ] 10. Privacy Policy page (GDPR + CCPA compliant)
 - [ ] 11. Cookie consent banner (required for EU traffic)
-- [ ] 12. Prominent "not investment advice" disclaimer on every data surface
+- [x] 12. Prominent "not investment advice" disclaimer on every data surface
 - [ ] 13. Account deletion + data export flow (GDPR right to erasure)
 - [ ] 14. Decide and document jurisdiction of operation
 - [ ] 15. Register the business entity before taking payments
@@ -87,8 +87,8 @@ with a big roadmap and no users.
 - [x] 26. Lazy-load the globe and Three.js off the critical path
 - [ ] 27. Pass Core Web Vitals (LCP < 2.5s, INP < 200ms, CLS < 0.1)
 - [ ] 28. Full mobile responsive audit — finance is a phone habit
-- [ ] 29. Per-route SEO meta (title/description/canonical)
-- [ ] 30. `sitemap.xml` + `robots.txt`
+- [x] 29. Per-route SEO meta (title/description/canonical)
+- [x] 30. `sitemap.xml` + `robots.txt`
 - [ ] 31. Set up a staging environment separate from production
 - [ ] 32. Automated backups of Firestore
 - [ ] 33. Accessibility pass to WCAG 2.2 AA (run the `a11y-audit` skill)

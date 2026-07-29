@@ -6,6 +6,7 @@ import SourceBadge from "../components/SourceBadge";
 import Connections from "../components/Connections";
 import { connectionsForStock } from "../lib/graph";
 import { useTerminal } from "../store";
+import { useSeo } from "../lib/seo";
 
 const RANGES = ["1W", "1M", "3M", "6M", "1Y"] as const;
 
@@ -16,6 +17,13 @@ export default function Stock() {
   const meta = metaFor(sym);
   const quote = useQuote(meta ? sym : null);
   const [range, setRange] = useState<(typeof RANGES)[number]>("3M");
+  useSeo({
+    title: meta ? `${sym} — ${meta.name} Share Price & Chart` : "Stock",
+    description: meta
+      ? `${meta.name} (${sym}) live share price, interactive chart, sector context and related market connections.`
+      : "Live share price and chart.",
+    path: `/stock/${sym}`,
+  });
   const { candles } = useHistory(meta ? sym : null, range);
   const { addWatch, removeWatch, inWatchlist, addAlert } = useTerminal();
   const [alertMsg, setAlertMsg] = useState("");

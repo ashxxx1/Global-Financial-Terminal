@@ -6,6 +6,7 @@ import type { Quote } from "../lib/market";
 import SourceBadge from "../components/SourceBadge";
 import SectorHeatmap from "../components/SectorHeatmap";
 import PulseGauge from "../components/PulseGauge";
+import { useSeo } from "../lib/seo";
 import { subscribe } from "../lib/market";
 import { useEffect } from "react";
 
@@ -13,6 +14,11 @@ const GROUPS = ["INDICES", "FX", "CRYPTO", "COMMODITIES", "MOVERS"] as const;
 
 export default function Markets() {
   const navigate = useNavigate();
+  useSeo({
+    title: "Global Markets — Indices, FX, Crypto & Commodities",
+    description: "Live global market data: world indices, currencies, crypto and commodities, plus a sector heat map and market-pulse gauge.",
+    path: "/markets",
+  });
   const all = useIndices();
   const [group, setGroup] = useState<(typeof GROUPS)[number]>("INDICES");
   const [tick, setTick] = useState(0);

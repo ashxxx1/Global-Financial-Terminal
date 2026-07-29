@@ -6,6 +6,7 @@ import { fetchBreakingNews, timeAgo, type LiveArticle } from "../lib/newsFeed";
 import type { QuakeEvent } from "../lib/feeds/quakes";
 import { subscribeBus, recentEnvelopes, relativeTime, type Envelope } from "../lib/feeds/bus";
 import { track } from "../lib/analytics";
+import { useSeo } from "../lib/seo";
 
 /** Earthquake envelopes (from either the backend SSE or the in-browser feed)
  *  carry lat/lng/mag in their payload — derive globe markers from them so both
@@ -28,6 +29,11 @@ const OVERLAYS: { id: OverlayMode; label: string; live?: boolean; demo?: boolean
 
 export default function World() {
   const navigate = useNavigate();
+  useSeo({
+    title: "Live World Markets Map",
+    description: "Watch the global economy move in real time on an interactive 3D map — live indices, FX, crypto and the news moving 68 countries.",
+    path: "/",
+  });
   const [overlay, setOverlay] = useState<OverlayMode>("market");
   const [hover, setHover] = useState<HoverInfo | null>(null);
   const [events, setEvents] = useState<Envelope[]>(() => recentEnvelopes("event", 40));

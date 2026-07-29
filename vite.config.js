@@ -35,4 +35,31 @@ export default defineConfig({
     // for auditing via `vite preview` behind a public tunnel.
     allowedHosts: true,
   },
+  build: {
+    // Split the heavy vendors out of the entry chunk. Without this everything
+    // ships as one ~900KB gzipped file, so a visitor who only ever sees the
+    // landing page still downloads three.js, recharts and firebase before
+    // first paint — which is both a Core Web Vitals and an SEO problem.
+    rollupOptions: {
+      output: {
+        // Rolldown (Vite 8) requires the function form.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          // The globe: by far the largest dependency, and only the World page
+          // and the landing hero need it.
+          if (/[\\/]node_modules[\\/](three|globe\.gl|react-globe\.gl)[\\/]/.test(id)) return 'globe'
+          // Charts: only the Stock/Country pages.
+          if (/[\\/]node_modules[\\/](recharts|d3-[^\\/]+|victory-[^\\/]+)[\\/]/.test(id)) return 'charts'
+          // Auth + database: not needed until the user signs in.
+          if (/[\\/]node_modules[\\/](firebase|@firebase)[\\/]/.test(id)) return 'firebase'
+          // Analytics: deferred, never blocking.
+          if (/[\\/]node_modules[\\/]posthog-js[\\/]/.test(id)) return 'analytics'
+          if (/[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/.test(id)) return 'react'
+        },
+      },
+    },
+    // The globe chunk is legitimately large; warn above that rather than on
+    // every build so the signal stays meaningful.
+    chunkSizeWarningLimit: 900,
+  },
 })

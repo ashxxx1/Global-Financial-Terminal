@@ -83,8 +83,8 @@ with a big roadmap and no users.
 
 ### Technical foundation
 - [ ] 24. Deploy Firestore security rules (`npx firebase deploy --only firestore:rules`)
-- [ ] 25. Code-split the bundle (currently 2.3MB / 654KB gzipped — too heavy)
-- [ ] 26. Lazy-load the globe and Three.js off the critical path
+- [x] 25. Code-split the bundle (currently 2.3MB / 654KB gzipped — too heavy)
+- [x] 26. Lazy-load the globe and Three.js off the critical path
 - [ ] 27. Pass Core Web Vitals (LCP < 2.5s, INP < 200ms, CLS < 0.1)
 - [ ] 28. Full mobile responsive audit — finance is a phone habit
 - [ ] 29. Per-route SEO meta (title/description/canonical)

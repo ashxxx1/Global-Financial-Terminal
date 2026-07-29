@@ -10,25 +10,58 @@
  * calling posthog directly, so the event vocabulary stays in one place and
  * cannot drift into a mess of ad-hoc string names.
  */
-import posthog from "posthog-js";
+/**
+ * posthog-js is ~74KB gzipped. It is imported dynamically so it never sits on
+ * the critical path — analytics must never delay first paint. Events fired
+ * before the SDK finishes loading are queued and flushed on arrival rather
+ * than dropped.
+ */
+type PostHog = typeof import("posthog-js").default;
 
 const KEY = import.meta.env.VITE_POSTHOG_KEY;
 const HOST = import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.com";
 
 export const analyticsEnabled = Boolean(KEY);
 
+let ph: PostHog | null = null;
 let started = false;
+const queue: Array<(p: PostHog) => void> = [];
+
+/** Run now if the SDK is ready, otherwise buffer until it is. */
+function withPostHog(fn: (p: PostHog) => void): void {
+  if (!analyticsEnabled) return;
+  if (ph) fn(ph);
+  else queue.push(fn);
+}
 
 export function initAnalytics(): void {
   if (!analyticsEnabled || started) return;
   started = true;
-  posthog.init(KEY, {
-    api_host: HOST,
-    capture_pageview: false, // we send SPA pageviews manually on route change
-    capture_pageleave: true,
-    person_profiles: "identified_only", // don't create a profile for every anon visitor
-    autocapture: true,
-  });
+  // Load after the browser is idle so it competes with nothing that matters.
+  const load = () => {
+    import("posthog-js")
+      .then(({ default: posthog }) => {
+        posthog.init(KEY, {
+          api_host: HOST,
+          capture_pageview: false, // we send SPA pageviews manually on route change
+          capture_pageleave: true,
+          person_profiles: "identified_only", // don't profile every anon visitor
+          autocapture: true,
+        });
+        ph = posthog;
+        queue.splice(0).forEach((fn) => fn(posthog));
+      })
+      .catch(() => {
+        // Analytics failing must never break the app.
+        started = false;
+      });
+  };
+  if ("requestIdleCallback" in window) {
+    (window as unknown as { requestIdleCallback: (cb: () => void, o?: object) => void })
+      .requestIdleCallback(load, { timeout: 3000 });
+  } else {
+    setTimeout(load, 1200);
+  }
 }
 
 /**
@@ -54,23 +87,19 @@ export interface EventMap {
 }
 
 export function track<K extends keyof EventMap>(event: K, props?: EventMap[K]): void {
-  if (!analyticsEnabled) return;
-  posthog.capture(event, props);
+  withPostHog((p) => p.capture(event, props));
 }
 
 /** Tie events to the signed-in user so retention/funnels are per-account. */
 export function identify(uid: string, traits?: Record<string, unknown>): void {
-  if (!analyticsEnabled) return;
-  posthog.identify(uid, traits);
+  withPostHog((p) => p.identify(uid, traits));
 }
 
 export function resetAnalytics(): void {
-  if (!analyticsEnabled) return;
-  posthog.reset();
+  withPostHog((p) => p.reset());
 }
 
 export function trackPageview(path: string): void {
-  if (!analyticsEnabled) return;
-  posthog.capture("$pageview", { $current_url: window.location.href, path });
+  withPostHog((p) => p.capture("$pageview", { $current_url: window.location.href, path }));
   track("page_viewed", { path });
 }

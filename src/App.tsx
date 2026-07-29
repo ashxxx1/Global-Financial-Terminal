@@ -3,7 +3,7 @@
  * Fully public: no authentication anywhere. Layout per spec:
  * top nav · content + right rail · bottom live ticker.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { startCryptoFeed } from "./lib/feeds/crypto";
 import { startFxFeed } from "./lib/feeds/fx";
@@ -17,16 +17,40 @@ import Search from "./components/Search";
 import AlertWatcher from "./components/AlertWatcher";
 import Toasts from "./components/Toasts";
 import World from "./pages/World";
-import Country from "./pages/Country";
-import Markets from "./pages/Markets";
-import Stock from "./pages/Stock";
-import News from "./pages/News";
+const Country = lazy(() => import("./pages/Country"));
+const Markets = lazy(() => import("./pages/Markets"));
+const Stock = lazy(() => import("./pages/Stock"));
+const News = lazy(() => import("./pages/News"));
 import Login from "./pages/Login";
-import Landing from "./pages/Landing";
+const Landing = lazy(() => import("./pages/Landing"));
 import { useAuth, authRequired } from "./lib/auth";
 import { useWatchlistSync } from "./lib/syncWatchlist";
 import { initAnalytics, trackPageview } from "./lib/analytics";
 import "./styles/theme.css";
+
+/** Shown while a lazily-loaded route chunk is in flight. */
+function RouteFallback() {
+  return (
+    <div style={{ padding: 24, display: "grid", gap: 12, maxWidth: 900 }}>
+      <div className="skeleton" style={{ height: 26, width: "38%", borderRadius: 6 }} />
+      <div className="skeleton" style={{ height: 180, borderRadius: 10 }} />
+      <div className="skeleton" style={{ height: 180, borderRadius: 10 }} />
+    </div>
+  );
+}
+
+/** Full-screen boundary for the landing chunk, before any shell exists. */
+function BootFallback() {
+  return (
+    <div className="auth-wrap">
+      <div className="auth-aurora" aria-hidden />
+      <div style={{ textAlign: "center" }}>
+        <div className="skeleton" style={{ width: 190, height: 9, borderRadius: 5, margin: "0 auto 10px" }} />
+        <div className="label">LOADING…</div>
+      </div>
+    </div>
+  );
+}
 
 function Shell() {
   const { pathname } = useLocation();
@@ -52,6 +76,7 @@ function Shell() {
       <div className="shell-main">
         <main className="shell-content" style={{ overflowY: onWorld ? "hidden" : "auto" }}>
           <div className="route-fade" key={pathname}>
+          <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<World />} />
             <Route path="/country/:code" element={<Country />} />
@@ -60,6 +85,7 @@ function Shell() {
             <Route path="/news" element={<News />} />
             <Route path="*" element={<World />} />
           </Routes>
+          </Suspense>
           </div>
         </main>
         <RightRail />
@@ -102,7 +128,11 @@ function Gate() {
   }
   if (status === "signedIn") return <Shell />;
   if (authView) return <Login initialMode={authView} onBack={() => setAuthView(null)} />;
-  return <Landing onGetStarted={(mode = "signup") => setAuthView(mode)} />;
+  return (
+    <Suspense fallback={<BootFallback />}>
+      <Landing onGetStarted={(mode = "signup") => setAuthView(mode)} />
+    </Suspense>
+  );
 }
 
 export default function App() {

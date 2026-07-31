@@ -116,10 +116,10 @@ with a big roadmap and no users.
 ### Talk to humans
 - [ ] 45. Recruit and run 15 user interviews (30 min each, recorded)
 - [ ] 46. Write up interview findings into a themes document
-- [ ] 47. Add an in-app feedback widget
-- [ ] 48. Set up a support channel (email or Crisp/Intercom)
-- [ ] 49. Run the Sean Ellis PMF survey ("how disappointed if this disappeared?")
-- [ ] 50. Publish a public changelog to show momentum
+- [x] 47. Add an in-app feedback widget
+- [x] 48. Set up a support channel (email or Crisp/Intercom)
+- [x] 49. Run the Sean Ellis PMF survey ("how disappointed if this disappeared?")
+- [x] 50. Publish a public changelog to show momentum
 
 ### First distribution push
 - [ ] 51. Post to r/investing, r/stocks, r/dataisbeautiful (value-first, not spam)

@@ -90,6 +90,11 @@ export interface EventMap {
   onboarding_shown: Record<string, never>;
   onboarding_completed: { picked: number };
   onboarding_skipped: Record<string, never>;
+  feedback_opened: Record<string, never>;
+  feedback_submitted: { type: string };
+  pmf_shown: Record<string, never>;
+  pmf_answered: { answer: string };
+  pmf_dismissed: Record<string, never>;
 }
 
 export function track<K extends keyof EventMap>(event: K, props?: EventMap[K]): void {

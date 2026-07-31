@@ -974,3 +974,126 @@ input, select { font-family: inherit; }
   transition: background .15s, border-color .15s;
 }
 .empty-state .es-action:hover { background: rgba(79,141,255,.20); border-color: var(--blue); }
+
+/* ═══════════════════════════════════════════════════
+   USER VOICE — feedback widget + PMF survey (47, 49)
+   ═══════════════════════════════════════════════════ */
+.fb-launcher {
+  position: fixed; right: 16px; bottom: calc(var(--ticker-h) + 14px); z-index: 190;
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(13,20,32,.92); border: 1px solid var(--line-strong);
+  color: var(--muted); border-radius: 100px; padding: 8px 15px; cursor: pointer;
+  font: inherit; font-size: 12px; font-weight: 650;
+  backdrop-filter: blur(12px); box-shadow: var(--shadow-sm);
+  transition: color .15s, border-color .15s, transform .15s;
+}
+.fb-launcher:hover { color: var(--text); border-color: var(--blue); transform: translateY(-1px); }
+
+.fb-panel {
+  position: fixed; right: 16px; bottom: calc(var(--ticker-h) + 58px); z-index: 191;
+  width: min(340px, calc(100vw - 32px));
+  border: 1px solid var(--line-strong); border-radius: 12px; padding: 14px;
+  background: linear-gradient(180deg, var(--panel-top), var(--panel-bot));
+  backdrop-filter: blur(20px); box-shadow: var(--edge-hi), var(--shadow-lg);
+  animation: fadeIn .26s cubic-bezier(.22,1,.36,1) both;
+}
+.fb-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+.fb-x {
+  background: none; border: 0; color: var(--faint); font-size: 19px; line-height: 1;
+  cursor: pointer; padding: 0 2px;
+}
+.fb-x:hover { color: var(--text); }
+
+.fb-types { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+.fb-type {
+  display: flex; align-items: center; gap: 6px; text-align: left;
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px;
+  background: rgba(10,16,27,.5); color: var(--muted); cursor: pointer;
+  font: inherit; font-size: 11px; font-weight: 600;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.fb-type:hover { color: var(--text); border-color: var(--line-strong); }
+.fb-type.on { border-color: var(--blue); color: var(--text); background: rgba(79,141,255,.14); }
+
+.fb-text, .fb-email {
+  width: 100%; border: 1px solid var(--line); border-radius: 8px;
+  background: rgba(6,10,18,.6); color: var(--text); font: inherit; font-size: 13px;
+  padding: 9px 10px; resize: vertical; margin-bottom: 8px;
+}
+.fb-text::placeholder, .fb-email::placeholder { color: #4d5768; }
+.fb-text:focus, .fb-email:focus {
+  outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(79,141,255,.14);
+}
+.fb-send { width: 100%; }
+.fb-send:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+
+.fb-done { display: grid; gap: 4px; justify-items: center; text-align: center; padding: 14px 6px; }
+.fb-done-mark {
+  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--up-dim); border: 1px solid rgba(38,208,124,.4); color: var(--up);
+  font-weight: 700; margin-bottom: 4px;
+}
+.fb-done span { font-size: 12px; color: var(--muted); }
+
+/* PMF survey */
+.pmf {
+  position: fixed; right: 16px; bottom: calc(var(--ticker-h) + 14px); z-index: 192;
+  width: min(340px, calc(100vw - 32px));
+  border: 1px solid rgba(45,226,230,.34); border-radius: 12px; padding: 16px;
+  background: linear-gradient(180deg, var(--panel-top), var(--panel-bot));
+  backdrop-filter: blur(20px);
+  box-shadow: var(--edge-hi), var(--shadow-lg), 0 0 26px rgba(45,226,230,.10);
+  animation: toastIn .4s cubic-bezier(.22,1,.36,1) both;
+}
+.pmf-x { position: absolute; top: 8px; right: 10px; }
+.pmf-q { display: block; font-size: 14px; line-height: 1.4; margin: 8px 0 12px; }
+.pmf-answers { display: grid; gap: 6px; }
+.pmf-answer {
+  text-align: left; border: 1px solid var(--line); border-radius: 8px;
+  padding: 9px 11px; background: rgba(10,16,27,.5); color: var(--text);
+  font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  transition: border-color .15s, background .15s, transform .12s;
+}
+.pmf-answer:hover {
+  border-color: var(--cyan); background: rgba(45,226,230,.10); transform: translateX(2px);
+}
+
+@media (max-width: 640px) { .fb-launcher { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .fb-panel, .pmf { animation: none; }
+  .fb-launcher:hover, .pmf-answer:hover { transform: none; }
+}
+
+/* ─── Changelog page (item 50) ─── */
+.cl { max-width: 780px; margin: 0 auto; padding: 32px 22px 60px; }
+.cl-head h1 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -.03em; font-weight: 800; margin: 10px 0 0; }
+.cl-head p { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin: 10px 0 0; max-width: 520px; }
+.cl-list { list-style: none; padding: 0; margin: 34px 0 0; }
+.cl-entry {
+  display: grid; grid-template-columns: 132px 1fr; gap: 18px;
+  padding: 22px 0; border-top: 1px solid var(--line);
+}
+@media (max-width: 620px) { .cl-entry { grid-template-columns: 1fr; gap: 8px; } }
+.cl-meta { display: flex; flex-direction: column; gap: 6px; }
+.cl-meta time { font-size: 12px; color: var(--muted); }
+.cl-version {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: .1em;
+  color: var(--gold); border: 1px solid var(--gold); background: var(--gold-dim);
+  border-radius: 3px; padding: 1px 6px; width: fit-content;
+}
+.cl-body h2 { font-size: 17px; letter-spacing: -.015em; margin: 0 0 10px; }
+.cl-body ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.cl-body li { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+.cl-kind {
+  display: inline-block; font-family: var(--mono); font-size: 8.5px; font-weight: 700;
+  letter-spacing: .1em; border-radius: 3px; padding: 1px 5px; margin-right: 8px;
+  vertical-align: 1px; border: 1px solid transparent;
+}
+.cl-kind.new { color: var(--up); border-color: rgba(38,208,124,.4); background: var(--up-dim); }
+.cl-kind.improved { color: var(--blue); border-color: rgba(79,141,255,.4); background: var(--blue-dim); }
+.cl-kind.fixed { color: var(--gold); border-color: rgba(231,180,41,.4); background: var(--gold-dim); }
+.cl-foot {
+  margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--line);
+  font-size: 13.5px; color: var(--muted);
+}
+.cl-foot b { color: var(--text); }

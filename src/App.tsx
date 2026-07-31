@@ -17,11 +17,14 @@ import Search from "./components/Search";
 import AlertWatcher from "./components/AlertWatcher";
 import Toasts from "./components/Toasts";
 const Onboarding = lazy(() => import("./components/Onboarding"));
+const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
+const PmfSurvey = lazy(() => import("./components/PmfSurvey"));
 import World from "./pages/World";
 const Country = lazy(() => import("./pages/Country"));
 const Markets = lazy(() => import("./pages/Markets"));
 const Stock = lazy(() => import("./pages/Stock"));
 const News = lazy(() => import("./pages/News"));
+const Changelog = lazy(() => import("./pages/Changelog"));
 import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
 import { useAuth, authRequired } from "./lib/auth";
@@ -88,6 +91,7 @@ function Shell() {
             <Route path="/markets" element={<Markets />} />
             <Route path="/stock/:symbol" element={<Stock />} />
             <Route path="/news" element={<News />} />
+            <Route path="/changelog" element={<Changelog />} />
             <Route path="*" element={<World />} />
           </Routes>
           </Suspense>
@@ -99,6 +103,14 @@ function Shell() {
       <Search />
       <AlertWatcher />
       <Toasts />
+      {/* Suppressed during onboarding — a floating feedback button on top of a
+          modal the user has not finished competes for the same decision. */}
+      {!showOnboarding && (
+        <Suspense fallback={null}>
+          <FeedbackWidget />
+          <PmfSurvey />
+        </Suspense>
+      )}
       {showOnboarding && (
         <Suspense fallback={null}>
           <Onboarding />

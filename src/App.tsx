@@ -19,18 +19,21 @@ import Toasts from "./components/Toasts";
 const Onboarding = lazy(() => import("./components/Onboarding"));
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
 const PmfSurvey = lazy(() => import("./components/PmfSurvey"));
+const ConsentBanner = lazy(() => import("./components/ConsentBanner"));
 import World from "./pages/World";
 const Country = lazy(() => import("./pages/Country"));
 const Markets = lazy(() => import("./pages/Markets"));
 const Stock = lazy(() => import("./pages/Stock"));
 const News = lazy(() => import("./pages/News"));
 const Changelog = lazy(() => import("./pages/Changelog"));
+const DataSources = lazy(() => import("./pages/DataSources"));
 import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
 import { useAuth, authRequired } from "./lib/auth";
 import { useTerminal } from "./store";
 import { useWatchlistSync } from "./lib/syncWatchlist";
 import { initAnalytics, trackPageview } from "./lib/analytics";
+import { onConsentChange } from "./lib/consent";
 import "./styles/theme.css";
 
 /** Shown while a lazily-loaded route chunk is in flight. */
@@ -92,6 +95,7 @@ function Shell() {
             <Route path="/stock/:symbol" element={<Stock />} />
             <Route path="/news" element={<News />} />
             <Route path="/changelog" element={<Changelog />} />
+            <Route path="/data-sources" element={<DataSources />} />
             <Route path="*" element={<World />} />
           </Routes>
           </Suspense>
@@ -133,7 +137,12 @@ function Gate() {
   // Anonymous visitors land on the marketing page, not the login form — the
   // pitch comes before the wall. `authView` flips to the form when they act.
   const [authView, setAuthView] = useState<null | "signin" | "signup">(null);
-  useEffect(() => { initAnalytics(); init(); }, [init]);
+  useEffect(() => {
+    initAnalytics();
+    init();
+    // Boot analytics the moment consent is granted, without a reload.
+    return onConsentChange((v) => { if (v === "granted") initAnalytics(); });
+  }, [init]);
 
   if (!authRequired()) return <Shell />;
 
@@ -164,6 +173,9 @@ export default function App() {
   return (
     <BrowserRouter basename={basename || undefined}>
       <Gate />
+      <Suspense fallback={null}>
+        <ConsentBanner />
+      </Suspense>
     </BrowserRouter>
   );
 }

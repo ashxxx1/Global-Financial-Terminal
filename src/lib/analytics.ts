@@ -16,6 +16,8 @@
  * before the SDK finishes loading are queued and flushed on arrival rather
  * than dropped.
  */
+import { analyticsAllowed } from "./consent";
+
 type PostHog = typeof import("posthog-js").default;
 
 const KEY = import.meta.env.VITE_POSTHOG_KEY;
@@ -27,15 +29,24 @@ let ph: PostHog | null = null;
 let started = false;
 const queue: Array<(p: PostHog) => void> = [];
 
-/** Run now if the SDK is ready, otherwise buffer until it is. */
+/**
+ * Run now if the SDK is ready, otherwise buffer until it is.
+ *
+ * Nothing is buffered without consent. Queuing pre-consent activity and
+ * flushing it the moment someone opts in would be retroactive collection of
+ * data they had not agreed to when it happened — consent is not backdated.
+ */
 function withPostHog(fn: (p: PostHog) => void): void {
-  if (!analyticsEnabled) return;
+  if (!analyticsEnabled || !analyticsAllowed()) return;
   if (ph) fn(ph);
   else queue.push(fn);
 }
 
 export function initAnalytics(): void {
   if (!analyticsEnabled || started) return;
+  // Consent gate (item 11). Undecided counts as denied, so nothing loads until
+  // the user explicitly opts in; onConsentChange re-invokes this on a grant.
+  if (!analyticsAllowed()) return;
   started = true;
   // Load after the browser is idle so it competes with nothing that matters.
   const load = () => {

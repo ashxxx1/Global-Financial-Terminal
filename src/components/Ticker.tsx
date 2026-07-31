@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useIndices } from "../lib/hooks";
 import SourceBadge from "./SourceBadge";
 
@@ -16,9 +17,9 @@ export default function Ticker() {
       {/* Persistent disclaimer. Growth-plan item 12: this must be visible on
           every data surface, not only the marketing page — the ticker is the
           one element present on all of them. */}
-      <span className="ticker-disclaimer" title="Market data is informational only and may be delayed or simulated. Nothing here is investment advice.">
+      <Link to="/data-sources" className="ticker-disclaimer" title="Market data is informational only and may be delayed or simulated. Nothing here is investment advice.">
         NOT INVESTMENT ADVICE
-      </span>
+      </Link>
 
       <div className="marquee" style={{ flex: 1 }}>
         <div className="marquee-track" style={{ alignItems: "center" }}>

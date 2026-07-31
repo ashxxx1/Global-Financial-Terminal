@@ -57,7 +57,7 @@ with a big roadmap and no users.
 - [ ] 2. Label every instrument with its true source and delay ("15-min delayed")
 - [ ] 3. Make the Risk Index real, or remove it (currently DEMO-tagged)
 - [ ] 4. Make AI Sentiment real, or remove it (currently DEMO-tagged)
-- [ ] 5. Build a public `/data-sources` page listing every provider
+- [x] 5. Build a public `/data-sources` page listing every provider
 - [ ] 6. Review each provider's ToS for redistribution rights
 - [ ] 7. Add a data-freshness indicator per panel (last updated timestamp)
 - [ ] 8. Remove or clearly fence any remaining simulated numbers
@@ -65,7 +65,7 @@ with a big roadmap and no users.
 ### Legal & compliance (finance is a regulated-adjacent space)
 - [ ] 9. Terms of Service page
 - [ ] 10. Privacy Policy page (GDPR + CCPA compliant)
-- [ ] 11. Cookie consent banner (required for EU traffic)
+- [x] 11. Cookie consent banner (required for EU traffic)
 - [x] 12. Prominent "not investment advice" disclaimer on every data surface
 - [ ] 13. Account deletion + data export flow (GDPR right to erasure)
 - [ ] 14. Decide and document jurisdiction of operation

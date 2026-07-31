@@ -1097,3 +1097,72 @@ input, select { font-family: inherit; }
   font-size: 13.5px; color: var(--muted);
 }
 .cl-foot b { color: var(--text); }
+
+/* ─── Consent banner (item 11) ─── */
+.consent {
+  position: fixed; left: 16px; bottom: calc(var(--ticker-h) + 14px); z-index: 200;
+  width: min(430px, calc(100vw - 32px));
+  display: grid; gap: 12px; padding: 16px 18px;
+  border: 1px solid var(--line-strong); border-radius: 12px;
+  background: linear-gradient(180deg, var(--panel-top), var(--panel-bot));
+  backdrop-filter: blur(20px); box-shadow: var(--edge-hi), var(--shadow-lg);
+  animation: toastIn .4s cubic-bezier(.22,1,.36,1) both;
+}
+.consent-body b { font-size: 13.5px; display: block; margin-bottom: 5px; }
+.consent-body p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+.consent-actions { display: flex; gap: 8px; }
+.consent-btn {
+  flex: 1; border-radius: 8px; padding: 9px 14px; cursor: pointer;
+  font: inherit; font-size: 12.5px; font-weight: 650;
+  transition: filter .15s, background .15s, border-color .15s;
+}
+/* Decline carries the same visual weight as accept — a consent banner that
+   nudges is both unlawful and poisons the data it collects. */
+.consent-btn.ghost {
+  background: rgba(150,174,216,.06); border: 1px solid var(--line-strong); color: var(--text);
+}
+.consent-btn.ghost:hover { background: rgba(150,174,216,.14); }
+.consent-btn.accept {
+  background: linear-gradient(100deg, var(--blue), #6f5cff); border: 0; color: #fff;
+}
+.consent-btn.accept:hover { filter: brightness(1.1); }
+
+/* ─── Data sources page (item 5) ─── */
+.ds-note {
+  border: 1px solid var(--line); border-left: 3px solid var(--cyan);
+  border-radius: 10px; padding: 14px 16px; margin: 26px 0 22px;
+  font-size: 13.5px; color: var(--muted); line-height: 1.7;
+  background: rgba(45,226,230,.05);
+}
+.ds-note b { color: var(--text); }
+.ds-inline {
+  font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .1em;
+  border-radius: 3px; padding: 1px 5px; border: 1px solid transparent;
+}
+.ds-inline.sim { color: var(--gold); border-color: var(--gold); background: var(--gold-dim); }
+.ds-inline.demo { color: var(--gold); border-color: var(--gold); background: var(--gold-dim); }
+
+.ds-table { display: grid; gap: 0; }
+.ds-row {
+  display: grid; grid-template-columns: 1fr auto; gap: 6px 14px;
+  padding: 16px 0; border-top: 1px solid var(--line);
+}
+.ds-what b { display: block; font-size: 14px; }
+.ds-what span { font-size: 12px; color: var(--faint); }
+.ds-status {
+  font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .12em;
+  border-radius: 3px; padding: 3px 8px; height: fit-content; border: 1px solid transparent;
+}
+.ds-status.live { color: var(--up); border-color: rgba(38,208,124,.4); background: var(--up-dim); }
+.ds-status.delayed { color: var(--blue); border-color: rgba(79,141,255,.4); background: var(--blue-dim); }
+.ds-status.sim { color: var(--gold); border-color: rgba(231,180,41,.4); background: var(--gold-dim); }
+.ds-detail {
+  grid-column: 1 / -1; margin: 2px 0 0; font-size: 13px;
+  color: var(--muted); line-height: 1.6; max-width: 640px;
+}
+
+@media (prefers-reduced-motion: reduce) { .consent { animation: none; } }
+
+/* Disclaimer is a link to /data-sources — keep it looking like a label. */
+.ticker-disclaimer { text-decoration: none; }
+.ticker-disclaimer:hover { color: var(--cyan); }

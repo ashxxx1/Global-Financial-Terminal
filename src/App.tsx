@@ -16,6 +16,7 @@ import RightRail from "./components/RightRail";
 import Search from "./components/Search";
 import AlertWatcher from "./components/AlertWatcher";
 import Toasts from "./components/Toasts";
+const Onboarding = lazy(() => import("./components/Onboarding"));
 import World from "./pages/World";
 const Country = lazy(() => import("./pages/Country"));
 const Markets = lazy(() => import("./pages/Markets"));
@@ -24,6 +25,7 @@ const News = lazy(() => import("./pages/News"));
 import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
 import { useAuth, authRequired } from "./lib/auth";
+import { useTerminal } from "./store";
 import { useWatchlistSync } from "./lib/syncWatchlist";
 import { initAnalytics, trackPageview } from "./lib/analytics";
 import "./styles/theme.css";
@@ -57,6 +59,9 @@ function Shell() {
   useWatchlistSync();
   useEffect(() => { trackPageview(pathname); }, [pathname]);
   const onWorld = pathname === "/";
+  const onboarded = useTerminal((st) => st.onboarded);
+  const watchlistEmpty = useTerminal((st) => st.watchlist.length === 0);
+  const showOnboarding = !onboarded && watchlistEmpty;
 
   // Boot the live data layer once. Prefer the hosted ingest backend (unified
   // SSE, server-side keys, history) when VITE_API_URL is set; otherwise run the
@@ -94,6 +99,11 @@ function Shell() {
       <Search />
       <AlertWatcher />
       <Toasts />
+      {showOnboarding && (
+        <Suspense fallback={null}>
+          <Onboarding />
+        </Suspense>
+      )}
     </div>
   );
 }

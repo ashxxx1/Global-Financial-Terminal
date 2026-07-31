@@ -105,10 +105,10 @@ with a big roadmap and no users.
 - [x] 37. Identify the 3 closest competitors and your honest wedge vs each
 
 ### Onboarding & activation
-- [ ] 38. Design the first-run experience (what happens in the first 60 seconds)
-- [ ] 39. Guided onboarding: pick 3 stocks to watch → instant personalized value
-- [ ] 40. Define the activation moment and instrument it
-- [ ] 41. Fill every empty state with a next action (not just "nothing here")
+- [x] 38. Design the first-run experience (what happens in the first 60 seconds)
+- [x] 39. Guided onboarding: pick 3 stocks to watch → instant personalized value
+- [x] 40. Define the activation moment and instrument it
+- [x] 41. Fill every empty state with a next action (not just "nothing here")
 - [ ] 42. Add a product tour or coach marks for the globe interactions
 - [ ] 43. Welcome email on signup
 - [ ] 44. Reduce signup friction — test social-only vs email

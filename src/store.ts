@@ -28,6 +28,13 @@ interface TerminalState {
 
   searchOpen: boolean;
   setSearchOpen: (v: boolean) => void;
+
+  /** Onboarding has been shown and dismissed or completed. */
+  onboarded: boolean;
+  setOnboarded: (v: boolean) => void;
+  /** Set once, the first time the user takes any value action. */
+  activated: boolean;
+  markActivated: (via: string) => void;
 }
 
 export const useTerminal = create<TerminalState>()(
@@ -38,6 +45,7 @@ export const useTerminal = create<TerminalState>()(
         if (get().watchlist.some((x) => x.symbol === w.symbol)) return;
         set({ watchlist: [...get().watchlist, w] });
         track("watchlist_added", { symbol: w.symbol });
+        get().markActivated("watchlist_added");
       },
       removeWatch: (symbol) => {
         set({ watchlist: get().watchlist.filter((x) => x.symbol !== symbol) });
@@ -48,6 +56,7 @@ export const useTerminal = create<TerminalState>()(
       alerts: [],
       addAlert: (a) => {
         track("alert_created", { symbol: a.symbol });
+        get().markActivated("alert_created");
         return set({
           alerts: [
             ...get().alerts,
@@ -69,6 +78,18 @@ export const useTerminal = create<TerminalState>()(
       },
       clearNotices: () => set({ notices: [] }),
 
+      onboarded: false,
+      setOnboarded: (v) => set({ onboarded: v }),
+
+      activated: false,
+      // Activation fires exactly once per user — the guard is what makes the
+      // funnel number trustworthy rather than a running total of actions.
+      markActivated: (via) => {
+        if (get().activated) return;
+        set({ activated: true });
+        track("activated", { via });
+      },
+
       searchOpen: false,
       setSearchOpen: (v) => {
         if (v) track("search_opened");
@@ -78,7 +99,7 @@ export const useTerminal = create<TerminalState>()(
     {
       name: "gft-v1",
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ watchlist: s.watchlist, alerts: s.alerts }),
+      partialize: (s) => ({ watchlist: s.watchlist, alerts: s.alerts, onboarded: s.onboarded, activated: s.activated }),
     }
   )
 );

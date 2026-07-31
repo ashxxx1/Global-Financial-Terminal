@@ -41,6 +41,7 @@ export default function RightRail() {
   const watchlist = useTerminal((s) => s.watchlist);
   const notices = useTerminal((s) => s.notices);
   const clearNotices = useTerminal((s) => s.clearNotices);
+  const setOnboarded = useTerminal((s) => s.setOnboarded);
   const watchQuotes = useQuotes(watchlist.map((w) => w.symbol));
 
   // Re-derive movers on the shared market clock so the rail actually moves.
@@ -86,9 +87,20 @@ export default function RightRail() {
         <span className="label">{watchlist.length}</span>
       </div>
       {watchQuotes.length === 0 ? (
+        // Item 41: an empty state that states a fact is a dead end. This one
+        // offers the next action, since watchlist_added is the activation moment.
         <div className="empty-state">
           <span className="es-icon">☆</span>
-          <span className="es-text">Star any stock to track it here.<br />Saved on this device.</span>
+          <span className="es-text">
+            Your watchlist is empty.<br />
+            Add a few names and this rail becomes yours.
+          </span>
+          <button
+            className="es-action"
+            onClick={() => { setOnboarded(false); track("upgrade_clicked", { placement: "watchlist-empty" }); }}
+          >
+            Pick some markets →
+          </button>
         </div>
       ) : (
         watchQuotes.map((q) => (

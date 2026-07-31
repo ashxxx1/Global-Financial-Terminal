@@ -84,6 +84,12 @@ export interface EventMap {
   news_clicked: { source: string };
   upgrade_clicked: { placement: string };
   shared: { method: "native" | "clipboard"; surface: string };
+  /** Fired exactly once per user, on their first value action. The single
+   *  most important event in the funnel — see docs/METRICS.md. */
+  activated: { via: string };
+  onboarding_shown: Record<string, never>;
+  onboarding_completed: { picked: number };
+  onboarding_skipped: Record<string, never>;
 }
 
 export function track<K extends keyof EventMap>(event: K, props?: EventMap[K]): void {

@@ -124,7 +124,7 @@ export default function MarketSessions({ compact = false }: { compact?: boolean 
               {s.isOpen ? `${humanise(s.until)} left` : s.isWeekend ? "Weekend" : `in ${humanise(s.until)}`}
             </div>
             <div className="session-bar">
-              <div className="session-fill" style={{ width: `${Math.round(s.progress * 100)}%` }} />
+              <div className="session-fill" style={{ transform: `scaleX(${s.progress.toFixed(3)})` }} />
             </div>
           </div>
         ))}

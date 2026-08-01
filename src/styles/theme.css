@@ -378,8 +378,11 @@ input, select { font-family: inherit; }
   margin-top: 5px; overflow: hidden;
 }
 .session-fill {
-  height: 100%; background: linear-gradient(90deg, var(--up), var(--cyan));
-  border-radius: 2px; transition: width .6s ease;
+  height: 100%; width: 100%; background: linear-gradient(90deg, var(--up), var(--cyan));
+  border-radius: 2px; transform-origin: left;
+  /* Animate transform, not width: scaleX is composited and never triggers a
+     layout pass, unlike animating the box's width. */
+  transition: transform .6s ease;
 }
 
 /* ─── Breadth bar ─── */
@@ -734,9 +737,17 @@ input, select { font-family: inherit; }
 .lp-nav-links a:hover { color: var(--text); }
 .lp-nav-signin {
   background: none; border: 0; color: var(--text); font: inherit;
-  font-size: 13.5px; font-weight: 600; cursor: pointer;
+  font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
 }
+.btn-primary.sm { white-space: nowrap; }
 @media (max-width: 620px) { .lp-nav-links a { display: none; } }
+/* At phone width the wordmark + two buttons crowd; tighten the gap and drop
+   the secondary sign-in so "Sign in" never wraps mid-word. Get started stays. */
+@media (max-width: 430px) {
+  .lp-nav { padding: 14px 16px; }
+  .lp-nav-links { gap: 10px; }
+  .lp-nav-signin { display: none; }
+}
 
 .btn-primary {
   background: linear-gradient(100deg, var(--blue), #6f5cff); color: #fff;
@@ -844,9 +855,10 @@ input, select { font-family: inherit; }
 
 .lp-honesty { max-width: 760px; margin: 0 auto; padding: 0 clamp(18px, 5vw, 56px) 40px; }
 .lp-honesty p {
-  border: 1px solid var(--line); border-left: 3px solid var(--gold);
+  /* Accent carried by the gold tint + bold lead-in, not a thick side border. */
+  border: 1px solid rgba(231,180,41,.22);
   border-radius: 10px; padding: 18px 22px; font-size: 13.5px; color: var(--muted);
-  line-height: 1.7; background: rgba(231,180,41,.04);
+  line-height: 1.7; background: rgba(231,180,41,.05);
 }
 .lp-honesty b { color: var(--text); }
 .lp-honesty em { color: var(--gold); font-style: normal; font-weight: 600; }
@@ -1129,7 +1141,7 @@ input, select { font-family: inherit; }
 
 /* ─── Data sources page (item 5) ─── */
 .ds-note {
-  border: 1px solid var(--line); border-left: 3px solid var(--cyan);
+  border: 1px solid rgba(45,226,230,.22);
   border-radius: 10px; padding: 14px 16px; margin: 26px 0 22px;
   font-size: 13.5px; color: var(--muted); line-height: 1.7;
   background: rgba(45,226,230,.05);

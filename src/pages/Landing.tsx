@@ -86,13 +86,12 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
       {/* features */}
       <section className="lp-section" id="features">
         <div className="lp-section-head">
-          <span className="label" style={{ color: "var(--cyan)" }}>WHY IT'S DIFFERENT</span>
           <h2>Markets you can actually read at a glance.</h2>
         </div>
         <div className="lp-grid">
           {FEATURES.map((f) => (
             <div className="lp-card" key={f.title}>
-              <div className="lp-card-icon" style={{ color: f.color }}>{f.icon}</div>
+              <div className="lp-card-icon" style={{ color: f.color }}><FeatureIcon name={f.icon} /></div>
               <b>{f.title}</b>
               <p>{f.body}</p>
             </div>
@@ -103,7 +102,6 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
       {/* pricing */}
       <section className="lp-section" id="pricing">
         <div className="lp-section-head">
-          <span className="label" style={{ color: "var(--gold)" }}>PRICING</span>
           <h2>Free to explore. Upgrade when it earns its keep.</h2>
         </div>
         <div className="lp-pricing">
@@ -156,13 +154,31 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
 }
 
 const FEATURES = [
-  { icon: "◍", color: "var(--blue)", title: "A living globe", body: "Every market, plotted on a 3D Earth you can spin. See where money is moving — and where it isn't — in one glance." },
-  { icon: "⚡", color: "var(--gold)", title: "News → signals", body: "Headlines mapped to the sectors and stocks they actually move, so you see the 'so what', not just the story." },
-  { icon: "◔", color: "var(--cyan)", title: "Market sessions & breadth", body: "Who's trading right now, and whether a move is broad or three megacaps carrying the index." },
-  { icon: "★", color: "var(--up)", title: "Watchlist that follows you", body: "Star anything; it syncs to your account across every device, not one browser's memory." },
-  { icon: "◈", color: "#a08cff", title: "Sector heat map", body: "The whole market's mood in a single grid — which sectors are hot, which are bleeding, updated live." },
-  { icon: "◐", color: "var(--down)", title: "Price alerts", body: "Get told the moment a level breaks — by toast now, by email soon — instead of finding out after." },
+  { icon: "globe", color: "var(--blue)", title: "A living globe", body: "Every market, plotted on a 3D Earth you can spin. See where money is moving — and where it isn't — in one glance." },
+  { icon: "signal", color: "var(--gold)", title: "News → signals", body: "Headlines mapped to the sectors and stocks they actually move, so you see the 'so what', not just the story." },
+  { icon: "sessions", color: "var(--cyan)", title: "Market sessions & breadth", body: "Who's trading right now, and whether a move is broad or three megacaps carrying the index." },
+  { icon: "star", color: "var(--up)", title: "Watchlist that follows you", body: "Star anything; it syncs to your account across every device, not one browser's memory." },
+  { icon: "heatmap", color: "#a08cff", title: "Sector heat map", body: "The whole market's mood in a single grid — which sectors are hot, which are bleeding, updated live." },
+  { icon: "bell", color: "var(--down)", title: "Price alerts", body: "Get told the moment a level breaks — by toast now, by email soon — instead of finding out after." },
 ];
+
+/**
+ * Feature icons — drawn line icons in one consistent 1.6 stroke, replacing the
+ * unicode glyphs (◍ ⚡ ◔ …) that read as placeholder rather than iconography.
+ */
+function FeatureIcon({ name }: { name: string }) {
+  const p = { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor",
+    strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };
+  switch (name) {
+    case "globe": return (<svg {...p}><circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3c2.6 2.5 4 5.7 4 9s-1.4 6.5-4 9c-2.6-2.5-4-5.7-4-9s1.4-6.5 4-9Z" /></svg>);
+    case "signal": return (<svg {...p}><path d="M3 15l5-6 4 4 6-8" /><path d="M18 5h3v3" /></svg>);
+    case "sessions": return (<svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.5 2" /></svg>);
+    case "star": return (<svg {...p}><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 17l-5.2 2.6 1-5.8-4.3-4.1 5.9-.9z" /></svg>);
+    case "heatmap": return (<svg {...p}><rect x="3" y="3" width="7.5" height="7.5" rx="1.4" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.4" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.4" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.4" /></svg>);
+    case "bell": return (<svg {...p}><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6" /><path d="M10 20a2 2 0 0 0 4 0" /></svg>);
+    default: return null;
+  }
+}
 
 const PLANS = [
   {

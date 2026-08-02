@@ -10,7 +10,7 @@ Last updated: 2026-08-02 (rev 2)
 
 ## 🔴 Blocking — costing you something every day
 
-### 1. Deploy Firestore security rules
+### 1. Deploy Firestore security rules  ✅ DONE 2026-08-02
 **Blocks:** all feedback and PMF survey responses are silently discarded right
 now. The UI says thank-you; nothing is stored. Your database is also still on
 console defaults rather than the owner-only rules in `firestore.rules`.
@@ -48,7 +48,7 @@ redeploy. Steps in docs/SETUP-GUIDE.md §3. Rotate the key once live.
 
 ---
 
-### 4. Submit the sitemap to Google Search Console
+### 4. Submit the sitemap to Google Search Console  ⏳ tag live — click Verify + submit
 **Blocks:** 660 URLs (68 countries + 587 tickers + core pages) are live and
 undiscovered. This is where the SEO clock starts, and SEO is the primary
 acquisition channel in the plan.
@@ -119,3 +119,5 @@ retention*. Say the word and I'll write the whole launch kit.
 
 - Firebase Auth providers enabled (email + Google)
 - Authorized domain added for the live site
+- Firestore security rules deployed + enforcing (verified: anon writes blocked)
+- Google Search Console verification tag live on production

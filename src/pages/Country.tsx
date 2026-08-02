@@ -134,7 +134,7 @@ export default function Country() {
                   const watched = inWatchlist(q.symbol);
                   return (
                     <tr key={q.symbol} onClick={() => navigate(`/stock/${q.symbol}`)}>
-                      <td onClick={(e) => { e.stopPropagation(); watched ? removeWatch(q.symbol) : addWatch({ symbol: q.symbol, name: q.name, country: iso }); }}
+                      <td onClick={(e) => { e.stopPropagation(); if (watched) removeWatch(q.symbol); else addWatch({ symbol: q.symbol, name: q.name, country: iso }); }}
                         style={{ color: watched ? "var(--gold)" : "var(--faint)", width: 28, cursor: "pointer" }}>
                         {watched ? "★" : "☆"}
                       </td>

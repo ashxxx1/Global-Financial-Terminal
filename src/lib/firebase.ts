@@ -6,7 +6,7 @@
  * falls back to a local-only guest session, so a fresh clone runs without
  * anyone having to provision a Firebase project first.
  */
-import { initializeApp, type FirebaseApp } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 
@@ -21,12 +21,11 @@ const cfg = {
 
 export const isConfigured = Boolean(cfg.apiKey && cfg.projectId && cfg.appId);
 
-let app: FirebaseApp | null = null;
 let authInstance: Auth | null = null;
 let dbInstance: Firestore | null = null;
 
 if (isConfigured) {
-  app = initializeApp(cfg);
+  const app = initializeApp(cfg);
   authInstance = getAuth(app);
   dbInstance = getFirestore(app);
 }

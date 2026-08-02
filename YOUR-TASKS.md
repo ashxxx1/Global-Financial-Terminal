@@ -4,7 +4,7 @@ Claude maintains this file. Everything here is blocked on credentials, an
 account, a legal decision, or your voice. Tick items off and tell me when
 something's done so I can unblock the work behind it.
 
-Last updated: 2026-07-31
+Last updated: 2026-08-02
 
 ---
 
@@ -49,7 +49,7 @@ VITE_FINNHUB_API_KEY=xxxxx
 ---
 
 ### 4. Submit the sitemap to Google Search Console
-**Blocks:** 659 URLs (68 countries + 587 tickers + core pages) are live and
+**Blocks:** 660 URLs (68 countries + 587 tickers + core pages) are live and
 undiscovered. This is where the SEO clock starts, and SEO is the primary
 acquisition channel in the plan.
 

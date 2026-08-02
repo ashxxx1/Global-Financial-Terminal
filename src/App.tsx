@@ -32,7 +32,7 @@ const Landing = lazy(() => import("./pages/Landing"));
 import { useAuth, authRequired } from "./lib/auth";
 import { useTerminal } from "./store";
 import { useWatchlistSync } from "./lib/syncWatchlist";
-import { initAnalytics, trackPageview } from "./lib/analytics";
+import { identify, initAnalytics, trackPageview } from "./lib/analytics";
 import { onConsentChange } from "./lib/consent";
 import "./styles/theme.css";
 
@@ -140,8 +140,18 @@ function Gate() {
   useEffect(() => {
     initAnalytics();
     init();
-    // Boot analytics the moment consent is granted, without a reload.
-    return onConsentChange((v) => { if (v === "granted") initAnalytics(); });
+    // Boot analytics the moment consent is granted, without a reload. If the
+    // Firebase session was restored before consent, establish identity then;
+    // otherwise its earlier identify call was correctly discarded.
+    return onConsentChange((v) => {
+      if (v !== "granted") return;
+      initAnalytics();
+      const user = useAuth.getState().user;
+      if (user) identify(user.uid, {
+        email: user.email ?? undefined,
+        name: user.displayName ?? undefined,
+      });
+    });
   }, [init]);
 
   if (!authRequired()) return <Shell />;

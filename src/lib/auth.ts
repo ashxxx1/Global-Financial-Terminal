@@ -102,6 +102,11 @@ async function syncProfile(u: User): Promise<void> {
   }
 }
 
+// Tracks whether PostHog currently holds an identified browser session. Firebase
+// can sign a user out outside the explicit button flow (for example, expiry), so
+// the auth observer owns clearing that identity as well.
+let analyticsIdentityActive = false;
+
 export const useAuth = create<AuthState>()((set, get) => ({
   user: null,
   status: "loading",
@@ -115,11 +120,26 @@ export const useAuth = create<AuthState>()((set, get) => ({
       return;
     }
     onAuthStateChanged(auth, (u) => {
+      const previousUser = get().user;
       if (u) {
+        // A direct account switch must not merge the two accounts. Normal
+        // session restoration has no in-memory prior user, so it identifies
+        // the persisted Firebase uid without discarding anonymous history.
+        if (analyticsIdentityActive && previousUser?.uid !== u.uid) {
+          resetAnalytics();
+          analyticsIdentityActive = false;
+        }
         set({ user: toProfile(u), status: "signedIn", error: null });
         identify(u.uid, { email: u.email ?? undefined, name: u.displayName ?? undefined });
+        analyticsIdentityActive = true;
         void syncProfile(u);
       } else {
+        // Do not reset on an initially anonymous page load: that would throw
+        // away the anonymous id before it can be merged on a later sign-in.
+        if (analyticsIdentityActive) {
+          resetAnalytics();
+          analyticsIdentityActive = false;
+        }
         set({ user: null, status: "signedOut" });
       }
     });
@@ -166,9 +186,12 @@ export const useAuth = create<AuthState>()((set, get) => ({
 
   signOut: async () => {
     if (!auth) return;
-    await fbSignOut(auth);
+    // Capture the transition while the current user is still identified, then
+    // clear identity before Firebase notifies the observer.
     track("signed_out");
     resetAnalytics();
+    analyticsIdentityActive = false;
+    await fbSignOut(auth);
     set({ user: null, status: "signedOut" });
   },
 

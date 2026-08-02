@@ -21,7 +21,7 @@ import { analyticsAllowed } from "./consent";
 type PostHog = typeof import("posthog-js").default;
 
 const KEY = import.meta.env.VITE_POSTHOG_KEY;
-const HOST = import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.com";
+const HOST = import.meta.env.VITE_POSTHOG_HOST;
 
 export const analyticsEnabled = Boolean(KEY);
 
@@ -59,6 +59,8 @@ export function initAnalytics(): void {
           person_profiles: "identified_only", // don't profile every anon visitor
           autocapture: true,
         });
+        // Capture uncaught errors and unhandled promise rejections globally.
+        posthog.startExceptionAutocapture();
         ph = posthog;
         queue.splice(0).forEach((fn) => fn(posthog));
       })

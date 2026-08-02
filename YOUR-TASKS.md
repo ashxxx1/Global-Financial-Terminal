@@ -4,7 +4,7 @@ Claude maintains this file. Everything here is blocked on credentials, an
 account, a legal decision, or your voice. Tick items off and tell me when
 something's done so I can unblock the work behind it.
 
-Last updated: 2026-08-02
+Last updated: 2026-08-02 (rev 2)
 
 ---
 
@@ -36,15 +36,15 @@ VITE_POSTHOG_KEY=phc_xxxxx
 
 ---
 
-### 3. Market data API key
+### 3. Market data API key  ✅ local · ⏳ Vercel
 **Blocks:** equity and index prices are still simulated. **You cannot charge
 money until this is real** — it gates all of monetization.
 
-Free tier at [finnhub.io](https://finnhub.io) (or twelvedata.com):
-```
-VITE_FINNHUB_API_KEY=xxxxx
-```
-*Plan item 1. ~5 minutes.*
+Key is set locally and now used via the /api/quote **proxy** (key stays
+server-side). Remaining: add **FINNHUB_API_KEY** (no VITE_ prefix) on Vercel +
+redeploy. Steps in docs/SETUP-GUIDE.md §3. Rotate the key once live.
+
+*Plan item 1. Vercel step ~3 minutes.*
 
 ---
 

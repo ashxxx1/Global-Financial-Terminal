@@ -77,7 +77,7 @@ function Shell() {
     startCryptoFeed();
     startFxFeed();
     startQuakeFeed();
-    return startStockFeed();   // live US equities when VITE_FINNHUB_API_KEY is set (else no-op)
+    return startStockFeed();   // live US equities via /api/quote proxy (prod) or VITE_FINNHUB_API_KEY (dev)
   }, []);
 
   return (

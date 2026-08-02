@@ -87,22 +87,33 @@ thrown away until a key exists.
 **Why:** equity/index prices are simulated until this is set. You can't charge
 for fake prices, so this gates monetization.
 
+The key is now used through a server-side proxy (`/api/quote`) so it never
+ships in the browser. That means **the Vercel variable name is different from
+the local one** — read carefully:
+
 1. Go to [finnhub.io](https://finnhub.io) → **Get free API key** → sign up.
-2. On the dashboard you land on, copy the **API Key** shown at the top.
-3. Add it locally in `.env.local`:
-   ```
-   VITE_FINNHUB_API_KEY=your_key_here
-   ```
-4. Add it to Vercel exactly like step 2.6 above (same Settings → Environment
-   Variables screen), then **redeploy** (step 2.7).
+   *(Already done — Claude has your key in `.env.local` for local dev.)*
+2. Add it to Vercel: **global-financial-news** → Settings → Environment
+   Variables → add a variable named **`FINNHUB_API_KEY`** — **no `VITE_`
+   prefix.** Paste the key, tick Production/Preview/Development, Save.
+   > ⚠️ Do **not** add `VITE_FINNHUB_API_KEY` on Vercel. The `VITE_` prefix
+   > embeds the value in the public JavaScript bundle — the exact leak the
+   > proxy exists to prevent. Server var only.
+3. **Redeploy** (Deployments → latest → ⋯ → Redeploy).
 
-**How to confirm:** on the live site open any US stock (e.g. `/stock/AAPL`); the
-source badge should read **LIVE** rather than **SIM** during US market hours.
+**How to confirm:** on the live site open a US stock (e.g. `/stock/AAPL`); the
+source badge reads **LIVE** rather than **SIM** during US market hours. You can
+also hit `https://global-financial-news.vercel.app/api/quote?symbol=AAPL` — it
+should return `{"c":…,"dp":…}` and, crucially, **not** expose the token.
 
-**Note on the free tier:** it covers US stocks and has a rate limit (~60
-calls/min). That's fine now. Non-US equities and index levels stay simulated
-until we add a paid tier or another provider — the `/data-sources` page already
-tells users this honestly, so nothing misrepresents itself in the meantime.
+**Free-tier note:** covers US stocks, ~60 calls/min. Non-US equities and index
+levels stay simulated (the `/data-sources` page says so honestly) until a paid
+tier or another provider is added.
+
+**Rotate the key:** it was shared in plaintext in chat, so once the proxy is
+live, regenerate it at finnhub.io (dashboard → one click), update
+`FINNHUB_API_KEY` on Vercel and `VITE_FINNHUB_API_KEY` in your local
+`.env.local`, and redeploy.
 
 ---
 

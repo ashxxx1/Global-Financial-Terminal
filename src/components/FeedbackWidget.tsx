@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { submitFeedback, type FeedbackType } from "../lib/feedback";
 import { useAuth } from "../lib/auth";
 import { track } from "../lib/analytics";
+import { SUPPORT_EMAIL, SUPPORT_MAILTO } from "../lib/support";
 
 /**
  * In-app feedback — growth-plan item 47.
@@ -122,6 +123,9 @@ export default function FeedbackWidget() {
               <button className="btn-primary sm fb-send" type="submit" disabled={busy || !message.trim()}>
                 {busy ? "Sending…" : "Send feedback"}
               </button>
+              <div className="fb-alt">
+                Prefer email? <a href={SUPPORT_MAILTO}>{SUPPORT_EMAIL}</a>
+              </div>
             </form>
           )}
         </div>

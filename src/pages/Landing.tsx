@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { track } from "../lib/analytics";
 import { useSeo } from "../lib/seo";
+import { SUPPORT_MAILTO } from "../lib/support";
 
 // The globe is the pitch, but it is also the heaviest thing in the bundle —
 // lazy-load it so the landing's text and CTAs paint immediately.
@@ -146,7 +147,7 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
           Create your free terminal →
         </button>
         <footer className="lp-footer">
-          © {new Date().getFullYear()} GFT Terminal · Informational only, not investment advice
+          © {new Date().getFullYear()} GFT Terminal · Informational only, not investment advice · <a href={SUPPORT_MAILTO} style={{ color: "var(--muted)" }}>Contact</a>
         </footer>
       </section>
     </div>

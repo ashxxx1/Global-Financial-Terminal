@@ -32,11 +32,11 @@ Until this exists, every product decision is a guess.
 ```
 VITE_POSTHOG_KEY=phc_xxxxx
 ```
-*Plan item 16. ~5 minutes.*
+*Plan item 16.* ⚠️ 2026-08-08: verified the live build has NO PostHog key. The var did not take — check in Vercel that it is named EXACTLY `VITE_POSTHOG_KEY`, value starts `phc_`, and Production is ticked. Then redeploy (or ping me).
 
 ---
 
-### 3. Market data API key  ✅ local · ⏳ Vercel
+### 3. Market data API key  ✅ DONE + verified live (2026-08-08)
 **Blocks:** equity and index prices are still simulated. **You cannot charge
 money until this is real** — it gates all of monetization.
 
@@ -74,7 +74,7 @@ attract more scrutiny than most.
 Where is this operating from, and under what entity? Required before Stripe.
 *Plan items 14, 15.*
 
-### 7. A support email address
+### 7. A support email address  ✅ DONE — aarushkapoor23@gmail.com wired into feedback + footer
 The feedback widget captures messages, but replies need a real address.
 Tell me what to use and I'll wire it in.
 *Plan item 48.*

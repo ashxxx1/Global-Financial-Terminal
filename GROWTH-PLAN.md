@@ -59,7 +59,7 @@ with a big roadmap and no users.
 - [ ] 4. Make AI Sentiment real, or remove it (currently DEMO-tagged)
 - [x] 5. Build a public `/data-sources` page listing every provider
 - [ ] 6. Review each provider's ToS for redistribution rights
-- [ ] 7. Add a data-freshness indicator per panel (last updated timestamp)
+- [x] 7. Add a data-freshness indicator per panel (last updated timestamp) — `src/lib/marketStatus.ts` + freshness pill on the stock page (LIVE / AT FRI CLOSE / PREV CLOSE / SIMULATED, from the NYSE session clock)
 - [ ] 8. Remove or clearly fence any remaining simulated numbers
 
 ### Legal & compliance (finance is a regulated-adjacent space)

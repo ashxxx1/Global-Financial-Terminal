@@ -1233,3 +1233,18 @@ input, select { font-family: inherit; }
   .tour-card { animation: none; }
 }
 @media (max-width: 640px) { .nav-tour { display: none; } }
+
+/* Freshness pill (item 7) — says *when* a quote is from, so a real weekend
+   close doesn't get mistaken for a simulation. */
+.fresh {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 999px; line-height: 1;
+  border: 1px solid transparent; cursor: default; white-space: nowrap;
+}
+.fresh .fresh-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.fresh-live { color: var(--up);   background: var(--up-dim);   border-color: var(--up); }
+.fresh-live .fresh-dot { animation: pulse 1.6s ease-in-out infinite; box-shadow: 0 0 5px currentColor; }
+.fresh-stale { color: var(--blue); background: var(--blue-dim); border-color: var(--blue); }
+.fresh-sim  { color: var(--gold); background: var(--gold-dim); border-color: var(--gold); }

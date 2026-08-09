@@ -8,6 +8,7 @@ import { connectionsForStock } from "../lib/graph";
 import { useTerminal } from "../store";
 import { useSeo } from "../lib/seo";
 import { track } from "../lib/analytics";
+import { freshness } from "../lib/marketStatus";
 
 const RANGES = ["1W", "1M", "3M", "6M", "1Y"] as const;
 
@@ -89,6 +90,16 @@ export default function Stock() {
           {up ? "▲" : "▼"} {Math.abs(quote?.changePct ?? 0).toFixed(2)}% today
         </span>
         <span className="label">{meta.sector} · {countryName}</span>
+        {/* Freshness (item 7): tells the user *when* this price is from, so a
+            real-but-static weekend close doesn't read as fake. */}
+        {(() => {
+          const f = freshness(quote?.source ?? "sim", meta.country);
+          return (
+            <span className={`fresh fresh-${f.tone}`} title={f.detail}>
+              <span className="fresh-dot" />{f.label}
+            </span>
+          );
+        })()}
       </div>
 
       {/* Chart */}

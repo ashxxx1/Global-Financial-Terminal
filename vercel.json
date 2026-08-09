@@ -10,7 +10,7 @@
   ],
   "crons": [
     { "path": "/api/signals-generate", "schedule": "0 12 * * 1-5" },
-    { "path": "/api/signals-resolve", "schedule": "0 */6 * * *" }
+    { "path": "/api/signals-resolve", "schedule": "30 20 * * 1-5" }
   ],
   "headers": [
     {

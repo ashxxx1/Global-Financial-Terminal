@@ -14,10 +14,14 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   updateProfile,
+  deleteUser,
+  reauthenticateWithPopup,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   signOut as fbSignOut,
   type User,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db, googleProvider, isConfigured } from "./firebase";
 import { identify, track, resetAnalytics } from "./analytics";
 
@@ -178,3 +182,79 @@ export const useAuth = create<AuthState>()((set, get) => ({
 /** Auth is only enforced when Firebase is actually configured. */
 export const authRequired = (): boolean =>
   isConfigured && import.meta.env.VITE_REQUIRE_AUTH !== "false";
+
+/* ── GDPR: data portability & right to erasure (growth-plan item 13) ────────
+   Every byte we hold on a user is either in their Auth record, their one
+   Firestore profile doc, or the local `gft-v1` store. Export gathers all
+   three; delete removes the profile doc then the Auth user. Nothing here
+   touches another user's data — the security rules guarantee it. */
+
+/** Gather everything we hold on the signed-in user into a plain object. */
+export async function exportUserData(): Promise<Record<string, unknown>> {
+  const u = auth?.currentUser ?? null;
+  let local: unknown = null;
+  try { local = JSON.parse(localStorage.getItem("gft-v1") || "null"); } catch { /* private mode */ }
+  let profile: unknown = null;
+  if (db && u) {
+    try {
+      const snap = await getDoc(doc(db, "users", u.uid));
+      profile = snap.exists() ? snap.data() : null;
+    } catch { /* offline or rules — fall through with null */ }
+  }
+  return {
+    exportedAt: new Date().toISOString(),
+    note: "Everything Global Financial Terminal holds about your account.",
+    account: u
+      ? {
+          uid: u.uid,
+          email: u.email,
+          displayName: u.displayName,
+          createdAt: u.metadata.creationTime,
+          lastSignInAt: u.metadata.lastSignInTime,
+          providers: u.providerData.map((p) => p.providerId),
+        }
+      : null,
+    profile,
+    app: local,
+  };
+}
+
+/** Signalled to the UI when a fresh sign-in is needed before deletion. */
+export class ReauthRequired extends Error {
+  constructor(public method: "password" | "google") { super("reauth-required"); }
+}
+
+/**
+ * Permanently delete the account: the Firestore profile doc, then the Auth
+ * user. Firebase blocks deletion unless the login is recent; on that error we
+ * reauthenticate (password inline, Google via popup) and retry once. If a
+ * password is needed but not supplied, we throw `ReauthRequired` so the UI can
+ * ask for it.
+ */
+export async function deleteAccount(password?: string): Promise<void> {
+  const u = auth?.currentUser ?? null;
+  if (!auth || !u) throw new Error("You're not signed in.");
+
+  const purge = async () => {
+    if (db) { try { await deleteDoc(doc(db, "users", u.uid)); } catch { /* already gone */ } }
+    await deleteUser(u);
+  };
+
+  try {
+    await purge();
+  } catch (e) {
+    if ((e as { code?: string })?.code !== "auth/requires-recent-login") throw e;
+    const usesPassword = u.providerData.some((p) => p.providerId === "password");
+    if (usesPassword) {
+      if (!password) throw new ReauthRequired("password");
+      await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email || "", password));
+    } else {
+      await reauthenticateWithPopup(u, googleProvider);
+    }
+    await purge();
+  }
+
+  track("account_deleted");
+  resetAnalytics();
+  useAuth.setState({ user: null, status: "signedOut" });
+}

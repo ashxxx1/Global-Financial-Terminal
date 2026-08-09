@@ -5,6 +5,7 @@ import { liveSymbolCount } from "../lib/market";
 import { useTerminal } from "../store";
 import SourceBadge from "./SourceBadge";
 import ShareButton from "./ShareButton";
+import AccountModal from "./AccountModal";
 import { useAuth } from "../lib/auth";
 
 const LINKS = [
@@ -129,6 +130,7 @@ export default function TopNav() {
 function AccountChip() {
   const user = useAuth((s) => s.user);
   const signOut = useAuth((s) => s.signOut);
+  const [open, setOpen] = useState(false);
   if (!user) return null;
 
   const initials = (user.displayName || user.email || "?")
@@ -136,13 +138,17 @@ function AccountChip() {
 
   return (
     <div className="acct">
-      {user.photoURL
-        ? <img className="acct-avatar" src={user.photoURL} alt="" referrerPolicy="no-referrer" />
-        : <span className="acct-avatar">{initials}</span>}
+      <button className="acct-avatar-btn" onClick={() => setOpen(true)}
+        title="Account & privacy" aria-label="Account and privacy">
+        {user.photoURL
+          ? <img className="acct-avatar" src={user.photoURL} alt="" referrerPolicy="no-referrer" />
+          : <span className="acct-avatar">{initials}</span>}
+      </button>
       <button className="chip" style={{ padding: "3px 9px", fontSize: 9.5 }}
         onClick={() => void signOut()} title={user.email || undefined}>
         SIGN OUT
       </button>
+      {open && <AccountModal onClose={() => setOpen(false)} />}
     </div>
   );
 }

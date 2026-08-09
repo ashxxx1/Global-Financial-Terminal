@@ -9,6 +9,10 @@ import AnimatedNumber from "./AnimatedNumber";
 import MarketSessions from "./MarketSessions";
 import BreadthBar from "./BreadthBar";
 import { track } from "../lib/analytics";
+import SignalsHomeWidget from "./signals/SignalsHomeWidget";
+import { bootstrapSignals } from "../lib/signals/api";
+import { sameDay, todayKey, yesterdayKey } from "../lib/signals/format";
+import type { Signal } from "../lib/signals/types";
 
 /** Market row: symbol + name, a sparkline of where it has been, and the number. */
 function Row({ symbol, name, price, changePct, rank, onClick }: {
@@ -51,6 +55,19 @@ export default function RightRail() {
 
   const [news, setNews] = useState<LiveArticle[]>([]);
   const [newsFailed, setNewsFailed] = useState(false);
+  const [signals, setSignals] = useState<Signal[]>([]);
+  useEffect(() => {
+    try { setSignals(bootstrapSignals()); } catch { /* signals optional on rail */ }
+  }, []);
+  const today = todayKey();
+  const yday = yesterdayKey();
+  const topSignal = useMemo(
+    () => [...signals.filter((s) => sameDay(s.createdAt, today))].sort((a, b) => b.confidence - a.confidence)[0] ?? null,
+    [signals, today],
+  );
+  const ySignals = useMemo(() => signals.filter((s) => sameDay(s.createdAt, yday)), [signals, yday]);
+  const yHits = ySignals.filter((s) => s.status === "TARGET_HIT").length;
+
   useEffect(() => {
     let cancelled = false;
     const load = () => {
@@ -81,6 +98,9 @@ export default function RightRail() {
           which belongs above anything instrument-specific. */}
       <MarketSessions />
       <BreadthBar tick={tick} />
+      <div style={{ padding: "0 10px" }}>
+        <SignalsHomeWidget top={topSignal} yesterdayHits={yHits} yesterdayTotal={ySignals.length} />
+      </div>
 
       {/* Watchlist */}
       <div className="sec-head">

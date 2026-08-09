@@ -37,6 +37,9 @@
   --blue-dim: rgba(79, 141, 255, 0.15);
   --cyan: #2DE2E6;
   --cyan-dim: rgba(45, 226, 230, 0.13);
+  /* Model / intelligence accent for GFT Signals */
+  --purple: #9B7BFF;
+  --purple-dim: rgba(155, 123, 255, 0.14);
 
   /* Chrome */
   --line: rgba(150, 174, 216, 0.11);
@@ -1248,3 +1251,30 @@ input, select { font-family: inherit; }
 .fresh-live .fresh-dot { animation: pulse 1.6s ease-in-out infinite; box-shadow: 0 0 5px currentColor; }
 .fresh-stale { color: var(--blue); background: var(--blue-dim); border-color: var(--blue); }
 .fresh-sim  { color: var(--gold); background: var(--gold-dim); border-color: var(--gold); }
+
+/* ─── GFT Signals ─── */
+.sig-input {
+  background: var(--navy);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+}
+.sig-input:focus { border-color: var(--purple); outline: none; }
+.sig-card { transition: border-color .15s, transform .15s; }
+.sig-card:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+.sig-disclaimer { border-top: 1px solid var(--line); padding-top: 12px; }
+
+@media (max-width: 900px) {
+  .sig-split { grid-template-columns: 1fr !important; }
+  .sig-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .sig-mix { grid-template-columns: repeat(2, 1fr) !important; }
+  .sig-history-table { font-size: 12px; }
+  .sig-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 640px) {
+  .sig-page { padding: 12px !important; }
+  .sig-metrics { grid-template-columns: 1fr 1fr !important; }
+}

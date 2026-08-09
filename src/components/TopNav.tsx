@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useUtcClock } from "../lib/hooks";
 import { liveSymbolCount } from "../lib/market";
 import { useTerminal } from "../store";
@@ -10,12 +10,14 @@ import { useAuth } from "../lib/auth";
 const LINKS = [
   { to: "/", label: "WORLD", end: true },
   { to: "/markets", label: "MARKETS" },
+  { to: "/terminal/signals", label: "SIGNALS" },
   { to: "/news", label: "NEWS" },
 ];
 
 export default function TopNav() {
   const clock = useUtcClock();
   const navigate = useNavigate();
+  const location = useLocation();
   const setSearchOpen = useTerminal((s) => s.setSearchOpen);
   const notices = useTerminal((s) => s.notices);
   const [liveN, setLiveN] = useState(0);
@@ -69,13 +71,17 @@ export default function TopNav() {
             key={l.to}
             to={l.to}
             end={l.end as boolean | undefined}
-            style={({ isActive }) => ({
+            style={({ isActive }) => {
+              const signalsActive = l.label === "SIGNALS" && (location.pathname.startsWith("/terminal/signals") || location.pathname.startsWith("/signals"));
+              const on = isActive || signalsActive;
+              return {
               fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.14em",
               padding: "6px 12px", borderRadius: 5,
-              color: isActive ? "var(--gold)" : "var(--muted)",
-              background: isActive ? "var(--gold-dim)" : "transparent",
-              border: `1px solid ${isActive ? "var(--gold)" : "transparent"}`,
-            })}
+              color: on ? "var(--gold)" : "var(--muted)",
+              background: on ? "var(--gold-dim)" : "transparent",
+              border: `1px solid ${on ? "var(--gold)" : "transparent"}`,
+            };
+            }}
           >
             {l.label}
           </NavLink>

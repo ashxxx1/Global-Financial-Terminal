@@ -28,6 +28,14 @@ const Stock = lazy(() => import("./pages/Stock"));
 const News = lazy(() => import("./pages/News"));
 const Changelog = lazy(() => import("./pages/Changelog"));
 const DataSources = lazy(() => import("./pages/DataSources"));
+const SignalsPage = lazy(() => import("./pages/signals/SignalsPage"));
+const SignalDetailPage = lazy(() => import("./pages/signals/SignalDetailPage"));
+const SignalHistoryPage = lazy(() => import("./pages/signals/SignalHistoryPage"));
+const SignalPerformancePage = lazy(() => import("./pages/signals/SignalPerformancePage"));
+const SignalCalendarPage = lazy(() => import("./pages/signals/SignalCalendarPage"));
+const SignalMethodologyPage = lazy(() => import("./pages/signals/SignalMethodologyPage"));
+const SignalBacktestPage = lazy(() => import("./pages/signals/SignalBacktestPage"));
+const SignalTrackRecordPage = lazy(() => import("./pages/signals/SignalTrackRecordPage"));
 import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
 import { useAuth, authRequired } from "./lib/auth";
@@ -95,6 +103,18 @@ function Shell() {
             <Route path="/markets" element={<Markets />} />
             <Route path="/stock/:symbol" element={<Stock />} />
             <Route path="/news" element={<News />} />
+            <Route path="/terminal/signals" element={<SignalsPage />} />
+            <Route path="/terminal/signals/history" element={<SignalHistoryPage />} />
+            <Route path="/terminal/signals/performance" element={<SignalPerformancePage />} />
+            <Route path="/terminal/signals/calendar" element={<SignalCalendarPage />} />
+            <Route path="/terminal/signals/methodology" element={<SignalMethodologyPage />} />
+            <Route path="/terminal/signals/backtest" element={<SignalBacktestPage />} />
+            <Route path="/terminal/signals/:id" element={<SignalDetailPage />} />
+            <Route path="/signals" element={<SignalsPage />} />
+            <Route path="/signals/track-record" element={<SignalTrackRecordPage />} />
+            <Route path="/signals/history" element={<SignalHistoryPage />} />
+            <Route path="/signals/performance" element={<SignalPerformancePage />} />
+            <Route path="/signals/:id" element={<SignalDetailPage />} />
             <Route path="/changelog" element={<Changelog />} />
             <Route path="/data-sources" element={<DataSources />} />
             <Route path="*" element={<World />} />

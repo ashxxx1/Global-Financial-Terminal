@@ -21,6 +21,25 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
+    // GFT Signals — public read-only track record. Clients never write.
+    // Generation/resolution is server-side only (Admin SDK / backend).
+    match /signals/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /signal_results/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /model_versions/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /daily_performance/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Everything else is closed by default.
     match /{document=**} {
       allow read, write: if false;

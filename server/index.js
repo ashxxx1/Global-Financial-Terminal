@@ -20,6 +20,12 @@ import { startQuakeIngest } from "./ingest/quakes.js";
 import { startFxIngest } from "./ingest/fx.js";
 import { startCryptoIngest } from "./ingest/crypto.js";
 import { getCountryNews, newsEnabled } from "./ingest/news.js";
+import { listSignals, getSignal, listAudits } from "./signals/store.js";
+import {
+  generateDailySignals,
+  resolveActiveSignals,
+  calculateDailyPerformance,
+} from "./signals/jobs.js";
 
 const app = express();
 app.use(cors()); // public read-only data
@@ -49,6 +55,49 @@ app.get("/api/news/:country", async (req, res) => {
   } catch {
     res.status(502).json({ articles: [], live: false, error: "upstream_failed" });
   }
+});
+
+/* ── GFT Signals (public read; mutation only via cron secret) ── */
+app.get("/api/signals", (req, res) => {
+  const limit = Math.min(500, parseInt(req.query.limit, 10) || 200);
+  res.json({
+    signals: listSignals().slice(0, limit),
+    demo: process.env.SIGNALS_DEMO_MODE !== "false",
+    disclaimer: "GFT Signals are model-generated market forecasts for informational purposes only and are not investment advice or a guarantee of future returns.",
+  });
+});
+
+app.get("/api/signals/performance", (_req, res) => {
+  res.json({ daily: calculateDailyPerformance(), signals: listSignals().length });
+});
+
+app.get("/api/signals/:id", (req, res) => {
+  const s = getSignal(req.params.id);
+  if (!s) return res.status(404).json({ error: "not_found" });
+  res.json({ signal: s, audits: listAudits(s.id) });
+});
+
+function authorizeCron(req) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return true; // open in local/dev
+  return req.get("authorization") === `Bearer ${secret}` || req.query.secret === secret;
+}
+
+app.post("/api/signals/jobs/generate", (req, res) => {
+  if (!authorizeCron(req)) return res.status(401).json({ error: "unauthorized" });
+  const out = generateDailySignals();
+  res.json({ ok: true, ...out });
+});
+
+app.post("/api/signals/jobs/resolve", (req, res) => {
+  if (!authorizeCron(req)) return res.status(401).json({ error: "unauthorized" });
+  const out = resolveActiveSignals();
+  res.json({ ok: true, ...out });
+});
+
+app.post("/api/signals/jobs/daily-performance", (req, res) => {
+  if (!authorizeCron(req)) return res.status(401).json({ error: "unauthorized" });
+  res.json({ ok: true, daily: calculateDailyPerformance() });
 });
 
 app.get("/api/stream", (req, res) => {
@@ -85,4 +134,18 @@ app.listen(PORT, () => {
   startQuakeIngest();
   startFxIngest();
   startCryptoIngest();
+
+  // Scheduled signal jobs (interval-based; also exposed as HTTP cron endpoints)
+  const tick = () => {
+    try {
+      generateDailySignals();
+      resolveActiveSignals();
+    } catch (err) {
+      console.warn("[gft:signals]", err?.message || err);
+    }
+  };
+  // Resolve frequently; generate once near start and every 6h
+  tick();
+  setInterval(() => { try { resolveActiveSignals(); } catch { /* keep */ } }, 5 * 60 * 1000);
+  setInterval(() => { try { generateDailySignals(); } catch { /* keep */ } }, 6 * 60 * 60 * 1000);
 });

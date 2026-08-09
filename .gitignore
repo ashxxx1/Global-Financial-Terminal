@@ -38,6 +38,7 @@ firebase-debug.log
 
 # Intelligence engine runtime DB
 server/data/*.json
+.data/
 
 # backend deps
 server/node_modules

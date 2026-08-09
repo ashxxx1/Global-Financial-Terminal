@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSeo } from "../../lib/seo";
-import { bootstrapSignals, getDashboardMetrics, isDemoMode } from "../../lib/signals/api";
+import { bootstrapSignals, isDemoMode } from "../../lib/signals/api";
 import { marketsForFilter } from "../../lib/signals/assets";
 import { computePerformance } from "../../lib/signals/performance";
 import { fmtConfidence, fmtPct, sameDay, todayKey, yesterdayKey } from "../../lib/signals/format";

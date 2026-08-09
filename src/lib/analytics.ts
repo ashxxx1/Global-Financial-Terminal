@@ -106,6 +106,9 @@ export interface EventMap {
   pmf_shown: Record<string, never>;
   pmf_answered: { answer: string };
   pmf_dismissed: Record<string, never>;
+  tour_started: { via: "auto" | "manual" };
+  tour_completed: { steps: number };
+  tour_skipped: { atStep: number };
 }
 
 export function track<K extends keyof EventMap>(event: K, props?: EventMap[K]): void {

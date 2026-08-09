@@ -20,6 +20,7 @@ const Onboarding = lazy(() => import("./components/Onboarding"));
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
 const PmfSurvey = lazy(() => import("./components/PmfSurvey"));
 const ConsentBanner = lazy(() => import("./components/ConsentBanner"));
+const ProductTour = lazy(() => import("./components/ProductTour"));
 import World from "./pages/World";
 const Country = lazy(() => import("./pages/Country"));
 const Markets = lazy(() => import("./pages/Markets"));
@@ -113,6 +114,7 @@ function Shell() {
         <Suspense fallback={null}>
           <FeedbackWidget />
           <PmfSurvey />
+          <ProductTour autoStart={onWorld} />
         </Suspense>
       )}
       {showOnboarding && (

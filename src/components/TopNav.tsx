@@ -84,6 +84,7 @@ export default function TopNav() {
 
       {/* Search trigger */}
       <button
+        data-tour="search"
         onClick={() => setSearchOpen(true)}
         style={{
           flex: "1 1 0%", maxWidth: 420, minWidth: 140, margin: "0 auto",
@@ -109,6 +110,7 @@ export default function TopNav() {
           source={liveN > 0 ? "live" : "sim"}
           title={liveN > 0 ? `${liveN} instruments on real feeds (Binance WS · ECB) — rest simulated` : undefined}
         />
+        <button className="nav-tour" title="Take the tour" aria-label="Take the tour" onClick={() => window.dispatchEvent(new CustomEvent("gft:start-tour"))}>?</button>
         <ShareButton />
         <span className="mono" style={{ fontSize: 12, color: "var(--up)" }}>{clock} UTC</span>
         <AccountChip />

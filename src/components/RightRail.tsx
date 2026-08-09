@@ -70,6 +70,7 @@ export default function RightRail() {
   return (
     <aside
       className="right-rail"
+      data-tour="rail"
       style={{
         width: "var(--rail-w)", minWidth: "var(--rail-w)",
         borderLeft: "1px solid var(--line)", background: "rgba(13,20,32,0.6)",

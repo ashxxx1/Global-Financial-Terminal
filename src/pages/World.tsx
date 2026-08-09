@@ -76,7 +76,7 @@ export default function World() {
   const simFill = simBreaking.slice(0, Math.max(0, BREAKING_MAX - newsCards.length - eventCards.length));
 
   return (
-    <div style={{ position: "absolute", inset: 0 }}>
+    <div data-tour="globe" style={{ position: "absolute", inset: 0 }}>
       <Globe3D
         overlay={overlay}
         quakes={quakes}
@@ -94,7 +94,7 @@ export default function World() {
             Rotate · zoom · click any country for its dashboard
           </p>
         </div>
-        <div style={{ display: "flex", gap: 6, pointerEvents: "auto", flexWrap: "wrap" }}>
+        <div data-tour="overlays" style={{ display: "flex", gap: 6, pointerEvents: "auto", flexWrap: "wrap" }}>
           {OVERLAYS.map((o) => (
             <button key={o.id} className={`chip ${overlay === o.id ? "active" : ""}`} onClick={() => { setOverlay(o.id); track("overlay_switched", { overlay: o.id }); }}>
               {o.live && <span className="pulse-dot" style={{ background: "var(--up)", marginRight: 6, boxShadow: "0 0 5px var(--up)" }} />}

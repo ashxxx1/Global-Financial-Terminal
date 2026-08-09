@@ -78,5 +78,8 @@ keep it open even when Firebase *is* configured.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, project layout and the
-PR checklist.
+Branch workflow: **`feature/*` → `test` → `main` (production)**.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full intern workflow, Vercel Preview
+vs Production rules, CI, and Cursor UI skills. Manual GitHub/Vercel protection
+steps: [docs/BRANCH-PROTECTION.md](docs/BRANCH-PROTECTION.md).

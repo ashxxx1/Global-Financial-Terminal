@@ -1248,3 +1248,36 @@ input, select { font-family: inherit; }
 .fresh-live .fresh-dot { animation: pulse 1.6s ease-in-out infinite; box-shadow: 0 0 5px currentColor; }
 .fresh-stale { color: var(--blue); background: var(--blue-dim); border-color: var(--blue); }
 .fresh-sim  { color: var(--gold); background: var(--gold-dim); border-color: var(--gold); }
+
+/* Account & privacy modal (item 13) */
+.acct-avatar-btn { background: none; border: none; padding: 0; cursor: pointer; display: inline-flex; border-radius: 50%; }
+.acct-avatar-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.acct-avatar.lg { width: 40px; height: 40px; font-size: 15px; }
+.acct-backdrop {
+  position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;
+  background: rgba(3,5,11,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: fade-in 0.15s ease;
+}
+.acct-modal {
+  width: min(440px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow-y: auto;
+  background: var(--panel, rgba(15,19,30,0.96)); border: 1px solid var(--line, rgba(148,170,210,0.16));
+  border-radius: 14px; padding: 18px; box-shadow: var(--shadow-lg, 0 24px 60px rgba(0,0,0,0.5));
+  backdrop-filter: blur(22px) saturate(1.2); -webkit-backdrop-filter: blur(22px) saturate(1.2);
+}
+.acct-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.acct-modal-head b { font-size: 15px; }
+.acct-id { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; margin-bottom: 6px; border-bottom: 1px solid var(--line, rgba(148,170,210,0.12)); }
+.acct-name { font-weight: 700; font-size: 14px; }
+.acct-email { font-size: 12px; color: var(--muted); }
+.acct-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line, rgba(148,170,210,0.08)); }
+.acct-row-title { font-weight: 600; font-size: 13px; }
+.acct-row-sub { margin: 2px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.acct-row.danger .acct-row-title { color: var(--down); }
+.chip.danger { color: var(--down); border-color: var(--down); }
+.chip.danger:hover:not(:disabled) { background: var(--down-dim); }
+.chip:disabled { opacity: 0.5; cursor: not-allowed; }
+.acct-confirm { display: grid; gap: 8px; padding: 12px; margin-top: 10px; border: 1px solid var(--down); border-radius: 10px; background: var(--down-dim); }
+.acct-confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.acct-error { margin: 10px 0 0; font-size: 12px; color: var(--down); }
+.acct-foot { margin: 14px 0 0; font-size: 11px; color: var(--faint); }
+.acct-foot a { color: var(--blue); }

@@ -67,7 +67,7 @@ with a big roadmap and no users.
 - [ ] 10. Privacy Policy page (GDPR + CCPA compliant)
 - [x] 11. Cookie consent banner (required for EU traffic)
 - [x] 12. Prominent "not investment advice" disclaimer on every data surface
-- [ ] 13. Account deletion + data export flow (GDPR right to erasure)
+- [x] 13. Account deletion + data export flow (GDPR right to erasure) — `AccountModal` from the nav avatar: JSON export of everything we hold + type-DELETE erasure (reauth-aware), in `src/lib/auth.ts`
 - [ ] 14. Decide and document jurisdiction of operation
 - [ ] 15. Register the business entity before taking payments
 

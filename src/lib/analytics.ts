@@ -109,6 +109,8 @@ export interface EventMap {
   tour_started: { via: "auto" | "manual" };
   tour_completed: { steps: number };
   tour_skipped: { atStep: number };
+  data_exported: Record<string, never>;
+  account_deleted: Record<string, never>;
 }
 
 export function track<K extends keyof EventMap>(event: K, props?: EventMap[K]): void {

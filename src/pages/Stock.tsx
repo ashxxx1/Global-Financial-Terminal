@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuote, useHistory } from "../lib/hooks";
-import { metaFor, COUNTRIES, type Candle } from "../lib/market";
+import { useQuote } from "../lib/hooks";
+import { metaFor, COUNTRIES } from "../lib/market";
 import ProvenanceBadge from "../components/ProvenanceBadge";
 import Connections from "../components/Connections";
+import TradingChart from "../components/charts/TradingChart";
 import { connectionsForStock } from "../lib/graph";
 import { useTerminal } from "../store";
 import { useSeo } from "../lib/seo";
 import { track } from "../lib/analytics";
 import { freshness } from "../lib/marketStatus";
 import { setPrioritySymbol } from "../lib/feeds/stocks";
-
-const RANGES = ["1W", "1M", "3M", "6M", "1Y"] as const;
+import "../styles/charts.css";
 
 export default function Stock() {
   const { symbol = "" } = useParams();
@@ -19,15 +19,13 @@ export default function Stock() {
   const navigate = useNavigate();
   const meta = metaFor(sym);
   const quote = useQuote(meta ? sym : null);
-  const [range, setRange] = useState<(typeof RANGES)[number]>("3M");
   useSeo({
     title: meta ? `${sym} — ${meta.name} Share Price & Chart` : "Stock",
     description: meta
-      ? `${meta.name} (${sym}) live share price, interactive chart, sector context and related market connections.`
+      ? `${meta.name} (${sym}) live share price, interactive trading chart, sector context and related market connections.`
       : "Live share price and chart.",
     path: `/stock/${sym}`,
   });
-  const { candles } = useHistory(meta ? sym : null, range);
   const { addWatch, removeWatch, inWatchlist, addAlert } = useTerminal();
   const [alertMsg, setAlertMsg] = useState("");
 
@@ -84,12 +82,11 @@ export default function Stock() {
   };
 
   return (
-    <div style={{ padding: 18, maxWidth: 1000, margin: "0 auto" }}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 4 }}>
-        <button className="chip" onClick={() => navigate(-1)}>←</button>
-        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, fontFamily: "var(--mono)" }}>{sym}</h1>
-        <span style={{ color: "var(--muted)" }}>{meta.name}</span>
+    <div style={{ padding: 18, maxWidth: 1200, margin: "0 auto" }}>
+      {/* Compact page chrome — detailed quote lives in the chart header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
+        <button className="chip" onClick={() => navigate(-1)} aria-label="Back">←</button>
+        <span className="label">{meta.sector} · {countryName}</span>
         <button className="chip" style={{ color: watched ? "var(--gold)" : undefined }}
           onClick={() => watched ? removeWatch(sym) : addWatch({ symbol: sym, name: meta.name, country: meta.country })}>
           {watched ? "★ WATCHING" : "☆ WATCH"}
@@ -98,53 +95,39 @@ export default function Stock() {
           <ProvenanceBadge kind={meta.kind} source={quote?.source ?? "sim"} country={meta.country} />
         </span>
       </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
-        <span className="mono" style={{ fontSize: 30, fontWeight: 800 }}>{meta.currency}{quote?.display ?? "—"}</span>
-        <span className={`chg ${up ? "up" : "down"}`} style={{ fontSize: 13 }}>
-          {up ? "▲" : "▼"} {Math.abs(quote?.changePct ?? 0).toFixed(2)}% today
-        </span>
-        <span className="label">{meta.sector} · {countryName}</span>
-        {/* Freshness (item 7): tells the user *when* this price is from, so a
-            real-but-static weekend close doesn't read as fake. */}
+
+      <TradingChart
+        symbol={sym}
+        name={meta.name}
+        currency={meta.currency}
+        price={quote?.price}
+        changePct={quote?.changePct}
+        country={meta.country}
+        source={quote?.source ?? "sim"}
+      />
+
+      {/* Actions */}
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
+        <button className="chip" onClick={() => setPriceAlert("above")}>ALERT +2%</button>
+        <button className="chip" onClick={() => setPriceAlert("below")}>ALERT −2%</button>
+        {alertMsg && <span className="mono" style={{ fontSize: 11, color: "var(--up)" }}>✓ {alertMsg}</span>}
         {(() => {
           const f = freshness(quote?.source ?? "sim", meta.country);
           return (
-            <span className={`fresh fresh-${f.tone}`} title={f.detail}>
+            <span className={`fresh fresh-${f.tone}`} title={f.detail} style={{ marginLeft: "auto" }}>
               <span className="fresh-dot" />{f.label}
             </span>
           );
         })()}
-      </div>
-
-      {/* Chart */}
-      <div className="panel" style={{ marginBottom: 14 }}>
-        <div className="panel-head">
-          <span className="panel-title">Price history</span>
-          <div style={{ display: "flex", gap: 5 }}>
-            {RANGES.map((r) => (
-              <button key={r} className={`chip ${range === r ? "active" : ""}`} style={{ padding: "3px 9px", fontSize: 10 }} onClick={() => setRange(r)}>{r}</button>
-            ))}
-          </div>
-        </div>
-        <div className="panel-body" style={{ overflowX: "auto" }}>
-          <CandleChart candles={candles} />
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
-        <button className="chip" onClick={() => setPriceAlert("above")}>🔔 ALERT +2%</button>
-        <button className="chip" onClick={() => setPriceAlert("below")}>🔔 ALERT −2%</button>
-        {alertMsg && <span className="mono" style={{ fontSize: 11, color: "var(--up)" }}>✓ {alertMsg}</span>}
+        <span className={`chg ${up ? "up" : "down"}`} style={{ fontSize: 12 }}>
+          {up ? "▲" : "▼"} {Math.abs(quote?.changePct ?? 0).toFixed(2)}% session
+        </span>
       </div>
 
       {/* AI analysis */}
       {ai && (
         <div className="panel">
           <div className="panel-head">
-            {/* Item 8: these scores are generated, not modelled. A footnote at
-                the bottom of the panel was not enough fencing for numbers that
-                look this much like research output. */}
             <span className="panel-title">AI investment intelligence <span className="demo-tag">DEMO</span></span>
             <span className="label nerd-only">confidence {ai.confidence}% · risk {ai.risk}/100 — illustrative</span>
           </div>
@@ -184,39 +167,5 @@ export default function Stock() {
 
       <Connections nodes={connectionsForStock(sym)} />
     </div>
-  );
-}
-
-/* Lightweight dependency-free candlestick renderer */
-function CandleChart({ candles }: { candles: Candle[] }) {
-  const W = 900, H = 260, PAD = 10;
-  if (candles.length === 0) return <div className="skeleton" style={{ width: "100%", height: H }} />;
-  const lo = Math.min(...candles.map((c) => c.l));
-  const hi = Math.max(...candles.map((c) => c.h));
-  const x = (i: number) => PAD + (i / (candles.length - 1)) * (W - PAD * 2);
-  const y = (v: number) => PAD + (1 - (v - lo) / (hi - lo || 1)) * (H - PAD * 2);
-  const bw = Math.max(2, ((W - PAD * 2) / candles.length) * 0.6);
-
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", minWidth: 560, height: "auto", display: "block" }}>
-      {[0.25, 0.5, 0.75].map((f) => (
-        <line key={f} x1={PAD} x2={W - PAD} y1={PAD + f * (H - PAD * 2)} y2={PAD + f * (H - PAD * 2)}
-          stroke="rgba(148,170,210,0.08)" strokeWidth="1" />
-      ))}
-      {candles.map((c, i) => {
-        const upC = c.c >= c.o;
-        const color = upC ? "var(--up)" : "var(--down)";
-        return (
-          <g key={c.t}>
-            <line x1={x(i)} x2={x(i)} y1={y(c.h)} y2={y(c.l)} stroke={color} strokeWidth="1" />
-            <rect x={x(i) - bw / 2} width={bw}
-              y={y(Math.max(c.o, c.c))} height={Math.max(1, Math.abs(y(c.o) - y(c.c)))}
-              fill={color} rx="1" />
-          </g>
-        );
-      })}
-      <text x={W - PAD} y={y(hi) + 10} textAnchor="end" fill="var(--faint)" fontSize="10" fontFamily="var(--mono)">{hi.toFixed(2)}</text>
-      <text x={W - PAD} y={y(lo) - 4} textAnchor="end" fill="var(--faint)" fontSize="10" fontFamily="var(--mono)">{lo.toFixed(2)}</text>
-    </svg>
   );
 }

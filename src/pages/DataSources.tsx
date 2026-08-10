@@ -49,6 +49,12 @@ const SOURCES: Source[] = [
     detail: "Delayed quotes on the free tier. Where no provider key is set, prices are a deterministic simulation for demonstration and are labelled SIM in the interface.",
   },
   {
+    what: "Equity OHLCV / trading charts",
+    provider: "Finnhub candles via /api/candles (when configured)",
+    status: "delayed",
+    detail: "Historical candlesticks for US equities when FINNHUB_API_KEY is set. Resolution follows the selected timeframe. Without a key, charts use deterministic SIM candles and are labelled as such — never presented as live history.",
+  },
+  {
     what: "Index levels",
     provider: "Simulation",
     status: "simulated",

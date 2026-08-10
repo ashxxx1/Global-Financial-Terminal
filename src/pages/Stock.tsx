@@ -2,13 +2,21 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuote, useHistory } from "../lib/hooks";
 import { metaFor, COUNTRIES, type Candle } from "../lib/market";
+<<<<<<< Updated upstream
 import SourceBadge from "../components/SourceBadge";
+=======
+import ProvenanceBadge from "../components/ProvenanceBadge";
+>>>>>>> Stashed changes
 import Connections from "../components/Connections";
 import { connectionsForStock } from "../lib/graph";
 import { useTerminal } from "../store";
 import { useSeo } from "../lib/seo";
 import { track } from "../lib/analytics";
 import { freshness } from "../lib/marketStatus";
+<<<<<<< Updated upstream
+=======
+import { setPrioritySymbol } from "../lib/feeds/stocks";
+>>>>>>> Stashed changes
 
 const RANGES = ["1W", "1M", "3M", "6M", "1Y"] as const;
 
@@ -30,7 +38,22 @@ export default function Stock() {
   const { addWatch, removeWatch, inWatchlist, addAlert } = useTerminal();
   const [alertMsg, setAlertMsg] = useState("");
 
+<<<<<<< Updated upstream
   useEffect(() => { if (sym) track("stock_opened", { symbol: sym }); }, [sym]);
+=======
+  const pushRecent = useTerminal((s) => s.pushRecent);
+  useEffect(() => {
+    if (!sym || !meta) return;
+    track("stock_opened", { symbol: sym });
+    pushRecent(sym);
+  }, [sym, meta, pushRecent]);
+
+  // Poll the symbol being viewed far more often than the background sweep.
+  useEffect(() => {
+    setPrioritySymbol(sym || null);
+    return () => setPrioritySymbol(null);
+  }, [sym]);
+>>>>>>> Stashed changes
 
   const ai = useMemo(() => {
     if (!meta || !quote) return null;
@@ -82,7 +105,13 @@ export default function Stock() {
           onClick={() => watched ? removeWatch(sym) : addWatch({ symbol: sym, name: meta.name, country: meta.country })}>
           {watched ? "★ WATCHING" : "☆ WATCH"}
         </button>
+<<<<<<< Updated upstream
         <span style={{ marginLeft: "auto" }}><SourceBadge source={quote?.source ?? "sim"} /></span>
+=======
+        <span style={{ marginLeft: "auto" }}>
+          <ProvenanceBadge kind={meta.kind} source={quote?.source ?? "sim"} country={meta.country} />
+        </span>
+>>>>>>> Stashed changes
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
         <span className="mono" style={{ fontSize: 30, fontWeight: 800 }}>{meta.currency}{quote?.display ?? "—"}</span>
@@ -128,8 +157,16 @@ export default function Stock() {
       {ai && (
         <div className="panel">
           <div className="panel-head">
+<<<<<<< Updated upstream
             <span className="panel-title">AI investment intelligence</span>
             <span className="label">confidence {ai.confidence}% · risk {ai.risk}/100</span>
+=======
+            {/* Item 8: these scores are generated, not modelled. A footnote at
+                the bottom of the panel was not enough fencing for numbers that
+                look this much like research output. */}
+            <span className="panel-title">AI investment intelligence <span className="demo-tag">DEMO</span></span>
+            <span className="label nerd-only">confidence {ai.confidence}% · risk {ai.risk}/100 — illustrative</span>
+>>>>>>> Stashed changes
           </div>
           <div className="panel-body" style={{ display: "grid", gap: 12 }}>
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>

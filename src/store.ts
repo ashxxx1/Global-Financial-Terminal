@@ -29,6 +29,17 @@ interface TerminalState {
   searchOpen: boolean;
   setSearchOpen: (v: boolean) => void;
 
+<<<<<<< Updated upstream
+=======
+  /** Dense technical chrome is opt-in. Default off keeps the UI calm. */
+  nerdMode: boolean;
+  setNerdMode: (v: boolean) => void;
+
+  /** Recently opened symbols, most recent first — growth-plan item 78. */
+  recent: string[];
+  pushRecent: (symbol: string) => void;
+
+>>>>>>> Stashed changes
   /** Onboarding has been shown and dismissed or completed. */
   onboarded: boolean;
   setOnboarded: (v: boolean) => void;
@@ -78,6 +89,17 @@ export const useTerminal = create<TerminalState>()(
       },
       clearNotices: () => set({ notices: [] }),
 
+<<<<<<< Updated upstream
+=======
+      nerdMode: false,
+      setNerdMode: (v) => set({ nerdMode: v }),
+
+      // Item 78: "jump back in" beats an empty screen for a returning user.
+      recent: [],
+      pushRecent: (symbol) =>
+        set({ recent: [symbol, ...get().recent.filter((s) => s !== symbol)].slice(0, 8) }),
+
+>>>>>>> Stashed changes
       onboarded: false,
       setOnboarded: (v) => set({ onboarded: v }),
 
@@ -99,7 +121,11 @@ export const useTerminal = create<TerminalState>()(
     {
       name: "gft-v1",
       storage: createJSONStorage(() => localStorage),
+<<<<<<< Updated upstream
       partialize: (s) => ({ watchlist: s.watchlist, alerts: s.alerts, onboarded: s.onboarded, activated: s.activated }),
+=======
+      partialize: (s) => ({ watchlist: s.watchlist, alerts: s.alerts, recent: s.recent, nerdMode: s.nerdMode, onboarded: s.onboarded, activated: s.activated }),
+>>>>>>> Stashed changes
     }
   )
 );

@@ -106,6 +106,20 @@ async function syncProfile(u: User): Promise<void> {
   }
 }
 
+<<<<<<< Updated upstream
+=======
+/** The signed-in user's permanent member number, or null if not yet assigned. */
+export async function fetchMemberNo(): Promise<number | null> {
+  const u = auth?.currentUser;
+  if (!db || !u) return null;
+  try {
+    const snap = await getDoc(doc(db, "users", u.uid));
+    const n = snap.exists() ? snap.data().memberNo : null;
+    return typeof n === "number" ? n : null;
+  } catch { return null; }
+}
+
+>>>>>>> Stashed changes
 export const useAuth = create<AuthState>()((set, get) => ({
   user: null,
   status: "loading",

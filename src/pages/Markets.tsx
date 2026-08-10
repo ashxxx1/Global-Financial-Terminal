@@ -36,7 +36,18 @@ export default function Markets() {
     <div style={{ padding: 18, maxWidth: 1100, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Global Markets</h1>
+<<<<<<< Updated upstream
         <SourceBadge source="sim" />
+=======
+        {/* Item 2: provenance follows the selected group — crypto really is
+            live, FX is an ECB daily fix, indices/commodities are simulated.
+            One badge saying "SIM" for all of them was simply wrong. */}
+        <ProvenanceBadge
+          kind={group === "FX" ? "fx" : group === "CRYPTO" ? "crypto"
+            : group === "COMMODITIES" ? "commodity" : group === "MOVERS" ? "stock" : "index"}
+          source={rows.some((q) => q.source === "live") ? "live" : "sim"}
+        />
+>>>>>>> Stashed changes
         <div style={{ display: "flex", gap: 6, marginLeft: "auto", flexWrap: "wrap" }}>
           {GROUPS.map((g) => (
             <button key={g} className={`chip ${group === g ? "active" : ""}`} onClick={() => setGroup(g)}>{g}</button>
@@ -49,6 +60,15 @@ export default function Markets() {
         <PulseGauge tick={tick} />
       </div>
 
+<<<<<<< Updated upstream
+=======
+      {/* Items 72 & 78 — alerts you can see and manage, and a way back in. */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 14, marginBottom: 14, alignItems: "start" }}>
+        <AlertManager />
+        <RecentlyViewed />
+      </div>
+
+>>>>>>> Stashed changes
       {group !== "MOVERS" ? (
         <div className="panel" style={{ overflow: "hidden" }}>
           <div style={{ maxHeight: "68vh", overflowY: "auto" }}>

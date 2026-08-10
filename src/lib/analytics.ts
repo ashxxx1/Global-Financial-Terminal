@@ -111,6 +111,12 @@ export interface EventMap {
   tour_skipped: { atStep: number };
   data_exported: Record<string, never>;
   account_deleted: Record<string, never>;
+  forum_post_created: { hasMedia: boolean };
+  forum_post_deleted: Record<string, never>;
+  forum_post_reposted: { postId: string };
+  forum_post_unreposted: { postId: string };
+  forum_comment_added: { postId: string };
+  forum_comment_deleted: { postId: string };
 }
 
 export function track<K extends keyof EventMap>(event: K, props?: EventMap[K]): void {

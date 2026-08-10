@@ -11,6 +11,7 @@ import { useSeo } from "../lib/seo";
 import { track } from "../lib/analytics";
 import { freshness } from "../lib/marketStatus";
 import { setPrioritySymbol } from "../lib/feeds/stocks";
+import { sectorSlugForName } from "../lib/sectors";
 import "../styles/charts.css";
 
 export default function Stock() {
@@ -101,6 +102,15 @@ export default function Stock() {
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
         <button type="button" className="chip" onClick={() => navigate(-1)} aria-label="Back to previous page">← Back</button>
         <span className="label">{meta.sector} · {countryName}</span>
+        {sectorSlugForName(meta.sector) && (
+          <Link
+            to={`/sector/${sectorSlugForName(meta.sector)}`}
+            className="chip"
+            style={{ textDecoration: "none" }}
+          >
+            Sector
+          </Link>
+        )}
         <button
           type="button"
           className="chip"

@@ -20,11 +20,14 @@ function quakesFromEvents(events: Envelope[]): QuakeEvent[] {
     });
 }
 
+import { getEconCalendar, colorForEconKind } from "../data/econCalendar";
+
 const OVERLAYS: { id: OverlayMode; label: string; live?: boolean; demo?: boolean }[] = [
   { id: "market", label: "MARKET PERF" },
+  { id: "calendar", label: "CALENDAR", live: true },
+  { id: "quakes", label: "LIVE EVENTS", live: true },
   { id: "risk", label: "RISK INDEX", demo: true },
   { id: "sentiment", label: "AI SENTIMENT", demo: true },
-  { id: "quakes", label: "LIVE EVENTS", live: true },
 ];
 
 export default function World() {
@@ -66,6 +69,7 @@ export default function World() {
   }, []);
 
   const quakes = useMemo(() => quakesFromEvents(events), [events]);
+  const calendar = useMemo(() => getEconCalendar(), []);
   // Always surface 5 breaking cards: live news first, then real events, then SIM
   const BREAKING_MAX = 5;
   const liveEvents = events.slice(0, BREAKING_MAX);
@@ -80,6 +84,7 @@ export default function World() {
       <Globe3D
         overlay={overlay}
         quakes={quakes}
+        calendar={calendar}
         onHover={setHover}
         onCountryClick={(code) => navigate(`/country/${code}`)}
       />
@@ -101,13 +106,44 @@ export default function World() {
               {o.label}
               {o.demo && <span className="demo-tag">DEMO</span>}
               {o.id === "quakes" && quakes.length > 0 && <span style={{ marginLeft: 6, color: "var(--faint)" }}>{quakes.length}</span>}
+              {o.id === "calendar" && <span style={{ marginLeft: 6, color: "var(--faint)" }}>{calendar.length}</span>}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Breaking strip: LIVE NEWS first, then events, then SIM fill */}
+      {/* Breaking strip OR calendar agenda */}
       <div style={{ position: "absolute", right: 18, top: 16, zIndex: 10, width: 310, display: "flex", flexDirection: "column", gap: 8 }}>
+        {overlay === "calendar" ? (
+          <>
+            <div className="panel" style={{ padding: "10px 12px" }}>
+              <div className="label" style={{ color: "var(--gold)" }}>ECONOMIC CALENDAR</div>
+              <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 4, lineHeight: 1.4 }}>
+                CPI · central banks · earnings — pins on the globe. Scheduled seeds until a live calendar feed is wired.
+              </div>
+            </div>
+            {calendar.slice(0, 8).map((e) => (
+              <button
+                key={e.id}
+                type="button"
+                className="panel fade-in card-int"
+                onClick={() => navigate(`/country/${e.country}`)}
+                style={{ textAlign: "left", padding: "10px 12px", cursor: "pointer" }}
+              >
+                <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4 }}>
+                  <span className="label" style={{ color: colorForEconKind(e.kind) }}>● {e.kind}</span>
+                  <span className="label">{e.country}</span>
+                  <span className="label" style={{ marginLeft: "auto" }}>
+                    {new Date(e.time).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: false })}
+                  </span>
+                </div>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text)", lineHeight: 1.35 }}>{e.title}</div>
+                <div className="label" style={{ marginTop: 4 }}>{e.detail}</div>
+              </button>
+            ))}
+          </>
+        ) : (
+          <>
         {/* Live news cards */}
         {newsCards.map((a) => (
           <a
@@ -170,6 +206,8 @@ export default function World() {
             <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text)", lineHeight: 1.35 }}>{a.headline}</div>
           </button>
         ))}
+          </>
+        )}
       </div>
 
       {/* Hover intel card */}

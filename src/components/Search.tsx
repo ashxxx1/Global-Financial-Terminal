@@ -9,6 +9,7 @@ const PAGES: Hit[] = [
   { type: "page", label: "World — 3D globe", sub: "Landing", to: "/" },
   { type: "page", label: "Global Markets", sub: "Indices · FX · Crypto · Commodities", to: "/markets" },
   { type: "page", label: "Compare Charts", sub: "Overlay two stocks · normalized %", to: "/compare" },
+  { type: "page", label: "Technology sector", sub: "Sector heat & charts", to: "/sector/technology" },
   { type: "page", label: "Global News Feed", sub: "All countries", to: "/news" },
 ];
 

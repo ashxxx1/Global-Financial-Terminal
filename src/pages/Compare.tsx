@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import TradingChart from "../components/charts/TradingChart";
 import SymbolSuggest from "../components/charts/SymbolSuggest";
 import { COMPARE_COLORS, POPULAR_COMPARE_PAIRS } from "../lib/charts/compareColors";
@@ -7,49 +7,80 @@ import { metaFor } from "../lib/market";
 import { useQuote } from "../lib/hooks";
 import { useSeo } from "../lib/seo";
 import { track } from "../lib/analytics";
+import { useTerminal } from "../store";
+import { SITE_URL } from "../lib/site";
 import "../styles/charts.css";
 
 function normalizeSym(raw?: string): string {
   return (raw || "").trim().toUpperCase();
 }
 
+type CompareMode = "normalized" | "absolute";
+
 export default function Compare() {
   const { a, b } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const left = normalizeSym(a);
   const right = normalizeSym(b);
   const leftMeta = left ? metaFor(left) : null;
   const rightMeta = right ? metaFor(right) : null;
   const leftQuote = useQuote(leftMeta ? left : null);
   const rightQuote = useQuote(rightMeta ? right : null);
+  const savedCompare = useTerminal((s) => s.savedCompare);
+  const saveComparePair = useTerminal((s) => s.saveComparePair);
+  const removeComparePair = useTerminal((s) => s.removeComparePair);
+  const [shareMsg, setShareMsg] = useState("");
+
+  const mode: CompareMode = searchParams.get("mode") === "absolute" ? "absolute" : "normalized";
+  const setMode = (m: CompareMode) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (m === "absolute") next.set("mode", "absolute");
+      else next.delete("mode");
+      return next;
+    }, { replace: true });
+  };
 
   const bothValid = Boolean(leftMeta && rightMeta && left !== right);
+  const pairSaved = bothValid && savedCompare.some(
+    (p) => (p.a === left && p.b === right) || (p.a === right && p.b === left),
+  );
+
+  const comparePath = bothValid
+    ? `/compare/${left}/${right}${mode === "absolute" ? "?mode=absolute" : ""}`
+    : "/compare";
+  const ogImage = bothValid
+    ? `${SITE_URL}/api/og-compare?a=${encodeURIComponent(left)}&b=${encodeURIComponent(right)}`
+    : undefined;
 
   useSeo({
     title: bothValid
       ? `${left} vs ${right} — Compare Charts`
       : "Compare Stock Charts",
     description: bothValid
-      ? `Normalized performance chart comparing ${leftMeta!.name} (${left}) and ${rightMeta!.name} (${right}).`
-      : "Compare two stocks on one chart — normalized percentage performance over a shared timeframe.",
+      ? `Compare ${leftMeta!.name} (${left}) and ${rightMeta!.name} (${right}) — normalized % or side-by-side absolute prices.`
+      : "Compare two stocks on one chart — normalized percentage or side-by-side absolute prices.",
     path: bothValid ? `/compare/${left}/${right}` : "/compare",
+    image: ogImage,
   });
 
   useEffect(() => {
-    if (bothValid) track("compare_opened", { left, right });
-  }, [bothValid, left, right]);
+    if (bothValid) track("compare_opened", { left, right, mode });
+  }, [bothValid, left, right, mode]);
 
   const setPair = useCallback((nextLeft: string, nextRight: string) => {
     const L = normalizeSym(nextLeft);
     const R = normalizeSym(nextRight);
+    const q = mode === "absolute" ? "?mode=absolute" : "";
     if (L && R && L !== R && metaFor(L) && metaFor(R)) {
-      navigate(`/compare/${L}/${R}`, { replace: false });
+      navigate(`/compare/${L}/${R}${q}`, { replace: false });
     } else if (L && metaFor(L)) {
-      navigate(`/compare/${L}`, { replace: true });
+      navigate(`/compare/${L}${q}`, { replace: true });
     } else {
       navigate("/compare", { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, mode]);
 
   const swap = () => {
     if (left && right) setPair(right, left);
@@ -59,6 +90,32 @@ export default function Compare() {
     if (!bothValid || leftQuote == null || rightQuote == null) return null;
     return leftQuote.changePct - rightQuote.changePct;
   }, [bothValid, leftQuote, rightQuote]);
+
+  const sharePair = async () => {
+    if (!bothValid) return;
+    const url = `${SITE_URL}${comparePath}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `${left} vs ${right} · GFT`,
+          text: `Compare ${left} and ${right} on GFT Terminal`,
+          url,
+        });
+        track("shared", { method: "native", surface: "compare" });
+      } else {
+        await navigator.clipboard.writeText(url);
+        track("shared", { method: "clipboard", surface: "compare" });
+        setShareMsg("Link copied");
+        setTimeout(() => setShareMsg(""), 2000);
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(url);
+        setShareMsg("Link copied");
+        setTimeout(() => setShareMsg(""), 2000);
+      } catch { /* ignore */ }
+    }
+  };
 
   return (
     <div className="compare-page">
@@ -77,12 +134,31 @@ export default function Compare() {
             )}
           </h1>
           <p className="compare-sub">
-            Overlay normalized % performance from a shared start. Not absolute prices — each series rebased to 0% at the window open.
+            {mode === "normalized"
+              ? "Overlay normalized % performance from a shared start — each series rebased to 0% at the window open."
+              : "Side-by-side absolute price charts — same tickers, dollar scales, for level context."}
           </p>
         </div>
-        <Link to={leftMeta ? `/stock/${left}` : "/markets"} className="chip" style={{ textDecoration: "none" }}>
-          {leftMeta ? `← ${left} page` : "← Markets"}
-        </Link>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <Link to={leftMeta ? `/stock/${left}` : "/markets"} className="chip" style={{ textDecoration: "none" }}>
+            {leftMeta ? `← ${left}` : "← Markets"}
+          </Link>
+          {bothValid && (
+            <>
+              <button type="button" className="chip" onClick={sharePair}>
+                {shareMsg || "Share"}
+              </button>
+              <button
+                type="button"
+                className={`chip ${pairSaved ? "active" : ""}`}
+                onClick={() => (pairSaved ? removeComparePair(left, right) : saveComparePair(left, right))}
+                aria-pressed={pairSaved}
+              >
+                {pairSaved ? "Saved" : "Save pair"}
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="compare-picker panel">
@@ -112,6 +188,15 @@ export default function Compare() {
           />
         </div>
 
+        <div className="compare-mode" role="group" aria-label="Compare mode">
+          <button type="button" className={`chip ${mode === "normalized" ? "active" : ""}`} onClick={() => setMode("normalized")}>
+            Normalized %
+          </button>
+          <button type="button" className={`chip ${mode === "absolute" ? "active" : ""}`} onClick={() => setMode("absolute")}>
+            Side-by-side $
+          </button>
+        </div>
+
         <div className="compare-pairs" aria-label="Popular pairs">
           <span className="label">Quick pairs</span>
           {POPULAR_COMPARE_PAIRS.map(([x, y]) => {
@@ -128,6 +213,22 @@ export default function Compare() {
             );
           })}
         </div>
+
+        {savedCompare.length > 0 && (
+          <div className="compare-pairs" aria-label="Saved pairs">
+            <span className="label">Saved</span>
+            {savedCompare.map((p) => (
+              <button
+                key={`${p.a}-${p.b}`}
+                type="button"
+                className={`chip ${(left === p.a && right === p.b) || (left === p.b && right === p.a) ? "active" : ""}`}
+                onClick={() => setPair(p.a, p.b)}
+              >
+                {p.a} · {p.b}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {bothValid && (
@@ -164,26 +265,51 @@ export default function Compare() {
       )}
 
       {bothValid ? (
-        <TradingChart
-          symbol={left}
-          name={leftMeta!.name}
-          currency={leftMeta!.currency}
-          price={leftQuote?.price}
-          changePct={leftQuote?.changePct}
-          country={leftMeta!.country}
-          source={leftQuote?.source ?? "sim"}
-          initialCompare={[right]}
-          compareLocked
-          onCompareChange={(syms) => {
-            const peer = syms[0];
-            if (peer && peer !== left && peer !== right) setPair(left, peer);
-          }}
-        />
+        mode === "normalized" ? (
+          <TradingChart
+            symbol={left}
+            name={leftMeta!.name}
+            currency={leftMeta!.currency}
+            price={leftQuote?.price}
+            changePct={leftQuote?.changePct}
+            country={leftMeta!.country}
+            source={leftQuote?.source ?? "sim"}
+            initialCompare={[right]}
+            compareLocked
+            onCompareChange={(syms) => {
+              const peer = syms[0];
+              if (peer && peer !== left && peer !== right) setPair(left, peer);
+            }}
+          />
+        ) : (
+          <div className="compare-absolute">
+            <TradingChart
+              symbol={left}
+              name={leftMeta!.name}
+              currency={leftMeta!.currency}
+              price={leftQuote?.price}
+              changePct={leftQuote?.changePct}
+              country={leftMeta!.country}
+              source={leftQuote?.source ?? "sim"}
+              maxCompare={1}
+            />
+            <TradingChart
+              symbol={right}
+              name={rightMeta!.name}
+              currency={rightMeta!.currency}
+              price={rightQuote?.price}
+              changePct={rightQuote?.changePct}
+              country={rightMeta!.country}
+              source={rightQuote?.source ?? "sim"}
+              maxCompare={1}
+            />
+          </div>
+        )
       ) : (
         <div className="panel compare-empty">
           <div className="panel-title">Pick two tickers</div>
           <p className="label" style={{ margin: "8px 0 0", lineHeight: 1.5 }}>
-            Choose Stock A and Stock B above — or tap a quick pair — to overlay relative performance on one chart.
+            Choose Stock A and Stock B above — or tap a quick pair — to compare performance.
           </p>
         </div>
       )}

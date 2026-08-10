@@ -50,9 +50,15 @@ const SOURCES: Source[] = [
   },
   {
     what: "Equity OHLCV / trading charts",
-    provider: "Finnhub candles via /api/candles (when configured)",
+    provider: "Finnhub (premium) → Yahoo Finance chart → optional Alpha Vantage via /api/candles",
     status: "delayed",
-    detail: "Historical candlesticks for US equities when FINNHUB_API_KEY is set. Resolution follows the selected timeframe. Without a key, charts use deterministic SIM candles and are labelled as such — never presented as live history.",
+    detail: "Finnhub free tier blocks /stock/candle (403) while quotes still work. The candle proxy falls back to Yahoo delayed history (labeled DELAYED), then optional ALPHA_VANTAGE_KEY. Without any provider response, charts use deterministic SIM candles — never presented as live history.",
+  },
+  {
+    what: "Economic calendar (WORLD overlay)",
+    provider: "Scheduled seed calendar (CPI / Fed / earnings)",
+    status: "simulated",
+    detail: "Near-term macro and earnings pins on the globe. Seeded schedule until a licensed calendar feed is wired; clearly a habit/overlay feature, not a wire-service feed.",
   },
   {
     what: "Index levels",

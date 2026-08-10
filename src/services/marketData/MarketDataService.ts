@@ -2,7 +2,7 @@
  * MarketDataService — single chart-facing OHLCV abstraction.
  *
  * Priority:
- *  1. Live Finnhub candles via /api/candles (US equities when key configured)
+ *  1. Live/delayed candles via /api/candles (Finnhub → Yahoo → Alpha Vantage)
  *  2. Honest SIM fallback from market.ts history engine (never labeled live)
  *
  * Never silently invents "live" data.
@@ -233,6 +233,7 @@ async function fetchLiveCandles(
   let data: {
     candles?: OhlcvBar[];
     source?: MarketDataSource;
+    provider?: string;
     status?: string;
     s?: string;
     t?: number[];
@@ -268,7 +269,7 @@ async function fetchLiveCandles(
   } else if (data.s === "no_data" || data.status === "no_data") {
     return {
       candles: [],
-      source: "live",
+      source: "delayed",
       resolution,
       status: "no_data",
       fetchedAt: Date.now(),
@@ -279,12 +280,17 @@ async function fetchLiveCandles(
     candles = aggregateBars(candles, 4 * 3600_000);
   }
 
+  const src: MarketDataSource =
+    data.source === "live" || data.source === "delayed" || data.source === "cached" || data.source === "sim"
+      ? data.source
+      : "delayed";
+
   return {
     candles,
-    source: "live",
+    source: src,
     resolution,
     status: candles.length ? "ok" : "no_data",
-    delayed: true,
+    delayed: src !== "live",
     fetchedAt: Date.now(),
   };
 }

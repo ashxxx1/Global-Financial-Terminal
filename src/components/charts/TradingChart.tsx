@@ -678,7 +678,10 @@ export default function TradingChart({
                 {sessionLabel}
               </span>
               {data?.source === "live" && (
-                <span className="label" style={{ marginLeft: 8 }}>LIVE OHLCV · delayed free-tier</span>
+                <span className="label" style={{ marginLeft: 8 }}>LIVE OHLCV</span>
+              )}
+              {data?.source === "delayed" && (
+                <span className="label" style={{ marginLeft: 8 }}>DELAYED OHLCV · free-tier history</span>
               )}
               {data?.source === "sim" && (
                 <span className="label" style={{ marginLeft: 8 }}>SIM candles — not live market history</span>

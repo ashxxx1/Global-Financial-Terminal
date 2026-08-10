@@ -88,6 +88,19 @@ export default function Markets() {
             </button>
           ))}
         </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+          <span className="label">Sectors</span>
+          {["technology", "banking-finance", "energy", "healthcare", "consumer"].map((slug) => (
+            <button
+              key={slug}
+              type="button"
+              className="chip"
+              onClick={() => navigate(`/sector/${slug}`)}
+            >
+              {slug.replace(/-/g, " ")}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Items 72 & 78 — alerts you can see and manage, and a way back in. */}

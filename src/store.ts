@@ -37,6 +37,11 @@ interface TerminalState {
   recent: string[];
   pushRecent: (symbol: string) => void;
 
+  /** Saved A vs B compare pairs (max 12). */
+  savedCompare: Array<{ a: string; b: string }>;
+  saveComparePair: (a: string, b: string) => void;
+  removeComparePair: (a: string, b: string) => void;
+
   /** Onboarding has been shown and dismissed or completed. */
   onboarded: boolean;
   setOnboarded: (v: boolean) => void;
@@ -94,6 +99,23 @@ export const useTerminal = create<TerminalState>()(
       pushRecent: (symbol) =>
         set({ recent: [symbol, ...get().recent.filter((s) => s !== symbol)].slice(0, 8) }),
 
+      savedCompare: [],
+      saveComparePair: (a, b) => {
+        const A = a.toUpperCase();
+        const B = b.toUpperCase();
+        if (!A || !B || A === B) return;
+        const next = [{ a: A, b: B }, ...get().savedCompare.filter((p) => !(p.a === A && p.b === B) && !(p.a === B && p.b === A))];
+        set({ savedCompare: next.slice(0, 12) });
+        track("compare_saved", { a: A, b: B });
+      },
+      removeComparePair: (a, b) => {
+        const A = a.toUpperCase();
+        const B = b.toUpperCase();
+        set({
+          savedCompare: get().savedCompare.filter((p) => !(p.a === A && p.b === B) && !(p.a === B && p.b === A)),
+        });
+      },
+
       onboarded: false,
       setOnboarded: (v) => set({ onboarded: v }),
 
@@ -115,7 +137,15 @@ export const useTerminal = create<TerminalState>()(
     {
       name: "gft-v1",
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ watchlist: s.watchlist, alerts: s.alerts, recent: s.recent, nerdMode: s.nerdMode, onboarded: s.onboarded, activated: s.activated }),
+      partialize: (s) => ({
+        watchlist: s.watchlist,
+        alerts: s.alerts,
+        recent: s.recent,
+        savedCompare: s.savedCompare,
+        nerdMode: s.nerdMode,
+        onboarded: s.onboarded,
+        activated: s.activated,
+      }),
     }
   )
 );

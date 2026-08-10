@@ -33,14 +33,13 @@ function localFinnhubApi() {
           res.end(JSON.stringify(body))
         }
 
-        if (!key) return send(501, { error: 'not configured' })
-
         try {
           const u = new URL(url, 'http://localhost')
           const symbol = (u.searchParams.get('symbol') || '').toUpperCase()
           if (!/^[A-Z0-9.\-]{1,12}$/.test(symbol)) return send(400, { error: 'bad symbol' })
 
           if (url.startsWith('/api/quote')) {
+            if (!key) return send(501, { error: 'not configured' })
             const upstream = await fetch(
               `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${key}`,
               { signal: AbortSignal.timeout(8000) },
@@ -51,7 +50,7 @@ function localFinnhubApi() {
             return send(200, { c: q.c, dp: q.dp })
           }
 
-          // /api/candles
+          // /api/candles — Finnhub free tier blocks candles (403); fall back to Yahoo.
           const resolution = (u.searchParams.get('resolution') || 'D').toUpperCase()
           const from = Number(u.searchParams.get('from') || '0')
           const to = Number(u.searchParams.get('to') || '0')
@@ -61,27 +60,60 @@ function localFinnhubApi() {
           if (!Number.isFinite(from) || !Number.isFinite(to) || from <= 0 || to <= 0 || from >= to) {
             return send(400, { error: 'bad from/to' })
           }
-          const upstream = await fetch(
-            `https://finnhub.io/api/v1/stock/candle?symbol=${encodeURIComponent(symbol)}` +
-              `&resolution=${encodeURIComponent(resolution)}&from=${Math.floor(from)}&to=${Math.floor(to)}&token=${key}`,
-            { signal: AbortSignal.timeout(12000) },
-          )
-          if (upstream.status === 429) return send(429, { error: 'rate limited' })
-          if (!upstream.ok) return send(502, { error: `upstream ${upstream.status}` })
-          const raw = await upstream.json()
-          if (raw.s === 'no_data' || !raw.t?.length) {
-            return send(200, { candles: [], source: 'live', status: 'no_data' })
+
+          if (key) {
+            try {
+              const upstream = await fetch(
+                `https://finnhub.io/api/v1/stock/candle?symbol=${encodeURIComponent(symbol)}` +
+                  `&resolution=${encodeURIComponent(resolution)}&from=${Math.floor(from)}&to=${Math.floor(to)}&token=${key}`,
+                { signal: AbortSignal.timeout(12000) },
+              )
+              if (upstream.status === 429) return send(429, { error: 'rate limited' })
+              if (upstream.ok) {
+                const raw = await upstream.json()
+                if (raw.s === 'ok' && raw.t?.length) {
+                  const candles = raw.t.map((t, i) => ({
+                    t: t * 1000, o: raw.o[i], h: raw.h[i], l: raw.l[i], c: raw.c[i], v: raw.v?.[i] ?? 0,
+                  }))
+                  return send(200, { candles, source: 'live', provider: 'finnhub', status: 'ok' })
+                }
+                if (raw.s === 'no_data') {
+                  // fall through to Yahoo
+                } else if (upstream.status !== 403) {
+                  // fall through
+                }
+              }
+            } catch { /* Yahoo fallback */ }
           }
-          if (raw.s !== 'ok') return send(502, { error: `upstream status ${raw.s || 'unknown'}` })
-          const candles = raw.t.map((t, i) => ({
-            t: t * 1000,
-            o: raw.o[i],
-            h: raw.h[i],
-            l: raw.l[i],
-            c: raw.c[i],
-            v: raw.v?.[i] ?? 0,
-          }))
-          return send(200, { candles, source: 'live', status: 'ok' })
+
+          const yahooInterval = ({ 1: '1m', 5: '5m', 15: '15m', 30: '30m', 60: '60m', W: '1wk', M: '1mo' })[resolution] || '1d'
+          let period1 = Math.floor(from)
+          let period2 = Math.floor(to)
+          if (['1m', '5m', '15m', '30m', '60m'].includes(yahooInterval)) {
+            const maxSpan = yahooInterval === '1m' ? 7 * 86400 : 60 * 86400
+            period1 = Math.max(period1, period2 - maxSpan)
+          }
+          const yUrl =
+            `https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}` +
+            `?period1=${period1}&period2=${period2}&interval=${yahooInterval}&includePrePost=false`
+          const yUp = await fetch(yUrl, {
+            signal: AbortSignal.timeout(12000),
+            headers: { 'user-agent': 'Mozilla/5.0 (compatible; GFTTerminal/1.0)', accept: 'application/json' },
+          })
+          if (yUp.status === 429) return send(429, { error: 'rate limited' })
+          if (!yUp.ok) return send(502, { error: `yahoo ${yUp.status}` })
+          const yRaw = await yUp.json()
+          const result = yRaw.chart?.result?.[0]
+          const ts = result?.timestamp
+          const q = result?.indicators?.quote?.[0]
+          if (!ts?.length || !q) return send(200, { candles: [], source: 'delayed', provider: 'yahoo', status: 'no_data' })
+          const candles = []
+          for (let i = 0; i < ts.length; i++) {
+            const o = q.open?.[i], h = q.high?.[i], l = q.low?.[i], c = q.close?.[i]
+            if (o == null || h == null || l == null || c == null) continue
+            candles.push({ t: ts[i] * 1000, o, h, l, c, v: q.volume?.[i] ?? 0 })
+          }
+          return send(200, { candles, source: 'delayed', provider: 'yahoo', status: candles.length ? 'ok' : 'no_data' })
         } catch (err) {
           return send(502, { error: err instanceof Error ? err.message : 'fetch failed' })
         }

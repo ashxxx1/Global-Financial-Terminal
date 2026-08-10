@@ -559,6 +559,25 @@
   padding: 28px 18px;
 }
 
+.compare-mode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.compare-absolute {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 960px) {
+  .compare-absolute {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 @media (max-width: 720px) {
   .compare-stats {
     grid-template-columns: 1fr;

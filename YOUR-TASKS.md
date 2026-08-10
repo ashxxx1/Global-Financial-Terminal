@@ -32,6 +32,11 @@ Until this exists, every product decision is a guess.
 ```
 VITE_POSTHOG_KEY=phc_xxxxx
 ```
+Optional: `VITE_POSTHOG_HOST=https://us.i.posthog.com`
+3. Environments: tick **Production** (Preview optional).
+4. **Redeploy** — Vite bakes `VITE_*` at build time; changing the var alone does nothing.
+5. Confirm: accept analytics consent on the live site → PostHog Live events.
+
 *Plan item 16.* ⚠️ 2026-08-08: verified the live build has NO PostHog key. The var did not take — check in Vercel that it is named EXACTLY `VITE_POSTHOG_KEY`, value starts `phc_`, and Production is ticked. Then redeploy (or ping me).
 
 ---

@@ -147,7 +147,11 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
           Create your free terminal →
         </button>
         <footer className="lp-footer">
-          © {new Date().getFullYear()} GFT Terminal · Informational only, not investment advice · <a href={SUPPORT_MAILTO} style={{ color: "var(--muted)" }}>Contact</a>
+          © {new Date().getFullYear()} GFT Terminal · Informational only, not investment advice
+          {" · "}<a href="/terms" style={{ color: "var(--muted)" }}>Terms</a>
+          {" · "}<a href="/privacy" style={{ color: "var(--muted)" }}>Privacy</a>
+          {" · "}<a href="/data-sources" style={{ color: "var(--muted)" }}>Data sources</a>
+          {" · "}<a href={SUPPORT_MAILTO} style={{ color: "var(--muted)" }}>Contact</a>
         </footer>
       </section>
     </div>

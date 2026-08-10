@@ -51,6 +51,8 @@ async function main() {
     url("/news", { changefreq: "hourly", priority: "0.9", lastmod: today }),
     url("/changelog", { changefreq: "weekly", priority: "0.5", lastmod: today }),
     url("/data-sources", { changefreq: "monthly", priority: "0.4", lastmod: today }),
+    url("/terms", { changefreq: "yearly", priority: "0.3", lastmod: today }),
+    url("/privacy", { changefreq: "yearly", priority: "0.3", lastmod: today }),
     ...codes.map((c) => url(`/country/${c}`, { priority: "0.8", lastmod: today })),
     ...syms.map((s) => url(`/stock/${s}`, { priority: "0.6", lastmod: today })),
   ];

@@ -1311,3 +1311,19 @@ input, select { font-family: inherit; }
 .acct-error { margin: 10px 0 0; font-size: 12px; color: var(--down); }
 .acct-foot { margin: 14px 0 0; font-size: 11px; color: var(--faint); }
 .acct-foot a { color: var(--blue); }
+
+/* Legal pages — Terms / Privacy (items 9, 10) */
+.legal { display: grid; gap: 22px; margin-top: 22px; }
+.legal-sec h2 {
+  display: flex; align-items: baseline; gap: 10px;
+  margin: 0 0 8px; font-size: 15px; font-weight: 700; letter-spacing: -0.01em;
+}
+.legal-n {
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  color: var(--cyan, var(--blue)); min-width: 20px;
+}
+.legal-sec p { margin: 0 0 10px; font-size: 13.5px; line-height: 1.75; color: var(--muted); }
+.legal-sec p b, .legal-sec li b { color: var(--text); }
+.legal-sec ul { margin: 0 0 10px; padding-left: 18px; display: grid; gap: 7px; }
+.legal-sec li { font-size: 13.5px; line-height: 1.7; color: var(--muted); }
+.legal-sec a { color: var(--blue); }

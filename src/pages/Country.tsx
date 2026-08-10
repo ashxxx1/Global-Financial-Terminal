@@ -6,6 +6,7 @@ import { getCountryStats } from "../data/countryStats";
 import { fetchCountryNews, agoLabel, type Article } from "../lib/news";
 import { ratePick, RATING_COLOR } from "../lib/analysis";
 import SourceBadge from "../components/SourceBadge";
+import ProvenanceBadge from "../components/ProvenanceBadge";
 import Connections from "../components/Connections";
 import { connectionsForCountry } from "../lib/graph";
 import { useTerminal } from "../store";
@@ -76,7 +77,9 @@ export default function Country() {
             {meta?.marketIndex || "Index"} {up ? "+" : ""}{(stats.marketReturns?.["1D"] ?? 0).toFixed(2)}% 1D
           </span>
         )}
-        <span style={{ marginLeft: "auto" }}><SourceBadge source="sim" /></span>
+        {/* Item 2: the headline number here is the country index, which is
+            simulated — say so explicitly rather than with an opaque "SIM". */}
+        <span style={{ marginLeft: "auto" }}><ProvenanceBadge kind="index" source="sim" country={iso} /></span>
       </div>
 
       {/* Tabs */}
@@ -209,7 +212,10 @@ export default function Country() {
 
       {tab === "AI SUMMARY" && stats && (
         <div className="panel">
-          <div className="panel-head"><span className="panel-title">AI country synthesis</span><SourceBadge source="sim" /></div>
+          <div className="panel-head">
+            <span className="panel-title">AI country synthesis <span className="demo-tag">DEMO</span></span>
+            <SourceBadge source="sim" />
+          </div>
           <div className="panel-body" style={{ display: "grid", gap: 14 }}>
             <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7 }}>{aiSummary}</p>
             <div>

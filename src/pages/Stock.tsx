@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuote, useHistory } from "../lib/hooks";
 import { metaFor, COUNTRIES, type Candle } from "../lib/market";
-import SourceBadge from "../components/SourceBadge";
+import ProvenanceBadge from "../components/ProvenanceBadge";
 import Connections from "../components/Connections";
 import { connectionsForStock } from "../lib/graph";
 import { useTerminal } from "../store";
@@ -82,7 +82,9 @@ export default function Stock() {
           onClick={() => watched ? removeWatch(sym) : addWatch({ symbol: sym, name: meta.name, country: meta.country })}>
           {watched ? "★ WATCHING" : "☆ WATCH"}
         </button>
-        <span style={{ marginLeft: "auto" }}><SourceBadge source={quote?.source ?? "sim"} /></span>
+        <span style={{ marginLeft: "auto" }}>
+          <ProvenanceBadge kind={meta.kind} source={quote?.source ?? "sim"} country={meta.country} />
+        </span>
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
         <span className="mono" style={{ fontSize: 30, fontWeight: 800 }}>{meta.currency}{quote?.display ?? "—"}</span>
@@ -128,8 +130,11 @@ export default function Stock() {
       {ai && (
         <div className="panel">
           <div className="panel-head">
-            <span className="panel-title">AI investment intelligence</span>
-            <span className="label">confidence {ai.confidence}% · risk {ai.risk}/100</span>
+            {/* Item 8: these scores are generated, not modelled. A footnote at
+                the bottom of the panel was not enough fencing for numbers that
+                look this much like research output. */}
+            <span className="panel-title">AI investment intelligence <span className="demo-tag">DEMO</span></span>
+            <span className="label">confidence {ai.confidence}% · risk {ai.risk}/100 — illustrative</span>
           </div>
           <div className="panel-body" style={{ display: "grid", gap: 12 }}>
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -157,7 +162,10 @@ export default function Stock() {
                 {ai.catalysts.map((c) => <span key={c} className="chip" style={{ cursor: "default" }}>{c}</span>)}
               </div>
             </div>
-            <p className="label" style={{ margin: 0 }}>Synthetic analysis for demonstration — not financial advice.</p>
+            <p className="label" style={{ margin: 0 }}>
+              Generated text and scores, produced from the symbol and its price move — not
+              research, not a model output, and not financial advice. See <a href="/data-sources">data sources</a>.
+            </p>
           </div>
         </div>
       )}

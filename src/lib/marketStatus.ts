@@ -1,4 +1,4 @@
-import type { Source } from "./market";
+import type { Source, Kind } from "./market";
 
 /**
  * Human "as of" labelling for a quote — growth-plan item 7.
@@ -54,4 +54,59 @@ export function freshness(source: Source, country: string | null, now: Date = ne
     case "post":
       return { label: "At close", tone: "stale", detail: "US market closed for the day; showing today's close." };
   }
+}
+
+/* ── Per-instrument provenance — growth-plan item 2 ────────────────────────
+   Item 7 answered "when is this from". This answers "where did it come from
+   and how delayed is it", per instrument class, in the one place the whole UI
+   reads. The facts here must stay in lockstep with /data-sources — if they
+   ever disagree, that page is the one telling the truth to regulators. */
+
+export interface Provenance {
+  /** Short badge text. */
+  label: string;
+  tone: FreshTone;
+  /** Provider name, for the tooltip. */
+  provider: string;
+  /** Human delay description. */
+  delay: string;
+  detail: string;
+}
+
+export function provenanceFor(kind: Kind, source: Source, country: string | null = null): Provenance {
+  // Genuinely live feeds, regardless of the quote engine.
+  if (kind === "crypto") {
+    return {
+      label: "LIVE", tone: "live", provider: "Binance", delay: "real time",
+      detail: "Streamed live from Binance's public WebSocket. Genuine market data.",
+    };
+  }
+  if (kind === "fx") {
+    return {
+      label: "ECB DAILY", tone: "stale", provider: "European Central Bank", delay: "once per business day",
+      detail: "Official ECB reference rates, published once each business day — not intraday.",
+    };
+  }
+  // Equities: real but delayed when the provider is wired up.
+  if (kind === "stock" && source === "live") {
+    return {
+      label: "DELAYED", tone: "stale", provider: "Finnhub", delay: "delayed (free tier)",
+      detail: "Real quote from Finnhub, delayed on the free tier. Not a real-time trading feed.",
+    };
+  }
+  if (source === "cached") {
+    return {
+      label: "CACHED", tone: "stale", provider: "last known", delay: "last known value",
+      detail: "The provider is unreachable; showing the last value we successfully fetched.",
+    };
+  }
+  // Everything else is the deterministic engine.
+  const what =
+    kind === "index" ? "Index levels" :
+    kind === "commodity" ? "Commodity prices" :
+    country && country !== "US" ? "Non-US equity prices" : "Prices";
+  return {
+    label: "SIMULATED", tone: "sim", provider: "deterministic engine", delay: "not real",
+    detail: `${what} here are a deterministic simulation for demonstration — not real market data. See /data-sources.`,
+  };
 }

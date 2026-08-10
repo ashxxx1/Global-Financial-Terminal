@@ -17,8 +17,8 @@ import { useEffect } from "react";
  * (plan item 85) is what makes this bulletproof.
  */
 
-const SITE = "https://global-financial-news.vercel.app";
-const SITE_NAME = "GFT Terminal";
+import { SITE_URL as SITE, SITE_NAME } from "./site";
+
 const DEFAULT_IMAGE = `${SITE}/og.png`;
 
 export interface Seo {

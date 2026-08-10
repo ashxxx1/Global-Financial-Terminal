@@ -36,6 +36,8 @@ const SignalCalendarPage = lazy(() => import("./pages/signals/SignalCalendarPage
 const SignalMethodologyPage = lazy(() => import("./pages/signals/SignalMethodologyPage"));
 const SignalBacktestPage = lazy(() => import("./pages/signals/SignalBacktestPage"));
 const SignalTrackRecordPage = lazy(() => import("./pages/signals/SignalTrackRecordPage"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
 import { useAuth, authRequired } from "./lib/auth";
@@ -117,6 +119,8 @@ function Shell() {
             <Route path="/signals/:id" element={<SignalDetailPage />} />
             <Route path="/changelog" element={<Changelog />} />
             <Route path="/data-sources" element={<DataSources />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<World />} />
           </Routes>
           </Suspense>

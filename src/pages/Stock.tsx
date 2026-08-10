@@ -12,6 +12,9 @@ import { track } from "../lib/analytics";
 import { freshness } from "../lib/marketStatus";
 import { setPrioritySymbol } from "../lib/feeds/stocks";
 import { sectorSlugForName } from "../lib/sectors";
+import { generateFundamentals } from "../lib/fundamentals";
+import OptionsChain from "../components/OptionsChain";
+import SmartAlertModal from "../components/SmartAlertModal";
 import "../styles/charts.css";
 
 export default function Stock() {
@@ -30,8 +33,9 @@ export default function Stock() {
       : "Live share price and chart.",
     path: `/stock/${sym}`,
   });
-  const { addWatch, removeWatch, inWatchlist, addAlert } = useTerminal();
-  const [alertMsg, setAlertMsg] = useState("");
+  const { addWatch, removeWatch, inWatchlist } = useTerminal();
+  const [showOptions, setShowOptions] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
 
   const pushRecent = useTerminal((s) => s.pushRecent);
   useEffect(() => {
@@ -87,15 +91,6 @@ export default function Stock() {
   const watched = inWatchlist(sym);
   const countryName = COUNTRIES[meta.country || ""]?.name || meta.country;
   const comparePeer = vs || (sym === "MSFT" ? "AAPL" : "MSFT");
-
-  const setPriceAlert = (direction: "above" | "below") => {
-    if (!quote) return;
-    const target = +(quote.price * (direction === "above" ? 1.02 : 0.98)).toFixed(2);
-    addAlert({ symbol: sym, price: target, direction });
-    setAlertMsg(`Alert armed: ${sym} ${direction} ${target}`);
-    setTimeout(() => setAlertMsg(""), 2500);
-  };
-
   return (
     <div style={{ padding: 18, maxWidth: 1200, margin: "0 auto" }}>
       {/* Compact page chrome — detailed quote lives in the chart header */}
@@ -148,9 +143,8 @@ export default function Stock() {
 
       {/* Actions */}
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
-        <button className="chip" onClick={() => setPriceAlert("above")}>ALERT +2%</button>
-        <button className="chip" onClick={() => setPriceAlert("below")}>ALERT −2%</button>
-        {alertMsg && <span className="mono" style={{ fontSize: 11, color: "var(--up)" }}>✓ {alertMsg}</span>}
+        <button className={`chip ${showOptions ? "active blue" : ""}`} onClick={() => setShowOptions(!showOptions)}>Options Chain</button>
+        <button className="chip" onClick={() => setShowAlertModal(true)}>Set Smart Alert</button>
         {(() => {
           const f = freshness(quote?.source ?? "sim", meta.country);
           return (
@@ -163,6 +157,37 @@ export default function Stock() {
           {up ? "▲" : "▼"} {Math.abs(quote?.changePct ?? 0).toFixed(2)}% session
         </span>
       </div>
+
+      {/* Fundamentals Panel */}
+      {quote && (
+        <div className="panel" style={{ marginBottom: 16 }}>
+          <div className="panel-head">
+            <span className="panel-title">Key Fundamentals <span className="demo-tag">SIM</span></span>
+            <span className="label nerd-only">simulated values</span>
+          </div>
+          <div className="panel-body">
+            {(() => {
+              const f = generateFundamentals(sym, quote.price);
+              return (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 16 }}>
+                  <div><div className="label">Market Cap</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.marketCap}</div></div>
+                  <div><div className="label">P/E Ratio</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.peRatio}</div></div>
+                  <div><div className="label">EPS (TTM)</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.eps}</div></div>
+                  <div><div className="label">Div Yield</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.divYield}</div></div>
+                  <div><div className="label">Beta</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.beta}</div></div>
+                  <div><div className="label">Avg Volume</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.avgVolume}</div></div>
+                  <div><div className="label">52W High</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.high52w}</div></div>
+                  <div><div className="label">52W Low</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.low52w}</div></div>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
+      {showOptions && quote && (
+        <OptionsChain symbol={sym} currentPrice={quote.price} />
+      )}
 
       {/* AI analysis */}
       {ai && (
@@ -203,6 +228,10 @@ export default function Stock() {
             </p>
           </div>
         </div>
+      )}
+
+      {showAlertModal && quote && (
+        <SmartAlertModal symbol={sym} currentPrice={quote.price} onClose={() => setShowAlertModal(false)} />
       )}
 
       <Connections nodes={connectionsForStock(sym)} />

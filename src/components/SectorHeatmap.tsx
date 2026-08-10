@@ -25,7 +25,7 @@ function heatColor(pct: number): string {
   return t >= 0 ? `rgba(38, 208, 124, ${a.toFixed(3)})` : `rgba(255, 77, 94, ${a.toFixed(3)})`;
 }
 
-export default function SectorHeatmap({ tick, onOpen }: { tick?: number; onOpen?: (s: string) => void }) {
+export default function SectorHeatmap({ onOpen }: { onOpen?: (s: string) => void }) {
   const [hover, setHover] = useState<Cell | null>(null);
 
   const cells = useMemo<Cell[]>(() => {
@@ -50,7 +50,7 @@ export default function SectorHeatmap({ tick, onOpen }: { tick?: number; onOpen?
       })
       .filter((c) => c.count >= 2)
       .sort((a, b) => b.avg - a.avg);
-  }, [tick]);
+  }, []);
 
   if (!cells.length) return null;
 

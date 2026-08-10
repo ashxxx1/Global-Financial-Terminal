@@ -15,7 +15,7 @@ import {
   timeAgo,
   type LiveArticle,
 } from "../lib/newsFeed";
-import { globalNews, type Article } from "../lib/news";
+import { globalNews } from "../lib/news";
 import SourceBadge from "../components/SourceBadge";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -47,6 +47,7 @@ export default function News() {
   const [isLive, setIsLive] = useState(false);
   const [category, setCategory] = useState<Category>("ALL");
   const [sentiment, setSentiment] = useState<SentimentFilter>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
   const [countdown, setCountdown] = useState(300); // seconds
   const [heroIdx, setHeroIdx] = useState(0);
   const lastFetch = useRef(0);
@@ -134,8 +135,31 @@ export default function News() {
     if (sentiment === "BULLISH") rows = rows.filter((a) => a.sentiment === "Bullish");
     else if (sentiment === "BEARISH") rows = rows.filter((a) => a.sentiment === "Bearish");
     else if (sentiment === "HIGH IMPACT") rows = rows.filter((a) => a.impact === "High");
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      rows = rows.filter((a) => 
+        a.title.toLowerCase().includes(q) || 
+        a.description.toLowerCase().includes(q) ||
+        a.relatedStocks.some((s) => s.toLowerCase().includes(q))
+      );
+    }
+    
     return rows;
-  }, [articles, category, sentiment]);
+  }, [articles, category, sentiment, searchQuery]);
+
+  // Sentiment Summary
+  const sentimentSummary = useMemo(() => {
+    const total = filtered.length || 1;
+    const bulls = filtered.filter((a) => a.sentiment === "Bullish").length;
+    const bears = filtered.filter((a) => a.sentiment === "Bearish").length;
+    const neutrals = filtered.length - bulls - bears;
+    return {
+      bullPct: (bulls / total) * 100,
+      bearPct: (bears / total) * 100,
+      neutralPct: (neutrals / total) * 100,
+    };
+  }, [filtered]);
 
   const heroArticle = breaking[heroIdx % Math.max(1, breaking.length)];
 
@@ -291,7 +315,6 @@ export default function News() {
 
         <div style={{ width: 1, height: 22, background: "var(--line)", flexShrink: 0 }} />
 
-        {/* Sentiment */}
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
           {SENTIMENTS.map((s) => (
             <button
@@ -305,10 +328,40 @@ export default function News() {
           ))}
         </div>
 
-        <span className="label" style={{ marginLeft: "auto" }}>
-          {filtered.length} ARTICLE{filtered.length !== 1 ? "S" : ""}
-        </span>
+        <input
+          type="text"
+          placeholder="Search news, tickers..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            marginLeft: "auto",
+            padding: "6px 12px",
+            background: "var(--navy)",
+            border: "1px solid var(--line)",
+            borderRadius: 6,
+            color: "var(--text)",
+            fontFamily: "var(--mono)",
+            fontSize: 12,
+            outline: "none",
+            width: 200,
+          }}
+        />
       </div>
+
+      {/* Sentiment Summary Bar */}
+      {filtered.length > 0 && (
+        <div style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
+          <span className="label" style={{ minWidth: 60 }}>VIBE</span>
+          <div style={{ flex: 1, height: 6, display: "flex", borderRadius: 3, overflow: "hidden", background: "var(--navy-2)" }}>
+            <div style={{ width: `${sentimentSummary.bullPct}%`, background: "var(--up)", transition: "width 0.3s" }} />
+            <div style={{ width: `${sentimentSummary.neutralPct}%`, background: "var(--gold)", transition: "width 0.3s" }} />
+            <div style={{ width: `${sentimentSummary.bearPct}%`, background: "var(--down)", transition: "width 0.3s" }} />
+          </div>
+          <span className="label" style={{ width: 80, textAlign: "right" }}>
+            {filtered.length} ARTICLE{filtered.length !== 1 ? "S" : ""}
+          </span>
+        </div>
+      )}
 
       {/* ─── Loading State ─── */}
       {loading && articles.length === 0 && (
@@ -320,7 +373,7 @@ export default function News() {
       )}
 
       {/* ─── Article Grid ─── */}
-      <div style={{ display: "grid", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(450px, 1fr))", gap: 16 }}>
         {filtered.map((a, idx) => (
           <ArticleCard key={a.id} article={a} index={idx} navigate={navigate} />
         ))}

@@ -76,6 +76,25 @@ body {
   overflow: hidden;
 }
 
+body.high-density {
+  font-size: 13px;
+  line-height: 1.4;
+}
+body.high-density .panel-head {
+  padding: 6px 10px;
+}
+body.high-density .panel-body {
+  padding: 8px;
+}
+body.high-density .tbl th,
+body.high-density .tbl td {
+  padding: 6px 8px;
+}
+body.high-density .chip {
+  padding: 3px 8px;
+  font-size: 10px;
+}
+
 /* Dimensional ground: soft accent glows that slowly drift like an aurora.
    Base color stays on <body>; this layer is transparent except the glows, so
    animating its transform moves only the light, never the ground. */

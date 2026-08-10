@@ -1,0 +1,21 @@
+{
+  "name": "Global Financial Terminal",
+  "short_name": "GFT",
+  "description": "Premium global financial terminal and market dashboard.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05080e",
+  "theme_color": "#05080e",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/vite.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

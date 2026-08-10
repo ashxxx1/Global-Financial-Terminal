@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuotes } from "../lib/hooks";
-import { topMovers, subscribe } from "../lib/market";
+import { topMovers } from "../lib/market";
 import { useTerminal } from "../store";
 import { fetchBreakingNews, timeAgo, type LiveArticle } from "../lib/newsFeed";
 import Sparkline from "./Sparkline";
-import AnimatedNumber from "./AnimatedNumber";
 import MarketSessions from "./MarketSessions";
 import BreadthBar from "./BreadthBar";
 import { track } from "../lib/analytics";
@@ -20,8 +19,12 @@ function Row({ symbol, name, price, changePct, rank, onClick, actionLabel }: {
   rank?: number; onClick: () => void; actionLabel?: string;
 }) {
   const up = changePct >= 0;
+  const setContextMenu = useTerminal((s) => s.setContextMenu);
   return (
-    <button className="mrow" onClick={onClick} aria-label={`${symbol}, ${name}, ${price}, ${changePct.toFixed(2)} percent${actionLabel ? `, ${actionLabel}` : ""}`}>
+    <button className="mrow" onClick={onClick} onContextMenu={(e) => {
+      e.preventDefault();
+      setContextMenu({ x: e.clientX, y: e.clientY, symbol, type: "stock" });
+    }} aria-label={`${symbol}, ${name}, ${price}, ${changePct.toFixed(2)} percent${actionLabel ? `, ${actionLabel}` : ""}`}>
       <span style={{ minWidth: 0 }}>
         <span className="mrow-sym">
           {rank != null && <span className="rank">{rank}</span>}
@@ -51,10 +54,7 @@ export default function RightRail() {
   const watchQuotes = useQuotes(watchlist.map((w) => w.symbol));
   const suggestQuotes = useQuotes([...SUGGESTED_WATCH]);
 
-  // Re-derive movers on the shared market clock so the rail actually moves.
-  const [tick, setTick] = useState(0);
-  useEffect(() => subscribe(() => setTick((t) => t + 1)), []);
-  const movers = useMemo(() => topMovers(5), [tick]);
+  const movers = useMemo(() => topMovers(5), []);
 
   const [news, setNews] = useState<LiveArticle[]>([]);
   const [newsFailed, setNewsFailed] = useState(false);

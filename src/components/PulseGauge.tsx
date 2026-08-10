@@ -33,7 +33,7 @@ function arc(cx: number, cy: number, r: number, from: number, to: number) {
   return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
 }
 
-export default function PulseGauge({ tick }: { tick?: number }) {
+export default function PulseGauge() {
   const target = useMemo(() => {
     let adv = 0, dec = 0, sum = 0, n = 0;
     for (const s of allStockSymbols()) {
@@ -48,7 +48,7 @@ export default function PulseGauge({ tick }: { tick?: number }) {
     const breadth = (adv / (adv + dec || 1)) * 100;
     const intensity = Math.max(0, Math.min(100, 50 + (sum / n) * 22));
     return Math.round(breadth * 0.62 + intensity * 0.38);
-  }, [tick]);
+  }, []);
 
   // Ease the needle toward the target instead of snapping.
   const [value, setValue] = useState(target);

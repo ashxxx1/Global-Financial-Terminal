@@ -52,6 +52,17 @@ export default function Search() {
       }
     }
 
+    // Command palette: /compare AAPL MSFT
+    const cmdCompare = q.trim().toUpperCase().match(/^\/COMPARE\s+([A-Z0-9.-]+)(?:\s+([A-Z0-9.-]+))?$/);
+    if (cmdCompare) {
+      const [, left, right] = cmdCompare;
+      if (right && metaFor(left) && metaFor(right) && left !== right) {
+        out.push({ type: "page", label: `${left} vs ${right}`, sub: "Compare charts", to: `/compare/${left}/${right}` });
+      } else if (left && metaFor(left)) {
+        out.push({ type: "page", label: `Compare ${left}`, sub: "Select second stock", to: `/compare/${left}` });
+      }
+    }
+
     for (const c of countryList()) {
       if (c.name.toLowerCase().includes(needle) || c.code.toLowerCase() === needle)
         out.push({ type: "country", label: c.name, sub: `${c.marketIndex} · ${c.currency}`, to: `/country/${c.code}` });
@@ -90,7 +101,7 @@ export default function Search() {
             if (e.key === "ArrowUp") { e.preventDefault(); setIdx((i) => Math.max(i - 1, 0)); }
             if (e.key === "Enter" && hits[idx]) go(hits[idx]);
           }}
-          placeholder="Search stocks, countries, pages…"
+          placeholder="Search stocks, countries, or type / for commands…"
           style={{
             width: "100%", padding: "14px 16px", background: "transparent", border: "none",
             borderBottom: "1px solid var(--line)", color: "var(--text)", fontSize: 15, outline: "none",

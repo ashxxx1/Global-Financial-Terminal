@@ -26,7 +26,7 @@ export default function Markets() {
   const [group, setGroup] = useState<(typeof GROUPS)[number]>("INDICES");
   const [tick, setTick] = useState(0);
   useEffect(() => subscribe(() => setTick((t) => t + 1)), []);
-  const movers = useMemo(() => topMovers(10), [tick]);
+  const movers = useMemo(() => topMovers(10), []);
 
   const rows: Quote[] =
     group === "INDICES" ? all.filter((q) => q.kind === "index")

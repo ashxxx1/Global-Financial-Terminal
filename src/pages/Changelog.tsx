@@ -21,6 +21,30 @@ interface Entry {
 
 const ENTRIES: Entry[] = [
   {
+    date: "2026-08-10",
+    version: "1.3",
+    title: "Say where every number comes from",
+    items: [
+      { kind: "new", text: "Every instrument now states its real source and delay: crypto is LIVE from Binance, FX is the ECB's daily fix, US shares are delayed quotes, and simulated series say SIMULATED." },
+      { kind: "fixed", text: "The markets and country pages used to show a blanket 'SIM' badge even when the data behind it was live. They no longer misreport their own source." },
+      { kind: "fixed", text: "An open stock page now refreshes its own price every couple of seconds instead of waiting for a full sweep of every ticker." },
+      { kind: "fixed", text: "If the quote service is briefly unconfigured the app keeps re-checking, so prices go live on their own instead of staying frozen until a reload." },
+      { kind: "new", text: "Terms of Service and Privacy Policy, plus one-click data export and account deletion." },
+      { kind: "improved", text: "Generated commentary and its confidence scores are now clearly marked DEMO, so they can't be mistaken for research." },
+    ],
+  },
+  {
+    date: "2026-08-08",
+    version: "1.2",
+    title: "Real prices, and a guided first run",
+    items: [
+      { kind: "new", text: "Live US share prices, fetched server-side so no key is ever exposed in the browser." },
+      { kind: "new", text: "A short guided tour of the globe — drag, zoom, and click a country — replayable any time from the '?' in the nav." },
+      { kind: "new", text: "Prices now say when they're from: 'At Fri close' on a weekend beats a number that looks stuck." },
+      { kind: "new", text: "A public data-sources page listing every provider and exactly what's live, delayed or simulated." },
+    ],
+  },
+  {
     date: "2026-07-31",
     version: "1.1",
     title: "Know your markets from the first screen",

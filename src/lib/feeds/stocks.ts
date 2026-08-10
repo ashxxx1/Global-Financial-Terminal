@@ -21,12 +21,27 @@ import { setLiveQuote, allStockSymbols, metaFor } from "../market";
 const DEV_KEY: string = (import.meta as any).env?.VITE_FINNHUB_API_KEY || "";
 const POLL_MS = 1100;            // ≈54 req/min — safely under the 60/min free cap
 const BACKOFF_MS = 30000;        // pause this long after a 429 rate-limit
+const REPROBE_MS = 120000;       // re-test a "not configured" proxy every 2 min
 
 let started = false;
 let timer: ReturnType<typeof setTimeout> | null = null;
 // The proxy is presumed available until it answers 501 (not configured) or 404
-// (static host with no functions). Once ruled out we only use the dev key.
+// (static host with no functions). Once ruled out we only use the dev key —
+// but we re-probe periodically, so deploying the key makes quotes go live
+// without anyone reloading the page.
 let useProxy = true;
+
+/** The symbol the user is actually looking at, polled far more often than the
+ *  round-robin so an open stock page updates in seconds rather than minutes. */
+let priority: string | null = null;
+export function setPrioritySymbol(sym: string | null): void {
+  priority = sym && metaFor(sym)?.country === "US" ? sym : null;
+}
+
+/** Why quotes are or aren't live — surfaced for diagnostics. */
+export type FeedStatus = "live" | "probing" | "unconfigured";
+let status: FeedStatus = "probing";
+export const stockFeedStatus = (): FeedStatus => status;
 
 interface Quote { c?: number; dp?: number }
 
@@ -64,18 +79,30 @@ export function startStockFeed(): () => void {
   if (symbols.length === 0) { started = false; return () => {}; }
 
   let i = 0;
-  let dead = 0; // consecutive nulls → nothing is configured anywhere; give up
+  let dead = 0;      // consecutive nulls → nothing is configured anywhere
+  let alternate = false;
   const tick = async () => {
-    const symbol = symbols[i % symbols.length];
-    i++;
+    // Alternate between the symbol on screen and the round-robin, so an open
+    // stock page refreshes every ~2s instead of once per full sweep.
+    alternate = !alternate;
+    const symbol = priority && alternate ? priority : symbols[i++ % symbols.length];
+
     const q = await fetchQuote(symbol);
     if (q === "rate-limited") { schedule(BACKOFF_MS); return; }
     if (q && typeof q.c === "number" && q.c > 0) {
       dead = 0;
+      status = "live";
       setLiveQuote(symbol, { price: q.c, changePct: typeof q.dp === "number" ? q.dp : 0, source: "live" });
     } else if (q === null) {
-      // No proxy and no dev key: stop after a short probe rather than poll forever.
-      if (++dead >= 3) { started = false; return; }
+      // Nothing configured. Don't die permanently — back off and re-probe, so
+      // adding FINNHUB_API_KEY on the server takes effect on its own.
+      if (++dead >= 3) {
+        status = "unconfigured";
+        dead = 0;
+        useProxy = true;          // re-test the proxy on the next attempt
+        schedule(REPROBE_MS);
+        return;
+      }
     }
     schedule(POLL_MS);
   };

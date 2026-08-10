@@ -29,6 +29,10 @@ interface TerminalState {
   searchOpen: boolean;
   setSearchOpen: (v: boolean) => void;
 
+  /** Recently opened symbols, most recent first — growth-plan item 78. */
+  recent: string[];
+  pushRecent: (symbol: string) => void;
+
   /** Onboarding has been shown and dismissed or completed. */
   onboarded: boolean;
   setOnboarded: (v: boolean) => void;
@@ -78,6 +82,11 @@ export const useTerminal = create<TerminalState>()(
       },
       clearNotices: () => set({ notices: [] }),
 
+      // Item 78: "jump back in" beats an empty screen for a returning user.
+      recent: [],
+      pushRecent: (symbol) =>
+        set({ recent: [symbol, ...get().recent.filter((s) => s !== symbol)].slice(0, 8) }),
+
       onboarded: false,
       setOnboarded: (v) => set({ onboarded: v }),
 
@@ -99,7 +108,7 @@ export const useTerminal = create<TerminalState>()(
     {
       name: "gft-v1",
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ watchlist: s.watchlist, alerts: s.alerts, onboarded: s.onboarded, activated: s.activated }),
+      partialize: (s) => ({ watchlist: s.watchlist, alerts: s.alerts, recent: s.recent, onboarded: s.onboarded, activated: s.activated }),
     }
   )
 );

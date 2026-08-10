@@ -79,7 +79,7 @@ with a big roadmap and no users.
 - [x] 20. Instrument activation events (first watchlist add, first alert, first country open)
 - [ ] 21. Add Sentry (or equivalent) for runtime error monitoring
 - [ ] 22. Add uptime monitoring with alerting
-- [ ] 23. Set a weekly metrics review ritual (same day, same time, written)
+- [x] 23. Set a weekly metrics review ritual — `docs/WEEKLY-REVIEW.md` (Monday 09:00, five numbers, four questions, one bottleneck)
 
 ### Technical foundation
 - [ ] 24. Deploy Firestore security rules (`npx firebase deploy --only firestore:rules`)
@@ -155,7 +155,7 @@ with a big roadmap and no users.
 - [ ] 69. PWA setup — installable app
 - [ ] 70. Web push notifications
 - [ ] 71. Alert types: price level, % move, unusual volume, news on a holding
-- [ ] 72. Alert management UI (list, edit, snooze, delete)
+- [x] 72. Alert management UI — `AlertManager` on /markets: list, jump to symbol, delete. Alerts were previously invisible once armed
 
 ### Sticky features
 - [ ] 73. Portfolio tracking (manual entry + CSV import — no brokerage integration)
@@ -163,7 +163,7 @@ with a big roadmap and no users.
 - [ ] 75. Watchlist depth: notes, tags, target prices, multiple lists
 - [ ] 76. Economic calendar (Fed, CPI, earnings) plotted on the globe/timeline
 - [ ] 77. Saved views and custom layouts
-- [ ] 78. Recently viewed / jump back in
+- [x] 78. Recently viewed / jump back in — `RecentlyViewed`, last 8 symbols, persisted
 - [ ] 79. Country deep-dive pages worth returning to
 
 ### Retention analytics

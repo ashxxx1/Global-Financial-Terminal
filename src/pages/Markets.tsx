@@ -4,6 +4,7 @@ import { useIndices } from "../lib/hooks";
 import { topMovers } from "../lib/market";
 import type { Quote } from "../lib/market";
 import ProvenanceBadge from "../components/ProvenanceBadge";
+import AlertManager, { RecentlyViewed } from "../components/AlertManager";
 import SectorHeatmap from "../components/SectorHeatmap";
 import PulseGauge from "../components/PulseGauge";
 import { useSeo } from "../lib/seo";
@@ -54,6 +55,12 @@ export default function Markets() {
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 260px", gap: 14, marginBottom: 14, alignItems: "start" }}>
         <SectorHeatmap tick={tick} onOpen={(sym) => navigate(`/stock/${sym}`)} />
         <PulseGauge tick={tick} />
+      </div>
+
+      {/* Items 72 & 78 — alerts you can see and manage, and a way back in. */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 14, marginBottom: 14, alignItems: "start" }}>
+        <AlertManager />
+        <RecentlyViewed />
       </div>
 
       {group !== "MOVERS" ? (

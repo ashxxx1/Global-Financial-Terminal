@@ -9,6 +9,7 @@ import { useTerminal } from "../store";
 import { useSeo } from "../lib/seo";
 import { track } from "../lib/analytics";
 import { freshness } from "../lib/marketStatus";
+import { setPrioritySymbol } from "../lib/feeds/stocks";
 
 const RANGES = ["1W", "1M", "3M", "6M", "1Y"] as const;
 
@@ -30,7 +31,18 @@ export default function Stock() {
   const { addWatch, removeWatch, inWatchlist, addAlert } = useTerminal();
   const [alertMsg, setAlertMsg] = useState("");
 
-  useEffect(() => { if (sym) track("stock_opened", { symbol: sym }); }, [sym]);
+  const pushRecent = useTerminal((s) => s.pushRecent);
+  useEffect(() => {
+    if (!sym || !meta) return;
+    track("stock_opened", { symbol: sym });
+    pushRecent(sym);
+  }, [sym, meta, pushRecent]);
+
+  // Poll the symbol being viewed far more often than the background sweep.
+  useEffect(() => {
+    setPrioritySymbol(sym || null);
+    return () => setPrioritySymbol(null);
+  }, [sym]);
 
   const ai = useMemo(() => {
     if (!meta || !quote) return null;

@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useIndices } from "../lib/hooks";
+import { useTerminal } from "../store";
 import SourceBadge from "./SourceBadge";
 
 export default function Ticker() {
   const quotes = useIndices();
+  const setContextMenu = useTerminal((s) => s.setContextMenu);
   const items = [...quotes, ...quotes]; // seamless marquee loop
 
   return (
@@ -26,7 +28,7 @@ export default function Ticker() {
           {items.map((q, i) => {
             const up = q.changePct >= 0;
             return (
-              <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontFamily: "var(--mono)", fontSize: 11 }}>
+              <span key={i} onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, symbol: q.symbol, type: "stock" }) }} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontFamily: "var(--mono)", fontSize: 11, cursor: "context-menu" }}>
                 <span style={{ width: 4, height: 4, borderRadius: "50%", background: up ? "var(--up)" : "var(--down)" }} />
                 <span style={{ color: "var(--faint)", fontSize: 10, letterSpacing: "0.06em" }}>{q.name}</span>
                 <span style={{ color: "var(--text)", fontWeight: 700 }}>{q.display}</span>

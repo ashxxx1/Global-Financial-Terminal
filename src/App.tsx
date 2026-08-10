@@ -16,6 +16,8 @@ import RightRail from "./components/RightRail";
 import Search from "./components/Search";
 import AlertWatcher from "./components/AlertWatcher";
 import Toasts from "./components/Toasts";
+import ContextMenu from "./components/ContextMenu";
+import TerminalChat from "./components/TerminalChat";
 const Onboarding = lazy(() => import("./components/Onboarding"));
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
 const PmfSurvey = lazy(() => import("./components/PmfSurvey"));
@@ -42,6 +44,7 @@ const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
+const Macro = lazy(() => import("./pages/Macro"));
 import { useAuth, authRequired } from "./lib/auth";
 import { useTerminal } from "./store";
 import { useWatchlistSync } from "./lib/syncWatchlist";
@@ -80,9 +83,13 @@ function Shell() {
   const onWorld = pathname === "/";
   const onboarded = useTerminal((st) => st.onboarded);
   const nerdMode = useTerminal((st) => st.nerdMode);
+  const highDensity = useTerminal((st) => st.highDensity);
   useEffect(() => {
     document.body.classList.toggle("nerd", nerdMode);
   }, [nerdMode]);
+  useEffect(() => {
+    document.body.classList.toggle("high-density", highDensity);
+  }, [highDensity]);
   const watchlistEmpty = useTerminal((st) => st.watchlist.length === 0);
   const showOnboarding = !onboarded && watchlistEmpty;
 
@@ -110,6 +117,7 @@ function Shell() {
             <Route path="/country/:code" element={<Country />} />
             <Route path="/markets" element={<Markets />} />
             <Route path="/stock/:symbol" element={<Stock />} />
+            <Route path="/macro" element={<Macro />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/compare/:a" element={<Compare />} />
             <Route path="/compare/:a/:b" element={<Compare />} />
@@ -142,6 +150,8 @@ function Shell() {
       <Search />
       <AlertWatcher />
       <Toasts />
+      <ContextMenu />
+      <TerminalChat />
       {/* Suppressed during onboarding — a floating feedback button on top of a
           modal the user has not finished competes for the same decision. */}
       {!showOnboarding && (

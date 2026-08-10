@@ -20,8 +20,12 @@ function Row({ symbol, name, price, changePct, rank, onClick, actionLabel }: {
   rank?: number; onClick: () => void; actionLabel?: string;
 }) {
   const up = changePct >= 0;
+  const setContextMenu = useTerminal((s) => s.setContextMenu);
   return (
-    <button className="mrow" onClick={onClick} aria-label={`${symbol}, ${name}, ${price}, ${changePct.toFixed(2)} percent${actionLabel ? `, ${actionLabel}` : ""}`}>
+    <button className="mrow" onClick={onClick} onContextMenu={(e) => {
+      e.preventDefault();
+      setContextMenu({ x: e.clientX, y: e.clientY, symbol, type: "stock" });
+    }} aria-label={`${symbol}, ${name}, ${price}, ${changePct.toFixed(2)} percent${actionLabel ? `, ${actionLabel}` : ""}`}>
       <span style={{ minWidth: 0 }}>
         <span className="mrow-sym">
           {rank != null && <span className="rank">{rank}</span>}

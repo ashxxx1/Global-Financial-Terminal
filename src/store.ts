@@ -8,12 +8,19 @@ import { track } from "./lib/analytics";
 
 export interface WatchItem { symbol: string; name: string; country: string | null; }
 export interface PriceAlert {
-  id: string; symbol: string; price: number; direction: "above" | "below";
+  id: string;
+  symbol: string;
+  metric?: string;
+  direction?: "above" | "below";
+  targetValue: number;
   createdAt: string;
 }
 export interface AlertNotice { id: string; text: string; time: string; }
 
 interface TerminalState {
+  chatOpen: boolean;
+  setChatOpen: (v: boolean) => void;
+
   watchlist: WatchItem[];
   addWatch: (w: WatchItem) => void;
   removeWatch: (symbol: string) => void;
@@ -32,6 +39,13 @@ interface TerminalState {
   /** Dense technical chrome is opt-in. Default off keeps the UI calm. */
   nerdMode: boolean;
   setNerdMode: (v: boolean) => void;
+
+  highDensity: boolean;
+  setHighDensity: (v: boolean) => void;
+
+  contextMenu: { x: number; y: number; symbol?: string; type: "stock" | "country" } | null;
+  setContextMenu: (v: { x: number; y: number; symbol?: string; type: "stock" | "country" } | null) => void;
+
 
   /** Recently opened symbols, most recent first — growth-plan item 78. */
   recent: string[];
@@ -53,7 +67,10 @@ interface TerminalState {
 export const useTerminal = create<TerminalState>()(
   persist(
     (set, get) => ({
-      watchlist: [],
+      chatOpen: false,
+  setChatOpen: (chatOpen) => set({ chatOpen }),
+
+  watchlist: [],
       addWatch: (w) => {
         if (get().watchlist.some((x) => x.symbol === w.symbol)) return;
         set({ watchlist: [...get().watchlist, w] });
@@ -84,7 +101,7 @@ export const useTerminal = create<TerminalState>()(
         return set({
           alerts: get().alerts.filter((a) => a.id !== alert.id),
           notices: [
-            { id: "n_" + Date.now(), text: `${alert.symbol} hit ${price.toFixed(2)} — ${alert.direction} ${alert.price} triggered`, time: new Date().toLocaleTimeString() },
+            { id: "n_" + Date.now(), text: `${alert.symbol} hit ${price.toFixed(2)} — ${alert.direction} ${alert.targetValue} triggered`, time: new Date().toLocaleTimeString() },
             ...get().notices,
           ].slice(0, 20),
         });
@@ -93,6 +110,13 @@ export const useTerminal = create<TerminalState>()(
 
       nerdMode: false,
       setNerdMode: (v) => set({ nerdMode: v }),
+
+      highDensity: false,
+      setHighDensity: (v) => set({ highDensity: v }),
+
+      contextMenu: null,
+      setContextMenu: (v) => set({ contextMenu: v }),
+
 
       // Item 78: "jump back in" beats an empty screen for a returning user.
       recent: [],
@@ -143,6 +167,7 @@ export const useTerminal = create<TerminalState>()(
         recent: s.recent,
         savedCompare: s.savedCompare,
         nerdMode: s.nerdMode,
+        highDensity: s.highDensity,
         onboarded: s.onboarded,
         activated: s.activated,
       }),

@@ -33,8 +33,7 @@ export default function Stock() {
       : "Live share price and chart.",
     path: `/stock/${sym}`,
   });
-  const { addWatch, removeWatch, inWatchlist, addAlert } = useTerminal();
-  const [alertMsg, setAlertMsg] = useState("");
+  const { addWatch, removeWatch, inWatchlist } = useTerminal();
   const [showOptions, setShowOptions] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
 
@@ -92,15 +91,6 @@ export default function Stock() {
   const watched = inWatchlist(sym);
   const countryName = COUNTRIES[meta.country || ""]?.name || meta.country;
   const comparePeer = vs || (sym === "MSFT" ? "AAPL" : "MSFT");
-
-  const setPriceAlert = (direction: "above" | "below") => {
-    if (!quote) return;
-    const target = +(quote.price * (direction === "above" ? 1.02 : 0.98)).toFixed(2);
-    addAlert({ symbol: sym, targetValue: target, direction, metric: "Price" });
-    setAlertMsg(`Alert armed: ${sym} ${direction} ${target}`);
-    setTimeout(() => setAlertMsg(""), 2500);
-  };
-
   return (
     <div style={{ padding: 18, maxWidth: 1200, margin: "0 auto" }}>
       {/* Compact page chrome — detailed quote lives in the chart header */}
@@ -155,7 +145,6 @@ export default function Stock() {
       <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
         <button className={`chip ${showOptions ? "active blue" : ""}`} onClick={() => setShowOptions(!showOptions)}>Options Chain</button>
         <button className="chip" onClick={() => setShowAlertModal(true)}>Set Smart Alert</button>
-        {alertMsg && <span className="mono" style={{ fontSize: 11, color: "var(--up)" }}>✓ {alertMsg}</span>}
         {(() => {
           const f = freshness(quote?.source ?? "sim", meta.country);
           return (

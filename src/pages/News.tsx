@@ -15,7 +15,7 @@ import {
   timeAgo,
   type LiveArticle,
 } from "../lib/newsFeed";
-import { globalNews, type Article } from "../lib/news";
+import { globalNews } from "../lib/news";
 import SourceBadge from "../components/SourceBadge";
 
 /* ═══════════════════════════════════════════════════════════════

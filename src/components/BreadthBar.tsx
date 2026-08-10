@@ -8,7 +8,7 @@ import { allStockSymbols, quoteFor } from "../lib/market";
  * the move was broad or three megacaps dragging everything else, which is the
  * question the index number cannot answer on its own.
  */
-export default function BreadthBar({ tick }: { tick?: number }) {
+export default function BreadthBar() {
   const { adv, dec, flat, advPct, ratio } = useMemo(() => {
     const symbols = allStockSymbols();
     let adv = 0, dec = 0, flat = 0;
@@ -25,8 +25,7 @@ export default function BreadthBar({ tick }: { tick?: number }) {
       advPct: (adv / total) * 100,
       ratio: dec === 0 ? adv : adv / dec,
     };
-    // `tick` lets the caller re-run this on the shared market clock.
-  }, [tick]);
+  }, []);
 
   const total = adv + dec + flat || 1;
   const decPct = (dec / total) * 100;

@@ -28,8 +28,6 @@ export default function TopNav() {
   const notices = useTerminal((s) => s.notices);
   const nerdMode = useTerminal((s) => s.nerdMode);
   const setNerdMode = useTerminal((s) => s.setNerdMode);
-  const highDensity = useTerminal((s) => s.highDensity);
-  const setHighDensity = useTerminal((s) => s.setHighDensity);
   const chatOpen = useTerminal((s) => s.chatOpen);
   const setChatOpen = useTerminal((s) => s.setChatOpen);
   const [liveN, setLiveN] = useState(0);

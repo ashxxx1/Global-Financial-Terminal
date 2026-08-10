@@ -224,7 +224,13 @@ async function fetchLiveCandles(
   }
   if (!res.ok) return null;
 
-  const data = await res.json() as {
+  // Vite may serve api/*.ts as JS (200 text/javascript) in local dev — never treat that as market data.
+  const ctype = res.headers.get("content-type") || "";
+  if (!ctype.includes("application/json") && !ctype.includes("text/json")) {
+    return null;
+  }
+
+  let data: {
     candles?: OhlcvBar[];
     source?: MarketDataSource;
     status?: string;
@@ -237,6 +243,11 @@ async function fetchLiveCandles(
     v?: number[];
     error?: string;
   };
+  try {
+    data = await res.json();
+  } catch {
+    return null;
+  }
 
   // Normalize both proxy shape and raw Finnhub shape
   let candles: OhlcvBar[] = [];

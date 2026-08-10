@@ -22,6 +22,7 @@ export default tseslint.config(
       "scripts/**",        // node build scripts, different runtime/globals
       "api/**",            // edge functions, different runtime
       "server/**",         // legacy backend service
+      ".cursor/**",        // Cursor AI skills with Node.js globals
       "vite.config.js",    // build tooling (node globals)
       "eslint.config.js",  // this file
     ],

@@ -32,7 +32,10 @@ export default function SignalsHomeWidget({
               <Mini label="TARGET" value={fmtPx(top.targetPrice, top.signalPrice)} color="var(--up)" />
               <Mini label="STOP" value={fmtPx(top.stopPrice, top.signalPrice)} color="var(--down)" />
             </div>
-            <Link to={`/terminal/signals/${top.id}`} className="chip active" style={{ textDecoration: "none", display: "inline-block" }}>VIEW SIGNAL</Link>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <Link to={`/terminal/signals/${top.id}`} className="chip active" style={{ textDecoration: "none", display: "inline-block" }}>VIEW SIGNAL</Link>
+              <Link to={`/stock/${top.symbol}`} className="chip" style={{ textDecoration: "none", display: "inline-block" }}>Open chart</Link>
+            </div>
           </>
         ) : (
           <div style={{ color: "var(--muted)", fontSize: 13 }}>

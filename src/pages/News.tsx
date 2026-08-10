@@ -241,8 +241,14 @@ export default function News() {
                   <span className="chg down" style={{ fontSize: 10 }}>HIGH IMPACT</span>
                 )}
                 {heroArticle.relatedStocks.slice(0, 3).map((s) => (
-                  <button key={s} className="chip" style={{ fontSize: 10, padding: "2px 8px" }} onClick={() => navigate(`/stock/${s}`)}>
-                    {s}
+                  <button
+                    key={s}
+                    className="chip"
+                    style={{ fontSize: 10, padding: "4px 10px" }}
+                    onClick={() => navigate(`/stock/${s}`)}
+                    aria-label={`Open chart for ${s}`}
+                  >
+                    Open chart · {s}
                   </button>
                 ))}
                 {heroArticle.url && (
@@ -417,10 +423,11 @@ function ArticleCard({
               <button
                 key={s}
                 className="chip"
-                style={{ fontSize: 10, padding: "2px 8px" }}
+                style={{ fontSize: 10, padding: "4px 10px" }}
                 onClick={(e) => { e.stopPropagation(); navigate(`/stock/${s}`); }}
+                aria-label={`Open chart for ${s}`}
               >
-                {s}
+                Open chart · {s}
               </button>
             ))}
             {a.country && a.countryName && (

@@ -656,7 +656,18 @@ export default function TradingChart({
       <div className="tc-header">
         <div className="tc-header-main">
           <div className="tc-title-block">
-            <h2 className="tc-symbol mono" id="tc-chart-heading">{symbol}</h2>
+            <div className="tc-symbol-row">
+              <h2 className="tc-symbol mono" id="tc-chart-heading">{symbol}</h2>
+              {data?.source === "live" && (
+                <span className="tc-prov tc-prov-live" title="Live OHLCV from market history">LIVE</span>
+              )}
+              {data?.source === "delayed" && (
+                <span className="tc-prov tc-prov-delayed" title="Delayed OHLCV · free-tier history">DELAYED</span>
+              )}
+              {data?.source === "sim" && (
+                <span className="tc-prov tc-prov-sim" title="Simulated candles — not live market history">SIM</span>
+              )}
+            </div>
             <div className="tc-name">{name}</div>
           </div>
           <div className="tc-price-block">
@@ -677,15 +688,6 @@ export default function TradingChart({
                 <span className="fresh-dot" aria-hidden="true" />
                 {sessionLabel}
               </span>
-              {data?.source === "live" && (
-                <span className="label" style={{ marginLeft: 8 }}>LIVE OHLCV</span>
-              )}
-              {data?.source === "delayed" && (
-                <span className="label" style={{ marginLeft: 8 }}>DELAYED OHLCV · free-tier history</span>
-              )}
-              {data?.source === "sim" && (
-                <span className="label" style={{ marginLeft: 8 }}>SIM candles — not live market history</span>
-              )}
             </div>
           </div>
         </div>

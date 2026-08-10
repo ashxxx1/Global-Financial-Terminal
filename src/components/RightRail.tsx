@@ -15,19 +15,19 @@ import { sameDay, todayKey, yesterdayKey } from "../lib/signals/format";
 import type { Signal } from "../lib/signals/types";
 
 /** Market row: symbol + name, a sparkline of where it has been, and the number. */
-function Row({ symbol, name, price, changePct, rank, onClick }: {
+function Row({ symbol, name, price, changePct, rank, onClick, actionLabel }: {
   symbol: string; name: string; price: string; changePct: number;
-  rank?: number; onClick: () => void;
+  rank?: number; onClick: () => void; actionLabel?: string;
 }) {
   const up = changePct >= 0;
   return (
-    <button className="mrow" onClick={onClick} aria-label={`${symbol}, ${name}, ${price}, ${changePct.toFixed(2)} percent`}>
+    <button className="mrow" onClick={onClick} aria-label={`${symbol}, ${name}, ${price}, ${changePct.toFixed(2)} percent${actionLabel ? `, ${actionLabel}` : ""}`}>
       <span style={{ minWidth: 0 }}>
         <span className="mrow-sym">
           {rank != null && <span className="rank">{rank}</span>}
           {symbol}
         </span>
-        <span className="mrow-name">{name}</span>
+        <span className="mrow-name">{actionLabel || name}</span>
       </span>
       <Sparkline symbol={symbol} tone={up ? "var(--up)" : "var(--down)"} />
       <span className="mrow-right">
@@ -40,6 +40,8 @@ function Row({ symbol, name, price, changePct, rank, onClick }: {
   );
 }
 
+const SUGGESTED_WATCH = ["AAPL", "NVDA", "SPY"] as const;
+
 export default function RightRail() {
   const navigate = useNavigate();
   const watchlist = useTerminal((s) => s.watchlist);
@@ -47,6 +49,7 @@ export default function RightRail() {
   const clearNotices = useTerminal((s) => s.clearNotices);
   const setOnboarded = useTerminal((s) => s.setOnboarded);
   const watchQuotes = useQuotes(watchlist.map((w) => w.symbol));
+  const suggestQuotes = useQuotes([...SUGGESTED_WATCH]);
 
   // Re-derive movers on the shared market clock so the rail actually moves.
   const [tick, setTick] = useState(0);
@@ -108,19 +111,32 @@ export default function RightRail() {
         <span className="label">{watchlist.length}</span>
       </div>
       {watchQuotes.length === 0 ? (
-        // Item 41: an empty state that states a fact is a dead end. This one
-        // offers the next action, since watchlist_added is the activation moment.
         <div className="empty-state">
           <span className="es-icon">☆</span>
           <span className="es-text">
             Your watchlist is empty.<br />
-            Add a few names and this rail becomes yours.
+            Start with these three — tap to open the chart.
           </span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%", marginTop: 4 }}>
+            {(suggestQuotes.length ? suggestQuotes : SUGGESTED_WATCH.map((symbol) => ({
+              symbol, name: symbol, display: "—", changePct: 0,
+            }))).map((q) => (
+              <Row
+                key={q.symbol}
+                symbol={q.symbol}
+                name={"name" in q ? String(q.name) : q.symbol}
+                price={"display" in q ? String(q.display) : "—"}
+                changePct={"changePct" in q ? Number(q.changePct) : 0}
+                actionLabel="Open chart"
+                onClick={() => navigate(`/stock/${q.symbol}`)}
+              />
+            ))}
+          </div>
           <button
             className="es-action"
             onClick={() => { setOnboarded(false); track("upgrade_clicked", { placement: "watchlist-empty" }); }}
           >
-            Pick some markets →
+            Pick more markets →
           </button>
         </div>
       ) : (
@@ -217,7 +233,7 @@ export default function RightRail() {
       </div>
       {movers.gainers.map((q, i) => (
         <Row key={q.symbol} rank={i + 1} symbol={q.symbol} name={q.name} price={q.display}
-          changePct={q.changePct} onClick={() => navigate(`/stock/${q.symbol}`)} />
+          changePct={q.changePct} actionLabel="Open chart" onClick={() => navigate(`/stock/${q.symbol}`)} />
       ))}
 
       <div className="sec-head">
@@ -226,10 +242,11 @@ export default function RightRail() {
       </div>
       {movers.losers.map((q, i) => (
         <Row key={q.symbol} rank={i + 1} symbol={q.symbol} name={q.name} price={q.display}
-          changePct={q.changePct} onClick={() => navigate(`/stock/${q.symbol}`)} />
+          changePct={q.changePct} actionLabel="Open chart" onClick={() => navigate(`/stock/${q.symbol}`)} />
       ))}
 
       <div style={{ height: 12 }} />
     </aside>
   );
 }
+

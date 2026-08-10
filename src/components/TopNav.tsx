@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useUtcClock } from "../lib/hooks";
 import { liveSymbolCount } from "../lib/market";
@@ -8,12 +8,15 @@ import ShareButton from "./ShareButton";
 import AccountModal from "./AccountModal";
 import { useAuth } from "../lib/auth";
 
-const LINKS = [
+const PRIMARY_LINKS = [
   { to: "/", label: "WORLD", end: true },
   { to: "/markets", label: "MARKETS" },
-  { to: "/compare", label: "COMPARE" },
   { to: "/terminal/signals", label: "SIGNALS" },
   { to: "/news", label: "NEWS" },
+];
+
+const OVERFLOW_LINKS = [
+  { to: "/compare", label: "COMPARE" },
 ];
 
 export default function TopNav() {
@@ -25,10 +28,46 @@ export default function TopNav() {
   const nerdMode = useTerminal((s) => s.nerdMode);
   const setNerdMode = useTerminal((s) => s.setNerdMode);
   const [liveN, setLiveN] = useState(0);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const i = setInterval(() => setLiveN(liveSymbolCount()), 3000);
     return () => clearInterval(i);
   }, []);
+
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMoreOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [moreOpen]);
+
+  const linkStyle = (on: boolean) => ({
+    fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.14em",
+    padding: "6px 12px", borderRadius: 5,
+    color: on ? "var(--gold)" : "var(--muted)",
+    background: on ? "var(--gold-dim)" : "transparent",
+    border: `1px solid ${on ? "var(--gold)" : "transparent"}`,
+  });
+
+  const compareActive = location.pathname.startsWith("/compare");
+  const moreActive = OVERFLOW_LINKS.some((l) =>
+    l.label === "COMPARE" ? compareActive : location.pathname.startsWith(l.to),
+  );
 
   return (
     <header
@@ -69,29 +108,60 @@ export default function TopNav() {
         </span>
       </button>
 
-      {/* Nav */}
-      <nav style={{ display: "flex", gap: 4 }}>
-        {LINKS.map((l) => (
+      {/* Nav — COMPARE collapses into More under 900px */}
+      <nav className="topnav-links" aria-label="Primary">
+        {PRIMARY_LINKS.map((l) => (
           <NavLink
             key={l.to}
             to={l.to}
             end={l.end as boolean | undefined}
             style={({ isActive }) => {
               const signalsActive = l.label === "SIGNALS" && (location.pathname.startsWith("/terminal/signals") || location.pathname.startsWith("/signals"));
-              const compareActive = l.label === "COMPARE" && location.pathname.startsWith("/compare");
-              const on = isActive || signalsActive || compareActive;
-              return {
-              fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.14em",
-              padding: "6px 12px", borderRadius: 5,
-              color: on ? "var(--gold)" : "var(--muted)",
-              background: on ? "var(--gold-dim)" : "transparent",
-              border: `1px solid ${on ? "var(--gold)" : "transparent"}`,
-            };
+              return linkStyle(isActive || signalsActive);
             }}
           >
             {l.label}
           </NavLink>
         ))}
+
+        {OVERFLOW_LINKS.map((l) => (
+          <NavLink
+            key={l.to}
+            to={l.to}
+            className="topnav-primary-overflow"
+            style={() => linkStyle(l.label === "COMPARE" ? compareActive : false)}
+          >
+            {l.label}
+          </NavLink>
+        ))}
+
+        <div className="topnav-more" ref={moreRef}>
+          <button
+            type="button"
+            className="chip"
+            style={linkStyle(moreActive || moreOpen)}
+            aria-expanded={moreOpen}
+            aria-haspopup="menu"
+            onClick={() => setMoreOpen((v) => !v)}
+          >
+            MORE
+          </button>
+          {moreOpen && (
+            <div className="topnav-more-menu" role="menu">
+              {OVERFLOW_LINKS.map((l) => (
+                <NavLink
+                  key={l.to}
+                  to={l.to}
+                  role="menuitem"
+                  className={({ isActive }) => (isActive || (l.label === "COMPARE" && compareActive) ? "active" : "")}
+                  onClick={() => setMoreOpen(false)}
+                >
+                  {l.label}
+                </NavLink>
+              ))}
+            </div>
+          )}
+        </div>
       </nav>
 
       {/* Search trigger */}

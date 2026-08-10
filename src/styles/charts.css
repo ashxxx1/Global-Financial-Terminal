@@ -93,6 +93,44 @@
   min-width: 32px;
 }
 
+.tc-symbol-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tc-prov {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.tc-prov-live {
+  color: var(--up);
+  background: var(--up-dim);
+  border-color: var(--up);
+}
+
+.tc-prov-delayed {
+  color: var(--blue);
+  background: var(--blue-dim);
+  border-color: var(--blue);
+}
+
+.tc-prov-sim {
+  color: var(--gold);
+  background: var(--gold-dim);
+  border-color: var(--gold);
+}
+
 .tc-shell.tc-fullscreen {
   border-radius: 0 !important;
   background: var(--bg-2);
@@ -172,9 +210,9 @@
 }
 
 .tc-tf-btn {
-  padding: 3px 8px !important;
-  font-size: 10px !important;
-  min-height: 26px;
+  padding: 4px 10px !important;
+  font-size: 10.5px !important;
+  min-height: 32px;
 }
 
 .tc-tf-intra {
@@ -249,8 +287,15 @@
 
 .tc-body {
   position: relative;
-  min-height: 380px;
-  height: min(62vh, 560px);
+  min-height: 420px;
+  height: min(68vh, 640px);
+}
+
+@media (min-width: 1100px) {
+  .tc-body {
+    min-height: 480px;
+    height: min(72vh, 720px);
+  }
 }
 
 .tc-fullscreen .tc-body {
@@ -560,10 +605,48 @@
 }
 
 .compare-mode {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 0;
+  align-items: stretch;
+  padding: 3px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: rgba(5, 8, 16, 0.55);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.compare-mode-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  min-height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.compare-mode-btn:hover {
+  color: var(--text);
+}
+
+.compare-mode-btn.active {
+  background: var(--gold-dim);
+  color: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+
+.compare-mode-btn:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 1px;
 }
 
 .compare-absolute {
@@ -671,6 +754,12 @@
   .tc-header { padding: 10px; }
   .tc-price { font-size: 20px; }
   .tc-body { height: 48vh; min-height: 260px; }
+  .tc-tf-btn {
+    min-height: 40px !important;
+    min-width: 40px;
+    padding: 8px 12px !important;
+    font-size: 11.5px !important;
+  }
   .tc-tf-intra { display: none; }
   .tc-toolbar-group:first-child { order: 2; }
   .tc-signal-strip .label { display: none; }
@@ -679,4 +768,43 @@
     right: 8px;
     max-width: none;
   }
+}
+
+/* Sector 1D heat strip */
+.sector-heat {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 4px 0 10px;
+  margin-bottom: 6px;
+  scrollbar-width: thin;
+}
+
+.sector-heat-cell {
+  flex: 0 0 auto;
+  min-width: 72px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: rgba(8, 12, 22, 0.65);
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.sector-heat-cell:hover {
+  border-color: var(--line-strong);
+}
+
+.sector-heat-cell .mono {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sector-heat-pct {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 2px;
 }

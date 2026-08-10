@@ -189,11 +189,21 @@ export default function Compare() {
         </div>
 
         <div className="compare-mode" role="group" aria-label="Compare mode">
-          <button type="button" className={`chip ${mode === "normalized" ? "active" : ""}`} onClick={() => setMode("normalized")}>
-            Normalized %
+          <button
+            type="button"
+            className={`compare-mode-btn ${mode === "normalized" ? "active" : ""}`}
+            onClick={() => setMode("normalized")}
+            aria-pressed={mode === "normalized"}
+          >
+            %
           </button>
-          <button type="button" className={`chip ${mode === "absolute" ? "active" : ""}`} onClick={() => setMode("absolute")}>
-            Side-by-side $
+          <button
+            type="button"
+            className={`compare-mode-btn ${mode === "absolute" ? "active" : ""}`}
+            onClick={() => setMode("absolute")}
+            aria-pressed={mode === "absolute"}
+          >
+            $
           </button>
         </div>
 

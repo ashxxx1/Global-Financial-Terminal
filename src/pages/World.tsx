@@ -112,10 +112,11 @@ export default function World() {
         </div>
       </div>
 
-      {/* Breaking strip OR calendar agenda */}
-      <div style={{ position: "absolute", right: 18, top: 16, zIndex: 10, width: 310, display: "flex", flexDirection: "column", gap: 8 }}>
+      {/* Breaking strip OR calendar agenda (bottom sheet on mobile) */}
+      <div className={`world-side-rail${overlay === "calendar" ? " cal-active" : ""}`}>
         {overlay === "calendar" ? (
           <>
+            <div className="cal-sheet-handle" aria-hidden="true" />
             <div className="panel" style={{ padding: "10px 12px" }}>
               <div className="label" style={{ color: "var(--gold)" }}>ECONOMIC CALENDAR</div>
               <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 4, lineHeight: 1.4 }}>

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useQuote } from "../lib/hooks";
+import { useQuote, useQuotes } from "../lib/hooks";
 import { allStockSymbols, metaFor } from "../lib/market";
 import { sectorBySlug, SECTORS } from "../lib/sectors";
 import { useSeo } from "../lib/seo";
@@ -26,6 +26,8 @@ export default function Sector() {
 
   const lead = rows[0];
   const leadQuote = useQuote(lead?.symbol || null);
+  const heatSymbols = useMemo(() => rows.slice(0, 16).map((r) => r.symbol), [rows]);
+  const heatQuotes = useQuotes(heatSymbols);
 
   useSeo({
     title: sector ? `${sector.name} Stocks — Sector Heat & Charts` : "Sector",
@@ -74,6 +76,33 @@ export default function Sector() {
           </Link>
         ))}
       </div>
+
+      {heatQuotes.length > 0 && (
+        <div className="sector-heat" aria-label="Sector 1D percent heat">
+          {heatQuotes.map((q) => {
+            const up = q.changePct >= 0;
+            const intensity = Math.min(Math.abs(q.changePct) / 4, 1);
+            const bg = up
+              ? `rgba(34, 197, 94, ${0.08 + intensity * 0.35})`
+              : `rgba(239, 68, 68, ${0.08 + intensity * 0.35})`;
+            return (
+              <button
+                key={q.symbol}
+                type="button"
+                className="sector-heat-cell"
+                style={{ background: bg, borderColor: up ? "rgba(34,197,94,0.35)" : "rgba(239,68,68,0.35)" }}
+                onClick={() => navigate(`/stock/${q.symbol}`)}
+                aria-label={`${q.symbol} ${up ? "+" : ""}${q.changePct.toFixed(2)} percent, open chart`}
+              >
+                <div className="mono">{q.symbol}</div>
+                <div className="sector-heat-pct" style={{ color: up ? "var(--up)" : "var(--down)" }}>
+                  {up ? "+" : ""}{q.changePct.toFixed(2)}%
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {lead && (
         <TradingChart

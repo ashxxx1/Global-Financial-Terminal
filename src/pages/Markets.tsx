@@ -10,11 +10,13 @@ import PulseGauge from "../components/PulseGauge";
 import { useSeo } from "../lib/seo";
 import { subscribe } from "../lib/market";
 import { useEffect } from "react";
+import { useTerminal } from "../store";
 
 const GROUPS = ["INDICES", "FX", "CRYPTO", "COMMODITIES", "MOVERS"] as const;
 
 export default function Markets() {
   const navigate = useNavigate();
+  const savedCompare = useTerminal((s) => s.savedCompare);
   useSeo({
     title: "Global Markets — Indices, FX, Crypto & Commodities",
     description: "Live global market data: world indices, currencies, crypto and commodities, plus a sector heat map and market-pulse gauge.",
@@ -88,6 +90,22 @@ export default function Markets() {
             </button>
           ))}
         </div>
+        {savedCompare.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12, alignItems: "center" }} aria-label="Your saved compare pairs">
+            <span className="label">Your pairs</span>
+            {savedCompare.map((p) => (
+              <button
+                key={`${p.a}-${p.b}`}
+                type="button"
+                className="chip"
+                onClick={() => navigate(`/compare/${p.a}/${p.b}`)}
+                aria-label={`Compare ${p.a} versus ${p.b}`}
+              >
+                {p.a} · {p.b}
+              </button>
+            ))}
+          </div>
+        )}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
           <span className="label">Sectors</span>
           {["technology", "banking-finance", "energy", "healthcare", "consumer"].map((slug) => (

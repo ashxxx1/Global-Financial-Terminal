@@ -1368,3 +1368,109 @@ body.nerd .nerd-only { display: revert !important; }
 body.nerd span.nerd-only,
 body.nerd .mono.nerd-only { display: inline-flex !important; }
 .nav-tour.on { color: var(--gold); border-color: var(--gold); background: var(--gold-dim); }
+
+/* Top nav — denser primary / overflow More on small screens */
+.topnav-links {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.topnav-more {
+  position: relative;
+}
+
+.topnav-more-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 148px;
+  padding: 6px;
+  background: var(--navy);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 60;
+}
+
+.topnav-more-menu a {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 8px 12px;
+  border-radius: 5px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.topnav-more-menu a.active,
+.topnav-more-menu a:hover {
+  color: var(--gold);
+  background: var(--gold-dim);
+}
+
+@media (max-width: 900px) {
+  .topnav-primary-overflow {
+    display: none !important;
+  }
+
+  .topnav-more {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 901px) {
+  .topnav-more {
+    display: none;
+  }
+}
+
+/* World calendar — desktop rail / mobile bottom sheet */
+.world-side-rail {
+  position: absolute;
+  right: 18px;
+  top: 16px;
+  z-index: 10;
+  width: 310px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100% - 32px);
+  overflow-y: auto;
+}
+
+.cal-sheet-handle {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .world-side-rail.cal-active {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    max-height: min(58vh, 480px);
+    padding: 8px 12px 16px;
+    border-radius: 14px 14px 0 0;
+    border-top: 1px solid var(--line-strong);
+    background: rgba(8, 12, 22, 0.96);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.45);
+    z-index: 30;
+  }
+
+  .world-side-rail.cal-active .cal-sheet-handle {
+    display: block;
+    width: 36px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--line-strong);
+    margin: 2px auto 8px;
+  }
+}

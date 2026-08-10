@@ -82,6 +82,17 @@ function humanError(err: unknown): string {
   return map[code] || (err instanceof Error ? err.message : "Something went wrong. Try again.");
 }
 
+/** "ada.lovelace@x.com" → "Ada Lovelace". Good enough to greet someone by. */
+function deriveName(email: string): string {
+  const local = email.split("@")[0] || "";
+  return local
+    .split(/[._-]+/)
+    .filter(Boolean)
+    .map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ")
+    .slice(0, 40);
+}
+
 function toProfile(u: User): Profile {
   return { uid: u.uid, email: u.email, displayName: u.displayName, photoURL: u.photoURL };
 }
@@ -211,7 +222,10 @@ export const useAuth = create<AuthState>()((set) => ({
     try {
       set({ error: null });
       const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
-      if (name.trim()) await updateProfile(cred.user, { displayName: name.trim() });
+      // Item 44: signup asks for email + password only. A readable display
+      // name is derived from the address rather than costing a third field.
+      const display = name.trim() || deriveName(email);
+      if (display) await updateProfile(cred.user, { displayName: display });
       set({ user: toProfile(cred.user) });
       track("signed_up", { method: "email" });
       await syncProfile(cred.user);

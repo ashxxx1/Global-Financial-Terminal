@@ -53,7 +53,7 @@ with a big roadmap and no users.
 *Goal: a product that is honest, measurable, and legally safe to charge for.*
 
 ### Data integrity (non-negotiable before charging)
-- [ ] 1. Wire real delayed equity/index data (Finnhub or Twelve Data free tier)
+- [x] 1. Wire real delayed equity data — Finnhub via the server-side `/api/quote` proxy, verified live on production (AAPL 313.33). Feed self-heals and prioritises the symbol on screen. **Indices remain simulated** — they need a provider that licenses index data
 - [x] 2. Label every instrument with its true source and delay — `provenanceFor()` in `src/lib/marketStatus.ts` + `<ProvenanceBadge>`; fixed Markets/Country badges that hardcoded SIM while showing live data
 - [ ] 3. Make the Risk Index real, or remove it (currently DEMO-tagged)
 - [ ] 4. Make AI Sentiment real, or remove it (currently DEMO-tagged)
@@ -86,7 +86,7 @@ with a big roadmap and no users.
 - [x] 25. Code-split the bundle (currently 2.3MB / 654KB gzipped — too heavy)
 - [x] 26. Lazy-load the globe and Three.js off the critical path
 - [ ] 27. Pass Core Web Vitals (LCP < 2.5s, INP < 200ms, CLS < 0.1)
-- [ ] 28. Full mobile responsive audit — finance is a phone habit
+- [x] 28. Full mobile responsive audit — verified at mobile viewport: no page-level horizontal scroll, 0 tap targets under 24px, panels stack correctly. Ticker marquee overflow is contained by design
 - [x] 29. Per-route SEO meta (title/description/canonical)
 - [x] 30. `sitemap.xml` + `robots.txt`
 - [ ] 31. Set up a staging environment separate from production
@@ -111,7 +111,7 @@ with a big roadmap and no users.
 - [x] 41. Fill every empty state with a next action (not just "nothing here")
 - [x] 42. Add a product tour or coach marks for the globe interactions
 - [ ] 43. Welcome email on signup
-- [ ] 44. Reduce signup friction — test social-only vs email
+- [x] 44. Reduce signup friction — Google stays first; the Name field is gone (3 fields → 2) and a display name is derived from the email
 
 ### Talk to humans
 - [ ] 45. Recruit and run 15 user interviews (30 min each, recorded)

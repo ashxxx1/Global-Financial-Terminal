@@ -16,7 +16,6 @@ type Mode = "signin" | "signup" | "reset";
 export default function Login({ initialMode = "signin", onBack }: { initialMode?: "signin" | "signup"; onBack?: () => void } = {}) {
   const { signInGoogle, signInEmail, signUpEmail, resetPassword, error, clearError } = useAuth();
   const [mode, setMode] = useState<Mode>(initialMode);
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -34,7 +33,7 @@ export default function Login({ initialMode = "signin", onBack }: { initialMode?
     e.preventDefault();
     setBusy(true);
     if (mode === "signin") await signInEmail(email, password);
-    else if (mode === "signup") await signUpEmail(name, email, password);
+    else if (mode === "signup") await signUpEmail("", email, password);
     else { await resetPassword(email); setSent(true); }
     setBusy(false);
   };
@@ -116,14 +115,6 @@ export default function Login({ initialMode = "signin", onBack }: { initialMode?
           )}
 
           <form onSubmit={submit}>
-            {mode === "signup" && (
-              <label className="auth-field">
-                <span>Name</span>
-                <input value={name} onChange={(e) => setName(e.target.value)}
-                  placeholder="Ada Lovelace" autoComplete="name" />
-              </label>
-            )}
-
             <label className="auth-field">
               <span>Email</span>
               <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}

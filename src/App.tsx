@@ -36,13 +36,13 @@ const SignalCalendarPage = lazy(() => import("./pages/signals/SignalCalendarPage
 const SignalMethodologyPage = lazy(() => import("./pages/signals/SignalMethodologyPage"));
 const SignalBacktestPage = lazy(() => import("./pages/signals/SignalBacktestPage"));
 const SignalTrackRecordPage = lazy(() => import("./pages/signals/SignalTrackRecordPage"));
-<<<<<<< Updated upstream
-=======
+
+
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Forum = lazy(() => import("./pages/Forum"));
 const ForumPost = lazy(() => import("./pages/ForumPost"));
->>>>>>> Stashed changes
+
 import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
 import { useAuth, authRequired } from "./lib/auth";
@@ -82,13 +82,13 @@ function Shell() {
   useEffect(() => { trackPageview(pathname); }, [pathname]);
   const onWorld = pathname === "/";
   const onboarded = useTerminal((st) => st.onboarded);
-<<<<<<< Updated upstream
-=======
+
+
   const nerdMode = useTerminal((st) => st.nerdMode);
   useEffect(() => {
     document.body.classList.toggle("nerd", nerdMode);
   }, [nerdMode]);
->>>>>>> Stashed changes
+  
   const watchlistEmpty = useTerminal((st) => st.watchlist.length === 0);
   const showOnboarding = !onboarded && watchlistEmpty;
 

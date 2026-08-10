@@ -4,7 +4,7 @@
  * not brokerage order tickets.
  */
 import {
-  useCallback, useEffect, useMemo, useRef, useState,
+  useCallback, useEffect, useId, useMemo, useRef, useState,
 } from "react";
 import {
   createChart,
@@ -37,6 +37,7 @@ import { freshness } from "../../lib/marketStatus";
 import type { ChartRange, ChartType, ChartOhlcHover, DrawingTool, IndicatorId, IntradayResolution, ChartDrawing } from "../../types/chart";
 import type { OhlcvBar } from "../../types/market";
 import { INDICATOR_DEFS } from "../../types/chart";
+import { COMPARE_COLORS } from "../../lib/charts/compareColors";
 
 export interface TradingChartProps {
   symbol: string;
@@ -47,9 +48,14 @@ export interface TradingChartProps {
   country?: string | null;
   source?: "live" | "cached" | "sim";
   className?: string;
+  /** Prefill compare peers (e.g. from ?vs= or /compare/:a/:b). */
+  initialCompare?: string[];
+  /** Keep exactly the initial peer set; hide multi-select extras. */
+  compareLocked?: boolean;
+  /** Max peers excluding the primary symbol. */
+  maxCompare?: number;
+  onCompareChange?: (symbols: string[]) => void;
 }
-
-const COMPARE_COLORS = ["#2DE2E6", "#E7B429", "#9B7BFF", "#FF8A5B", "#4F8DFF"];
 
 function toChartTime(ms: number): Time {
   // Daily+ → business day string; intraday → unix sec
@@ -93,8 +99,9 @@ function defaultIndicators(): Set<IndicatorId> {
 
 export default function TradingChart({
   symbol, name, currency = "", price, changePct, country, source = "sim", className,
+  initialCompare = [], compareLocked = false, maxCompare = 4, onCompareChange,
 }: TradingChartProps) {
-  const shellRef = useRef<HTMLDivElement>(null);
+  const shellRef = useRef<HTMLElement>(null);
   const chartHostRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const mainSeriesRef = useRef<ISeriesApi<"Candlestick"> | ISeriesApi<"Line"> | ISeriesApi<"Area"> | null>(null);
@@ -109,13 +116,17 @@ export default function TradingChart({
   const barsRef = useRef<OhlcvBar[]>([]);
   const drawPointsRef = useRef<{ time: Time; price: number }[]>([]);
 
+  const peerLimit = compareLocked ? 1 : Math.max(1, Math.min(maxCompare, 4));
+
   const [range, setRange] = useState<ChartRange>("3M");
   const [intraday, setIntraday] = useState<IntradayResolution | null>(null);
   const [chartType, setChartType] = useState<ChartType>("candlestick");
   const [indicatorsOpen, setIndicatorsOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   const [enabled, setEnabled] = useState<Set<IndicatorId>>(defaultIndicators);
-  const [compareSymbols, setCompareSymbols] = useState<string[]>([]);
+  const [compareSymbols, setCompareSymbols] = useState<string[]>(() =>
+    initialCompare.map((s) => s.toUpperCase()).filter((s) => s && s !== symbol.toUpperCase()).slice(0, peerLimit),
+  );
   const [hover, setHover] = useState<ChartOhlcHover | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [drawing, setDrawing] = useState<DrawingTool>("none");
@@ -123,6 +134,33 @@ export default function TradingChart({
   const [signals, setSignals] = useState<ChartSignalView[]>([]);
   const [activeSignal, setActiveSignal] = useState<ChartSignalView | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<ChartSignalView | null>(null);
+  const indicatorsBtnRef = useRef<HTMLButtonElement>(null);
+  const compareBtnRef = useRef<HTMLButtonElement>(null);
+  const indicatorsMenuId = useId();
+  const compareMenuId = useId();
+  const chartDescId = useId();
+  const statusId = useId();
+
+  const initialCompareKey = useMemo(
+    () => initialCompare.map((s) => s.toUpperCase()).filter(Boolean).join("|"),
+    [initialCompare],
+  );
+  const onCompareChangeRef = useRef(onCompareChange);
+  onCompareChangeRef.current = onCompareChange;
+
+  // Sync from route / ?vs= when this chart is in one-peer mode.
+  useEffect(() => {
+    if (peerLimit !== 1) return;
+    const next = initialCompareKey
+      .split("|")
+      .filter((s) => s && s !== symbol.toUpperCase())
+      .slice(0, 1);
+    setCompareSymbols(next);
+  }, [peerLimit, initialCompareKey, symbol]);
+
+  useEffect(() => {
+    onCompareChangeRef.current?.(compareSymbols);
+  }, [compareSymbols]);
 
   const { data, compare, loading, error, reload } = useChartData({
     symbol,
@@ -587,23 +625,42 @@ export default function TradingChart({
   }, [source, fresh.label]);
 
   const lastBar = data?.candles[data.candles.length - 1];
+  const chartSummary = useMemo(() => {
+    const bits = [
+      `${symbol} ${name}`,
+      compareMode ? `compare mode with ${compareSymbols.join(", ")}` : `${chartType} chart`,
+      `range ${intraday || range}`,
+    ];
+    if (lastBar) {
+      bits.push(
+        `last bar open ${lastBar.o}, high ${lastBar.h}, low ${lastBar.l}, close ${lastBar.c}, volume ${formatVolume(lastBar.v)}`,
+      );
+    }
+    if (data?.source === "sim") bits.push("simulated candles, not live market history");
+    else if (data?.source === "live") bits.push("live delayed OHLCV");
+    return bits.join(". ");
+  }, [symbol, name, compareMode, compareSymbols, chartType, intraday, range, lastBar, data?.source]);
 
   return (
-    <div
+    <section
       ref={shellRef}
+      id="trading-chart"
       className={`tc-shell panel ${fullscreen ? "tc-fullscreen" : ""} ${className || ""}`}
+      aria-labelledby="tc-chart-heading"
     >
       <ChartFullscreen active={fullscreen} containerRef={shellRef} onChange={setFullscreen} />
+
+      <a href="#tc-chart-canvas" className="tc-skip">Skip to chart canvas</a>
 
       {/* Header */}
       <div className="tc-header">
         <div className="tc-header-main">
           <div className="tc-title-block">
-            <h2 className="tc-symbol mono">{symbol}</h2>
+            <h2 className="tc-symbol mono" id="tc-chart-heading">{symbol}</h2>
             <div className="tc-name">{name}</div>
           </div>
           <div className="tc-price-block">
-            <div className="tc-price mono">
+            <div className="tc-price mono" aria-live="polite">
               {currency}{(price ?? lastBar?.c)?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "—"}
             </div>
             <div className={`tc-chg mono ${up ? "up" : "down"}`}>
@@ -613,10 +670,11 @@ export default function TradingChart({
                 const sign = changePct >= 0 ? "+" : "";
                 return `${sign}${abs.toFixed(2)} (${sign}${changePct.toFixed(2)}%)`;
               })()}
+              <span className="sr-only">{up ? " up on the day" : " down on the day"}</span>
             </div>
             <div className="tc-session">
               <span className={`fresh fresh-${fresh.tone}`}>
-                <span className="fresh-dot" />
+                <span className="fresh-dot" aria-hidden="true" />
                 {sessionLabel}
               </span>
               {data?.source === "live" && (
@@ -643,18 +701,52 @@ export default function TradingChart({
             onDrawing={setDrawing}
             onIndicators={() => { setIndicatorsOpen((v) => !v); setCompareOpen(false); }}
             onCompare={() => { setCompareOpen((v) => !v); setIndicatorsOpen(false); }}
+            compareActive={compareSymbols.length > 0 || compareOpen}
+            indicatorsOpen={indicatorsOpen}
+            compareOpen={compareOpen}
             onFullscreen={() => setFullscreen((v) => !v)}
             onReset={resetZoom}
             fullscreen={fullscreen}
+            indicatorsBtnRef={indicatorsBtnRef}
+            compareBtnRef={compareBtnRef}
+            indicatorsMenuId={indicatorsMenuId}
+            compareMenuId={compareMenuId}
           />
         </div>
+
+        <details className="tc-help">
+          <summary>Chart controls</summary>
+          <ul>
+            <li>Timeframes change the history window; intraday resolutions appear on 1D/5D.</li>
+            <li><strong>Indicators</strong> and <strong>Compare</strong> open menus — Escape closes them and returns focus.</li>
+            <li>Compare overlays normalized % performance (not absolute prices).</li>
+            <li>Fullscreen expands the chart; Reset fits all loaded bars.</li>
+          </ul>
+        </details>
       </div>
 
       <ChartCrosshair hover={hover} currency={currency} />
 
+      {compareMode && (
+        <div className="tc-compare-legend" role="list" aria-label="Compare series">
+          {compare.map((c, i) => (
+            <div key={c.symbol} className="tc-compare-legend-item" role="listitem">
+              <span className="tc-swatch" style={{ background: COMPARE_COLORS[i % COMPARE_COLORS.length] }} aria-hidden />
+              <span className="mono">{c.symbol}</span>
+              <span className={`mono ${c.perfPct >= 0 ? "up" : "down"}`}>
+                {c.perfPct >= 0 ? "+" : ""}{c.perfPct.toFixed(1)}%
+                <span className="sr-only">{c.perfPct >= 0 ? " gain" : " loss"} over selected range</span>
+              </span>
+              <span className="label">{c.source === "sim" ? "SIM" : c.source.toUpperCase()}</span>
+            </div>
+          ))}
+          <span className="label" style={{ marginLeft: "auto" }}>Normalized to 0% at range start</span>
+        </div>
+      )}
+
       {/* Active GFT signal strip */}
       {activeSignal && !compareMode && (
-        <div className="tc-signal-strip">
+        <div className="tc-signal-strip" aria-label="Active GFT signal">
           <span className="tc-signal-badge" style={{ color: activeSignal.kind === "BUY" ? "var(--up)" : activeSignal.kind === "SELL" ? "var(--down)" : "var(--gold)" }}>
             GFT {activeSignal.kind}
           </span>
@@ -671,36 +763,56 @@ export default function TradingChart({
       )}
 
       <div className="tc-body">
-        <div className="tc-chart-host" ref={chartHostRef} role="img" aria-label={`${symbol} trading chart`} />
+        <p id={chartDescId} className="sr-only">{chartSummary}</p>
+        <div
+          id="tc-chart-canvas"
+          className="tc-chart-host"
+          ref={chartHostRef}
+          role="img"
+          aria-label={`${symbol} trading chart`}
+          aria-describedby={`${chartDescId} tc-ohlc-readout`}
+          tabIndex={0}
+        />
+
+        <div id={statusId} className="sr-only" role="status" aria-live="polite">
+          {loading ? "Loading market data" : error ? `Chart error: ${error}` : data ? "Chart data ready" : ""}
+        </div>
 
         {loading && (
-          <div className="tc-overlay">
+          <div className="tc-overlay" aria-hidden="true">
             <div className="skeleton" style={{ width: "40%", height: 10, marginBottom: 10 }} />
             <div className="label">Loading market data…</div>
           </div>
         )}
         {error && !loading && (
-          <div className="tc-overlay tc-overlay-error">
+          <div className="tc-overlay tc-overlay-error" role="alert">
             <div className="label" style={{ color: "var(--down)" }}>{error}</div>
-            <button type="button" className="chip" onClick={reload}>Retry</button>
+            <button type="button" className="chip" onClick={reload}>Retry loading chart</button>
           </div>
         )}
 
         <div className="tc-menus">
-          <IndicatorMenu
-            open={indicatorsOpen}
-            onClose={() => setIndicatorsOpen(false)}
-            enabled={enabled}
-            onToggle={toggleIndicator}
-          />
-          <CompareMenu
-            open={compareOpen}
-            onClose={() => setCompareOpen(false)}
-            primary={symbol}
-            selected={compareSymbols}
-            onChange={setCompareSymbols}
-            perf={compare.map((c) => ({ symbol: c.symbol, perfPct: c.perfPct }))}
-          />
+          <div id={indicatorsMenuId}>
+            <IndicatorMenu
+              open={indicatorsOpen}
+              onClose={() => setIndicatorsOpen(false)}
+              enabled={enabled}
+              onToggle={toggleIndicator}
+              triggerRef={indicatorsBtnRef}
+            />
+          </div>
+          <div id={compareMenuId}>
+            <CompareMenu
+              open={compareOpen}
+              onClose={() => setCompareOpen(false)}
+              primary={symbol}
+              selected={compareSymbols}
+              onChange={setCompareSymbols}
+              perf={compare.map((c) => ({ symbol: c.symbol, perfPct: c.perfPct }))}
+              lockSingle={peerLimit === 1}
+              triggerRef={compareBtnRef}
+            />
+          </div>
           <SignalDetailPopover signal={selectedSignal} onClose={() => setSelectedSignal(null)} />
         </div>
       </div>
@@ -727,7 +839,7 @@ export default function TradingChart({
           Last bar O {lastBar.o} H {lastBar.h} L {lastBar.l} C {lastBar.c} V {formatVolume(lastBar.v)}
         </div>
       )}
-    </div>
+    </section>
   );
 }
 

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuote } from "../lib/hooks";
 import { metaFor, COUNTRIES } from "../lib/market";
 import ProvenanceBadge from "../components/ProvenanceBadge";
@@ -17,6 +17,9 @@ export default function Stock() {
   const { symbol = "" } = useParams();
   const sym = symbol.toUpperCase();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const vsParam = (searchParams.get("vs") || "").toUpperCase();
+  const vs = vsParam && vsParam !== sym && metaFor(vsParam) ? vsParam : "";
   const meta = metaFor(sym);
   const quote = useQuote(meta ? sym : null);
   useSeo({
@@ -41,6 +44,16 @@ export default function Stock() {
     setPrioritySymbol(sym || null);
     return () => setPrioritySymbol(null);
   }, [sym]);
+
+  const onCompareChange = useCallback((symbols: string[]) => {
+    const peer = symbols[0]?.toUpperCase();
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (peer && peer !== sym && metaFor(peer)) next.set("vs", peer);
+      else next.delete("vs");
+      return next;
+    }, { replace: true });
+  }, [setSearchParams, sym]);
 
   const ai = useMemo(() => {
     if (!meta || !quote) return null;
@@ -72,6 +85,7 @@ export default function Stock() {
   const up = (quote?.changePct ?? 0) >= 0;
   const watched = inWatchlist(sym);
   const countryName = COUNTRIES[meta.country || ""]?.name || meta.country;
+  const comparePeer = vs || (sym === "MSFT" ? "AAPL" : "MSFT");
 
   const setPriceAlert = (direction: "above" | "below") => {
     if (!quote) return;
@@ -85,12 +99,25 @@ export default function Stock() {
     <div style={{ padding: 18, maxWidth: 1200, margin: "0 auto" }}>
       {/* Compact page chrome — detailed quote lives in the chart header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
-        <button className="chip" onClick={() => navigate(-1)} aria-label="Back">←</button>
+        <button type="button" className="chip" onClick={() => navigate(-1)} aria-label="Back to previous page">← Back</button>
         <span className="label">{meta.sector} · {countryName}</span>
-        <button className="chip" style={{ color: watched ? "var(--gold)" : undefined }}
-          onClick={() => watched ? removeWatch(sym) : addWatch({ symbol: sym, name: meta.name, country: meta.country })}>
-          {watched ? "★ WATCHING" : "☆ WATCH"}
+        <button
+          type="button"
+          className="chip"
+          style={{ color: watched ? "var(--gold)" : undefined }}
+          aria-pressed={watched}
+          onClick={() => watched ? removeWatch(sym) : addWatch({ symbol: sym, name: meta.name, country: meta.country })}
+        >
+          {watched ? "★ Watching" : "☆ Watch"}
         </button>
+        <a className="chip" href="#trading-chart" style={{ textDecoration: "none" }}>Trading chart</a>
+        <Link
+          to={`/compare/${sym}/${comparePeer}`}
+          className="chip"
+          style={{ textDecoration: "none" }}
+        >
+          Compare
+        </Link>
         <span style={{ marginLeft: "auto" }}>
           <ProvenanceBadge kind={meta.kind} source={quote?.source ?? "sim"} country={meta.country} />
         </span>
@@ -104,6 +131,9 @@ export default function Stock() {
         changePct={quote?.changePct}
         country={meta.country}
         source={quote?.source ?? "sim"}
+        initialCompare={vs ? [vs] : []}
+        maxCompare={1}
+        onCompareChange={onCompareChange}
       />
 
       {/* Actions */}

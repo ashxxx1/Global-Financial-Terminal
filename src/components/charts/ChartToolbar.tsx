@@ -7,9 +7,16 @@ interface Props {
   onDrawing: (t: DrawingTool) => void;
   onIndicators: () => void;
   onCompare: () => void;
+  compareActive?: boolean;
+  indicatorsOpen?: boolean;
+  compareOpen?: boolean;
   onFullscreen: () => void;
   onReset: () => void;
   fullscreen: boolean;
+  indicatorsBtnRef?: React.RefObject<HTMLButtonElement | null>;
+  compareBtnRef?: React.RefObject<HTMLButtonElement | null>;
+  indicatorsMenuId?: string;
+  compareMenuId?: string;
 }
 
 const DRAWINGS: { id: DrawingTool; label: string; title: string }[] = [
@@ -22,7 +29,11 @@ const DRAWINGS: { id: DrawingTool; label: string; title: string }[] = [
 
 export default function ChartToolbar({
   chartType, onChartType, drawing, onDrawing,
-  onIndicators, onCompare, onFullscreen, onReset, fullscreen,
+  onIndicators, onCompare, compareActive = false,
+  indicatorsOpen = false, compareOpen = false,
+  onFullscreen, onReset, fullscreen,
+  indicatorsBtnRef, compareBtnRef,
+  indicatorsMenuId, compareMenuId,
 }: Props) {
   return (
     <div className="tc-toolbar">
@@ -51,16 +62,43 @@ export default function ChartToolbar({
             aria-pressed={drawing === d.id}
             onClick={() => onDrawing(d.id)}
           >
-            {d.label}
+            <span aria-hidden="true">{d.label}</span>
           </button>
         ))}
       </div>
 
       <div className="tc-toolbar-group tc-toolbar-actions">
-        <button type="button" className="chip" onClick={onIndicators}>Indicators</button>
-        <button type="button" className="chip" onClick={onCompare}>Compare</button>
-        <button type="button" className="chip" onClick={onReset} aria-label="Reset zoom">Reset</button>
-        <button type="button" className="chip" onClick={onFullscreen} aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}>
+        <button
+          ref={indicatorsBtnRef}
+          type="button"
+          className={`chip ${indicatorsOpen ? "active" : ""}`}
+          onClick={onIndicators}
+          aria-expanded={indicatorsOpen}
+          aria-controls={indicatorsMenuId}
+          aria-haspopup="dialog"
+        >
+          Indicators
+        </button>
+        <button
+          ref={compareBtnRef}
+          type="button"
+          className={`chip ${compareActive || compareOpen ? "active" : ""}`}
+          onClick={onCompare}
+          aria-pressed={compareActive}
+          aria-expanded={compareOpen}
+          aria-controls={compareMenuId}
+          aria-haspopup="dialog"
+        >
+          Compare
+        </button>
+        <button type="button" className="chip" onClick={onReset} aria-label="Reset zoom to fit">Reset</button>
+        <button
+          type="button"
+          className="chip"
+          onClick={onFullscreen}
+          aria-pressed={fullscreen}
+          aria-label={fullscreen ? "Exit fullscreen chart" : "Enter fullscreen chart"}
+        >
           {fullscreen ? "Exit" : "Fullscreen"}
         </button>
       </div>

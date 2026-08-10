@@ -8,6 +8,7 @@ interface Hit { type: "stock" | "country" | "page"; label: string; sub: string; 
 const PAGES: Hit[] = [
   { type: "page", label: "World — 3D globe", sub: "Landing", to: "/" },
   { type: "page", label: "Global Markets", sub: "Indices · FX · Crypto · Commodities", to: "/markets" },
+  { type: "page", label: "Compare Charts", sub: "Overlay two stocks · normalized %", to: "/compare" },
   { type: "page", label: "Global News Feed", sub: "All countries", to: "/news" },
 ];
 
@@ -35,10 +36,25 @@ export default function Search() {
     const needle = q.trim().toLowerCase();
     if (!needle) return PAGES;
     const out: Hit[] = [];
+
+    // "AAPL vs MSFT" / "aapl/msft" shorthand → compare route
+    const vsMatch = q.trim().toUpperCase().match(/^([A-Z0-9.-]+)\s*(?:VS|VS\.|VERSUS|\/|,)\s*([A-Z0-9.-]+)$/);
+    if (vsMatch) {
+      const [, left, right] = vsMatch;
+      if (metaFor(left) && metaFor(right) && left !== right) {
+        out.push({
+          type: "page",
+          label: `${left} vs ${right}`,
+          sub: "Compare charts",
+          to: `/compare/${left}/${right}`,
+        });
+      }
+    }
+
     for (const c of countryList()) {
       if (c.name.toLowerCase().includes(needle) || c.code.toLowerCase() === needle)
         out.push({ type: "country", label: c.name, sub: `${c.marketIndex} · ${c.currency}`, to: `/country/${c.code}` });
-      if (out.length >= 5) break;
+      if (out.length >= 6) break;
     }
     let count = 0;
     for (const s of allStockSymbols()) {
@@ -48,7 +64,9 @@ export default function Search() {
         if (++count >= 8) break;
       }
     }
-    for (const p of PAGES) if (p.label.toLowerCase().includes(needle)) out.push(p);
+    for (const p of PAGES) {
+      if (p.label.toLowerCase().includes(needle) || (needle.includes("compare") && p.to === "/compare")) out.push(p);
+    }
     return out.slice(0, 12);
   }, [q]);
 

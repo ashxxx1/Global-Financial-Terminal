@@ -43,6 +43,7 @@ async function main() {
   const entries = [
     url("/", { changefreq: "hourly", priority: "1.0", lastmod: today }),
     url("/markets", { changefreq: "hourly", priority: "0.9", lastmod: today }),
+    url("/compare", { changefreq: "daily", priority: "0.85", lastmod: today }),
     url("/terminal/signals", { changefreq: "hourly", priority: "0.95", lastmod: today }),
     url("/signals/track-record", { changefreq: "daily", priority: "0.9", lastmod: today }),
     url("/terminal/signals/history", { changefreq: "daily", priority: "0.8", lastmod: today }),

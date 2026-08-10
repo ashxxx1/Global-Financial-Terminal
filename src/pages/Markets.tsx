@@ -45,6 +45,14 @@ export default function Markets() {
             : group === "COMMODITIES" ? "commodity" : group === "MOVERS" ? "stock" : "index"}
           source={rows.some((q) => q.source === "live") ? "live" : "sim"}
         />
+        <button
+          type="button"
+          className="chip"
+          onClick={() => navigate("/compare/AAPL/MSFT")}
+          title="Overlay two stock charts"
+        >
+          COMPARE CHARTS
+        </button>
         <div style={{ display: "flex", gap: 6, marginLeft: "auto", flexWrap: "wrap" }}>
           {GROUPS.map((g) => (
             <button key={g} className={`chip ${group === g ? "active" : ""}`} onClick={() => setGroup(g)}>{g}</button>
@@ -55,6 +63,31 @@ export default function Markets() {
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 260px", gap: 14, marginBottom: 14, alignItems: "start" }}>
         <SectorHeatmap tick={tick} onOpen={(sym) => navigate(`/stock/${sym}`)} />
         <PulseGauge tick={tick} />
+      </div>
+
+      <div className="panel" style={{ padding: 14, marginBottom: 14 }} aria-labelledby="charts-entry-title">
+        <div className="panel-head" style={{ marginBottom: 10 }}>
+          <span className="panel-title" id="charts-entry-title">Stock charts</span>
+          <button type="button" className="chip" onClick={() => navigate("/compare/AAPL/MSFT")}>
+            Compare two stocks
+          </button>
+        </div>
+        <p className="label" style={{ margin: "0 0 10px", lineHeight: 1.5 }}>
+          Open a ticker for the interactive trading chart — timeframes, indicators, and compare overlays.
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA", "SPY"].map((s) => (
+            <button
+              key={s}
+              type="button"
+              className="chip"
+              onClick={() => navigate(`/stock/${s}`)}
+              aria-label={`Open ${s} trading chart`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Items 72 & 78 — alerts you can see and manage, and a way back in. */}

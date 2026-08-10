@@ -11,6 +11,7 @@ import { useAuth } from "../lib/auth";
 const LINKS = [
   { to: "/", label: "WORLD", end: true },
   { to: "/markets", label: "MARKETS" },
+  { to: "/compare", label: "COMPARE" },
   { to: "/terminal/signals", label: "SIGNALS" },
   { to: "/news", label: "NEWS" },
 ];
@@ -77,7 +78,8 @@ export default function TopNav() {
             end={l.end as boolean | undefined}
             style={({ isActive }) => {
               const signalsActive = l.label === "SIGNALS" && (location.pathname.startsWith("/terminal/signals") || location.pathname.startsWith("/signals"));
-              const on = isActive || signalsActive;
+              const compareActive = l.label === "COMPARE" && location.pathname.startsWith("/compare");
+              const on = isActive || signalsActive || compareActive;
               return {
               fontFamily: "var(--mono)", fontSize: 10.5, fontWeight: 700, letterSpacing: "0.14em",
               padding: "6px 12px", borderRadius: 5,

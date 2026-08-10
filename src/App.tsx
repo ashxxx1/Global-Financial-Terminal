@@ -25,6 +25,7 @@ import World from "./pages/World";
 const Country = lazy(() => import("./pages/Country"));
 const Markets = lazy(() => import("./pages/Markets"));
 const Stock = lazy(() => import("./pages/Stock"));
+const Compare = lazy(() => import("./pages/Compare"));
 const News = lazy(() => import("./pages/News"));
 const Changelog = lazy(() => import("./pages/Changelog"));
 const DataSources = lazy(() => import("./pages/DataSources"));
@@ -108,6 +109,9 @@ function Shell() {
             <Route path="/country/:code" element={<Country />} />
             <Route path="/markets" element={<Markets />} />
             <Route path="/stock/:symbol" element={<Stock />} />
+            <Route path="/compare" element={<Compare />} />
+            <Route path="/compare/:a" element={<Compare />} />
+            <Route path="/compare/:a/:b" element={<Compare />} />
             <Route path="/news" element={<News />} />
             <Route path="/terminal/signals" element={<SignalsPage />} />
             <Route path="/terminal/signals/history" element={<SignalHistoryPage />} />

@@ -1,5 +1,8 @@
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { allStockSymbols, metaFor } from "../../lib/market";
+import { COMPARE_COLORS } from "../../lib/charts/compareColors";
+import { useChartMenu } from "../../hooks/useChartMenu";
 
 interface Props {
   open: boolean;
@@ -8,46 +11,87 @@ interface Props {
   selected: string[];
   onChange: (symbols: string[]) => void;
   perf?: Array<{ symbol: string; perfPct: number }>;
+  /** When true, only one peer (two-stock compare). */
+  lockSingle?: boolean;
+  triggerRef?: React.RefObject<HTMLElement | null>;
 }
 
-export default function CompareMenu({ open, onClose, primary, selected, onChange, perf }: Props) {
+export default function CompareMenu({
+  open, onClose, primary, selected, onChange, perf, lockSingle = false, triggerRef,
+}: Props) {
   const [q, setQ] = useState("");
+  const { panelRef, titleId } = useChartMenu({ open, onClose, triggerRef });
   if (!open) return null;
+
+  const maxPeers = lockSingle ? 1 : 4;
 
   const pool = allStockSymbols()
     .filter((s) => s !== primary)
     .filter((s) => {
-      if (!q.trim()) return ["AMD", "SOXX", "AAPL", "MSFT", "GOOGL", "META", "AMZN", "TSLA", "NVDA", "SPY", "QQQ"].includes(s) || selected.includes(s);
+      if (!q.trim()) {
+        return ["AMD", "SOXX", "AAPL", "MSFT", "GOOGL", "META", "AMZN", "TSLA", "NVDA", "SPY", "QQQ"].includes(s)
+          || selected.includes(s);
+      }
       const m = metaFor(s);
       const qq = q.trim().toUpperCase();
       return s.includes(qq) || (m?.name || "").toUpperCase().includes(qq);
     })
     .slice(0, 24);
 
-  const toggle = (sym: string) => {
-    if (selected.includes(sym)) onChange(selected.filter((s) => s !== sym));
-    else if (selected.length < 4) onChange([...selected, sym]);
+  const setPeer = (sym: string) => {
+    if (selected.includes(sym)) {
+      onChange(selected.filter((s) => s !== sym));
+      return;
+    }
+    if (lockSingle) {
+      onChange([sym]);
+      return;
+    }
+    if (selected.length < maxPeers) onChange([...selected, sym]);
   };
 
+  const peer = selected[0];
+  const fullCompareTo = peer
+    ? `/compare/${primary}/${peer}`
+    : `/compare/${primary}`;
+
   return (
-    <div className="tc-menu tc-menu-wide" role="dialog" aria-label="Compare assets">
+    <div
+      ref={panelRef}
+      className="tc-menu tc-menu-wide"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
       <div className="tc-menu-head">
-        <span className="panel-title">Compare · normalized %</span>
+        <span className="panel-title" id={titleId}>Compare · normalized %</span>
         <button type="button" className="chip" onClick={onClose} aria-label="Close compare">✕</button>
       </div>
       <div className="tc-menu-body">
+        <p className="label" style={{ margin: 0, lineHeight: 1.45 }}>
+          Overlay peers against <span className="mono">{primary}</span>. Series rebase to 0% at the window start.
+          Press Escape to close.
+        </p>
+
+        <label className="label" htmlFor="tc-compare-search">Search ticker</label>
         <input
+          id="tc-compare-search"
           className="tc-input"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search ticker…"
-          aria-label="Search compare ticker"
+          placeholder="e.g. MSFT"
+          autoComplete="off"
+          spellCheck={false}
         />
+
         {perf && perf.length > 0 && (
-          <div className="tc-compare-perf">
-            {perf.map((p) => (
-              <div key={p.symbol} className="tc-compare-row">
-                <span className="mono">{p.symbol}</span>
+          <div className="tc-compare-perf" role="list" aria-label="Relative performance">
+            {perf.map((p, i) => (
+              <div key={p.symbol} className="tc-compare-row" role="listitem">
+                <span className="tc-compare-row-sym">
+                  <span className="tc-swatch" style={{ background: COMPARE_COLORS[i % COMPARE_COLORS.length] }} aria-hidden />
+                  <span className="mono">{p.symbol}</span>
+                </span>
                 <span className={`mono ${p.perfPct >= 0 ? "up" : "down"}`}>
                   {p.perfPct >= 0 ? "+" : ""}{p.perfPct.toFixed(1)}%
                 </span>
@@ -55,7 +99,8 @@ export default function CompareMenu({ open, onClose, primary, selected, onChange
             ))}
           </div>
         )}
-        <div className="tc-compare-list">
+
+        <div className="tc-compare-list" role="group" aria-label="Peer tickers">
           {pool.map((s) => {
             const on = selected.includes(s);
             return (
@@ -63,7 +108,7 @@ export default function CompareMenu({ open, onClose, primary, selected, onChange
                 key={s}
                 type="button"
                 className={`chip tc-compare-chip ${on ? "active" : ""}`}
-                onClick={() => toggle(s)}
+                onClick={() => setPeer(s)}
                 aria-pressed={on}
               >
                 {s}
@@ -72,7 +117,20 @@ export default function CompareMenu({ open, onClose, primary, selected, onChange
             );
           })}
         </div>
-        <p className="label">Up to 4 peers · performance rebased to 0% at window start</p>
+
+        <div className="tc-compare-foot">
+          <p className="label" style={{ margin: 0 }}>
+            {lockSingle ? "One peer on this chart" : `Up to ${maxPeers} peers`} · relative performance
+          </p>
+          <Link
+            to={fullCompareTo}
+            className="chip active"
+            style={{ textDecoration: "none" }}
+            onClick={onClose}
+          >
+            Open full compare →
+          </Link>
+        </div>
       </div>
     </div>
   );

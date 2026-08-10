@@ -48,8 +48,8 @@ export default defineConfig({
           // The globe: by far the largest dependency, and only the World page
           // and the landing hero need it.
           if (/[\\/]node_modules[\\/](three|globe\.gl|react-globe\.gl)[\\/]/.test(id)) return 'globe'
-          // Charts: only the Stock/Country pages.
-          if (/[\\/]node_modules[\\/](recharts|d3-[^\\/]+|victory-[^\\/]+)[\\/]/.test(id)) return 'charts'
+          // Charts: Stock trading chart + signal recharts pages.
+          if (/[\\/]node_modules[\\/](lightweight-charts|fancy-canvas|recharts|d3-[^\\/]+|victory-[^\\/]+)[\\/]/.test(id)) return 'charts'
           // Auth + database: not needed until the user signs in.
           if (/[\\/]node_modules[\\/](firebase|@firebase)[\\/]/.test(id)) return 'firebase'
           // Analytics: deferred, never blocking.

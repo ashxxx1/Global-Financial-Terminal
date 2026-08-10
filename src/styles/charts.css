@@ -1,0 +1,388 @@
+/* ═══════════════════════════════════════════════════════════════
+   Trading Chart — GFT Terminal
+   Dense institutional chrome matching theme.css tokens.
+   ═══════════════════════════════════════════════════════════════ */
+
+.tc-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.tc-shell.tc-fullscreen {
+  border-radius: 0 !important;
+  background: var(--bg-2);
+}
+
+.tc-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tc-header-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px 28px;
+}
+
+.tc-symbol {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.tc-name {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.tc-price-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tc-price {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.tc-chg {
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.tc-session {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.tc-header-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tc-tf {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tc-tf-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tc-tf-btn {
+  padding: 3px 8px !important;
+  font-size: 10px !important;
+  min-height: 26px;
+}
+
+.tc-tf-intra {
+  opacity: 0.95;
+  padding-top: 2px;
+  border-top: 1px solid var(--line);
+}
+
+.tc-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+}
+
+.tc-toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.tc-toolbar-actions {
+  margin-left: auto;
+}
+
+.tc-ohlc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  min-height: 30px;
+  align-items: center;
+}
+
+.tc-ohlc em {
+  font-style: normal;
+  color: var(--faint);
+  margin-right: 4px;
+}
+
+.tc-ohlc-date {
+  color: var(--muted);
+}
+
+.tc-ohlc-empty {
+  color: var(--faint);
+}
+
+.tc-signal-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(155, 123, 255, 0.06), transparent);
+  font-size: 12px;
+}
+
+.tc-signal-badge {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.tc-body {
+  position: relative;
+  min-height: 380px;
+  height: min(62vh, 560px);
+}
+
+.tc-fullscreen .tc-body {
+  height: calc(100dvh - 220px);
+  min-height: 420px;
+}
+
+.tc-chart-host {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tc-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(5, 7, 14, 0.55);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.tc-overlay-error {
+  pointer-events: auto;
+}
+
+.tc-menus {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(360px, calc(100% - 20px));
+}
+
+.tc-menu {
+  background: var(--navy);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-sm);
+  min-width: 220px;
+  overflow: hidden;
+}
+
+.tc-menu-wide {
+  min-width: 280px;
+}
+
+.tc-menu-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tc-menu-body {
+  padding: 10px 12px 12px;
+  display: grid;
+  gap: 10px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.tc-menu-group {
+  display: grid;
+  gap: 6px;
+}
+
+.tc-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.tc-check input {
+  accent-color: var(--cyan);
+}
+
+.tc-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  padding: 7px 10px;
+  font-size: 12px;
+  font-family: var(--mono);
+}
+
+.tc-compare-perf {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: var(--r-sm);
+}
+
+.tc-compare-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.tc-compare-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tc-compare-chip {
+  max-width: 100%;
+}
+
+.tc-signal-pop {
+  background: var(--navy);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow);
+  min-width: 260px;
+  max-width: 340px;
+  overflow: hidden;
+}
+
+.tc-signal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.tc-signal-reason {
+  margin: 0;
+  padding: 0 12px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.tc-signal-history {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px 10px;
+  overflow-x: auto;
+  border-top: 1px solid var(--line);
+}
+
+.tc-hist-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 5px 9px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  white-space: nowrap;
+  transition: border-color .15s, background .15s;
+}
+
+.tc-hist-chip:hover,
+.tc-hist-chip.active {
+  border-color: var(--line-strong);
+  background: var(--blue-dim);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .tc-price { font-size: 22px; }
+  .tc-symbol { font-size: 18px; }
+  .tc-body { height: min(52vh, 440px); min-height: 300px; }
+  .tc-toolbar-actions { margin-left: 0; }
+  .tc-draw { display: none; }
+}
+
+/* Mobile — prioritize chart, TF, price, signal */
+@media (max-width: 640px) {
+  .tc-header { padding: 10px; }
+  .tc-price { font-size: 20px; }
+  .tc-body { height: 48vh; min-height: 260px; }
+  .tc-tf-intra { display: none; }
+  .tc-toolbar-group:first-child { order: 2; }
+  .tc-signal-strip .label { display: none; }
+  .tc-menus {
+    left: 8px;
+    right: 8px;
+    max-width: none;
+  }
+}

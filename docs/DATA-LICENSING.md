@@ -16,7 +16,7 @@ rather than merely slow it down.
 
 | Provider | What we use | Free-tier commercial use | Redistribution | Verdict |
 |---|---|---|---|---|
-| **Finnhub** | US equity quotes (`/api/quote`) | ⚠️ Free tier is **personal/non-commercial** | Not permitted in bulk | ⚠️ **Must upgrade before charging** |
+| **Finnhub** | US equity quotes (`/api/quote`) + OHLCV candles (`/api/candles`) | ⚠️ Free tier is **personal/non-commercial** | Not permitted in bulk | ⚠️ **Must upgrade before charging** |
 | **Binance** | Crypto prices (public WebSocket) | Permitted, attribution expected | Display permitted; no bulk resale | ✅ OK |
 | **European Central Bank** | FX reference rates | Permitted | Permitted with attribution | ✅ OK |
 | **USGS** | Earthquake / live events | Public domain (US Government work) | Permitted | ✅ OK |

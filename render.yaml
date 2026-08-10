@@ -1,0 +1,18 @@
+# One-click deploy of the ingest backend on Render's free tier.
+# Render → New → Blueprint → point at this repo. The frontend then talks to it
+# via VITE_API_URL (set in Vercel to the resulting https://<service>.onrender.com).
+services:
+  - type: web
+    name: gft-intelligence-backend
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Optional — set to enable the live GNews wire (key stays server-side):
+      - key: GNEWS_API_KEY
+        sync: false

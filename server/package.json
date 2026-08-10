@@ -1,0 +1,17 @@
+{
+  "name": "gft-intelligence-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Continuous multi-source ingest + enrichment + SSE stream for the Global Financial Terminal.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
+  }
+}

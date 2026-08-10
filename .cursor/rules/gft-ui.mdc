@@ -1,0 +1,23 @@
+---
+description: Preserve GFT terminal visual identity when doing UI work
+globs:
+  - src/components/**/*
+  - src/pages/**/*
+  - src/styles/**/*
+alwaysApply: false
+---
+
+# GFT · TERMINAL — UI identity lock
+
+When implementing or reviewing UI in this repo:
+
+1. **Reuse the existing design system** in `src/styles/theme.css` (CSS variables). Do not invent a second palette, type stack, or card language.
+2. **Feel:** Bloomberg × TradingView × Reuters × Linear — dark terminal, high information density, precise spacing, restrained color, subtle motion.
+3. **Not:** generic SaaS dashboards, crypto landing pages, AI purple gradients, giant rounded glass cards, excessive shadows/emojis.
+4. **Before new components:** search `src/components/` and reuse chips, panels, tables, badges, charts.
+5. **Skills to use for NEW UI:**
+   - Route with `npx ui-skills start` / `ui-skills-ui-skills-root`
+   - Polish with `ui-skills-baseline-ui`, `ui-skills-improve-ui`, accessibility/motion skills as needed
+   - Design intelligence via `ui-ux-pro-max` — but **bias toward fintech / dark mode / institutional** recommendations and reject anti-patterns that fight GFT
+   - Bundles Forge only when scaffolding/authoring agent skills or auditing skill packs — not for product UI redesign
+6. **Checklist for every new UI surface:** typography, spacing, hierarchy, a11y, responsive, hover/focus, loading/empty/error, data readability, mobile.

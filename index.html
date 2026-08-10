@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="google-site-verification" content="1SXIykSTn7vWpcPLCcDWycqaAVoUlftB0RvEaMvNJUo" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Global Financial Terminal — The World's Economy, Live</title>
+    <meta name="app-version" content="1.0.1" />
+    <meta name="description" content="A living 3D map of the global economy — indices, FX, crypto and the news that moves them, mapped to the countries and sectors they hit. Free to explore." />
+    <meta name="theme-color" content="#0A0A0A" />
+
+    <!-- Open Graph / Twitter — makes shared links render a rich card, the cheapest growth channel there is -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GFT Terminal" />
+    <meta property="og:title" content="The world's economy, on one screen." />
+    <meta property="og:description" content="A living 3D map of global markets and the news that moves them. Built to understand markets, not just stare at candles." />
+    <meta property="og:url" content="https://global-financial-terminal-eight.vercel.app" />
+    <meta property="og:image" content="https://global-financial-terminal-eight.vercel.app/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="The world's economy, on one screen." />
+    <meta name="twitter:description" content="A living 3D map of global markets and the news that moves them." />
+    <meta name="twitter:image" content="https://global-financial-terminal-eight.vercel.app/og.png" />
+
+    <!-- Globe assets are same-origin; warm them so the Earth is textured on first paint. -->
+    <link rel="preload" as="image" href="/earth-blue-marble.jpg" />
+    <link rel="prefetch" href="/ne_110m_admin_0_countries.geojson" />
+
+    <style>
+      /* First paint = spec black; prevents any flash before the app mounts. */
+      html, body { background: #0A0A0A; margin: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

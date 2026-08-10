@@ -37,6 +37,7 @@ import { freshness } from "../../lib/marketStatus";
 import type { ChartRange, ChartType, ChartOhlcHover, DrawingTool, IndicatorId, IntradayResolution, ChartDrawing } from "../../types/chart";
 import type { OhlcvBar } from "../../types/market";
 import { INDICATOR_DEFS } from "../../types/chart";
+import { COMPARE_COLORS } from "../../lib/charts/compareColors";
 
 export interface TradingChartProps {
   symbol: string;
@@ -47,9 +48,14 @@ export interface TradingChartProps {
   country?: string | null;
   source?: "live" | "cached" | "sim";
   className?: string;
+  /** Prefill compare peers (e.g. from ?vs= or /compare/:a/:b). */
+  initialCompare?: string[];
+  /** Keep exactly the initial peer set; hide multi-select extras. */
+  compareLocked?: boolean;
+  /** Max peers excluding the primary symbol. */
+  maxCompare?: number;
+  onCompareChange?: (symbols: string[]) => void;
 }
-
-const COMPARE_COLORS = ["#2DE2E6", "#E7B429", "#9B7BFF", "#FF8A5B", "#4F8DFF"];
 
 function toChartTime(ms: number): Time {
   // Daily+ → business day string; intraday → unix sec
@@ -93,6 +99,7 @@ function defaultIndicators(): Set<IndicatorId> {
 
 export default function TradingChart({
   symbol, name, currency = "", price, changePct, country, source = "sim", className,
+  initialCompare = [], compareLocked = false, maxCompare = 4, onCompareChange,
 }: TradingChartProps) {
   const shellRef = useRef<HTMLDivElement>(null);
   const chartHostRef = useRef<HTMLDivElement>(null);
@@ -109,13 +116,17 @@ export default function TradingChart({
   const barsRef = useRef<OhlcvBar[]>([]);
   const drawPointsRef = useRef<{ time: Time; price: number }[]>([]);
 
+  const peerLimit = compareLocked ? 1 : Math.max(1, Math.min(maxCompare, 4));
+
   const [range, setRange] = useState<ChartRange>("3M");
   const [intraday, setIntraday] = useState<IntradayResolution | null>(null);
   const [chartType, setChartType] = useState<ChartType>("candlestick");
   const [indicatorsOpen, setIndicatorsOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   const [enabled, setEnabled] = useState<Set<IndicatorId>>(defaultIndicators);
-  const [compareSymbols, setCompareSymbols] = useState<string[]>([]);
+  const [compareSymbols, setCompareSymbols] = useState<string[]>(() =>
+    initialCompare.map((s) => s.toUpperCase()).filter((s) => s && s !== symbol.toUpperCase()).slice(0, peerLimit),
+  );
   const [hover, setHover] = useState<ChartOhlcHover | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [drawing, setDrawing] = useState<DrawingTool>("none");
@@ -123,6 +134,27 @@ export default function TradingChart({
   const [signals, setSignals] = useState<ChartSignalView[]>([]);
   const [activeSignal, setActiveSignal] = useState<ChartSignalView | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<ChartSignalView | null>(null);
+
+  const initialCompareKey = useMemo(
+    () => initialCompare.map((s) => s.toUpperCase()).filter(Boolean).join("|"),
+    [initialCompare],
+  );
+  const onCompareChangeRef = useRef(onCompareChange);
+  onCompareChangeRef.current = onCompareChange;
+
+  // Sync from route / ?vs= when this chart is in one-peer mode.
+  useEffect(() => {
+    if (peerLimit !== 1) return;
+    const next = initialCompareKey
+      .split("|")
+      .filter((s) => s && s !== symbol.toUpperCase())
+      .slice(0, 1);
+    setCompareSymbols(next);
+  }, [peerLimit, initialCompareKey, symbol]);
+
+  useEffect(() => {
+    onCompareChangeRef.current?.(compareSymbols);
+  }, [compareSymbols]);
 
   const { data, compare, loading, error, reload } = useChartData({
     symbol,
@@ -643,6 +675,7 @@ export default function TradingChart({
             onDrawing={setDrawing}
             onIndicators={() => { setIndicatorsOpen((v) => !v); setCompareOpen(false); }}
             onCompare={() => { setCompareOpen((v) => !v); setIndicatorsOpen(false); }}
+            compareActive={compareSymbols.length > 0 || compareOpen}
             onFullscreen={() => setFullscreen((v) => !v)}
             onReset={resetZoom}
             fullscreen={fullscreen}
@@ -651,6 +684,22 @@ export default function TradingChart({
       </div>
 
       <ChartCrosshair hover={hover} currency={currency} />
+
+      {compareMode && (
+        <div className="tc-compare-legend" aria-label="Compare series">
+          {compare.map((c, i) => (
+            <div key={c.symbol} className="tc-compare-legend-item">
+              <span className="tc-swatch" style={{ background: COMPARE_COLORS[i % COMPARE_COLORS.length] }} aria-hidden />
+              <span className="mono">{c.symbol}</span>
+              <span className={`mono ${c.perfPct >= 0 ? "up" : "down"}`}>
+                {c.perfPct >= 0 ? "+" : ""}{c.perfPct.toFixed(1)}%
+              </span>
+              <span className="label">{c.source === "sim" ? "SIM" : c.source.toUpperCase()}</span>
+            </div>
+          ))}
+          <span className="label" style={{ marginLeft: "auto" }}>Normalized to 0% at range start</span>
+        </div>
+      )}
 
       {/* Active GFT signal strip */}
       {activeSignal && !compareMode && (
@@ -700,6 +749,7 @@ export default function TradingChart({
             selected={compareSymbols}
             onChange={setCompareSymbols}
             perf={compare.map((c) => ({ symbol: c.symbol, perfPct: c.perfPct }))}
+            lockSingle={peerLimit === 1}
           />
           <SignalDetailPopover signal={selectedSignal} onClose={() => setSelectedSignal(null)} />
         </div>

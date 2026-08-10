@@ -7,6 +7,7 @@ interface Props {
   onDrawing: (t: DrawingTool) => void;
   onIndicators: () => void;
   onCompare: () => void;
+  compareActive?: boolean;
   onFullscreen: () => void;
   onReset: () => void;
   fullscreen: boolean;
@@ -22,7 +23,7 @@ const DRAWINGS: { id: DrawingTool; label: string; title: string }[] = [
 
 export default function ChartToolbar({
   chartType, onChartType, drawing, onDrawing,
-  onIndicators, onCompare, onFullscreen, onReset, fullscreen,
+  onIndicators, onCompare, compareActive = false, onFullscreen, onReset, fullscreen,
 }: Props) {
   return (
     <div className="tc-toolbar">
@@ -58,7 +59,14 @@ export default function ChartToolbar({
 
       <div className="tc-toolbar-group tc-toolbar-actions">
         <button type="button" className="chip" onClick={onIndicators}>Indicators</button>
-        <button type="button" className="chip" onClick={onCompare}>Compare</button>
+        <button
+          type="button"
+          className={`chip ${compareActive ? "active" : ""}`}
+          onClick={onCompare}
+          aria-pressed={compareActive}
+        >
+          Compare
+        </button>
         <button type="button" className="chip" onClick={onReset} aria-label="Reset zoom">Reset</button>
         <button type="button" className="chip" onClick={onFullscreen} aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}>
           {fullscreen ? "Exit" : "Fullscreen"}

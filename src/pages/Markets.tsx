@@ -45,6 +45,14 @@ export default function Markets() {
             : group === "COMMODITIES" ? "commodity" : group === "MOVERS" ? "stock" : "index"}
           source={rows.some((q) => q.source === "live") ? "live" : "sim"}
         />
+        <button
+          type="button"
+          className="chip"
+          onClick={() => navigate("/compare/AAPL/MSFT")}
+          title="Overlay two stock charts"
+        >
+          COMPARE CHARTS
+        </button>
         <div style={{ display: "flex", gap: 6, marginLeft: "auto", flexWrap: "wrap" }}>
           {GROUPS.map((g) => (
             <button key={g} className={`chip ${group === g ? "active" : ""}`} onClick={() => setGroup(g)}>{g}</button>

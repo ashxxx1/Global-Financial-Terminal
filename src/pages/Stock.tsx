@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuote } from "../lib/hooks";
 import { metaFor, COUNTRIES } from "../lib/market";
 import ProvenanceBadge from "../components/ProvenanceBadge";
@@ -17,6 +17,9 @@ export default function Stock() {
   const { symbol = "" } = useParams();
   const sym = symbol.toUpperCase();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const vsParam = (searchParams.get("vs") || "").toUpperCase();
+  const vs = vsParam && vsParam !== sym && metaFor(vsParam) ? vsParam : "";
   const meta = metaFor(sym);
   const quote = useQuote(meta ? sym : null);
   useSeo({
@@ -41,6 +44,16 @@ export default function Stock() {
     setPrioritySymbol(sym || null);
     return () => setPrioritySymbol(null);
   }, [sym]);
+
+  const onCompareChange = useCallback((symbols: string[]) => {
+    const peer = symbols[0]?.toUpperCase();
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (peer && peer !== sym && metaFor(peer)) next.set("vs", peer);
+      else next.delete("vs");
+      return next;
+    }, { replace: true });
+  }, [setSearchParams, sym]);
 
   const ai = useMemo(() => {
     if (!meta || !quote) return null;
@@ -104,6 +117,9 @@ export default function Stock() {
         changePct={quote?.changePct}
         country={meta.country}
         source={quote?.source ?? "sim"}
+        initialCompare={vs ? [vs] : []}
+        maxCompare={1}
+        onCompareChange={onCompareChange}
       />
 
       {/* Actions */}

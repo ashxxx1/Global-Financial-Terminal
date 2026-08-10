@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { allStockSymbols, metaFor } from "../../lib/market";
 
 interface Props {
@@ -18,6 +18,8 @@ export default function SymbolSuggest({
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const listId = useId();
+  const inputId = useId();
 
   useEffect(() => { setQ(value); }, [value]);
 
@@ -56,18 +58,20 @@ export default function SymbolSuggest({
 
   return (
     <div className="tc-suggest" ref={wrapRef}>
-      <label className="label" htmlFor={`suggest-${label}`}>{label}</label>
+      <label className="label" htmlFor={inputId}>{label}</label>
       <input
-        id={`suggest-${label}`}
+        id={inputId}
         className="tc-input"
         value={q}
         autoFocus={autoFocus}
         autoComplete="off"
         spellCheck={false}
         placeholder={placeholder}
-        aria-label={label}
         aria-autocomplete="list"
         aria-expanded={open}
+        aria-controls={listId}
+        aria-activedescendant={open && hits[idx] ? `${listId}-${hits[idx]}` : undefined}
+        role="combobox"
         onFocus={() => setOpen(true)}
         onChange={(e) => {
           setQ(e.target.value.toUpperCase());
@@ -77,6 +81,7 @@ export default function SymbolSuggest({
         onKeyDown={(e) => {
           if (e.key === "ArrowDown") {
             e.preventDefault();
+            setOpen(true);
             setIdx((i) => Math.min(i + 1, Math.max(hits.length - 1, 0)));
           } else if (e.key === "ArrowUp") {
             e.preventDefault();
@@ -93,14 +98,15 @@ export default function SymbolSuggest({
         }}
       />
       {open && hits.length > 0 && (
-        <ul className="tc-suggest-list" role="listbox">
+        <ul className="tc-suggest-list" role="listbox" id={listId}>
           {hits.map((s, i) => {
             const m = metaFor(s);
             return (
-              <li key={s} role="option" aria-selected={i === idx}>
+              <li key={s} role="option" id={`${listId}-${s}`} aria-selected={i === idx}>
                 <button
                   type="button"
                   className={`tc-suggest-hit ${i === idx ? "active" : ""}`}
+                  tabIndex={-1}
                   onMouseEnter={() => setIdx(i)}
                   onClick={() => commit(s)}
                 >

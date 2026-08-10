@@ -65,6 +65,31 @@ export default function Markets() {
         <PulseGauge tick={tick} />
       </div>
 
+      <div className="panel" style={{ padding: 14, marginBottom: 14 }} aria-labelledby="charts-entry-title">
+        <div className="panel-head" style={{ marginBottom: 10 }}>
+          <span className="panel-title" id="charts-entry-title">Stock charts</span>
+          <button type="button" className="chip" onClick={() => navigate("/compare/AAPL/MSFT")}>
+            Compare two stocks
+          </button>
+        </div>
+        <p className="label" style={{ margin: "0 0 10px", lineHeight: 1.5 }}>
+          Open a ticker for the interactive trading chart — timeframes, indicators, and compare overlays.
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA", "SPY"].map((s) => (
+            <button
+              key={s}
+              type="button"
+              className="chip"
+              onClick={() => navigate(`/stock/${s}`)}
+              aria-label={`Open ${s} trading chart`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Items 72 & 78 — alerts you can see and manage, and a way back in. */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 14, marginBottom: 14, alignItems: "start" }}>
         <AlertManager />

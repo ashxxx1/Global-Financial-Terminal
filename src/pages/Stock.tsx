@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuote } from "../lib/hooks";
 import { metaFor, COUNTRIES } from "../lib/market";
 import ProvenanceBadge from "../components/ProvenanceBadge";
@@ -85,6 +85,7 @@ export default function Stock() {
   const up = (quote?.changePct ?? 0) >= 0;
   const watched = inWatchlist(sym);
   const countryName = COUNTRIES[meta.country || ""]?.name || meta.country;
+  const comparePeer = vs || (sym === "MSFT" ? "AAPL" : "MSFT");
 
   const setPriceAlert = (direction: "above" | "below") => {
     if (!quote) return;
@@ -98,12 +99,25 @@ export default function Stock() {
     <div style={{ padding: 18, maxWidth: 1200, margin: "0 auto" }}>
       {/* Compact page chrome — detailed quote lives in the chart header */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
-        <button className="chip" onClick={() => navigate(-1)} aria-label="Back">←</button>
+        <button type="button" className="chip" onClick={() => navigate(-1)} aria-label="Back to previous page">← Back</button>
         <span className="label">{meta.sector} · {countryName}</span>
-        <button className="chip" style={{ color: watched ? "var(--gold)" : undefined }}
-          onClick={() => watched ? removeWatch(sym) : addWatch({ symbol: sym, name: meta.name, country: meta.country })}>
-          {watched ? "★ WATCHING" : "☆ WATCH"}
+        <button
+          type="button"
+          className="chip"
+          style={{ color: watched ? "var(--gold)" : undefined }}
+          aria-pressed={watched}
+          onClick={() => watched ? removeWatch(sym) : addWatch({ symbol: sym, name: meta.name, country: meta.country })}
+        >
+          {watched ? "★ Watching" : "☆ Watch"}
         </button>
+        <a className="chip" href="#trading-chart" style={{ textDecoration: "none" }}>Trading chart</a>
+        <Link
+          to={`/compare/${sym}/${comparePeer}`}
+          className="chip"
+          style={{ textDecoration: "none" }}
+        >
+          Compare
+        </Link>
         <span style={{ marginLeft: "auto" }}>
           <ProvenanceBadge kind={meta.kind} source={quote?.source ?? "sim"} country={meta.country} />
         </span>

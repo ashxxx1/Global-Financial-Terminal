@@ -1,21 +1,30 @@
+import { useChartMenu } from "../../hooks/useChartMenu";
 import type { ChartSignalView } from "../../lib/charts/signalOverlay";
 import { kindColor } from "../../lib/charts/signalOverlay";
-import { fmtDate, fmtPct, fmtPx } from "../../lib/signals/format";
-import { statusLabel } from "../../lib/signals/format";
+import { fmtDate, fmtPct, fmtPx, statusLabel } from "../../lib/signals/format";
 
 interface Props {
   signal: ChartSignalView | null;
   onClose: () => void;
+  triggerRef?: React.RefObject<HTMLElement | null>;
 }
 
-export default function SignalDetailPopover({ signal, onClose }: Props) {
+export default function SignalDetailPopover({ signal, onClose, triggerRef }: Props) {
+  const open = Boolean(signal);
+  const { panelRef, titleId } = useChartMenu({ open, onClose, triggerRef });
   if (!signal) return null;
   const s = signal.signal;
   return (
-    <div className="tc-signal-pop" role="dialog" aria-label="GFT signal detail">
+    <div
+      ref={panelRef}
+      className="tc-signal-pop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+    >
       <div className="tc-menu-head">
         <div>
-          <div className="panel-title" style={{ color: kindColor(signal.kind) }}>
+          <div className="panel-title" id={titleId} style={{ color: kindColor(signal.kind) }}>
             GFT SIGNAL · {signal.kind}
           </div>
           <div className="label">{fmtDate(signal.time)} · {statusLabel(signal.status)}{signal.demo ? " · DEMO" : ""}</div>
@@ -30,7 +39,7 @@ export default function SignalDetailPopover({ signal, onClose }: Props) {
       </div>
       <p className="tc-signal-reason">{s.reasoning}</p>
       <p className="label" style={{ margin: 0 }}>
-        Analytical GFT signal — not a brokerage order or trade execution.
+        Analytical GFT signal — not a brokerage order or trade execution. Press Escape to close.
       </p>
     </div>
   );

@@ -103,7 +103,7 @@ the local one** — read carefully:
 
 **How to confirm:** on the live site open a US stock (e.g. `/stock/AAPL`); the
 source badge reads **LIVE** rather than **SIM** during US market hours. You can
-also hit `https://global-financial-news.vercel.app/api/quote?symbol=AAPL` — it
+also hit `https://global-financial-terminal-eight.vercel.app/api/quote?symbol=AAPL` — it
 should return `{"c":…,"dp":…}` and, crucially, **not** expose the token.
 
 **Free-tier note:** covers US stocks, ~60 calls/min. Non-US equities and index
@@ -129,7 +129,7 @@ use the "Domain" verification (that needs DNS you don't control). Use the
 1. Go to [search.google.com/search-console](https://search.google.com/search-console),
    sign in with your Google account.
 2. Click **Add property** → choose the **URL prefix** box (the right-hand one) →
-   enter `https://global-financial-news.vercel.app` → **Continue**.
+   enter `https://global-financial-terminal-eight.vercel.app` → **Continue**.
 3. It shows verification methods. Expand **HTML tag**. It gives you a line like
    `<meta name="google-site-verification" content="ABC123..." />`.
    **Copy just the `content` value** (the `ABC123...` part) and paste it to me —

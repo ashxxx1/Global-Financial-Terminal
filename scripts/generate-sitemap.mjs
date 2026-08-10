@@ -15,7 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const SITE = process.env.SITE_URL || "https://global-financial-news.vercel.app";
+const SITE = process.env.SITE_URL || "https://global-financial-terminal-eight.vercel.app";
 
 /** Pull the country codes out of the data module without importing JSX/TS. */
 async function countryCodes() {

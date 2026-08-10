@@ -7,7 +7,7 @@
  * rather than a hunt through the codebase.
  */
 export const SITE_URL = (
-  import.meta.env.VITE_SITE_URL || "https://global-financial-news.vercel.app"
+  import.meta.env.VITE_SITE_URL || "https://global-financial-terminal-eight.vercel.app"
 ).replace(/\/+$/, "");
 
 export const SITE_NAME = "GFT Terminal";

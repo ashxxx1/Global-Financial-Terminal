@@ -4,4 +4,4 @@ Allow: /
 # Auth screens carry no crawlable value
 Disallow: /login
 
-Sitemap: https://global-financial-news.vercel.app/sitemap.xml
+Sitemap: https://global-financial-terminal-eight.vercel.app/sitemap.xml

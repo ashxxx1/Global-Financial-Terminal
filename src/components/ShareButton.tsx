@@ -15,7 +15,7 @@ export default function ShareButton({ surface = "nav" }: { surface?: string }) {
   const shareData = {
     title: "GFT Terminal — the world's economy, live",
     text: "A living 3D map of global markets and the news that moves them.",
-    url: typeof window !== "undefined" ? window.location.origin : "https://global-financial-news.vercel.app",
+    url: typeof window !== "undefined" ? window.location.origin : "https://global-financial-terminal-eight.vercel.app",
   };
 
   const onShare = async () => {

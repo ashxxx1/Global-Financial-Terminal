@@ -1,6 +1,6 @@
 # Global Financial Terminal
 
-**🌐 Live site: [global-financial-news.vercel.app](https://global-financial-news.vercel.app)**
+**🌐 Live site: [global-financial-terminal-eight.vercel.app](https://global-financial-terminal-eight.vercel.app)**
 
 A real-time command center for the world's economy — interactive 3D Earth, live
 markets, country intelligence dashboards, and balanced AI-style analysis across

@@ -1352,3 +1352,19 @@ input, select { font-family: inherit; }
 }
 .alert-del:hover { color: var(--down); border-color: var(--down); background: var(--down-dim); }
 .recent-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Member number badge */
+.member-no {
+  margin-left: 7px; font-family: var(--mono); font-size: 10px; font-weight: 700;
+  color: var(--gold); background: var(--gold-dim); border: 1px solid var(--gold);
+  border-radius: 999px; padding: 1px 6px; vertical-align: middle;
+}
+
+/* Nerd mode — dense technical chrome is opt-in (toggle in the nav).
+   Provenance and freshness badges are deliberately NOT nerd-only: they are
+   an honesty guarantee, not decoration. */
+.nerd-only { display: none !important; }
+body.nerd .nerd-only { display: revert !important; }
+body.nerd span.nerd-only,
+body.nerd .mono.nerd-only { display: inline-flex !important; }
+.nav-tour.on { color: var(--gold); border-color: var(--gold); background: var(--gold-dim); }

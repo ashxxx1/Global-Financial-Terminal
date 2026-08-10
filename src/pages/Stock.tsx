@@ -146,7 +146,7 @@ export default function Stock() {
                 the bottom of the panel was not enough fencing for numbers that
                 look this much like research output. */}
             <span className="panel-title">AI investment intelligence <span className="demo-tag">DEMO</span></span>
-            <span className="label">confidence {ai.confidence}% · risk {ai.risk}/100 — illustrative</span>
+            <span className="label nerd-only">confidence {ai.confidence}% · risk {ai.risk}/100 — illustrative</span>
           </div>
           <div className="panel-body" style={{ display: "grid", gap: 12 }}>
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>

@@ -77,6 +77,10 @@ function Shell() {
   useEffect(() => { trackPageview(pathname); }, [pathname]);
   const onWorld = pathname === "/";
   const onboarded = useTerminal((st) => st.onboarded);
+  const nerdMode = useTerminal((st) => st.nerdMode);
+  useEffect(() => {
+    document.body.classList.toggle("nerd", nerdMode);
+  }, [nerdMode]);
   const watchlistEmpty = useTerminal((st) => st.watchlist.length === 0);
   const showOnboarding = !onboarded && watchlistEmpty;
 

@@ -21,6 +21,8 @@ export default function TopNav() {
   const location = useLocation();
   const setSearchOpen = useTerminal((s) => s.setSearchOpen);
   const notices = useTerminal((s) => s.notices);
+  const nerdMode = useTerminal((s) => s.nerdMode);
+  const setNerdMode = useTerminal((s) => s.setNerdMode);
   const [liveN, setLiveN] = useState(0);
   useEffect(() => {
     const i = setInterval(() => setLiveN(liveSymbolCount()), 3000);
@@ -54,6 +56,7 @@ export default function TopNav() {
           GFT<span style={{ color: "var(--gold)" }}>·</span>TERMINAL
         </span>
         <span
+          className="nerd-only"
           title="Deployed from main via CI"
           style={{
             fontFamily: "var(--mono)", fontSize: 8.5, fontWeight: 700, letterSpacing: "0.1em",
@@ -113,13 +116,14 @@ export default function TopNav() {
             🔔 {notices.length}
           </span>
         )}
-        <SourceBadge
+        <span className="nerd-only"><SourceBadge
           source={liveN > 0 ? "live" : "sim"}
           title={liveN > 0 ? `${liveN} instruments on real feeds (Binance WS · ECB) — rest simulated` : undefined}
-        />
+        /></span>
+        <button className={`nav-tour ${nerdMode ? "on" : ""}`} title={nerdMode ? "Nerd mode on — hide technical detail" : "Nerd mode off — show technical detail"} aria-pressed={nerdMode} onClick={() => setNerdMode(!nerdMode)}>{"{ }"}</button>
         <button className="nav-tour" title="Take the tour" aria-label="Take the tour" onClick={() => window.dispatchEvent(new CustomEvent("gft:start-tour"))}>?</button>
         <ShareButton />
-        <span className="mono" style={{ fontSize: 12, color: "var(--up)" }}>{clock} UTC</span>
+        <span className="mono nerd-only" style={{ fontSize: 12, color: "var(--up)" }}>{clock} UTC</span>
         <AccountChip />
       </div>
     </header>

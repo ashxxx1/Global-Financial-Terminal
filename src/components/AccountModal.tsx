@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useAuth, exportUserData, deleteAccount, ReauthRequired } from "../lib/auth";
+import { useAuth, exportUserData, deleteAccount, ReauthRequired, fetchMemberNo } from "../lib/auth";
 import { track } from "../lib/analytics";
 import { SUPPORT_EMAIL } from "../lib/support";
 
@@ -20,6 +20,9 @@ export default function AccountModal({ onClose }: { onClose: () => void }) {
   const [needPassword, setNeedPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [memberNo, setMemberNo] = useState<number | null>(null);
+
+  useEffect(() => { void fetchMemberNo().then(setMemberNo); }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -82,7 +85,10 @@ export default function AccountModal({ onClose }: { onClose: () => void }) {
             ? <img className="acct-avatar lg" src={user.photoURL} alt="" referrerPolicy="no-referrer" />
             : <span className="acct-avatar lg">{(user.displayName || user.email || "?").slice(0, 1).toUpperCase()}</span>}
           <div>
-            <div className="acct-name">{user.displayName || "—"}</div>
+            <div className="acct-name">
+              {user.displayName || "—"}
+              {memberNo !== null && <span className="member-no" title="Your permanent member number">#{memberNo}</span>}
+            </div>
             <div className="acct-email">{user.email}</div>
           </div>
         </div>

@@ -21,7 +21,7 @@ import {
   signOut as fbSignOut,
   type User,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, deleteDoc, runTransaction, serverTimestamp } from "firebase/firestore";
 import { auth, db, googleProvider, isConfigured } from "./firebase";
 import { identify, track, resetAnalytics } from "./analytics";
 
@@ -87,6 +87,44 @@ function toProfile(u: User): Profile {
 }
 
 /** Create the profile doc on first sign-in, refresh lastSeenAt after that. */
+/* ── Sequential member numbers ────────────────────────────────────────────
+   Every account gets a permanent #N, assigned once and never reused. Founder
+   accounts are pinned by email so they keep their number regardless of when
+   the document happens to be written; everyone else draws the next value from
+   a single counter document, inside a transaction so two simultaneous signups
+   can't collide on the same number. */
+
+const RESERVED_MEMBER_NO: Record<string, number> = {
+  "aarushkapoor23@gmail.com": 1,
+};
+const COUNTER_START = 3; // 1 and 2 are reserved above / by prefix
+
+function reservedMemberNo(email: string | null): number | null {
+  if (!email) return null;
+  const e = email.trim().toLowerCase();
+  if (RESERVED_MEMBER_NO[e]) return RESERVED_MEMBER_NO[e];
+  // Anchita's exact address isn't known here; match the local part so the
+  // number lands on the right person whichever provider they signed up with.
+  if (e.split("@")[0].startsWith("anchita")) return 2;
+  return null;
+}
+
+/** Draw the next member number, or null if the counter is unavailable. */
+async function nextMemberNo(): Promise<number | null> {
+  if (!db) return null;
+  const ref = doc(db, "meta", "memberCounter");
+  try {
+    return await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      const next = snap.exists() ? Number(snap.data().next) || COUNTER_START : COUNTER_START;
+      tx.set(ref, { next: next + 1 }, { merge: true });
+      return next;
+    });
+  } catch {
+    return null; // rules or offline — never block sign-in over a vanity number
+  }
+}
+
 async function syncProfile(u: User): Promise<void> {
   if (!db) return;
   try {
@@ -99,11 +137,31 @@ async function syncProfile(u: User): Promise<void> {
       photoURL: u.photoURL,
       lastSeenAt: serverTimestamp(),
     };
-    if (snap.exists()) await setDoc(ref, base, { merge: true });
-    else await setDoc(ref, { ...base, createdAt: serverTimestamp(), watchlist: [] });
+    if (snap.exists()) {
+      // Backfill for accounts created before member numbers existed.
+      const existing = snap.data().memberNo;
+      const patch = typeof existing === "number"
+        ? base
+        : { ...base, memberNo: reservedMemberNo(u.email) ?? (await nextMemberNo()) };
+      await setDoc(ref, patch, { merge: true });
+    } else {
+      const memberNo = reservedMemberNo(u.email) ?? (await nextMemberNo());
+      await setDoc(ref, { ...base, createdAt: serverTimestamp(), watchlist: [], memberNo });
+    }
   } catch {
     // A profile write failing must never block sign-in.
   }
+}
+
+/** The signed-in user's permanent member number, or null if not yet assigned. */
+export async function fetchMemberNo(): Promise<number | null> {
+  const u = auth?.currentUser;
+  if (!db || !u) return null;
+  try {
+    const snap = await getDoc(doc(db, "users", u.uid));
+    const n = snap.exists() ? snap.data().memberNo : null;
+    return typeof n === "number" ? n : null;
+  } catch { return null; }
 }
 
 export const useAuth = create<AuthState>()((set, get) => ({

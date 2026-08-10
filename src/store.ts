@@ -29,6 +29,10 @@ interface TerminalState {
   searchOpen: boolean;
   setSearchOpen: (v: boolean) => void;
 
+  /** Dense technical chrome is opt-in. Default off keeps the UI calm. */
+  nerdMode: boolean;
+  setNerdMode: (v: boolean) => void;
+
   /** Recently opened symbols, most recent first — growth-plan item 78. */
   recent: string[];
   pushRecent: (symbol: string) => void;
@@ -82,6 +86,9 @@ export const useTerminal = create<TerminalState>()(
       },
       clearNotices: () => set({ notices: [] }),
 
+      nerdMode: false,
+      setNerdMode: (v) => set({ nerdMode: v }),
+
       // Item 78: "jump back in" beats an empty screen for a returning user.
       recent: [],
       pushRecent: (symbol) =>
@@ -108,7 +115,7 @@ export const useTerminal = create<TerminalState>()(
     {
       name: "gft-v1",
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ watchlist: s.watchlist, alerts: s.alerts, recent: s.recent, onboarded: s.onboarded, activated: s.activated }),
+      partialize: (s) => ({ watchlist: s.watchlist, alerts: s.alerts, recent: s.recent, nerdMode: s.nerdMode, onboarded: s.onboarded, activated: s.activated }),
     }
   )
 );

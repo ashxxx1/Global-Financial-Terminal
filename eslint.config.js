@@ -22,6 +22,8 @@ export default tseslint.config(
       "scripts/**",        // node build scripts, different runtime/globals
       "api/**",            // edge functions, different runtime
       "server/**",         // legacy backend service
+      ".cursor/**",        // vendored editor tooling (node scripts, not app source)
+      ".claude/**",        // ditto
       "vite.config.js",    // build tooling (node globals)
       "eslint.config.js",  // this file
     ],

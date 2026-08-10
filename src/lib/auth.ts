@@ -164,7 +164,7 @@ export async function fetchMemberNo(): Promise<number | null> {
   } catch { return null; }
 }
 
-export const useAuth = create<AuthState>()((set, get) => ({
+export const useAuth = create<AuthState>()((set) => ({
   user: null,
   status: "loading",
   error: null,

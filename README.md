@@ -1,6 +1,6 @@
 # Global Financial Terminal
 
-**🌐 Live site: [global-financial-news.vercel.app](https://global-financial-news.vercel.app)**
+**🌐 Live site: [global-financial-terminal-eight.vercel.app](https://global-financial-terminal-eight.vercel.app)**
 
 A real-time command center for the world's economy — interactive 3D Earth, live
 markets, country intelligence dashboards, and balanced AI-style analysis across
@@ -75,6 +75,26 @@ Copy the web app config into `.env.local` (see `.env.example`).
 If the `VITE_FIREBASE_*` keys are absent the gate is skipped and the app runs
 open — so a fresh clone works with no setup. Set `VITE_REQUIRE_AUTH=false` to
 keep it open even when Firebase *is* configured.
+
+## Forum
+
+A Twitter-style community board at `/forum` (linked from the header). Signed-in
+users can post text and media, repost, comment, and share; the bottom-left rail
+shows the signed-in user's own profile with their posts, comments, reposts, and
+media across tabs. Data lives in Firestore (`forum_posts`, its `comments`
+subcollection, and `forum_reposts`); images/video go to Firebase Storage. Reads
+and writes both require a session, same as the rest of the app.
+
+**Setup**, on top of the Accounts steps above:
+
+1. Firebase console → **Storage** → get started (default bucket is fine)
+2. Deploy both rule sets:
+   ```bash
+   npx firebase deploy --only firestore:rules,storage:rules
+   ```
+
+Since the forum requires a session, it's unreachable (and shows a short
+"configure Firebase" notice) on a fresh clone with no `VITE_FIREBASE_*` keys.
 
 ## Contributing
 

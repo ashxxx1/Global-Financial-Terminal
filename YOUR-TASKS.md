@@ -53,10 +53,10 @@ redeploy. Steps in docs/SETUP-GUIDE.md §3. Rotate the key once live.
 undiscovered. This is where the SEO clock starts, and SEO is the primary
 acquisition channel in the plan.
 
-1. Add `global-financial-news.vercel.app` at
+1. Add `global-financial-terminal-eight.vercel.app` at
    [search.google.com/search-console](https://search.google.com/search-console)
 2. Verify ownership (DNS or the HTML tag — tell me if you want the tag added)
-3. Submit `https://global-financial-news.vercel.app/sitemap.xml`
+3. Submit `https://global-financial-terminal-eight.vercel.app/sitemap.xml`
 
 *Plan item 30 follow-up. ~10 minutes.*
 

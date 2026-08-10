@@ -54,17 +54,17 @@ with a big roadmap and no users.
 
 ### Data integrity (non-negotiable before charging)
 - [ ] 1. Wire real delayed equity/index data (Finnhub or Twelve Data free tier)
-- [ ] 2. Label every instrument with its true source and delay ("15-min delayed")
+- [x] 2. Label every instrument with its true source and delay — `provenanceFor()` in `src/lib/marketStatus.ts` + `<ProvenanceBadge>`; fixed Markets/Country badges that hardcoded SIM while showing live data
 - [ ] 3. Make the Risk Index real, or remove it (currently DEMO-tagged)
 - [ ] 4. Make AI Sentiment real, or remove it (currently DEMO-tagged)
 - [x] 5. Build a public `/data-sources` page listing every provider
-- [ ] 6. Review each provider's ToS for redistribution rights
+- [x] 6. Review each provider's ToS for redistribution rights — `docs/DATA-LICENSING.md` (2 items flagged ⚠️ for counsel before charging)
 - [x] 7. Add a data-freshness indicator per panel (last updated timestamp) — `src/lib/marketStatus.ts` + freshness pill on the stock page (LIVE / AT FRI CLOSE / PREV CLOSE / SIMULATED, from the NYSE session clock)
-- [ ] 8. Remove or clearly fence any remaining simulated numbers
+- [x] 8. Remove or clearly fence any remaining simulated numbers — DEMO tags on the Stock AI panel + Country AI synthesis; scores relabelled "illustrative"
 
 ### Legal & compliance (finance is a regulated-adjacent space)
-- [ ] 9. Terms of Service page
-- [ ] 10. Privacy Policy page (GDPR + CCPA compliant)
+- [x] 9. Terms of Service page — `/terms` (template, needs legal review per item 5)
+- [x] 10. Privacy Policy page (GDPR + CCPA) — `/privacy`, matched to the controls that actually exist (consent gate, export, delete)
 - [x] 11. Cookie consent banner (required for EU traffic)
 - [x] 12. Prominent "not investment advice" disclaimer on every data surface
 - [x] 13. Account deletion + data export flow (GDPR right to erasure) — `AccountModal` from the nav avatar: JSON export of everything we hold + type-DELETE erasure (reauth-aware), in `src/lib/auth.ts`
@@ -79,7 +79,7 @@ with a big roadmap and no users.
 - [x] 20. Instrument activation events (first watchlist add, first alert, first country open)
 - [ ] 21. Add Sentry (or equivalent) for runtime error monitoring
 - [ ] 22. Add uptime monitoring with alerting
-- [ ] 23. Set a weekly metrics review ritual (same day, same time, written)
+- [x] 23. Set a weekly metrics review ritual — `docs/WEEKLY-REVIEW.md` (Monday 09:00, five numbers, four questions, one bottleneck)
 
 ### Technical foundation
 - [ ] 24. Deploy Firestore security rules (`npx firebase deploy --only firestore:rules`)
@@ -155,7 +155,7 @@ with a big roadmap and no users.
 - [ ] 69. PWA setup — installable app
 - [ ] 70. Web push notifications
 - [ ] 71. Alert types: price level, % move, unusual volume, news on a holding
-- [ ] 72. Alert management UI (list, edit, snooze, delete)
+- [x] 72. Alert management UI — `AlertManager` on /markets: list, jump to symbol, delete. Alerts were previously invisible once armed
 
 ### Sticky features
 - [ ] 73. Portfolio tracking (manual entry + CSV import — no brokerage integration)
@@ -163,7 +163,7 @@ with a big roadmap and no users.
 - [ ] 75. Watchlist depth: notes, tags, target prices, multiple lists
 - [ ] 76. Economic calendar (Fed, CPI, earnings) plotted on the globe/timeline
 - [ ] 77. Saved views and custom layouts
-- [ ] 78. Recently viewed / jump back in
+- [x] 78. Recently viewed / jump back in — `RecentlyViewed`, last 8 symbols, persisted
 - [ ] 79. Country deep-dive pages worth returning to
 
 ### Retention analytics

@@ -26,10 +26,15 @@ feature/*  ──PR──►  test  ──review──►  main  ──►  Verc
 ```bash
 git clone https://github.com/ashxxx1/Global-Financial-Terminal.git
 cd Global-Financial-Terminal
-npm ci
+npm run setup          # npm ci + installs the pre-push hook
 cp .env.example .env.local
 npm run dev
 ```
+
+`npm run setup` points git at `.githooks/`, so **every push runs
+`npm run verify` first** (typecheck → lint → build). If it fails, the push is
+blocked before it can break `main` for everyone. Deliberate bypass:
+`git push --no-verify`.
 
 App: <http://localhost:5173>
 
@@ -93,15 +98,21 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on:
 - every pull request
 - pushes to `main` and `test`
 
-Checks (existing project commands only):
+Checks — identical to what `npm run verify` runs locally, on the Node version
+pinned in `.nvmrc`:
 
 ```bash
 npm ci
+npm run typecheck      # tsc --noEmit
 npm run build
-npm run lint --if-present
+npm run lint
 ```
 
-PRs should be green before merge.
+**`typecheck` is the important one.** `vite build` does not typecheck, so
+without it a guaranteed runtime crash can pass CI and reach production — which
+is exactly how the terminal went down on 10 Aug 2026 (`tick is not defined`).
+
+PRs must be green before merge.
 
 ---
 
@@ -178,6 +189,8 @@ Rules:
 
 Branch protection must be configured by a repo admin. Exact checklist:
 [docs/BRANCH-PROTECTION.md](docs/BRANCH-PROTECTION.md).
+
+Maintainers: review + pull workflow is in [docs/MAINTAINER.md](docs/MAINTAINER.md).
 
 Environment separation: [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md).
 

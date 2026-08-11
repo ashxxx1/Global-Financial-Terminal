@@ -1,0 +1,12 @@
+#!/bin/sh
+# Runs the same gates CI runs, before anything leaves your machine.
+# Installed by `npm run setup` (sets core.hooksPath to this directory).
+# Emergency escape hatch: git push --no-verify
+echo "▸ pre-push: typecheck · lint · build"
+if ! npm run verify --silent; then
+  echo ""
+  echo "✘ push blocked — the checks above fail, and CI would fail too."
+  echo "  Fix them, or bypass deliberately with: git push --no-verify"
+  exit 1
+fi
+echo "✔ all checks passed"

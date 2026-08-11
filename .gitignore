@@ -45,3 +45,6 @@ server/node_modules
 
 # personal MCP server config (references your own API_KEY_21ST)
 .mcp.json
+
+# Vendored editor tooling — not product code
+.cursor/skills/

@@ -1,21 +1,28 @@
 import { lazy, Suspense } from "react";
 import { track } from "../lib/analytics";
 import { useReveal } from "../lib/useReveal";
-import LiveMarketStrip from "../components/LiveMarketStrip";
 import { useSeo } from "../lib/seo";
 import { SUPPORT_MAILTO } from "../lib/support";
+import LiveMarketStrip from "../components/LiveMarketStrip";
+import LandingStage from "../components/LandingStage";
 
-// The globe is the pitch, but it is also the heaviest thing in the bundle —
-// lazy-load it so the landing's text and CTAs paint immediately.
+// The globe is the pitch and the heaviest thing in the bundle — lazy-load it so
+// the headline and CTAs paint immediately.
 const Globe3D = lazy(() => import("../components/Globe3D"));
 
 /**
  * Public landing page.
  *
- * This is the growth surface: the first thing an anonymous visitor and every
- * search crawler sees. The whole app used to sit behind the auth wall, which
- * meant zero shareable/indexable content. The value is shown here first; the
- * wall comes after the pitch, not before it.
+ * Redesigned around ui-ux-pro-max's "Immersive/Interactive Experience" pattern:
+ * full-screen interactive element → guided tour → benefits → CTA. The previous
+ * version was the standard template — copy left, boxed screenshot right, six
+ * identical feature cards, pricing — which described a 3D markets terminal
+ * without ever showing one.
+ *
+ * The globe is now the page: full-bleed behind the headline, then pinned while
+ * a scroll-driven tour repaints it (see LandingStage). Benefits land afterwards
+ * as a bento of unequal tiles rather than a six-up grid, so the eye has a path
+ * through them instead of six things shouting equally.
  */
 export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signin" | "signup") => void }) {
   useSeo({
@@ -25,8 +32,7 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
     path: "/",
   });
 
-  // Staggered scroll reveals (ui-ux-pro-max "Stagger List / Standard").
-  const featuresRef = useReveal<HTMLDivElement>(".lp-card");
+  const bentoRef = useReveal<HTMLDivElement>(".bento-tile");
   const pricingRef = useReveal<HTMLDivElement>(".lp-plan");
   const finalRef = useReveal<HTMLElement>();
 
@@ -36,89 +42,103 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
   };
 
   return (
-    <div className="lp">
-      <div className="auth-aurora" aria-hidden />
-
-      {/* top bar */}
-      <header className="lp-nav">
-        <div className="auth-brand">
-          <span className="auth-mark" aria-hidden />
-          GFT<span style={{ color: "var(--gold)" }}>·</span>TERMINAL
+    <div className="lp lp2">
+      {/* ── Act I — the world, full bleed ───────────────────────────── */}
+      <section className="hero2">
+        <div className="hero2-globe" aria-hidden>
+          <Suspense fallback={<div className="lp-globe-skeleton" />}>
+            <Globe3D overlay="market" quakes={[]} onHover={() => {}} onCountryClick={() => {}} />
+          </Suspense>
         </div>
-        <nav className="lp-nav-links">
-          <a href="#features">Features</a>
-          <a href="#pricing">Pricing</a>
-          <button className="lp-nav-signin" onClick={() => start("signin", "nav")}>Sign in</button>
-          <button className="btn-primary sm" onClick={() => start("signup", "nav")}>Get started</button>
-        </nav>
-      </header>
+        <div className="hero2-scrim" aria-hidden />
 
-      {/* hero */}
-      <section className="lp-hero">
-        <div className="lp-hero-copy">
+        <header className="lp-nav hero2-nav">
+          <div className="auth-brand">
+            <span className="auth-mark" aria-hidden />
+            GFT<span style={{ color: "var(--gold)" }}>·</span>TERMINAL
+          </div>
+          <nav className="lp-nav-links">
+            <a href="#tour">Tour</a>
+            <a href="#pricing">Pricing</a>
+            <button className="lp-nav-signin" onClick={() => start("signin", "nav")}>Sign in</button>
+            <button className="btn-primary sm" onClick={() => start("signup", "nav")}>Get started</button>
+          </nav>
+        </header>
+
+        <div className="hero2-copy">
           <div className="lp-badge">
             <span className="pulse-dot" style={{ background: "var(--up)" }} />
             LIVE · 68 COUNTRIES
           </div>
-          <h1 className="lp-h1">
-            <span className="hero-shine">The world's economy,</span><br />
+          <h1 className="hero2-h1">
+            <span className="hero-shine">The world's economy,</span>
             <span className="live-glow">on one screen.</span>
           </h1>
-          <p className="lp-lead">
-            A living 3D map of global markets — indices, FX, crypto and the news
-            that moves them, mapped to the countries and sectors they hit. Built
-            for people who want to <em>understand</em> markets, not just stare at
-            candles.
+          <p className="hero2-lead">
+            A living 3D map of global markets — and the news that moves them,
+            mapped to the countries and sectors they actually hit.
           </p>
           <div className="lp-cta">
-            <button className="btn-primary" onClick={() => start("signup", "hero")}>
+            <button className="btn-primary lg" onClick={() => start("signup", "hero")}>
               Start free →
             </button>
             <button className="btn-ghost" onClick={() => start("signin", "hero")}>
               I have an account
             </button>
           </div>
-          <div className="lp-trust">
-            No card required · Free forever tier · Your watchlist syncs everywhere
-          </div>
 
-          {/* The product, running, above the fold — see LiveMarketStrip. */}
+          {/* Proof beats prose: real prices, ticking, above the fold. */}
           <LiveMarketStrip />
         </div>
 
-        <div className="lp-hero-globe" aria-hidden>
-          <Suspense fallback={<div className="lp-globe-skeleton" />}>
-            <Globe3D overlay="market" quakes={[]} onHover={() => {}} onCountryClick={() => {}} />
-          </Suspense>
-          <div className="lp-globe-fade" />
-        </div>
+        <a className="hero2-scroll" href="#tour" aria-label="Scroll to the tour">
+          <span>SCROLL</span>
+          <svg width="14" height="22" viewBox="0 0 14 22" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
+            <rect x="1" y="1" width="12" height="20" rx="6" />
+            <path className="hero2-scroll-dot" d="M7 6v3" strokeLinecap="round" />
+          </svg>
+        </a>
       </section>
 
-      {/* features */}
+      {/* ── Act II — the guided tour, globe pinned ──────────────────── */}
+      <div id="tour" />
+      <LandingStage />
+
+      {/* ── Act III — capabilities as a bento, not six equal cards ──── */}
       <section className="lp-section" id="features">
         <div className="lp-section-head">
-          <h2>Markets you can actually read at a glance.</h2>
+          <h2>Everything else you'd expect. Sharper.</h2>
         </div>
-        <div className="lp-grid" ref={featuresRef}>
-          {FEATURES.map((f) => (
+        <div className="bento" ref={bentoRef}>
+          {BENTO.map((b) => (
             <div
-              className="lp-card"
-              key={f.title}
+              className={`bento-tile ${b.span}`}
+              key={b.title}
               onPointerMove={(e) => {
                 const r = e.currentTarget.getBoundingClientRect();
                 e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
                 e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
               }}
             >
-              <div className="lp-card-icon" style={{ color: f.color }}><FeatureIcon name={f.icon} /></div>
-              <b>{f.title}</b>
-              <p>{f.body}</p>
+              <div className="bento-icon" style={{ color: b.color }}><FeatureIcon name={b.icon} /></div>
+              <b>{b.title}</b>
+              <p>{b.body}</p>
+              {b.foot && <span className="bento-foot">{b.foot}</span>}
             </div>
           ))}
         </div>
       </section>
 
-      {/* pricing */}
+      {/* ── Act IV — honesty, price, CTA ────────────────────────────── */}
+      <section className="lp-honesty">
+        <p>
+          <b>Straight talk on data.</b> Crypto and FX are live. Equity prices are
+          delayed, index levels are illustrative, and anything marked <em>DEMO</em> is
+          a feature we're still building — not real analysis. Every number on
+          screen carries its own source label. Nothing here is investment advice.
+        </p>
+      </section>
+
       <section className="lp-section" id="pricing">
         <div className="lp-section-head">
           <h2>Free to explore. Upgrade when it earns its keep.</h2>
@@ -128,12 +148,8 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
             <div className={`lp-plan ${p.featured ? "featured" : ""}`} key={p.name}>
               {p.featured && <div className="lp-plan-tag">MOST POPULAR</div>}
               <div className="lp-plan-name">{p.name}</div>
-              <div className="lp-plan-price">
-                {p.price}<span>{p.per}</span>
-              </div>
-              <ul>
-                {p.perks.map((perk) => <li key={perk}>{perk}</li>)}
-              </ul>
+              <div className="lp-plan-price">{p.price}<span>{p.per}</span></div>
+              <ul>{p.perks.map((perk) => <li key={perk}>{perk}</li>)}</ul>
               <button
                 className={p.featured ? "btn-primary" : "btn-ghost"}
                 onClick={() => start("signup", `pricing-${p.name.toLowerCase()}`)}
@@ -148,17 +164,6 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
         </p>
       </section>
 
-      {/* honesty */}
-      <section className="lp-honesty">
-        <p>
-          <b>Straight talk on data.</b> Crypto and FX are live. Equity and index
-          prices are delayed or illustrative, and anything marked <em>DEMO</em> is
-          a simulation of a feature we're building, not real analysis. We'd rather
-          tell you than have you find out. Nothing here is investment advice.
-        </p>
-      </section>
-
-      {/* final CTA */}
       <section className="lp-final" ref={finalRef}>
         <h2>See the whole world's economy move.</h2>
         <button className="btn-primary lg" onClick={() => start("signup", "footer")}>
@@ -176,19 +181,28 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
   );
 }
 
-const FEATURES = [
-  { icon: "globe", color: "var(--blue)", title: "A living globe", body: "Every market, plotted on a 3D Earth you can spin. See where money is moving — and where it isn't — in one glance." },
-  { icon: "signal", color: "var(--gold)", title: "News → signals", body: "Headlines mapped to the sectors and stocks they actually move, so you see the 'so what', not just the story." },
-  { icon: "sessions", color: "var(--cyan)", title: "Market sessions & breadth", body: "Who's trading right now, and whether a move is broad or three megacaps carrying the index." },
-  { icon: "star", color: "var(--up)", title: "Watchlist that follows you", body: "Star anything; it syncs to your account across every device, not one browser's memory." },
-  { icon: "heatmap", color: "#a08cff", title: "Sector heat map", body: "The whole market's mood in a single grid — which sectors are hot, which are bleeding, updated live." },
-  { icon: "bell", color: "var(--down)", title: "Price alerts", body: "Get told the moment a level breaks — by toast now, by email soon — instead of finding out after." },
+/**
+ * Bento tiles. Sizes are deliberately unequal — `wide` for the two that carry
+ * the pitch, `tall` for the one with a visual payload — so the grid reads as a
+ * composition instead of six interchangeable boxes.
+ */
+const BENTO = [
+  { icon: "signal", color: "var(--gold)", span: "wide", title: "News → signals",
+    body: "Headlines mapped to the sectors and stocks they actually move, so you get the 'so what', not just the story.",
+    foot: "Google News · classified in-house" },
+  { icon: "heatmap", color: "#a08cff", span: "tall", title: "Sector heat map",
+    body: "The whole market's mood in one grid — which sectors are hot, which are bleeding.",
+    foot: "13 sectors, live" },
+  { icon: "sessions", color: "var(--cyan)", span: "", title: "Sessions & breadth",
+    body: "Who's trading right now, and whether a move is broad or three megacaps carrying the index.", foot: "" },
+  { icon: "star", color: "var(--up)", span: "", title: "Watchlist that follows you",
+    body: "Star anything; it syncs to your account across every device.", foot: "" },
+  { icon: "bell", color: "var(--down)", span: "wide", title: "Alerts that reach you",
+    body: "Get told the moment a level breaks — visible, editable and deletable, not fire-and-forget.",
+    foot: "Email & push coming" },
 ];
 
-/**
- * Feature icons — drawn line icons in one consistent 1.6 stroke, replacing the
- * unicode glyphs (◍ ⚡ ◔ …) that read as placeholder rather than iconography.
- */
+/** Drawn line icons at a single 1.6 stroke — no emoji, no placeholder glyphs. */
 function FeatureIcon({ name }: { name: string }) {
   const p = { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor",
     strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true };

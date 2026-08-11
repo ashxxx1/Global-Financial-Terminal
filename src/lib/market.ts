@@ -61,8 +61,13 @@ function parseNum(v: unknown): number {
 const REGISTRY: Record<string, Meta> = {};
 
 function classifyIndex(name: string): Kind {
+  // Crypto must be tested before FX: pairs are quoted as "BTC/USD", so an
+  // FX-first check swallowed every coin and mislabelled it as an ECB daily fix
+  // — which then showed the wrong provenance badge on a live Binance feed.
+  // Anchored to the start of the ticker: an unanchored alternation matched the
+  // "ADA" inside TADAWUL and filed a Saudi index under crypto.
+  if (/^(BTC|ETH|SOL|XRP|ADA|DOGE|LTC|DOT)\b/i.test(name)) return "crypto";
   if (/USD|EUR|GBP|JPY|DXY/.test(name)) return "fx";
-  if (/BTC|ETH/.test(name)) return "crypto";
   if (/GOLD|SILVER|OIL|BRENT|GAS|COPPER|WHEAT|CORN|COFFEE|SUGAR|COTTON/.test(name)) return "commodity";
   return "index";
 }

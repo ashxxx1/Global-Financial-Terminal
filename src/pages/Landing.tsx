@@ -1,5 +1,7 @@
 import { lazy, Suspense } from "react";
 import { track } from "../lib/analytics";
+import { useReveal } from "../lib/useReveal";
+import LiveMarketStrip from "../components/LiveMarketStrip";
 import { useSeo } from "../lib/seo";
 import { SUPPORT_MAILTO } from "../lib/support";
 
@@ -22,6 +24,11 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
       "A living 3D map of global markets and the news that moves them. Live indices, FX and crypto across 68 countries. Free to explore.",
     path: "/",
   });
+
+  // Staggered scroll reveals (ui-ux-pro-max "Stagger List / Standard").
+  const featuresRef = useReveal<HTMLDivElement>(".lp-card");
+  const pricingRef = useReveal<HTMLDivElement>(".lp-plan");
+  const finalRef = useReveal<HTMLElement>();
 
   const start = (mode: "signin" | "signup", placement: string) => {
     track("upgrade_clicked", { placement });
@@ -74,6 +81,9 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
           <div className="lp-trust">
             No card required · Free forever tier · Your watchlist syncs everywhere
           </div>
+
+          {/* The product, running, above the fold — see LiveMarketStrip. */}
+          <LiveMarketStrip />
         </div>
 
         <div className="lp-hero-globe" aria-hidden>
@@ -89,9 +99,17 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
         <div className="lp-section-head">
           <h2>Markets you can actually read at a glance.</h2>
         </div>
-        <div className="lp-grid">
+        <div className="lp-grid" ref={featuresRef}>
           {FEATURES.map((f) => (
-            <div className="lp-card" key={f.title}>
+            <div
+              className="lp-card"
+              key={f.title}
+              onPointerMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+              }}
+            >
               <div className="lp-card-icon" style={{ color: f.color }}><FeatureIcon name={f.icon} /></div>
               <b>{f.title}</b>
               <p>{f.body}</p>
@@ -105,7 +123,7 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
         <div className="lp-section-head">
           <h2>Free to explore. Upgrade when it earns its keep.</h2>
         </div>
-        <div className="lp-pricing">
+        <div className="lp-pricing" ref={pricingRef}>
           {PLANS.map((p) => (
             <div className={`lp-plan ${p.featured ? "featured" : ""}`} key={p.name}>
               {p.featured && <div className="lp-plan-tag">MOST POPULAR</div>}
@@ -141,7 +159,7 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
       </section>
 
       {/* final CTA */}
-      <section className="lp-final">
+      <section className="lp-final" ref={finalRef}>
         <h2>See the whole world's economy move.</h2>
         <button className="btn-primary lg" onClick={() => start("signup", "footer")}>
           Create your free terminal →

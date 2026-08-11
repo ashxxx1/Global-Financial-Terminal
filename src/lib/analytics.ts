@@ -109,6 +109,9 @@ export interface EventMap {
   tour_started: { via: "auto" | "manual" };
   tour_completed: { steps: number };
   tour_skipped: { atStep: number };
+  compare_opened: { left: string; right: string; mode?: string };
+  compare_saved: { a: string; b: string };
+  page_view: { page: string };
   data_exported: Record<string, never>;
   account_deleted: Record<string, never>;
 }

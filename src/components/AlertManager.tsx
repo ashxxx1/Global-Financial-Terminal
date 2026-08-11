@@ -39,7 +39,7 @@ export default function AlertManager() {
                     {name && <span>{name}</span>}
                   </button>
                   <span className={`alert-dir ${above ? "up" : "down"}`}>
-                    {above ? "▲ above" : "▼ below"} <span className="mono">{a.price}</span>
+                    {above ? "▲ above" : "▼ below"} <span className="mono">{a.targetValue}</span>
                   </span>
                   <button
                     className="alert-del"

@@ -63,8 +63,8 @@ export default function Markets() {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 260px", gap: 14, marginBottom: 14, alignItems: "start" }}>
-        <SectorHeatmap tick={tick} onOpen={(sym) => navigate(`/stock/${sym}`)} />
-        <PulseGauge tick={tick} />
+        <SectorHeatmap onOpen={(sym) => navigate(`/stock/${sym}`)} />
+        <PulseGauge />
       </div>
 
       <div className="panel" style={{ padding: 14, marginBottom: 14 }} aria-labelledby="charts-entry-title">

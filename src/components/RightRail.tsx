@@ -56,6 +56,13 @@ export default function RightRail() {
 
   const movers = useMemo(() => topMovers(5), []);
 
+  /** Suggested rows for the empty watchlist — real quotes when the feed has
+   *  them, otherwise placeholders so the layout never jumps. */
+  const suggestions: Array<{ symbol: string; name: string; display: string; changePct: number }> =
+    suggestQuotes.length
+      ? suggestQuotes.map((q) => ({ symbol: q.symbol, name: q.name, display: q.display, changePct: q.changePct }))
+      : SUGGESTED_WATCH.map((symbol) => ({ symbol, name: symbol, display: "—", changePct: 0 }));
+
   const [news, setNews] = useState<LiveArticle[]>([]);
   const [newsFailed, setNewsFailed] = useState(false);
   const [signals, setSignals] = useState<Signal[]>([]);
@@ -100,7 +107,7 @@ export default function RightRail() {
       {/* Sessions and breadth answer "what is the market doing right now",
           which belongs above anything instrument-specific. */}
       <MarketSessions />
-      <BreadthBar tick={tick} />
+      <BreadthBar />
       <div style={{ padding: "0 10px" }}>
         <SignalsHomeWidget top={topSignal} yesterdayHits={yHits} yesterdayTotal={ySignals.length} />
       </div>
@@ -118,15 +125,13 @@ export default function RightRail() {
             Start with these three — tap to open the chart.
           </span>
           <div style={{ display: "flex", flexDirection: "column", gap: 4, width: "100%", marginTop: 4 }}>
-            {(suggestQuotes.length ? suggestQuotes : SUGGESTED_WATCH.map((symbol) => ({
-              symbol, name: symbol, display: "—", changePct: 0,
-            }))).map((q) => (
+            {suggestions.map((q) => (
               <Row
                 key={q.symbol}
                 symbol={q.symbol}
-                name={"name" in q ? String(q.name) : q.symbol}
-                price={"display" in q ? String(q.display) : "—"}
-                changePct={"changePct" in q ? Number(q.changePct) : 0}
+                name={q.name}
+                price={q.display}
+                changePct={q.changePct}
                 actionLabel="Open chart"
                 onClick={() => navigate(`/stock/${q.symbol}`)}
               />

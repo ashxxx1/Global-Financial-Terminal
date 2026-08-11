@@ -20,8 +20,8 @@ export default function AlertWatcher() {
         prev.current[alert.symbol] = q.price;
         if (last === undefined) continue; // need a baseline before crossing detection
         const hit =
-          (alert.direction === "above" && last < alert.price && q.price >= alert.price) ||
-          (alert.direction === "below" && last > alert.price && q.price <= alert.price);
+          (alert.direction === "above" && last < alert.targetValue && q.price >= alert.targetValue) ||
+          (alert.direction === "below" && last > alert.targetValue && q.price <= alert.targetValue);
         if (hit) fireAlert(alert, q.price);
       }
     });

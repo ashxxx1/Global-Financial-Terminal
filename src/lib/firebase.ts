@@ -9,6 +9,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 const cfg = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -23,15 +24,21 @@ export const isConfigured = Boolean(cfg.apiKey && cfg.projectId && cfg.appId);
 
 let authInstance: Auth | null = null;
 let dbInstance: Firestore | null = null;
+let storageInstance: FirebaseStorage | null = null;
 
 if (isConfigured) {
   const app = initializeApp(cfg);
   authInstance = getAuth(app);
   dbInstance = getFirestore(app);
+  // Backs forum media (images/video). Lazily connects — safe to grab even if
+  // the Storage product hasn't been enabled in the console yet; that only
+  // surfaces as an error on the first actual upload, which forum.ts catches.
+  storageInstance = getStorage(app);
 }
 
 export const auth = authInstance;
 export const db = dbInstance;
+export const storage = storageInstance;
 
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });

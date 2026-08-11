@@ -112,6 +112,12 @@ export interface EventMap {
   compare_opened: { left: string; right: string; mode?: string };
   compare_saved: { a: string; b: string };
   page_view: { page: string };
+  forum_post_created: { hasMedia: boolean };
+  forum_post_deleted: Record<string, never>;
+  forum_post_reposted: { postId: string };
+  forum_post_unreposted: { postId: string };
+  forum_comment_added: { postId: string };
+  forum_comment_deleted: { postId: string };
   data_exported: Record<string, never>;
   account_deleted: Record<string, never>;
 }

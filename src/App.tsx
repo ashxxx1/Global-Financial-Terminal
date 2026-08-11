@@ -40,6 +40,8 @@ const SignalCalendarPage = lazy(() => import("./pages/signals/SignalCalendarPage
 const SignalMethodologyPage = lazy(() => import("./pages/signals/SignalMethodologyPage"));
 const SignalBacktestPage = lazy(() => import("./pages/signals/SignalBacktestPage"));
 const SignalTrackRecordPage = lazy(() => import("./pages/signals/SignalTrackRecordPage"));
+const Forum = lazy(() => import("./pages/Forum"));
+const ForumPost = lazy(() => import("./pages/ForumPost"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 import Login from "./pages/Login";
@@ -137,6 +139,8 @@ function Shell() {
             <Route path="/signals/:id" element={<SignalDetailPage />} />
             <Route path="/changelog" element={<Changelog />} />
             <Route path="/data-sources" element={<DataSources />} />
+            <Route path="/forum" element={<Forum />} />
+            <Route path="/forum/post/:postId" element={<ForumPost />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<World />} />

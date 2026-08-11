@@ -14,6 +14,7 @@ const PRIMARY_LINKS = [
   { to: "/macro", label: "MACRO" },
   { to: "/terminal/signals", label: "SIGNALS" },
   { to: "/news", label: "NEWS" },
+  { to: "/forum", label: "FORUM" },
 ];
 
 const OVERFLOW_LINKS = [

@@ -35,7 +35,12 @@ export default async function handler(req: Request): Promise<Response> {
       { signal: AbortSignal.timeout(8000) },
     );
     if (upstream.status === 429) {
-      return Response.json({ error: "rate limited" }, { status: 429 });
+      // Cache the refusal too. Otherwise every client retries independently and
+      // the stampede keeps us rate-limited far longer than necessary.
+      return new Response(JSON.stringify({ error: "rate limited" }), {
+        status: 429,
+        headers: { "content-type": "application/json", "cache-control": "public, s-maxage=20" },
+      });
     }
     if (!upstream.ok) throw new Error(`upstream ${upstream.status}`);
 
@@ -46,9 +51,14 @@ export default async function handler(req: Request): Promise<Response> {
       status: 200,
       headers: {
         "content-type": "application/json",
-        // Quotes move constantly but a few seconds of shared cache smooths the
-        // round-robin and keeps us well under the rate limit.
-        "cache-control": "public, s-maxage=5, stale-while-revalidate=15",
+        // Shared edge cache is the only thing standing between us and the
+        // 60 req/min free-tier cap. The client sweeps symbols round-robin, so
+        // two visitors almost never ask for the same ticker inside a 5s window
+        // — at s-maxage=5 every extra visitor multiplied upstream calls and the
+        // feed spent most of its time in 429 backoff, which is what made prices
+        // look frozen. 30s is well inside the delay the free tier already has,
+        // and stale-while-revalidate means nobody ever waits on a refresh.
+        "cache-control": "public, s-maxage=30, stale-while-revalidate=120",
       },
     });
   } catch (err) {

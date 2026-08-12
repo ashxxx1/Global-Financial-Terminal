@@ -19,7 +19,11 @@ import { setLiveQuote, allStockSymbols, metaFor } from "../market";
 
 // Local-dev-only fallback key. Absent in production, where the proxy is used.
 const DEV_KEY: string = (import.meta as any).env?.VITE_FINNHUB_API_KEY || "";
-const POLL_MS = 1100;            // ≈54 req/min — safely under the 60/min free cap
+// 20 US symbols at 1.5s = a 30s sweep, which lines up with the proxy's 30s
+// edge cache: by the time we come back to a ticker its cached entry has just
+// expired, so we refresh it exactly once per cycle (~40 upstream req/min) and
+// every additional visitor is served from cache instead of multiplying calls.
+const POLL_MS = 1500;
 const BACKOFF_MS = 30000;        // pause this long after a 429 rate-limit
 const REPROBE_MS = 120000;       // re-test a "not configured" proxy every 2 min
 

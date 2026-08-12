@@ -51,7 +51,9 @@
 
   /* Type */
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Display face, shared with the landing — page titles only, never data. */
+  --serif: "Instrument Serif", "Times New Roman", serif;
 
   /* Layout */
   --nav-h: 52px;
@@ -157,21 +159,18 @@ input, select { font-family: inherit; }
 
 /* ─── Panels — elevated glass with a top light-catch ─── */
 .panel {
-  background: linear-gradient(180deg, var(--panel-top), var(--panel-bot));
+  background: rgba(255,255,255,0.014);
   border: 1px solid var(--line);
   border-radius: var(--r);
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  box-shadow: var(--edge-hi), var(--shadow-sm);
-  transition: border-color .18s ease, box-shadow .18s ease;
+  transition: border-color .18s ease, background .18s ease;
 }
-.panel:hover { border-color: var(--line-strong); }
+.panel:hover { border-color: var(--line-strong); background: rgba(255,255,255,0.025); }
 .panel-head {
   display: flex; align-items: center; justify-content: space-between;
   gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line);
 }
 .panel-title {
-  font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 500;
   letter-spacing: 0.17em; text-transform: uppercase; color: var(--muted);
 }
 .panel-body { padding: 14px; }
@@ -184,20 +183,19 @@ input, select { font-family: inherit; }
 }
 .card-int::before {
   content: ""; position: absolute; left: 0; top: 10%; bottom: 10%; width: 2px;
-  border-radius: 2px; background: var(--blue);
+  border-radius: 2px; background: var(--text);
   opacity: 0; transition: opacity .18s ease;
 }
 .card-int:hover {
   transform: translateY(-1px);
   border-color: var(--line-strong);
-  box-shadow: var(--edge-hi), var(--shadow);
 }
 .card-int:hover::before { opacity: 1; }
 
 /* ─── Type helpers ─── */
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .label {
-  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
   letter-spacing: 0.15em; text-transform: uppercase; color: var(--faint);
 }
 .up   { color: var(--up); }
@@ -1663,3 +1661,15 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
   .post-media-item:hover img { transform: none; }
 }
 
+
+/* ─── Terminal page titles adopt the display face ───────────────────────
+   Applied at the primitive level so every page inherits it at once rather
+   than being converted one file at a time. Data never uses the serif —
+   figures stay mono and tabular, which is what makes them scannable. */
+.shell-content h1 {
+  font-family: var(--serif); font-weight: 400;
+  letter-spacing: -0.02em; line-height: 1.05;
+}
+.shell-content h2:not(.panel-title) {
+  font-family: var(--serif); font-weight: 400; letter-spacing: -0.015em;
+}

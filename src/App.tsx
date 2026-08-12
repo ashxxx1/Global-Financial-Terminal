@@ -9,6 +9,7 @@ import { startCryptoFeed } from "./lib/feeds/crypto";
 import { startFxFeed } from "./lib/feeds/fx";
 import { startQuakeFeed } from "./lib/feeds/quakes";
 import { startStockFeed } from "./lib/feeds/stocks";
+import { startIntlFeed } from "./lib/feeds/intl";
 import { connectBackend, BACKEND_URL } from "./lib/feeds/backend";
 import TopNav from "./components/TopNav";
 import Ticker from "./components/Ticker";
@@ -103,7 +104,9 @@ function Shell() {
     startCryptoFeed();
     startFxFeed();
     startQuakeFeed();
-    return startStockFeed();   // live US equities via /api/quote proxy (prod) or VITE_FINNHUB_API_KEY (dev)
+    const stopStocks = startStockFeed();   // live US equities via /api/quote
+    const stopIntl = startIntlFeed();      // non-US daily closes via /api/intl-quote
+    return () => { stopStocks(); stopIntl(); };
   }, []);
 
   return (

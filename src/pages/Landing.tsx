@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { track } from "../lib/analytics";
 import { useReveal } from "../lib/useReveal";
 import { useSeo } from "../lib/seo";
@@ -8,6 +8,10 @@ import GftLogo from "../components/GftLogo";
 import MonoChart from "../components/MonoChart";
 import PnlPreview from "../components/PnlPreview";
 import ProofBlock from "../components/ProofBlock";
+
+// The globe is the product's signature asset — it belongs on the front page.
+// Lazy so it never sits on the critical path.
+const Globe3D = lazy(() => import("../components/Globe3D"));
 import "../styles/landing.css";
 
 /**
@@ -60,6 +64,15 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────── */}
+      {/* Rendered in greyscale so the signature asset returns without
+          breaking the monochrome rule — the globe becomes a sphere of light
+          rather than a colour illustration. */}
+      <div className="lpx-globe" aria-hidden>
+        <Suspense fallback={null}>
+          <Globe3D overlay="market" quakes={[]} onHover={() => {}} onCountryClick={() => {}} />
+        </Suspense>
+      </div>
+
       <header className="lpx-inner lpx-hero">
         <div className="lpx-kicker"><span className="dot" />Live · 68 countries</div>
         <h1 className={`lpx-h1 ${lit ? "lpx-reveal" : ""}`}>

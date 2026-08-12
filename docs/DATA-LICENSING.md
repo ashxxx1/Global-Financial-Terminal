@@ -20,6 +20,7 @@ rather than merely slow it down.
 | **Binance** | Crypto prices (public WebSocket) | Permitted, attribution expected | Display permitted; no bulk resale | ✅ OK |
 | **European Central Bank** | FX reference rates | Permitted | Permitted with attribution | ✅ OK |
 | **USGS** | Earthquake / live events | Public domain (US Government work) | Permitted | ✅ OK |
+| **Alpha Vantage** | Non-US daily closes (`/api/intl-quote`) | ⚠️ Free tier is personal use; 25 req/day | Display only, no bulk | ⚠️ **Paid plan needed before charging** |
 | **Google News RSS** | Headlines + links | Grey area for commercial products | ⚠️ Headline+link only; never full text | ⚠️ **Confirm or replace** |
 
 ---
@@ -63,6 +64,21 @@ rather than merely slow it down.
   licensed news API (NewsAPI, Marketaux and Benzinga sell commercial tiers).
 
 ---
+
+### Alpha Vantage — ⚠️
+- **Used for:** previous-day closes on selected non-US exchanges, server-side via
+  `api/intl-quote.ts`, cached 12h at the edge.
+- **Verified working:** `.LON`, `.BSE`. **Not supported:** Tokyo (`.TYO`/`.T`)
+  returns an empty quote on the free tier.
+- **Hard limit:** 25 requests per day. This is why the feed rotates a handful of
+  symbols per session rather than polling — and why it is presented as a daily
+  close, never as live data.
+- **Key handling:** read from `ALPHAVANTAGE_KEY`, with a disposable free key as
+  a fallback default so the feature works without dashboard configuration. It
+  carries no billing and is regenerable, but **rotate it if this repository is
+  made public**, and move it to project settings when convenient.
+- **Before monetizing:** the free tier is personal-use. A paid plan is required,
+  alongside the Finnhub upgrade.
 
 ## Standing rules for this codebase
 

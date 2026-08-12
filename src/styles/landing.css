@@ -445,3 +445,30 @@ body:has(.lpx) .consent-btn.ghost:hover { background: rgba(255,255,255,0.08); }
 .lpx-auth :focus-visible { outline: 1px solid #fff; outline-offset: 2px; }
 .lpx-auth .auth-tab:focus-visible { outline-offset: -2px; }
 .lpx-auth .auth-oauth { box-shadow: none; }
+
+/* ── The globe, in full colour ─────────────────────────────────────────
+   The one vivid object on a black-and-white page. This does not break the
+   colour rule, it *is* the rule: the globe is shaded by market performance,
+   so it is market data — the only thing allowed to carry hue here. A single
+   saturated element against pure greyscale is also simply stronger than a
+   page where everything competes. Masked at the edge so the headline wins. */
+.lpx-globe {
+  position: absolute; top: -6vh; right: -14vw;
+  width: min(78vw, 1000px); height: min(78vw, 1000px);
+  z-index: 0; pointer-events: none;
+  filter: saturate(1.12) contrast(1.05);
+  opacity: 0; animation: lpx-globe-in 1.8s cubic-bezier(0.16,1,0.3,1) .15s forwards;
+  mask-image: radial-gradient(closest-side, #000 55%, transparent 92%);
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent 92%);
+}
+@keyframes lpx-globe-in { to { opacity: .95; } }
+.lpx-hero { position: relative; z-index: 1; }
+.lpx-nav { position: relative; z-index: 2; }
+
+@media (max-width: 900px) {
+  .lpx-globe { top: 6vh; right: -34vw; width: 118vw; height: 118vw; }
+  @keyframes lpx-globe-in { to { opacity: .6; } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lpx-globe { animation: none; opacity: .92; }
+}

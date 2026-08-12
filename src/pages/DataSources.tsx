@@ -43,6 +43,12 @@ const SOURCES: Source[] = [
     detail: "Real published headlines. Sentiment and sector tagging are our own automated classification, not a wire-service rating.",
   },
   {
+    what: "Non-US equity closes",
+    provider: "Alpha Vantage (free tier)",
+    status: "delayed",
+    detail: "Official previous-day closing prices for selected exchanges (London, Bombay, Frankfurt, Paris, Toronto, São Paulo, Sydney). The free tier allows 25 requests per day, so coverage is refreshed on a slow rotation and builds up over days — these are daily closes, never live prices. Tokyo is not supported by this provider. Anything not yet fetched stays simulated and labelled SIM.",
+  },
+  {
     what: "Equity prices",
     provider: "Finnhub (when configured)",
     status: "delayed",

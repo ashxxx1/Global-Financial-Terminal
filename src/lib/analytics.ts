@@ -123,6 +123,15 @@ export interface EventMap {
 }
 
 export function track<K extends keyof EventMap>(event: K, props?: EventMap[K]): void {
+  // First-party first: this works today, with no key and no vendor. PostHog
+  // fires alongside it when configured — the two are complementary.
+  void import("./funnel").then((f) => {
+    f.recordEvent(event);
+    if (event === "activated") f.recordActivation(String((props as { via?: string })?.via ?? "unknown"));
+    if (event === "signed_up") f.recordSignup(String((props as { method?: string })?.method ?? "unknown"));
+    if (event === "onboarding_completed") f.recordOnboarded(Number((props as { picked?: number })?.picked ?? 0));
+  }).catch(() => { /* analytics must never break a user action */ });
+
   withPostHog((p) => p.capture(event, props));
 }
 

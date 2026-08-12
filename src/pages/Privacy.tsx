@@ -49,7 +49,7 @@ export default function Privacy() {
           <ul>
             <li><b>Account data</b> — your email address, display name and (if you sign in with Google) your profile photo URL. Handled by Firebase Authentication.</li>
             <li><b>Your app data</b> — watchlist symbols, price alerts, and onboarding preferences. Stored in your browser, and in a single profile document keyed to your user ID.</li>
-            <li><b>Product analytics</b> — anonymous usage events (pages viewed, features used). <b>Only collected if you accept analytics cookies.</b> Processed by PostHog.</li>
+            <li><b>Product analytics</b> — counts of which features you use, stored on your own account record and, if a provider is configured, also sent to PostHog. <b>Only collected if you accept analytics.</b> Because these counters live on your account document, they are included in your data export and are erased with your account.</li>
             <li><b>Support and feedback</b> — anything you voluntarily type into the feedback widget or send us by email.</li>
           </ul>
           <p>

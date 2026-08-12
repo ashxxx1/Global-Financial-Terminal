@@ -26,8 +26,10 @@ const OVERLAYS: { id: OverlayMode; label: string; live?: boolean; demo?: boolean
   { id: "market", label: "MARKET PERF" },
   { id: "calendar", label: "CALENDAR", live: true },
   { id: "quakes", label: "LIVE EVENTS", live: true },
-  { id: "risk", label: "RISK INDEX", demo: true },
-  { id: "sentiment", label: "AI SENTIMENT", demo: true },
+  // Items 3/4: both are computed from real inputs now (market dispersion +
+  // published macro; classified real headlines), so the DEMO tag is retired.
+  { id: "risk", label: "RISK INDEX" },
+  { id: "sentiment", label: "NEWS SENTIMENT" },
 ];
 
 export default function World() {
@@ -46,11 +48,11 @@ export default function World() {
   const [liveNews, setLiveNews] = useState<LiveArticle[]>([]);
   useEffect(() => {
     let cancelled = false;
-    fetchBreakingNews(5).then((articles) => {
+    fetchBreakingNews(60).then((articles) => {
       if (!cancelled && articles.length) setLiveNews(articles);
     });
     const iv = setInterval(() => {
-      fetchBreakingNews(5).then((articles) => {
+      fetchBreakingNews(60).then((articles) => {
         if (!cancelled && articles.length) setLiveNews(articles);
       });
     }, 5 * 60 * 1000);
@@ -84,6 +86,7 @@ export default function World() {
       <Globe3D
         overlay={overlay}
         quakes={quakes}
+        articles={liveNews}
         calendar={calendar}
         onHover={setHover}
         onCountryClick={(code) => navigate(`/country/${code}`)}

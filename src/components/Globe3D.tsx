@@ -20,6 +20,9 @@ import type { QuakeEvent } from "../lib/feeds/quakes";
 import type { EconCalendarEvent } from "../data/econCalendar";
 import { colorForEconKind } from "../data/econCalendar";
 
+import { riskFor, sentimentFor } from "../lib/countryRisk";
+import type { LiveArticle } from "../lib/newsFeed";
+
 export type OverlayMode = "market" | "risk" | "sentiment" | "quakes" | "calendar";
 
 interface Feature { properties: Record<string, unknown>; [k: string]: unknown; }
@@ -52,12 +55,15 @@ export default function Globe3D({
   overlay = "market",
   quakes = [],
   calendar = [],
+  articles = [],
   onCountryClick,
   onHover,
 }: {
   overlay?: OverlayMode;
   quakes?: QuakeEvent[];
   calendar?: EconCalendarEvent[];
+  /** Real headlines, used to compute the sentiment overlay. */
+  articles?: LiveArticle[];
   onCountryClick: (code: string, name: string) => void;
   onHover?: (h: HoverInfo | null) => void;
 }) {
@@ -234,13 +240,25 @@ export default function Globe3D({
         }))
       : Object.values(COUNTRIES).map((c) => {
           const stats = (() => { try { return getCountryStats(c.code); } catch { return null; } })();
-          const risk = stats?.riskScore ?? 40;
           const ret = stats?.marketReturns?.["1D"] ?? 0;
           let color = "var(--blue)";
           let intensity = c.newsIntensity;
           if (overlay === "market") { color = ret >= 0 ? "var(--up)" : "var(--down)"; intensity = Math.min(1, Math.abs(ret) / 2.5 + 0.25); }
-          if (overlay === "risk") { color = risk > 60 ? "var(--down)" : risk > 40 ? "var(--gold)" : "var(--up)"; intensity = risk / 100; }
-          if (overlay === "sentiment") { color = c.sentiment === "bullish" ? "var(--up)" : c.sentiment === "bearish" ? "var(--down)" : "var(--gold)"; }
+          if (overlay === "risk") {
+            // Items 3/4: computed from live dispersion, breadth and real macro
+            // rather than the hardcoded riskScore constant this used to read.
+            const r = riskFor(c.code);
+            color = r.score > 60 ? "var(--down)" : r.score > 40 ? "var(--gold)" : "var(--up)";
+            intensity = r.score / 100;
+          }
+          if (overlay === "sentiment") {
+            const sent = sentimentFor(c.code, articles);
+            if (!sent) { color = "var(--faint)"; intensity = 0.12; }   // too few headlines to claim a mood
+            else {
+              color = sent.label === "Bullish" ? "var(--up)" : sent.label === "Bearish" ? "var(--down)" : "var(--gold)";
+              intensity = Math.min(1, Math.abs(sent.score - 50) / 25 + 0.3);
+            }
+          }
           return { code: c.code, lat: c.lat, lng: c.lng, color, intensity };
         });
 

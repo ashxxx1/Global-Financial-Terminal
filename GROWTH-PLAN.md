@@ -55,8 +55,8 @@ with a big roadmap and no users.
 ### Data integrity (non-negotiable before charging)
 - [x] 1. Wire real delayed equity data — Finnhub via the server-side `/api/quote` proxy, verified live on production (AAPL 313.33). Feed self-heals and prioritises the symbol on screen. **Indices remain simulated** — they need a provider that licenses index data
 - [x] 2. Label every instrument with its true source and delay — `provenanceFor()` in `src/lib/marketStatus.ts` + `<ProvenanceBadge>`; fixed Markets/Country badges that hardcoded SIM while showing live data
-- [ ] 3. Make the Risk Index real, or remove it (currently DEMO-tagged)
-- [ ] 4. Make AI Sentiment real, or remove it (currently DEMO-tagged)
+- [x] 3. Make the Risk Index real — `riskFor()` in `src/lib/countryRisk.ts`: market dispersion + declining breadth + inflation distance from target + policy-rate level, weighted. Carries a `basis` (live/mixed/simulated) so a figure derived from simulated prices stays labelled
+- [x] 4. Make sentiment real — `sentimentFor()` averages the classified score of real published headlines per country; returns null below 3 articles rather than colouring a country from an anecdote. Renamed NEWS SENTIMENT (it is not AI)
 - [x] 5. Build a public `/data-sources` page listing every provider
 - [x] 6. Review each provider's ToS for redistribution rights — `docs/DATA-LICENSING.md` (2 items flagged ⚠️ for counsel before charging)
 - [x] 7. Add a data-freshness indicator per panel (last updated timestamp) — `src/lib/marketStatus.ts` + freshness pill on the stock page (LIVE / AT FRI CLOSE / PREV CLOSE / SIMULATED, from the NYSE session clock)

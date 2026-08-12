@@ -1,21 +1,29 @@
 {
   "name": "Global Financial Terminal",
   "short_name": "GFT",
-  "description": "Premium global financial terminal and market dashboard.",
+  "description": "A living map of global markets and the news that moves them.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#05080e",
-  "theme_color": "#05080e",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "icons": [
     {
-      "src": "/vite.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml"
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "/vite.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml"
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
+  ],
+  "scope": "/",
+  "categories": [
+    "finance",
+    "business",
+    "news"
   ]
 }

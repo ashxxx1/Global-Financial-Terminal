@@ -193,7 +193,7 @@ with a big roadmap and no users.
 - [ ] 94. Build crypto asset pages
 - [ ] 95. Template comparison pages ("X vs Y")
 - [ ] 96. Auto-generated OG image per page (huge for social CTR)
-- [ ] 97. Schema.org structured data (FinancialProduct, Dataset, BreadcrumbList)
+- [x] 97. Schema.org structured data — JSON-LD Organization/WebSite/WebPage graph emitted per route from `useSeo`, with SearchAction for a sitelinks searchbox
 - [ ] 98. Internal linking strategy across the page graph
 - [ ] 99. Keyword research to prioritize which templates ship first
 - [ ] 100. Ensure pages have genuine unique value — thin programmatic pages get penalized

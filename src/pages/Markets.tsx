@@ -55,6 +55,14 @@ export default function Markets() {
         >
           COMPARE CHARTS
         </button>
+        {savedCompare.length > 0 && (
+          <span style={{ display: "flex", gap: 6, alignItems: "center" }} aria-label="Saved compare pairs">
+            {savedCompare.slice(0, 3).map((p) => (
+              <button key={`${p.a}-${p.b}`} type="button" className="chip"
+                onClick={() => navigate(`/compare/${p.a}/${p.b}`)}>{p.a}·{p.b}</button>
+            ))}
+          </span>
+        )}
         <div style={{ display: "flex", gap: 6, marginLeft: "auto", flexWrap: "wrap" }}>
           {GROUPS.map((g) => (
             <button key={g} className={`chip ${group === g ? "active" : ""}`} onClick={() => setGroup(g)}>{g}</button>
@@ -65,60 +73,6 @@ export default function Markets() {
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 260px", gap: 14, marginBottom: 14, alignItems: "start" }}>
         <SectorHeatmap onOpen={(sym) => navigate(`/stock/${sym}`)} />
         <PulseGauge />
-      </div>
-
-      <div className="panel" style={{ padding: 14, marginBottom: 14 }} aria-labelledby="charts-entry-title">
-        <div className="panel-head" style={{ marginBottom: 10 }}>
-          <span className="panel-title" id="charts-entry-title">Stock charts</span>
-          <button type="button" className="chip" onClick={() => navigate("/compare/AAPL/MSFT")}>
-            Compare two stocks
-          </button>
-        </div>
-        <p className="label" style={{ margin: "0 0 10px", lineHeight: 1.5 }}>
-          Open a ticker for the interactive trading chart — timeframes, indicators, and compare overlays.
-        </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {["AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA", "SPY"].map((s) => (
-            <button
-              key={s}
-              type="button"
-              className="chip"
-              onClick={() => navigate(`/stock/${s}`)}
-              aria-label={`Open ${s} trading chart`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-        {savedCompare.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12, alignItems: "center" }} aria-label="Your saved compare pairs">
-            <span className="label">Your pairs</span>
-            {savedCompare.map((p) => (
-              <button
-                key={`${p.a}-${p.b}`}
-                type="button"
-                className="chip"
-                onClick={() => navigate(`/compare/${p.a}/${p.b}`)}
-                aria-label={`Compare ${p.a} versus ${p.b}`}
-              >
-                {p.a} · {p.b}
-              </button>
-            ))}
-          </div>
-        )}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-          <span className="label">Sectors</span>
-          {["technology", "banking-finance", "energy", "healthcare", "consumer"].map((slug) => (
-            <button
-              key={slug}
-              type="button"
-              className="chip"
-              onClick={() => navigate(`/sector/${slug}`)}
-            >
-              {slug.replace(/-/g, " ")}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Items 72 & 78 — alerts you can see and manage, and a way back in. */}

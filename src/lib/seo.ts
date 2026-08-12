@@ -52,6 +52,49 @@ function setLink(rel: string, href: string): void {
   el.setAttribute("href", href);
 }
 
+/**
+ * Structured data — growth-plan item 97.
+ *
+ * Financial pages compete for rich results; without JSON-LD Google has to infer
+ * what this site is from prose. One Organization/WebSite graph is emitted on
+ * every page, with SearchAction so the site can win a sitelinks searchbox.
+ */
+function setJsonLd(url: string, title: string, description: string): void {
+  const id = "gft-jsonld";
+  let el = document.getElementById(id) as HTMLScriptElement | null;
+  if (!el) {
+    el = document.createElement("script");
+    el.id = id;
+    el.type = "application/ld+json";
+    document.head.appendChild(el);
+  }
+  el.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE}/#org`,
+        name: "Global Financial Terminal",
+        url: SITE,
+        logo: `${SITE}/icon.svg`,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE}/#site`,
+        url: SITE,
+        name: SITE_NAME,
+        publisher: { "@id": `${SITE}/#org` },
+        potentialAction: {
+          "@type": "SearchAction",
+          target: { "@type": "EntryPoint", urlTemplate: `${SITE}/stock/{search_term_string}` },
+          "query-input": "required name=search_term_string",
+        },
+      },
+      { "@type": "WebPage", "@id": url, url, name: title, description, isPartOf: { "@id": `${SITE}/#site` } },
+    ],
+  });
+}
+
 export function useSeo({ title, description, path, image, noindex }: Seo): void {
   useEffect(() => {
     const url = `${SITE}${path ?? window.location.pathname}`;
@@ -72,5 +115,6 @@ export function useSeo({ title, description, path, image, noindex }: Seo): void 
 
     // Auth screens must never be indexed; everything else should be.
     setMeta("name", "robots", noindex ? "noindex,nofollow" : "index,follow");
+    if (!noindex) setJsonLd(url, fullTitle, description);
   }, [title, description, path, image, noindex]);
 }

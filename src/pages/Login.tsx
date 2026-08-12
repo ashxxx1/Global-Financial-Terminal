@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../lib/auth";
+import GftLogo from "../components/GftLogo";
+import "../styles/landing.css";
 import { isConfigured } from "../lib/firebase";
 import { useSeo } from "../lib/seo";
 
@@ -41,20 +43,19 @@ export default function Login({ initialMode = "signin", onBack }: { initialMode?
   const oauth = async (fn: () => Promise<void>) => { setBusy(true); await fn(); setBusy(false); };
 
   return (
-    <div className="auth-wrap">
+    <div className="auth-wrap lpx-auth">
       <div className="auth-aurora" aria-hidden />
 
       <div className="auth-card">
         {/* ── Pitch ── */}
         <aside className="auth-pitch">
           <div className="auth-brand">
-            <span className="auth-mark" aria-hidden />
-            GFT<span style={{ color: "var(--gold)" }}>·</span>TERMINAL
+            <GftLogo size={22} animated />
+            Global Financial Terminal
           </div>
 
           <h1 className="auth-h1">
-            <span className="hero-shine">The world's economy,</span>{" "}
-            <span className="live-glow">live</span>.
+            The world's economy, <em>live</em>.
           </h1>
           <p className="auth-sub">
             68 countries, live indices, FX, crypto and a news-to-signal engine —

@@ -372,3 +372,76 @@ body:has(.lpx) .consent-btn.ghost:hover { background: rgba(255,255,255,0.08); }
 @media (max-width: 860px) {
   .proof-grid, .proof-record-row { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ═══════════════════════════════════════════════════
+   AUTH — the sign-in screen adopts the landing's language, so the seam
+   between "welcome page" and "create account" disappears.
+   ═══════════════════════════════════════════════════ */
+.auth-wrap.lpx-auth {
+  --ink: #fff; --ink-2: rgba(255,255,255,0.62); --ink-3: rgba(255,255,255,0.38);
+  --rule: rgba(255,255,255,0.10); --rule-2: rgba(255,255,255,0.18);
+  --serif: "Instrument Serif", "Times New Roman", serif;
+  --code: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  background: #000 !important; color: #fff;
+}
+.lpx-auth .auth-aurora { display: none; }              /* no coloured bloom */
+.lpx-auth .auth-card { border-color: var(--rule); background: transparent; box-shadow: none; }
+.lpx-auth .auth-pitch { border-right: 1px solid var(--rule); background: transparent; }
+.lpx-auth .auth-brand {
+  display: inline-flex; align-items: center; gap: 10px; color: #fff;
+  font-family: var(--code); font-size: 10.5px; font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase;
+}
+.lpx-auth .auth-h1 {
+  font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.02; letter-spacing: -0.025em; color: #fff;
+}
+.lpx-auth .auth-h1 em { font-style: italic; color: var(--ink-2); }
+.lpx-auth .auth-sub, .lpx-auth .auth-feats li span { color: var(--ink-2); }
+.lpx-auth .auth-feats li::before { background: var(--ink-3); box-shadow: none; width: 5px; height: 5px; }
+.lpx-auth .auth-feats li b { color: #fff; font-weight: 500; }
+.lpx-auth .auth-foot, .lpx-auth .auth-back { color: var(--ink-3); font-family: var(--code); font-size: 10.5px; letter-spacing: .1em; }
+.lpx-auth .auth-back:hover { color: #fff; }
+
+/* Tabs become a rule, not a pill */
+.lpx-auth .auth-tabs { border-bottom: 1px solid var(--rule); gap: 0; background: transparent; }
+.lpx-auth .auth-tab {
+  background: transparent; border: 0; border-bottom: 1px solid transparent; border-radius: 0;
+  padding: 12px 16px; color: var(--ink-3);
+  font-family: var(--code); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+}
+.lpx-auth .auth-tab.on { color: #fff; border-bottom-color: #fff; background: transparent; }
+
+.lpx-auth .auth-field span { font-family: var(--code); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.lpx-auth .auth-field input, .lpx-auth .fb-email {
+  background: transparent; border: 1px solid var(--rule-2); border-radius: 0;
+  color: #fff; padding: 12px 13px; font-size: 14px;
+}
+.lpx-auth .auth-field input:focus { outline: none; border-color: #fff; }
+.lpx-auth .auth-field input::placeholder { color: rgba(255,255,255,0.28); }
+
+.lpx-auth .auth-submit, .lpx-auth .auth-oauth {
+  border-radius: 999px; font-family: var(--code); font-size: 11.5px;
+  letter-spacing: .12em; text-transform: uppercase; font-weight: 500;
+  padding: 13px 20px; transition: opacity .2s ease, transform .2s cubic-bezier(0.16,1,0.3,1);
+}
+.lpx-auth .auth-submit { background: #fff; color: #000; border: 1px solid #fff; background-image: none; }
+.lpx-auth .auth-submit:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); filter: none; }
+.lpx-auth .auth-oauth { background: transparent; color: #fff; border: 1px solid var(--rule-2); }
+.lpx-auth .auth-oauth:hover { border-color: #fff; }
+.lpx-auth .auth-or { color: var(--ink-3); font-family: var(--code); font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; }
+.lpx-auth .auth-or::before, .lpx-auth .auth-or::after { background: var(--rule); }
+.lpx-auth .auth-link { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.lpx-auth .auth-switch { color: var(--ink-3); font-size: 12.5px; }
+.lpx-auth .auth-banner.err { background: var(--down-dim, rgba(255,77,77,.12)); border-color: rgba(255,77,77,.4); color: #ff8080; }
+.lpx-auth .auth-banner.ok { background: rgba(255,255,255,.06); border-color: var(--rule-2); color: #fff; }
+
+/* Form heading matches the display face, and focus rings go monochrome —
+   a blue system ring on a pure-black page is the one stray hue left. */
+.lpx-auth .auth-h2 {
+  font-family: var(--serif); font-weight: 400;
+  font-size: clamp(26px, 3vw, 34px); letter-spacing: -0.02em; color: #fff;
+}
+.lpx-auth :focus-visible { outline: 1px solid #fff; outline-offset: 2px; }
+.lpx-auth .auth-tab:focus-visible { outline-offset: -2px; }
+.lpx-auth .auth-oauth { box-shadow: none; }

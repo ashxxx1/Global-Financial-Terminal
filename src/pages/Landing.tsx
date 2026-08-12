@@ -7,6 +7,7 @@ import { SUPPORT_MAILTO } from "../lib/support";
 import GftLogo from "../components/GftLogo";
 import MonoChart from "../components/MonoChart";
 import PnlPreview from "../components/PnlPreview";
+import ProofBlock from "../components/ProofBlock";
 import "../styles/landing.css";
 
 /**
@@ -107,6 +108,13 @@ export default function Landing({ onGetStarted }: { onGetStarted: (mode?: "signi
           </article>
         ))}
       </div>
+
+      {/* ── Proof: what's covered, and the scored record ─────── */}
+      <section className="lpx-inner lpx-section" id="proof">
+        <div className="lpx-eyebrow">What you're actually getting</div>
+        <h2 className="lpx-h2">Every call is published before the outcome.</h2>
+        <ProofBlock />
+      </section>
 
       {/* ── Why anyone pays ──────────────────────────────────── */}
       <section className="lpx-inner lpx-section" id="why">

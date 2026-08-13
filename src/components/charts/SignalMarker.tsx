@@ -59,7 +59,7 @@ export function applySignalLevels(
   return {
     entry: series.createPriceLine({
       price: signal.entry,
-      color: "#4F8DFF",
+      color: "rgba(255,255,255,0.66)",
       lineWidth: 1,
       lineStyle: LineStyle.Solid,
       axisLabelVisible: true,

@@ -168,8 +168,8 @@ export function kindColor(kind: ChartSignalKind): string {
   switch (kind) {
     case "BUY": return "#26D07C";
     case "SELL": return "#FF4D5E";
-    case "EXIT": return "#E7B429";
-    case "HOLD": return "#4F8DFF";
+    case "EXIT": return "#FFFFFF";
+    case "HOLD": return "rgba(255,255,255,0.66)";
   }
 }
 

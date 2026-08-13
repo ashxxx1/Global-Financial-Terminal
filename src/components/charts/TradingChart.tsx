@@ -204,7 +204,7 @@ export default function TradingChart({
     const chart = createChart(host, {
       layout: {
         background: { color: "transparent" },
-        textColor: "#939DB1",
+        textColor: "rgba(255,255,255,0.38)",
         fontFamily: "ui-monospace, SF Mono, Menlo, Consolas, monospace",
         fontSize: 11,
         attributionLogo: false,
@@ -311,7 +311,7 @@ export default function TradingChart({
         if (drawing === "horizontal" || drawing === "sr") {
           const line = mainSeriesRef.current.createPriceLine({
             price,
-            color: drawing === "sr" ? "#E7B429" : "#939DB1",
+            color: drawing === "sr" ? "#FFFFFF" : "rgba(255,255,255,0.38)",
             lineWidth: 1,
             lineStyle: drawing === "sr" ? LineStyle.Dashed : LineStyle.Solid,
             axisLabelVisible: true,
@@ -331,7 +331,7 @@ export default function TradingChart({
           if (drawPointsRef.current.length >= 2) {
             const [a, b] = drawPointsRef.current;
             const series = chartRef.current?.addSeries(LineSeries, {
-              color: "#4F8DFF",
+              color: "rgba(255,255,255,0.66)",
               lineWidth: 1,
               priceLineVisible: false,
               lastValueVisible: false,
@@ -451,7 +451,7 @@ export default function TradingChart({
     let main: ISeriesApi<"Candlestick"> | ISeriesApi<"Line"> | ISeriesApi<"Area">;
     if (chartType === "line") {
       main = chart.addSeries(LineSeries, {
-        color: "#2DE2E6",
+        color: "rgba(255,255,255,0.48)",
         lineWidth: 2,
         priceLineVisible: true,
         lastValueVisible: true,
@@ -459,7 +459,7 @@ export default function TradingChart({
       main.setData(bars.map((b) => ({ time: toChartTime(b.t), value: b.c })));
     } else if (chartType === "area") {
       main = chart.addSeries(AreaSeries, {
-        lineColor: "#2DE2E6",
+        lineColor: "rgba(255,255,255,0.48)",
         topColor: "rgba(45,226,230,0.28)",
         bottomColor: "rgba(45,226,230,0.02)",
         lineWidth: 2,
@@ -513,11 +513,11 @@ export default function TradingChart({
 
     // Moving averages / BB on price pane (0)
     const maColor: Record<string, string> = {
-      sma20: "#E7B429",
-      sma50: "#4F8DFF",
-      sma200: "#9B7BFF",
-      ema20: "#FF8A5B",
-      ema50: "#2DE2E6",
+      sma20: "#FFFFFF",
+      sma50: "rgba(255,255,255,0.66)",
+      sma200: "rgba(255,255,255,0.58)",
+      ema20: "rgba(255,255,255,0.30)",
+      ema50: "rgba(255,255,255,0.48)",
     };
     const addLine = (pts: { t: number; v: number }[], color: string, title: string) => {
       if (!pts.length) return;
@@ -547,7 +547,7 @@ export default function TradingChart({
       const rsiPane = nextPane++;
       const rsi = computeRsi(bars, 14);
       const s = chart.addSeries(LineSeries, {
-        color: "#9B7BFF",
+        color: "rgba(255,255,255,0.58)",
         lineWidth: 1,
         priceLineVisible: false,
         lastValueVisible: true,
@@ -574,7 +574,7 @@ export default function TradingChart({
         color: p.v >= 0 ? "rgba(38,208,124,0.5)" : "rgba(255,77,94,0.5)",
       })));
       const macdLine = chart.addSeries(LineSeries, {
-        color: "#4F8DFF",
+        color: "rgba(255,255,255,0.66)",
         lineWidth: 1,
         priceLineVisible: false,
         lastValueVisible: false,
@@ -582,7 +582,7 @@ export default function TradingChart({
       }, macdPane);
       macdLine.setData(m.macd.map((p) => ({ time: toChartTime(p.t), value: p.v })));
       const sigLine = chart.addSeries(LineSeries, {
-        color: "#E7B429",
+        color: "#FFFFFF",
         lineWidth: 1,
         priceLineVisible: false,
         lastValueVisible: false,
@@ -603,7 +603,7 @@ export default function TradingChart({
       if ((d.tool === "horizontal" || d.tool === "sr") && d.price != null) {
         drawLinesRef.current.push(main.createPriceLine({
           price: d.price,
-          color: d.tool === "sr" ? "#E7B429" : "#939DB1",
+          color: d.tool === "sr" ? "#FFFFFF" : "rgba(255,255,255,0.38)",
           lineWidth: 1,
           lineStyle: d.tool === "sr" ? LineStyle.Dashed : LineStyle.Solid,
           axisLabelVisible: true,

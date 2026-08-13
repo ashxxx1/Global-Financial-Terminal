@@ -49,14 +49,14 @@ const SEED: Array<{
 ];
 
 const KIND_COLOR: Record<EconEventKind, string> = {
-  CPI: "#E7B429",
-  FED: "#9B7BFF",
-  ECB: "#9B7BFF",
-  BOE: "#9B7BFF",
-  BOJ: "#9B7BFF",
-  EARNINGS: "#2DE2E6",
-  GDP: "#4F8DFF",
-  JOBS: "#FF8A5B",
+  CPI: "#FFFFFF",
+  FED: "rgba(255,255,255,0.58)",
+  ECB: "rgba(255,255,255,0.58)",
+  BOE: "rgba(255,255,255,0.58)",
+  BOJ: "rgba(255,255,255,0.58)",
+  EARNINGS: "rgba(255,255,255,0.48)",
+  GDP: "rgba(255,255,255,0.66)",
+  JOBS: "rgba(255,255,255,0.30)",
 };
 
 export function colorForEconKind(kind: EconEventKind): string {

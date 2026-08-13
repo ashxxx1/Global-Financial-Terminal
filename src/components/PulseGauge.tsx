@@ -12,7 +12,7 @@ import { allStockSymbols, quoteFor } from "../lib/market";
 const BANDS = [
   { max: 20,  label: "Extreme fear",  color: "#FF4D5E" },
   { max: 40,  label: "Fear",          color: "#FF8A4D" },
-  { max: 60,  label: "Neutral",       color: "#E7B429" },
+  { max: 60,  label: "Neutral",       color: "#FFFFFF" },
   { max: 80,  label: "Greed",         color: "#7FD98A" },
   { max: 101, label: "Extreme greed", color: "#26D07C" },
 ];

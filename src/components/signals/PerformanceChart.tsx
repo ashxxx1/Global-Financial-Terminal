@@ -23,8 +23,8 @@ export default function PerformanceChart({
           <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="cumFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#E7B429" stopOpacity={0.35} />
-                <stop offset="100%" stopColor="#E7B429" stopOpacity={0} />
+                <stop offset="0%" stopColor="#FFFFFF" stopOpacity={0.35} />
+                <stop offset="100%" stopColor="#FFFFFF" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid stroke="rgba(150,174,216,0.08)" vertical={false} />

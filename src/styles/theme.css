@@ -7,20 +7,22 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Ground — deeper, blue-tinted, layered for depth */
-  --bg: #05070E;
-  --bg-2: #080B16;
-  --navy: #0C1320;
-  --navy-2: #111B2C;
-  --panel-top: rgba(24, 34, 54, 0.66);
-  --panel-bot: rgba(10, 16, 27, 0.82);
-  --panel: rgba(13, 20, 32, 0.85);   /* legacy flat fallback */
-  --raised: #16213398;
+  /* Ground — true black, matching the welcome page. Neutral greys only:
+     a blue-tinted "dark" reads as a themed dashboard, pure black reads as
+     an instrument. */
+  --bg: #000000;
+  --bg-2: #060606;
+  --navy: #0B0B0B;
+  --navy-2: #111111;
+  --panel-top: rgba(255, 255, 255, 0.022);
+  --panel-bot: rgba(255, 255, 255, 0.012);
+  --panel: rgba(255, 255, 255, 0.018);
+  --raised: rgba(255, 255, 255, 0.04);
 
-  /* Ink */
-  --text: #F3F6FC;
-  --muted: #939DB1;
-  --faint: #616C82;
+  /* Ink — neutral, no blue cast */
+  --text: #FFFFFF;
+  --muted: rgba(255, 255, 255, 0.62);
+  --faint: rgba(255, 255, 255, 0.38);
 
   /* Semantics — market up/down */
   --up: #26D07C;
@@ -30,20 +32,23 @@
   --down-dim: rgba(255, 77, 94, 0.13);
   --down-glow: rgba(255, 77, 94, 0.45);
 
-  /* Accents */
-  --gold: #E7B429;
-  --gold-dim: rgba(231, 180, 41, 0.13);
-  --blue: #4F8DFF;
-  --blue-dim: rgba(79, 141, 255, 0.15);
-  --cyan: #2DE2E6;
-  --cyan-dim: rgba(45, 226, 230, 0.13);
-  /* Model / intelligence accent for GFT Signals */
-  --purple: #9B7BFF;
-  --purple-dim: rgba(155, 123, 255, 0.14);
+  /* Accents — deliberately monochrome.
+     Every accent is now a shade of white. The ONLY colour left in the product
+     is --up / --down above, because a gain and a loss must never look alike.
+     These names are kept so the ~200 existing usages keep working; changing
+     the value in one place converts the whole app. */
+  --gold: rgba(255, 255, 255, 0.92);
+  --gold-dim: rgba(255, 255, 255, 0.09);
+  --blue: rgba(255, 255, 255, 0.82);
+  --blue-dim: rgba(255, 255, 255, 0.07);
+  --cyan: rgba(255, 255, 255, 0.72);
+  --cyan-dim: rgba(255, 255, 255, 0.06);
+  --purple: rgba(255, 255, 255, 0.78);
+  --purple-dim: rgba(255, 255, 255, 0.07);
 
   /* Chrome */
-  --line: rgba(150, 174, 216, 0.11);
-  --line-strong: rgba(150, 174, 216, 0.26);
+  --line: rgba(255, 255, 255, 0.10);
+  --line-strong: rgba(255, 255, 255, 0.22);
   --edge-hi: inset 0 1px 0 rgba(255, 255, 255, 0.055);   /* top light catch */
   --shadow: 0 20px 54px rgba(0, 0, 0, 0.6);
   --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.4);

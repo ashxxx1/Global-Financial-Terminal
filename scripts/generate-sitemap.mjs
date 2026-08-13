@@ -35,7 +35,14 @@ const url = (loc, { changefreq = "daily", priority = "0.7", lastmod }) =>
   (lastmod ? `    <lastmod>${lastmod}</lastmod>\n` : "") +
   `    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
 
+/** Term slugs, read straight from the source so the sitemap cannot drift. */
+async function glossary() {
+  const src = await readFile(new URL("../src/data/glossary.ts", import.meta.url), "utf8");
+  return [...src.matchAll(/slug:\s*"([a-z0-9-]+)"/g)].map((m) => m[1]);
+}
+
 async function main() {
+  const glossarySlugs = await glossary();
   const today = new Date().toISOString().slice(0, 10);
   const codes = await countryCodes();
   const syms = await tickers();
@@ -57,6 +64,8 @@ async function main() {
     url("/news", { changefreq: "hourly", priority: "0.9", lastmod: today }),
     url("/changelog", { changefreq: "weekly", priority: "0.5", lastmod: today }),
     url("/data-sources", { changefreq: "monthly", priority: "0.4", lastmod: today }),
+    url("/glossary", { changefreq: "monthly", priority: "0.7", lastmod: today }),
+    ...glossarySlugs.map((g) => url(`/glossary/${g}`, { changefreq: "monthly", priority: "0.6", lastmod: today })),
     url("/terms", { changefreq: "yearly", priority: "0.3", lastmod: today }),
     url("/privacy", { changefreq: "yearly", priority: "0.3", lastmod: today }),
     ...codes.map((c) => url(`/country/${c}`, { priority: "0.8", lastmod: today })),

@@ -14,11 +14,13 @@ import { connectBackend, BACKEND_URL } from "./lib/feeds/backend";
 import TopNav from "./components/TopNav";
 import Ticker from "./components/Ticker";
 import RightRail from "./components/RightRail";
-import Search from "./components/Search";
+
 import AlertWatcher from "./components/AlertWatcher";
-import Toasts from "./components/Toasts";
-import ContextMenu from "./components/ContextMenu";
-import TerminalChat from "./components/TerminalChat";
+
+const Search = lazy(() => import("./components/Search"));
+const ContextMenu = lazy(() => import("./components/ContextMenu"));
+const TerminalChat = lazy(() => import("./components/TerminalChat"));
+const Toasts = lazy(() => import("./components/Toasts"));
 const Onboarding = lazy(() => import("./components/Onboarding"));
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
 const PmfSurvey = lazy(() => import("./components/PmfSurvey"));
@@ -43,6 +45,7 @@ const SignalBacktestPage = lazy(() => import("./pages/signals/SignalBacktestPage
 const SignalTrackRecordPage = lazy(() => import("./pages/signals/SignalTrackRecordPage"));
 const Forum = lazy(() => import("./pages/Forum"));
 const ForumPost = lazy(() => import("./pages/ForumPost"));
+const Glossary = lazy(() => import("./pages/Glossary"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 import Login from "./pages/Login";
@@ -144,6 +147,8 @@ function Shell() {
             <Route path="/data-sources" element={<DataSources />} />
             <Route path="/forum" element={<Forum />} />
             <Route path="/forum/post/:postId" element={<ForumPost />} />
+            <Route path="/glossary" element={<Glossary />} />
+            <Route path="/glossary/:slug" element={<Glossary />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<World />} />
@@ -154,11 +159,13 @@ function Shell() {
         <RightRail />
       </div>
       <Ticker />
-      <Search />
+      <Suspense fallback={null}>
+        <Search />
+        <ContextMenu />
+        <TerminalChat />
+        <Toasts />
+      </Suspense>
       <AlertWatcher />
-      <Toasts />
-      <ContextMenu />
-      <TerminalChat />
       {/* Suppressed during onboarding — a floating feedback button on top of a
           modal the user has not finished competes for the same decision. */}
       {!showOnboarding && (

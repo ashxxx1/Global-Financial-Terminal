@@ -24,7 +24,9 @@ export default function Markets() {
   });
   const all = useIndices();
   const [group, setGroup] = useState<(typeof GROUPS)[number]>("INDICES");
-  const [tick, setTick] = useState(0);
+  // Re-render on the shared market clock. The value is unused — the point is
+  // the state change — so it is named with a leading underscore.
+  const [, setTick] = useState(0);
   useEffect(() => subscribe(() => setTick((t) => t + 1)), []);
   const movers = useMemo(() => topMovers(10), []);
 

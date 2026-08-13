@@ -201,7 +201,7 @@ with a big roadmap and no users.
 ### Content & authority
 - [ ] 101. Launch a blog on the same domain
 - [ ] 102. Publish a weekly market-visualization post (your unfair advantage)
-- [ ] 103. Build an educational glossary (SEO gold in finance)
+- [x] 103. Educational glossary — `/glossary` hub + 13 term pages, each with a worked example, the common mistake and DefinedTerm structured data (not thin, per item 100). Sitemap 667 → 687 URLs
 - [ ] 104. Data-story posts using your own visuals ("what the world's markets did in 2026")
 - [ ] 105. Guest posts on finance blogs for backlinks
 - [ ] 106. Digital PR: publish an original data study journalists will cite

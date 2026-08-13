@@ -729,9 +729,11 @@ input, select { font-family: inherit; }
   position: relative;
   height: 100%;
   min-height: 0;
-  animation: routeIn .34s cubic-bezier(.22,1,.36,1) both;
+  animation: routeIn .24s cubic-bezier(.22,1,.36,1) both;
 }
-@keyframes routeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+/* Transform + opacity only — both run on the compositor, so a route change
+   never touches layout or paint on the main thread. */
+@keyframes routeIn { from { opacity: 0; transform: translate3d(0,6px,0); } to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   .toast, .route-fade { animation: none !important; }
@@ -1673,3 +1675,79 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
 .shell-content h2:not(.panel-title) {
   font-family: var(--serif); font-weight: 400; letter-spacing: -0.015em;
 }
+
+/* ═══════════════════════════════════════════════════
+   MOTION + PERFORMANCE PASS
+   Micro-interactions carried over from the landing, plus the compositing
+   work that keeps them cheap. Every transition here is transform/opacity
+   only; nothing animates a property that triggers layout.
+   ═══════════════════════════════════════════════════ */
+
+/* Offscreen panels stop costing layout and paint until they scroll near.
+   contain-intrinsic-size reserves height so this never causes a scroll jump. */
+.shell-content .panel {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 220px;
+}
+
+/* Table rows: a hairline wipe instead of a background flash. */
+.tbl tbody tr { transition: background .16s ease; }
+.tbl tbody tr:hover { background: rgba(255,255,255,0.035); }
+.tbl tbody tr td { transition: color .16s ease; }
+
+/* Chips get the landing's easing so the whole app moves with one hand. */
+.chip {
+  transition: color .18s ease, border-color .18s ease,
+              background .18s ease, transform .18s cubic-bezier(0.16,1,0.3,1);
+}
+.chip:hover { transform: translateY(-1px); }
+.chip:active { transform: translateY(0); }
+
+/* Rail rows: the symbol slides a hair on hover — enough to feel alive,
+   small enough never to reflow its neighbours. */
+.mrow { transition: background .16s ease; }
+.mrow:hover { background: rgba(255,255,255,0.04); }
+.mrow-sym { transition: transform .2s cubic-bezier(0.16,1,0.3,1); }
+.mrow:hover .mrow-sym { transform: translateX(2px); }
+
+/* Section headers pick up the mono treatment used on the landing. */
+.sec-head { transition: border-color .2s ease; }
+
+/* Focus is visible and monochrome everywhere, not just on the landing. */
+.shell :focus-visible,
+.lp :focus-visible { outline: 1px solid var(--text); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .chip, .chip:hover, .mrow-sym, .tbl tbody tr { transition: none; transform: none; }
+}
+
+/* ─── Glossary (item 103) ─── */
+.gl { padding: 24px clamp(18px, 4vw, 40px) 60px; max-width: 900px; margin: 0 auto; }
+.gl-head { margin: 18px 0 34px; }
+.gl-head h1 { margin: 10px 0 12px; font-size: clamp(28px, 4vw, 44px); }
+.gl-head p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.7; max-width: 56ch; }
+.gl-missing { color: var(--gold); font-size: 13px; margin-top: 10px; }
+.gl-section { margin-bottom: 34px; }
+.gl-cat {
+  font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--faint); margin: 0 0 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--line);
+}
+.gl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.gl-card {
+  display: block; padding: 15px 16px; border: 1px solid var(--line); border-radius: 10px;
+  text-decoration: none; color: inherit; background: rgba(255,255,255,0.014);
+  transition: border-color .18s ease, transform .18s cubic-bezier(0.16,1,0.3,1), background .18s ease;
+}
+.gl-card:hover { border-color: var(--line-strong); transform: translateY(-2px); background: rgba(255,255,255,0.03); }
+.gl-card b { display: block; font-size: 14.5px; margin-bottom: 5px; }
+.gl-card p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--muted); }
+
+.gl-term .gl-short { font-size: 16px; color: var(--text); max-width: 54ch; }
+.gl-body p { font-size: 14.5px; line-height: 1.75; color: var(--muted); max-width: 66ch; }
+.gl-box { margin: 22px 0; padding: 16px 18px; border-left: 2px solid var(--line-strong); background: rgba(255,255,255,0.02); }
+.gl-box.warn { border-left-color: var(--gold); }
+.gl-box p { margin: 7px 0 0; color: var(--text); }
+.gl-related { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line); }
+.gl-related > div { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.gl-related .chip { text-decoration: none; }

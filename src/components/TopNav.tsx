@@ -19,6 +19,7 @@ const PRIMARY_LINKS = [
 
 const OVERFLOW_LINKS = [
   { to: "/compare", label: "COMPARE" },
+  { to: "/glossary", label: "GLOSSARY" },
 ];
 
 export default function TopNav() {

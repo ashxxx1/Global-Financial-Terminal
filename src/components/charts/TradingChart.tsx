@@ -210,20 +210,20 @@ export default function TradingChart({
         attributionLogo: false,
       },
       grid: {
-        vertLines: { color: "rgba(150,174,216,0.06)" },
-        horzLines: { color: "rgba(150,174,216,0.06)" },
+        vertLines: { color: "rgba(255,255,255,0.055)" },
+        horzLines: { color: "rgba(255,255,255,0.055)" },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
-        vertLine: { color: "rgba(45,226,230,0.45)", width: 1, style: LineStyle.Dashed, labelBackgroundColor: "#111B2C" },
-        horzLine: { color: "rgba(45,226,230,0.45)", width: 1, style: LineStyle.Dashed, labelBackgroundColor: "#111B2C" },
+        vertLine: { color: "rgba(45,226,230,0.45)", width: 1, style: LineStyle.Dashed, labelBackgroundColor: "#111111" },
+        horzLine: { color: "rgba(45,226,230,0.45)", width: 1, style: LineStyle.Dashed, labelBackgroundColor: "#111111" },
       },
       rightPriceScale: {
-        borderColor: "rgba(150,174,216,0.12)",
+        borderColor: "rgba(255,255,255,0.11)",
         scaleMargins: { top: 0.08, bottom: 0.18 },
       },
       timeScale: {
-        borderColor: "rgba(150,174,216,0.12)",
+        borderColor: "rgba(255,255,255,0.11)",
         timeVisible: true,
         secondsVisible: false,
       },
@@ -538,9 +538,9 @@ export default function TradingChart({
     if (enabled.has("ema50")) addLine(computeEma(bars, 50), maColor.ema50, "EMA50");
     if (enabled.has("bb")) {
       const bb = computeBollinger(bars, 20, 2);
-      addLine(bb.upper, "rgba(150,174,216,0.55)", "BB U");
-      addLine(bb.mid, "rgba(150,174,216,0.35)", "BB M");
-      addLine(bb.lower, "rgba(150,174,216,0.55)", "BB L");
+      addLine(bb.upper, "rgba(255,255,255,0.5)", "BB U");
+      addLine(bb.mid, "rgba(255,255,255,0.32)", "BB M");
+      addLine(bb.lower, "rgba(255,255,255,0.5)", "BB L");
     }
 
     if (enabled.has("rsi")) {

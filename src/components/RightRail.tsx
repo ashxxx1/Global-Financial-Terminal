@@ -100,14 +100,19 @@ export default function RightRail() {
       data-tour="rail"
       style={{
         width: "var(--rail-w)", minWidth: "var(--rail-w)",
-        borderLeft: "1px solid var(--line)", background: "rgba(13,20,32,0.6)",
+        borderLeft: "1px solid var(--line)", background: "rgba(255,255,255,0.018)",
         overflowY: "auto", display: "flex", flexDirection: "column",
       }}
     >
       {/* Sessions and breadth answer "what is the market doing right now",
           which belongs above anything instrument-specific. */}
-      <MarketSessions />
-      <BreadthBar />
+      {/* Progressive disclosure: exchange clocks and advance/decline are
+          instrumentation for someone who already knows what they mean. They
+          stay one toggle away rather than greeting every new user. */}
+      <div className="nerd-only">
+        <MarketSessions />
+        <BreadthBar />
+      </div>
       <div style={{ padding: "0 10px" }}>
         <SignalsHomeWidget top={topSignal} yesterdayHits={yHits} yesterdayTotal={ySignals.length} />
       </div>

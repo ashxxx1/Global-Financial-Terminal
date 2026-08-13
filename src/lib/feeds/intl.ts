@@ -48,6 +48,13 @@ function candidates(): { local: string; remote: string }[] {
 }
 
 export function startIntlFeed(): () => void {
+  // `vite dev` does not run the /api functions; it resolves /api/intl-quote to
+  // the source file and tries to transform TypeScript as a browser module,
+  // which throws a parse-error overlay over the whole app. Same trap the candle
+  // fetch hit earlier. There is nothing to gain from running this locally, so
+  // it simply does not start.
+  if (import.meta.env.DEV) return () => {};
+
   const all = candidates();
   if (all.length === 0) return () => {};
 
@@ -65,7 +72,9 @@ export function startIntlFeed(): () => void {
     const { local, remote } = batch[i];
     try {
       const r = await fetch(`/api/intl-quote?symbol=${encodeURIComponent(remote)}`);
-      if (r.ok) {
+      // Belt and braces: if anything ever serves this route as something other
+      // than JSON, treat it as no data rather than throwing on parse.
+      if (r.ok && (r.headers.get("content-type") || "").includes("application/json")) {
         const q = await r.json();
         if (typeof q.c === "number" && q.c > 0) {
           // "cached", not "live": this is yesterday's official close.

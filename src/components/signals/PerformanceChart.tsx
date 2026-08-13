@@ -27,7 +27,7 @@ export default function PerformanceChart({
                 <stop offset="100%" stopColor="#FFFFFF" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke="rgba(150,174,216,0.08)" vertical={false} />
+            <CartesianGrid stroke="rgba(255,255,255,0.07)" vertical={false} />
             <XAxis dataKey="date" tick={{ fill: "#616C82", fontSize: 10, fontFamily: "var(--mono)" }} axisLine={false} tickLine={false} />
             <YAxis
               tick={{ fill: "#616C82", fontSize: 10, fontFamily: "var(--mono)" }}
@@ -37,7 +37,7 @@ export default function PerformanceChart({
               tickFormatter={(v) => `${v.toFixed(1)}%`}
             />
             <Tooltip
-              contentStyle={{ background: "#0C1320", border: "1px solid rgba(150,174,216,0.2)", borderRadius: 6 }}
+              contentStyle={{ background: "#0B0B0B", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 6 }}
               formatter={(v) => [fmtPct(Number(v) / 100), "Cumulative"]}
             />
             <Area type="monotone" dataKey="value" stroke="var(--gold)" fill="url(#cumFill)" strokeWidth={2} />

@@ -30,7 +30,7 @@ export default function SignalChart({ signal }: { signal: Signal }) {
       <div style={{ width: "100%", height: 280 }}>
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
-            <CartesianGrid stroke="rgba(150,174,216,0.08)" vertical={false} />
+            <CartesianGrid stroke="rgba(255,255,255,0.07)" vertical={false} />
             <XAxis dataKey="label" tick={{ fill: "#616C82", fontSize: 10, fontFamily: "var(--mono)" }} axisLine={false} tickLine={false} />
             <YAxis
               domain={["auto", "auto"]}
@@ -41,8 +41,8 @@ export default function SignalChart({ signal }: { signal: Signal }) {
               tickFormatter={(v) => fmtPx(Number(v), signal.signalPrice)}
             />
             <Tooltip
-              contentStyle={{ background: "#0C1320", border: "1px solid rgba(150,174,216,0.2)", borderRadius: 6 }}
-              labelStyle={{ color: "#939DB1", fontFamily: "var(--mono)", fontSize: 11 }}
+              contentStyle={{ background: "#0B0B0B", border: "1px solid rgba(255,255,255,0.18)", borderRadius: 6 }}
+              labelStyle={{ color: "rgba(255,255,255,0.62)", fontFamily: "var(--mono)", fontSize: 11 }}
               itemStyle={{ color: "#F3F6FC", fontFamily: "var(--mono)", fontSize: 12 }}
             />
             <ReferenceArea

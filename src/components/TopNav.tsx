@@ -8,17 +8,19 @@ import ShareButton from "./ShareButton";
 import AccountModal from "./AccountModal";
 import { useAuth } from "../lib/auth";
 
+/** Four destinations cover what almost everyone came for. Eight top-level
+ *  links is a menu, not navigation — the rest live behind MORE. */
 const PRIMARY_LINKS = [
   { to: "/", label: "WORLD", end: true },
   { to: "/markets", label: "MARKETS" },
-  { to: "/macro", label: "MACRO" },
-  { to: "/terminal/signals", label: "SIGNALS" },
   { to: "/news", label: "NEWS" },
-  { to: "/forum", label: "FORUM" },
+  { to: "/terminal/signals", label: "SIGNALS" },
 ];
 
 const OVERFLOW_LINKS = [
+  { to: "/macro", label: "MACRO" },
   { to: "/compare", label: "COMPARE" },
+  { to: "/forum", label: "FORUM" },
   { to: "/glossary", label: "GLOSSARY" },
 ];
 
@@ -78,7 +80,7 @@ export default function TopNav() {
     <header
       style={{
         display: "flex", alignItems: "center", gap: 18, padding: "0 16px",
-        borderBottom: "1px solid var(--line)", background: "rgba(10,10,10,0.85)",
+        borderBottom: "1px solid var(--line)", background: "rgba(0,0,0,0.82)",
         backdropFilter: "blur(16px)", position: "relative", zIndex: 40,
       }}
     >
@@ -124,17 +126,6 @@ export default function TopNav() {
               const signalsActive = l.label === "SIGNALS" && (location.pathname.startsWith("/terminal/signals") || location.pathname.startsWith("/signals"));
               return linkStyle(isActive || signalsActive);
             }}
-          >
-            {l.label}
-          </NavLink>
-        ))}
-
-        {OVERFLOW_LINKS.map((l) => (
-          <NavLink
-            key={l.to}
-            to={l.to}
-            className="topnav-primary-overflow"
-            style={() => linkStyle(l.label === "COMPARE" ? compareActive : false)}
           >
             {l.label}
           </NavLink>

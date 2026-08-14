@@ -1,0 +1,4 @@
+# Every pull request automatically requests a review from the repo owner.
+# Combined with the "require review" branch-protection rule, this is what stops
+# unreviewed code reaching production.
+*       @ashxxx1

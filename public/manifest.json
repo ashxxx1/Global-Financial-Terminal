@@ -1,0 +1,29 @@
+{
+  "name": "Global Financial Terminal",
+  "short_name": "GFT",
+  "description": "A living map of global markets and the news that moves them.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "scope": "/",
+  "categories": [
+    "finance",
+    "business",
+    "news"
+  ]
+}

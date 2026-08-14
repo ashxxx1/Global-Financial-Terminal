@@ -1,0 +1,42 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "git": {
+    "deploymentEnabled": {
+      "cursor/gft-signals-platform-2957": false,
+      "cursor/dev-workflow-skills-2957": false,
+      "cursor/trading-charts-77f9": false
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/((?!api/|assets/|earth-blue-marble\\.jpg|ne_110m_admin_0_countries\\.geojson|favicon\\.svg|sitemap\\.xml|robots\\.txt|og\\.png|icons\\.svg).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    { "path": "/api/signals-generate", "schedule": "0 12 * * 1-5" },
+    { "path": "/api/signals-resolve", "schedule": "30 20 * * 1-5" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(earth-blue-marble.jpg|ne_110m_admin_0_countries.geojson)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ]
+}

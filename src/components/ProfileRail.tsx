@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../lib/auth";
+import { useAuth, fetchMemberNo } from "../lib/auth";
 import {
   useUserPosts, useUserComments, useUserReposts,
   postPath, timeAgo, initialsFor, type ForumPost,
 } from "../lib/forum";
+import { useEffect } from "react";
 
 type Tab = "posts" | "comments" | "reposts" | "media";
 const TABS: { id: Tab; label: string }[] = [
@@ -23,23 +24,48 @@ export default function ProfileRail() {
   const user = useAuth((s) => s.user);
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("posts");
+  const [memberNo, setMemberNo] = useState<number | null>(null);
 
   const { posts, loading: postsLoading } = useUserPosts(user?.uid);
   const { comments, loading: commentsLoading } = useUserComments(user?.uid);
   const { reposts, loading: repostsLoading } = useUserReposts(user?.uid);
 
+  useEffect(() => {
+    fetchMemberNo().then(setMemberNo);
+  }, [user?.uid]);
+
   if (!user) return null;
   const media = posts.filter((p) => p.media.length > 0);
-  const handle = `@${(user.email ? user.email.split("@")[0] : user.uid.slice(0, 8))}`;
+  const handle = `@${(user.email ? user.email.split("@")[0] : user.uid.slice(0, 8)).replace(/[^a-z0-9_]/gi, "_").toLowerCase()}`;
 
   return (
     <aside className="forum-rail">
-      <div className="profile-card">
-        {user.photoURL
-          ? <img className="profile-avatar-lg" src={user.photoURL} alt="" referrerPolicy="no-referrer" />
-          : <span className="profile-avatar-lg">{initialsFor(user.displayName, user.email)}</span>}
-        <div className="profile-name">{user.displayName || handle}</div>
+      {/* Mini banner gradient */}
+      <div
+        style={{
+          height: 64,
+          background:
+            "linear-gradient(135deg, rgba(245,158,11,.08) 0%, rgba(16,185,129,.06) 40%, transparent 80%), var(--terminal-surface)",
+          borderBottom: "1px solid var(--terminal-border)",
+          flexShrink: 0,
+        }}
+      />
+
+      <div className="profile-card" style={{ cursor: "pointer" }} onClick={() => navigate(`/user/${user.uid}`)}>
+        <div style={{ marginTop: -28, position: "relative", zIndex: 2 }}>
+          {user.photoURL
+            ? <img className="profile-avatar-lg" src={user.photoURL} alt="" referrerPolicy="no-referrer" />
+            : <span className="profile-avatar-lg">{initialsFor(user.displayName, user.email)}</span>}
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+          <div className="profile-name" style={{ marginTop: 0 }}>{user.displayName || handle}</div>
+          {memberNo != null && (
+            <span className="member-badge">#{memberNo}</span>
+          )}
+        </div>
         <div className="profile-handle">{handle}</div>
+
         <div className="profile-stats">
           <div className="profile-stat"><b>{posts.length}</b><span>Posts</span></div>
           <div className="profile-stat"><b>{reposts.length}</b><span>Reposts</span></div>

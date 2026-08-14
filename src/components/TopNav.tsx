@@ -8,20 +8,19 @@ import ShareButton from "./ShareButton";
 import AccountModal from "./AccountModal";
 import { useAuth } from "../lib/auth";
 
-/** Every destination stays reachable. The four highest-traffic ones sit
- *  inline; the rest collapse into MORE only when the viewport genuinely runs
- *  out of room, not as a way of hiding features. */
+/** Four destinations cover what almost everyone came for. Eight top-level
+ *  links is a menu, not navigation — the rest live behind MORE. */
 const PRIMARY_LINKS = [
   { to: "/", label: "WORLD", end: true },
   { to: "/markets", label: "MARKETS" },
   { to: "/news", label: "NEWS" },
   { to: "/terminal/signals", label: "SIGNALS" },
+  { to: "/forum", label: "FORUM" },
 ];
 
 const OVERFLOW_LINKS = [
   { to: "/macro", label: "MACRO" },
   { to: "/compare", label: "COMPARE" },
-  { to: "/forum", label: "FORUM" },
   { to: "/glossary", label: "GLOSSARY" },
 ];
 
@@ -125,19 +124,9 @@ export default function TopNav() {
             end={l.end as boolean | undefined}
             style={({ isActive }) => {
               const signalsActive = l.label === "SIGNALS" && (location.pathname.startsWith("/terminal/signals") || location.pathname.startsWith("/signals"));
-              return linkStyle(isActive || signalsActive);
+              const forumActive = l.label === "FORUM" && (location.pathname.startsWith("/forum") || location.pathname.startsWith("/user/"));
+              return linkStyle(isActive || signalsActive || forumActive);
             }}
-          >
-            {l.label}
-          </NavLink>
-        ))}
-
-        {OVERFLOW_LINKS.map((l) => (
-          <NavLink
-            key={l.to}
-            to={l.to}
-            className="topnav-primary-overflow"
-            style={() => linkStyle(l.label === "COMPARE" ? compareActive : false)}
           >
             {l.label}
           </NavLink>

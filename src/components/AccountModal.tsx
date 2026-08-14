@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth, exportUserData, deleteAccount, ReauthRequired, fetchMemberNo } from "../lib/auth";
 import { track } from "../lib/analytics";
 import { SUPPORT_EMAIL } from "../lib/support";
@@ -13,6 +14,7 @@ import { SUPPORT_EMAIL } from "../lib/support";
  * re-asks for the password when Firebase demands a fresh login.
  */
 export default function AccountModal({ onClose }: { onClose: () => void }) {
+  const navigate = useNavigate();
   const user = useAuth((s) => s.user);
   const [busy, setBusy] = useState<"export" | "delete" | null>(null);
   const [confirming, setConfirming] = useState(false);
@@ -90,6 +92,16 @@ export default function AccountModal({ onClose }: { onClose: () => void }) {
               {memberNo !== null && <span className="member-no" title="Your permanent member number">#{memberNo}</span>}
             </div>
             <div className="acct-email">{user.email}</div>
+            <button
+              className="chip"
+              style={{ marginTop: 8, fontFamily: "var(--mono)", fontSize: 9.5, color: "var(--gold)", borderColor: "rgba(245, 158, 11, 0.4)", background: "rgba(245, 158, 11, 0.08)" }}
+              onClick={() => {
+                onClose();
+                navigate(`/user/${user.uid}`);
+              }}
+            >
+              VIEW PUBLIC PROFILE →
+            </button>
           </div>
         </div>
 

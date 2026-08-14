@@ -43,19 +43,7 @@ const SOURCES: Source[] = [
     detail: "Real published headlines. Sentiment and sector tagging are our own automated classification, not a wire-service rating.",
   },
   {
-    what: "Index levels & commodities",
-    provider: "Tracking ETFs via Finnhub",
-    status: "delayed",
-    detail: "Index levels and commodity spot prices are licensed products that no free tier provides. Instead each one is priced from the US-listed ETF that tracks it — the S&P 500 from SPY, gold from GLD, Japan from EWJ, and so on. The daily change is real. The value shown is the ETF's own price, not the index level (SPY trades near 778 while the S&P 500 is near 6,800), so every row names its ETF inline rather than passing one off as the other. International funds are USD-denominated, so their change includes a currency component. MOEX has no accessible ETF and VIX futures funds do not track the index — both stay simulated.",
-  },
-  {
-    what: "Non-US equities (large-cap)",
-    provider: "US listings & ADRs via Finnhub",
-    status: "delayed",
-    detail: "Finnhub's free tier returns 403 for every international exchange — that is a paid feature. Instead, large non-US companies are priced from their US listing: Toyota from TM, Shell from SHEL, TSMC from TSM, SAP from SAP. Real price for the real company, but quoted in USD, so the value is the US line's rather than the local share price and the daily change includes currency. Each row names its US symbol inline. Mid- and small-caps have no US listing and stay simulated. Korea is excluded entirely — Samsung, Hyundai and LG Chem all quote zero on this tier — as are a handful of grey-market tickers thin enough that one trade moves them 10%+ in a day, which would be worse than showing nothing.",
-  },
-  {
-    what: "Non-US equity closes (rotating)",
+    what: "Non-US equity closes",
     provider: "Alpha Vantage (free tier)",
     status: "delayed",
     detail: "Official previous-day closing prices for selected exchanges (London, Bombay, Frankfurt, Paris, Toronto, São Paulo, Sydney). The free tier allows 25 requests per day, so coverage is refreshed on a slow rotation and builds up over days — these are daily closes, never live prices. Tokyo is not supported by this provider. Anything not yet fetched stays simulated and labelled SIM.",

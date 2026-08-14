@@ -24,6 +24,11 @@ function mediaLayout(index: number, total: number): React.CSSProperties {
   return { aspectRatio: "1" };
 }
 
+/** Derive handle from author name: "Alex Smith" → "@alex_smith" */
+function deriveHandle(name: string): string {
+  return "@" + name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "").slice(0, 20);
+}
+
 export default function PostCard({ post, reposted, repostedBy }: PostCardProps) {
   const navigate = useNavigate();
   const user = useAuth((s) => s.user);
@@ -42,6 +47,7 @@ export default function PostCard({ post, reposted, repostedBy }: PostCardProps) 
 
   const isOwn = user?.uid === post.authorId;
   const goToPost = () => navigate(postPath(post.id));
+  const goToProfile = (e: React.MouseEvent) => { e.stopPropagation(); navigate(`/user/${post.authorId}`); };
 
   async function handleRepost(e: React.MouseEvent) {
     e.stopPropagation();
@@ -98,6 +104,8 @@ export default function PostCard({ post, reposted, repostedBy }: PostCardProps) 
 
   if (deleting) return null; // optimistic; the live listener confirms moments later
 
+  const handle = deriveHandle(post.authorName);
+
   return (
     <article className="post-card">
       {repostedBy && (
@@ -108,12 +116,15 @@ export default function PostCard({ post, reposted, repostedBy }: PostCardProps) 
       )}
       <div className="post-row">
         {post.authorPhoto
-          ? <img className="post-avatar" src={post.authorPhoto} alt="" referrerPolicy="no-referrer" />
-          : <span className="post-avatar">{initialsFor(post.authorName)}</span>}
+          ? <img className="post-avatar" src={post.authorPhoto} alt="" referrerPolicy="no-referrer" onClick={goToProfile} />
+          : <span className="post-avatar" onClick={goToProfile}>{initialsFor(post.authorName)}</span>}
 
         <div className="post-body">
           <div className="post-head">
-            <span className="post-author">{post.authorName}</span>
+            <span className="post-author" onClick={goToProfile} style={{ cursor: "pointer" }}>
+              {post.authorName}
+            </span>
+            <span className="post-handle">{handle}</span>
             <button
               className="post-time"
               style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}

@@ -9,16 +9,14 @@ import type { Source, Kind } from "../lib/market";
  * on /data-sources; the tooltip carries the full sentence.
  */
 export default function ProvenanceBadge({
-  kind, source, country = null, name, className = "",
+  kind, source, country = null, className = "",
 }: {
   kind: Kind;
   source: Source;
   country?: string | null;
-  /** Instrument display name — lets index/commodity rows name their ETF proxy. */
-  name?: string;
   className?: string;
 }) {
-  const p = provenanceFor(kind, source, country, name);
+  const p = provenanceFor(kind, source, country);
   return (
     <span className={`fresh fresh-${p.tone} ${className}`} title={`${p.detail} (${p.provider} · ${p.delay})`}>
       <span className="fresh-dot" />{p.label}

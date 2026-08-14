@@ -1,6 +1,4 @@
 import type { Source, Kind } from "./market";
-import { proxyFor } from "./feeds/proxies";
-import { adrFor } from "./feeds/adrs";
 
 /**
  * Human "as of" labelling for a quote — growth-plan item 7.
@@ -75,28 +73,7 @@ export interface Provenance {
   detail: string;
 }
 
-export function provenanceFor(
-  kind: Kind,
-  source: Source,
-  country: string | null = null,
-  /** Instrument display name — lets index/commodity rows name their ETF proxy. */
-  name?: string,
-): Provenance {
-  // Indices and commodities are priced through a tracking ETF. Say which one,
-  // on screen: substituting an instrument silently is the kind of thing that
-  // makes every other number on the page suspect.
-  if (source === "live" && name) {
-    const p = proxyFor(name);
-    if (p) {
-      return {
-        label: `VIA ${p.etf}`,
-        tone: "stale",
-        provider: `${p.note} · Finnhub`,
-        delay: "delayed (free tier)",
-        detail: `Priced from ${p.etf} (${p.note}), which tracks this market. The change is real; the value shown is the ETF's price, not the index level.`,
-      };
-    }
-  }
+export function provenanceFor(kind: Kind, source: Source, country: string | null = null): Provenance {
   // Genuinely live feeds, regardless of the quote engine.
   if (kind === "crypto") {
     return {
@@ -109,17 +86,6 @@ export function provenanceFor(
       label: "ECB DAILY", tone: "stale", provider: "European Central Bank", delay: "once per business day",
       detail: "Official ECB reference rates, published once each business day — not intraday.",
     };
-  }
-  // Non-US equities priced through a US listing — name it, same as the ETFs.
-  if (kind === "stock" && source === "live" && country && country !== "US") {
-    const adr = name ? adrFor(name) : undefined;
-    if (adr) {
-      return {
-        label: `VIA ${adr}`, tone: "stale", provider: `${adr} (US listing) · Finnhub`,
-        delay: "delayed (free tier)",
-        detail: `Priced from ${adr}, this company's US listing. Real price for the real company, quoted in USD — so the value is the US line's, not the local share price, and the daily change carries an FX component.`,
-      };
-    }
   }
   // Equities: real but delayed when the provider is wired up.
   if (kind === "stock" && source === "live") {

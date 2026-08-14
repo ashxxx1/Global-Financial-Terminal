@@ -11,7 +11,6 @@ import { useSeo } from "../lib/seo";
 import { subscribe } from "../lib/market";
 import { useEffect } from "react";
 import { useTerminal } from "../store";
-import { proxyFor } from "../lib/feeds/proxies";
 
 const GROUPS = ["INDICES", "FX", "CRYPTO", "COMMODITIES", "MOVERS"] as const;
 
@@ -49,7 +48,6 @@ export default function Markets() {
           kind={group === "FX" ? "fx" : group === "CRYPTO" ? "crypto"
             : group === "COMMODITIES" ? "commodity" : group === "MOVERS" ? "stock" : "index"}
           source={rows.some((q) => q.source === "live") ? "live" : "sim"}
-          name={rows.find((q) => q.source === "live")?.name}
         />
         <button
           type="button"
@@ -95,14 +93,7 @@ export default function Markets() {
                   const up = q.changePct >= 0;
                   return (
                     <tr key={q.symbol} style={{ cursor: "default" }}>
-                      <td style={{ fontWeight: 600 }}>
-                        {q.name}
-                        {q.source === "live" && proxyFor(q.name) && (
-                          <span className="via" title={`Priced from ${proxyFor(q.name)!.etf} — ${proxyFor(q.name)!.note}`}>
-                            {proxyFor(q.name)!.etf}
-                          </span>
-                        )}
-                      </td>
+                      <td style={{ fontWeight: 600 }}>{q.name}</td>
                       <td className="num" style={{ fontWeight: 700 }}>{q.display}</td>
                       <td className="num" style={{ color: up ? "var(--up)" : "var(--down)" }}>{up ? "+" : ""}{q.changePct.toFixed(2)}%</td>
                     </tr>

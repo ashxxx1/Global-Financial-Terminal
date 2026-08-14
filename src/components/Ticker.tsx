@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { useIndices } from "../lib/hooks";
 import { useTerminal } from "../store";
 import SourceBadge from "./SourceBadge";
-import { proxyFor } from "../lib/feeds/proxies";
 
 export default function Ticker() {
   const quotes = useIndices();
@@ -31,12 +30,7 @@ export default function Ticker() {
             return (
               <span key={i} onContextMenu={(e) => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, symbol: q.symbol, type: "stock" }) }} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontFamily: "var(--mono)", fontSize: 11, cursor: "context-menu" }}>
                 <span style={{ width: 4, height: 4, borderRadius: "50%", background: up ? "var(--up)" : "var(--down)" }} />
-                <span style={{ color: "var(--faint)", fontSize: 10, letterSpacing: "0.06em" }}>
-                  {q.name}
-                  {q.source === "live" && proxyFor(q.name) && (
-                    <span className="via" title={proxyFor(q.name)!.note}>{proxyFor(q.name)!.etf}</span>
-                  )}
-                </span>
+                <span style={{ color: "var(--faint)", fontSize: 10, letterSpacing: "0.06em" }}>{q.name}</span>
                 <span style={{ color: "var(--text)", fontWeight: 700 }}>{q.display}</span>
                 <span className={`chg ${up ? "up" : "down"}`} style={{ fontSize: 9.5 }}>
                   {up ? "+" : ""}{q.changePct.toFixed(2)}%

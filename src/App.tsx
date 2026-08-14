@@ -4,13 +4,12 @@
  * top nav · content + right rail · bottom live ticker.
  */
 import { useEffect, useState, lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { startCryptoFeed } from "./lib/feeds/crypto";
 import { startFxFeed } from "./lib/feeds/fx";
 import { startQuakeFeed } from "./lib/feeds/quakes";
 import { startStockFeed } from "./lib/feeds/stocks";
 import { startIntlFeed } from "./lib/feeds/intl";
-import { startIndexFeed } from "./lib/feeds/indices";
 import { connectBackend, BACKEND_URL } from "./lib/feeds/backend";
 import TopNav from "./components/TopNav";
 import Ticker from "./components/Ticker";
@@ -46,6 +45,7 @@ const SignalBacktestPage = lazy(() => import("./pages/signals/SignalBacktestPage
 const SignalTrackRecordPage = lazy(() => import("./pages/signals/SignalTrackRecordPage"));
 const Forum = lazy(() => import("./pages/Forum"));
 const ForumPost = lazy(() => import("./pages/ForumPost"));
+const UserProfilePage = lazy(() => import("./pages/UserProfile"));
 const Glossary = lazy(() => import("./pages/Glossary"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -58,6 +58,12 @@ import { useWatchlistSync } from "./lib/syncWatchlist";
 import { initAnalytics, trackPageview } from "./lib/analytics";
 import { onConsentChange } from "./lib/consent";
 import "./styles/theme.css";
+
+function ProfileRedirect() {
+  const user = useAuth((s) => s.user);
+  if (user) return <Navigate to={`/user/${user.uid}`} replace />;
+  return <Navigate to="/forum" replace />;
+}
 
 /** Shown while a lazily-loaded route chunk is in flight. */
 function RouteFallback() {
@@ -110,8 +116,7 @@ function Shell() {
     startQuakeFeed();
     const stopStocks = startStockFeed();   // live US equities via /api/quote
     const stopIntl = startIntlFeed();      // non-US daily closes via /api/intl-quote
-    const stopIdx = startIndexFeed();      // indices + commodities via tracking ETFs
-    return () => { stopStocks(); stopIntl(); stopIdx(); };
+    return () => { stopStocks(); stopIntl(); };
   }, []);
 
   return (
@@ -149,6 +154,8 @@ function Shell() {
             <Route path="/data-sources" element={<DataSources />} />
             <Route path="/forum" element={<Forum />} />
             <Route path="/forum/post/:postId" element={<ForumPost />} />
+            <Route path="/user/:uid" element={<UserProfilePage />} />
+            <Route path="/profile" element={<ProfileRedirect />} />
             <Route path="/glossary" element={<Glossary />} />
             <Route path="/glossary/:slug" element={<Glossary />} />
             <Route path="/terms" element={<Terms />} />

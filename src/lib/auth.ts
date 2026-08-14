@@ -6,6 +6,7 @@
  * so the rest of the app never imports the SDK directly.
  */
 import { create } from "zustand";
+import { useEffect, useState } from "react";
 import {
   onAuthStateChanged,
   getAdditionalUserInfo,
@@ -21,8 +22,12 @@ import {
   signOut as fbSignOut,
   type User,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, deleteDoc, runTransaction, serverTimestamp } from "firebase/firestore";
-import { auth, db, googleProvider, isConfigured } from "./firebase";
+import {
+  doc, getDoc, setDoc, deleteDoc, runTransaction, serverTimestamp,
+  updateDoc, onSnapshot, query, collection, where, getDocs,
+} from "firebase/firestore";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, db, storage, googleProvider, isConfigured } from "./firebase";
 import { identify, track, resetAnalytics } from "./analytics";
 
 export interface Profile {
@@ -329,4 +334,109 @@ export async function deleteAccount(password?: string): Promise<void> {
   track("account_deleted");
   resetAnalytics();
   useAuth.setState({ user: null, status: "signedOut" });
+}
+
+/* ── Public profile (any user, by uid) ─────────────────────────────────── */
+
+export interface PublicProfile {
+  uid: string;
+  displayName: string | null;
+  photoURL: string | null;
+  username: string | null;
+  memberNo: number | null;
+  createdAt: Date | null;
+}
+
+/** Live-snapshot hook that reads another user's public profile doc. */
+export function usePublicProfile(uid: string | undefined): { profile: PublicProfile | null; loading: boolean } {
+  const [profile, setProfile] = useState<PublicProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!db || !uid) { setLoading(false); return; }
+    setLoading(true);
+    return onSnapshot(
+      doc(db, "users", uid),
+      (snap) => {
+        if (snap.exists()) {
+          const d = snap.data();
+          setProfile({
+            uid,
+            displayName: d.displayName ?? null,
+            photoURL: d.photoURL ?? null,
+            username: d.username ?? null,
+            memberNo: typeof d.memberNo === "number" ? d.memberNo : null,
+            createdAt: d.createdAt?.toDate?.() ?? null,
+          });
+        } else {
+          setProfile(null);
+        }
+        setLoading(false);
+      },
+      () => setLoading(false),
+    );
+  }, [uid]);
+
+  return { profile, loading };
+}
+
+/* ── Profile mutations ─────────────────────────────────────────────────── */
+
+/** Update the signed-in user's display name in Auth + Firestore. */
+export async function updateDisplayName(name: string): Promise<void> {
+  const u = auth?.currentUser;
+  if (!u) throw new Error("Not signed in.");
+  const trimmed = name.trim();
+  if (!trimmed) throw new Error("Name can't be empty.");
+  if (trimmed.length > 60) throw new Error("Name is too long (60 char max).");
+  await updateProfile(u, { displayName: trimmed });
+  if (db) {
+    await updateDoc(doc(db, "users", u.uid), { displayName: trimmed }).catch(() => {});
+  }
+  // Refresh the local auth store so the UI updates immediately.
+  useAuth.setState({ user: { ...useAuth.getState().user!, displayName: trimmed } });
+}
+
+/** Update the signed-in user's username. Must be unique across all users. */
+export async function updateUsername(username: string): Promise<void> {
+  const u = auth?.currentUser;
+  if (!u || !db) throw new Error("Not signed in.");
+  const clean = username.trim().toLowerCase().replace(/^@/, "");
+  if (!/^[a-z0-9_]{2,20}$/.test(clean)) {
+    throw new Error("Username must be 2–20 lowercase letters, numbers, or underscores.");
+  }
+  // Uniqueness check: query for any other user with this username.
+  const q = query(collection(db, "users"), where("username", "==", clean));
+  const snap = await getDocs(q);
+  const taken = snap.docs.some((d) => d.id !== u.uid);
+  if (taken) throw new Error(`"${clean}" is already taken — pick another.`);
+  await updateDoc(doc(db, "users", u.uid), { username: clean });
+}
+
+/** Upload a new avatar image to Storage and update Auth + Firestore. */
+export async function updateAvatarPhoto(file: File): Promise<void> {
+  const u = auth?.currentUser;
+  if (!u) throw new Error("Not signed in.");
+  if (!storage) throw new Error("Storage is not configured.");
+  if (!file.type.startsWith("image/")) throw new Error("Only image files are accepted.");
+  if (file.size > 5 * 1024 * 1024) throw new Error("Image must be under 5 MB.");
+
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().slice(0, 8);
+  const path = `avatars/${u.uid}/avatar_${Date.now()}.${ext}`;
+  const fileRef = storageRef(storage, path);
+  await uploadBytes(fileRef, file, { contentType: file.type });
+  const url = await getDownloadURL(fileRef);
+
+  await updateProfile(u, { photoURL: url });
+  if (db) {
+    await updateDoc(doc(db, "users", u.uid), { photoURL: url }).catch(() => {});
+  }
+  useAuth.setState({ user: { ...useAuth.getState().user!, photoURL: url } });
+}
+
+/** Format a number as an ordinal string: 1→"1st", 2→"2nd", 42→"42nd". */
+export function ordinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }

@@ -43,6 +43,12 @@ const SOURCES: Source[] = [
     detail: "Real published headlines. Sentiment and sector tagging are our own automated classification, not a wire-service rating.",
   },
   {
+    what: "Index levels & commodities",
+    provider: "Tracking ETFs via Finnhub",
+    status: "delayed",
+    detail: "Index levels and commodity spot prices are licensed products that no free tier provides. Instead each one is priced from the US-listed ETF that tracks it — the S&P 500 from SPY, gold from GLD, Japan from EWJ, and so on. The daily change is real. The value shown is the ETF's own price, not the index level (SPY trades near 778 while the S&P 500 is near 6,800), so every row names its ETF inline rather than passing one off as the other. International funds are USD-denominated, so their change includes a currency component. MOEX has no accessible ETF and VIX futures funds do not track the index — both stay simulated.",
+  },
+  {
     what: "Non-US equity closes",
     provider: "Alpha Vantage (free tier)",
     status: "delayed",

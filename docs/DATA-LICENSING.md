@@ -20,6 +20,7 @@ rather than merely slow it down.
 | **Binance** | Crypto prices (public WebSocket) | Permitted, attribution expected | Display permitted; no bulk resale | ✅ OK |
 | **European Central Bank** | FX reference rates | Permitted | Permitted with attribution | ✅ OK |
 | **USGS** | Earthquake / live events | Public domain (US Government work) | Permitted | ✅ OK |
+| **Tracking ETFs (Finnhub)** | Index levels + commodities (`/api/quote`) | ⚠️ Same free-tier limit as equities | Display only | ⚠️ **Paid plan needed before charging** |
 | **Alpha Vantage** | Non-US daily closes (`/api/intl-quote`) | ⚠️ Free tier is personal use; 25 req/day | Display only, no bulk | ⚠️ **Paid plan needed before charging** |
 | **Google News RSS** | Headlines + links | Grey area for commercial products | ⚠️ Headline+link only; never full text | ⚠️ **Confirm or replace** |
 
@@ -64,6 +65,19 @@ rather than merely slow it down.
   licensed news API (NewsAPI, Marketaux and Benzinga sell commercial tiers).
 
 ---
+
+### Index & commodity proxies — ⚠️
+- **Why:** index levels (S&P 500, FTSE 100) and commodity spot are licensed
+  products; no free tier carries them. Each instrument is therefore priced from
+  the US-listed ETF that tracks it, which is an ordinary Finnhub symbol.
+- **What is real:** the ETF's price and its daily change.
+- **What is not:** the ETF price is not the index level, and we do not rescale
+  it into one — a synthesised number that looks official is worse than an honest
+  proxy. Every row names its ETF inline.
+- **Caveats carried in the UI:** international funds are USD-denominated, so
+  their change includes FX. MOEX has no accessible ETF; VIX futures funds decay
+  and do not track the index. Both stay simulated rather than being faked.
+- **Before monetizing:** covered by the same Finnhub upgrade already flagged.
 
 ### Alpha Vantage — ⚠️
 - **Used for:** previous-day closes on selected non-US exchanges, server-side via

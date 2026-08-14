@@ -1,4 +1,5 @@
 import type { Source, Kind } from "./market";
+import { proxyFor } from "./feeds/proxies";
 
 /**
  * Human "as of" labelling for a quote — growth-plan item 7.
@@ -73,7 +74,28 @@ export interface Provenance {
   detail: string;
 }
 
-export function provenanceFor(kind: Kind, source: Source, country: string | null = null): Provenance {
+export function provenanceFor(
+  kind: Kind,
+  source: Source,
+  country: string | null = null,
+  /** Instrument display name — lets index/commodity rows name their ETF proxy. */
+  name?: string,
+): Provenance {
+  // Indices and commodities are priced through a tracking ETF. Say which one,
+  // on screen: substituting an instrument silently is the kind of thing that
+  // makes every other number on the page suspect.
+  if (source === "live" && name) {
+    const p = proxyFor(name);
+    if (p) {
+      return {
+        label: `VIA ${p.etf}`,
+        tone: "stale",
+        provider: `${p.note} · Finnhub`,
+        delay: "delayed (free tier)",
+        detail: `Priced from ${p.etf} (${p.note}), which tracks this market. The change is real; the value shown is the ETF's price, not the index level.`,
+      };
+    }
+  }
   // Genuinely live feeds, regardless of the quote engine.
   if (kind === "crypto") {
     return {

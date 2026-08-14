@@ -10,6 +10,7 @@ import { startFxFeed } from "./lib/feeds/fx";
 import { startQuakeFeed } from "./lib/feeds/quakes";
 import { startStockFeed } from "./lib/feeds/stocks";
 import { startIntlFeed } from "./lib/feeds/intl";
+import { startIndexFeed } from "./lib/feeds/indices";
 import { connectBackend, BACKEND_URL } from "./lib/feeds/backend";
 import TopNav from "./components/TopNav";
 import Ticker from "./components/Ticker";
@@ -109,7 +110,8 @@ function Shell() {
     startQuakeFeed();
     const stopStocks = startStockFeed();   // live US equities via /api/quote
     const stopIntl = startIntlFeed();      // non-US daily closes via /api/intl-quote
-    return () => { stopStocks(); stopIntl(); };
+    const stopIdx = startIndexFeed();      // indices + commodities via tracking ETFs
+    return () => { stopStocks(); stopIntl(); stopIdx(); };
   }, []);
 
   return (

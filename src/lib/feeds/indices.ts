@@ -1,5 +1,6 @@
 import { setLiveQuote } from "../market";
 import { ETF_PROXIES } from "./proxies";
+import { ADR_MAP } from "./adrs";
 
 /**
  * Real prices for indices and commodities, via their tracking ETFs.
@@ -16,7 +17,12 @@ import { ETF_PROXIES } from "./proxies";
  * rather than multiplying that number.
  */
 
-const POLL_MS = 1800;
+// 66 symbols (30 ETFs + 36 ADRs) at 3s = a ~200s cycle -> ~20 upstream req/min.
+// Paired with the equity feed's ~24/min that is ~44 against a 60/min cap, with
+// headroom for the occasional retry. Sweeping faster does not get fresher data
+// — the free tier is delayed anyway — it just buys 429s, which is what made
+// prices freeze the first time.
+const POLL_MS = 3000;
 const BACKOFF_MS = 30000;
 const REPROBE_MS = 120000;
 
@@ -29,10 +35,12 @@ export function startIndexFeed(): () => void {
   if (started) return () => {};
   started = true;
 
-  const entries = Object.entries(ETF_PROXIES).map(([name, p]) => ({
-    key: `IDX:${name}`,   // how the registry stores these instruments
-    etf: p.etf,
-  }));
+  const entries = [
+    // Indices and commodities are stored under an "IDX:" key…
+    ...Object.entries(ETF_PROXIES).map(([name, p]) => ({ key: `IDX:${name}`, etf: p.etf })),
+    // …non-US equities under their local ticker, priced via a US listing.
+    ...Object.entries(ADR_MAP).map(([local, adr]) => ({ key: local, etf: adr })),
+  ];
   if (entries.length === 0) { started = false; return () => {}; }
 
   let i = 0;

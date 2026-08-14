@@ -1756,3 +1756,32 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
 .gl-related { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line); }
 .gl-related > div { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .gl-related .chip { text-decoration: none; }
+
+/* ─── Rail consolidation ─────────────────────────────────────────────
+   Grouped block: related widgets share one header and one border instead
+   of each carrying its own full-width chrome. The saving is not pixels,
+   it is the number of headings the eye has to parse on arrival. */
+.rail-group {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 2px;
+}
+.rail-group > * + * { border-top: 1px solid var(--line); }
+/* Grouped children drop their own titles — the group already said it. What
+   they keep is their live status ("2 OPEN", "RISK-ON"), which is the actual
+   information; the repeated heading was the noise. */
+.rail-group .sessions-head .panel-title,
+.rail-group .breadth-head .panel-title { display: none; }
+.rail-group .sessions-head,
+.rail-group .breadth-head { justify-content: flex-end; padding-bottom: 2px; }
+
+/* Segmented control — one header for two views of the same question. */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+.seg button {
+  background: none; border: 0; cursor: pointer; padding: 2px 9px;
+  font-family: var(--mono); font-size: 10px; line-height: 1.5;
+  color: var(--faint); transition: color .15s ease, background .15s ease;
+}
+.seg button:hover { color: var(--text); }
+.seg button.on { background: rgba(255,255,255,0.09); color: var(--text); }
+.seg button:first-child.on { color: var(--up); }
+.seg button:last-child.on { color: var(--down); }

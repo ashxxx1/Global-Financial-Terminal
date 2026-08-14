@@ -55,6 +55,7 @@ export default function RightRail() {
   const suggestQuotes = useQuotes([...SUGGESTED_WATCH]);
 
   const movers = useMemo(() => topMovers(5), []);
+  const [moverSide, setMoverSide] = useState<"gainers" | "losers">("gainers");
 
   /** Suggested rows for the empty watchlist — real quotes when the feed has
    *  them, otherwise placeholders so the layout never jumps. */
@@ -104,12 +105,13 @@ export default function RightRail() {
         overflowY: "auto", display: "flex", flexDirection: "column",
       }}
     >
-      {/* Sessions and breadth answer "what is the market doing right now",
-          which belongs above anything instrument-specific. */}
-      {/* Progressive disclosure: exchange clocks and advance/decline are
-          instrumentation for someone who already knows what they mean. They
-          stay one toggle away rather than greeting every new user. */}
-      <div className="nerd-only">
+      {/* "What is the market doing right now" — one question, so one block.
+          These were two separate full-width sections with two headers; the
+          information was fine, the packaging was the noise. */}
+      <div className="sec-head">
+        <span className="panel-title">Market status</span>
+      </div>
+      <div className="rail-group">
         <MarketSessions />
         <BreadthBar />
       </div>
@@ -236,21 +238,20 @@ export default function RightRail() {
         VIEW ALL NEWS →
       </button>
 
-      {/* Movers */}
+      {/* Movers — gainers and losers are the same question asked twice, so
+          they share one header and a toggle instead of two stacked lists. */}
       <div className="sec-head">
-        <span className="panel-title">Top gainers</span>
-        <span className="label" style={{ color: "var(--up)" }}>24H</span>
+        <span className="panel-title">Movers · 24h</span>
+        <div className="seg" role="tablist" aria-label="Movers direction">
+          <button role="tab" aria-selected={moverSide === "gainers"}
+            className={moverSide === "gainers" ? "on" : ""}
+            onClick={() => setMoverSide("gainers")}>▲</button>
+          <button role="tab" aria-selected={moverSide === "losers"}
+            className={moverSide === "losers" ? "on" : ""}
+            onClick={() => setMoverSide("losers")}>▼</button>
+        </div>
       </div>
-      {movers.gainers.map((q, i) => (
-        <Row key={q.symbol} rank={i + 1} symbol={q.symbol} name={q.name} price={q.display}
-          changePct={q.changePct} actionLabel="Open chart" onClick={() => navigate(`/stock/${q.symbol}`)} />
-      ))}
-
-      <div className="sec-head">
-        <span className="panel-title">Top losers</span>
-        <span className="label" style={{ color: "var(--down)" }}>24H</span>
-      </div>
-      {movers.losers.map((q, i) => (
+      {(moverSide === "gainers" ? movers.gainers : movers.losers).map((q, i) => (
         <Row key={q.symbol} rank={i + 1} symbol={q.symbol} name={q.name} price={q.display}
           changePct={q.changePct} actionLabel="Open chart" onClick={() => navigate(`/stock/${q.symbol}`)} />
       ))}

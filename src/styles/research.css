@@ -1,0 +1,147 @@
+/**
+ * Research copilot styling.
+ *
+ * The tier badges are the only place colour is allowed to carry meaning here,
+ * and even there the label is spelled out — colour alone would fail WCAG 1.4.1
+ * and, more practically, a reader who cannot separate the greens from the
+ * ambers would read every inference as a fact.
+ */
+
+.rsx {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: min(520px, 100vw);
+  background: rgba(0, 0, 0, 0.94);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  z-index: 60;
+  animation: rsx-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes rsx-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .rsx { animation: none; } }
+
+.rsx-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; padding: 14px 16px 12px; border-bottom: 1px solid var(--line);
+}
+.rsx-title { font-family: var(--mono); font-size: 11px; font-weight: 800; letter-spacing: 0.18em; }
+.rsx-sub { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.45; }
+
+.rsx-modes { display: flex; flex-wrap: wrap; gap: 5px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+.rsx-mode {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em;
+  padding: 5px 9px; min-height: 24px; border-radius: 4px; cursor: pointer;
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+.rsx-mode:hover { color: var(--text); border-color: var(--line-strong); }
+.rsx-mode.on { color: #000; background: var(--text); border-color: var(--text); }
+
+.rsx-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
+
+.rsx-empty { padding-top: 6px; }
+.rsx-blurb { font-size: 13px; color: var(--text); line-height: 1.55; margin: 0 0 14px; }
+.rsx-starters, .rsx-follow { display: flex; flex-direction: column; gap: 6px; }
+.rsx-follow { margin-top: 14px; }
+.rsx-starter {
+  text-align: left; font-size: 12.5px; padding: 9px 11px; min-height: 24px;
+  border: 1px solid var(--line); border-radius: 6px; background: var(--panel);
+  color: var(--text); cursor: pointer; transition: border-color 140ms ease, background 140ms ease;
+}
+.rsx-starter:hover { border-color: var(--line-strong); background: rgba(255,255,255,0.045); }
+.rsx-note { font-size: 11px; color: var(--faint); line-height: 1.55; margin-top: 16px; }
+
+.rsx-turn { margin-bottom: 22px; }
+.rsx-q {
+  font-size: 13px; font-weight: 600; color: var(--text);
+  padding: 9px 11px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; margin-bottom: 12px;
+}
+.rsx-loading, .rsx-error { font-size: 12px; color: var(--muted); padding: 6px 2px; }
+.rsx-error { color: var(--down); }
+
+.rsx-atitle { font-size: 15px; font-weight: 700; margin: 0 0 4px; }
+.rsx-headline { font-size: 12px; color: var(--muted); margin: 0 0 12px; line-height: 1.5; }
+
+.rsx-conf { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.rsx-conf-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; color: var(--faint); }
+.rsx-conf-bar { flex: 1; min-width: 70px; height: 3px; background: rgba(255,255,255,0.12); border-radius: 2px; overflow: hidden; }
+.rsx-conf-fill { display: block; height: 100%; background: var(--text); }
+.rsx-conf-val { font-family: var(--mono); font-size: 10.5px; font-weight: 700; }
+.rsx-conf-why { font-size: 10px; color: var(--faint); }
+
+.rsx-claims { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.rsx-claim { border-left: 2px solid var(--line); padding-left: 11px; }
+.rsx-claim-row { display: flex; gap: 8px; align-items: flex-start; }
+.rsx-claim-text { font-size: 13px; line-height: 1.55; }
+
+/* Tier badges. Text always spells out the tier — never colour alone. */
+.rsx-tier {
+  flex: 0 0 auto; font-family: var(--mono); font-size: 8.5px; font-weight: 800;
+  letter-spacing: 0.1em; padding: 3px 6px; border-radius: 3px; margin-top: 2px;
+  border: 1px solid currentColor;
+}
+.rsx-tier.t-fact { color: var(--up); }
+.rsx-tier.t-calculation { color: #8FB8FF; }
+.rsx-tier.t-inference { color: #F5C451; }
+.rsx-tier.t-opinion { color: var(--down); }
+
+.rsx-claim-foot { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 7px; }
+.rsx-claim-conf { font-family: var(--mono); font-size: 9.5px; color: var(--faint); }
+.rsx-chip {
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.08em;
+  padding: 2px 6px; border: 1px solid var(--line); border-radius: 3px; color: var(--muted);
+}
+.rsx-chip.sim { border-style: dashed; color: var(--faint); }
+.rsx-evidence-btn {
+  font-family: var(--mono); font-size: 8.5px; font-weight: 700; letter-spacing: 0.1em;
+  padding: 3px 7px; min-height: 24px; border-radius: 3px; cursor: pointer;
+  background: transparent; border: 1px solid var(--line-strong); color: var(--text);
+}
+.rsx-evidence-btn:hover { background: rgba(255,255,255,0.06); }
+
+.rsx-evidence {
+  margin-top: 9px; padding: 10px 11px; border: 1px solid var(--line);
+  border-radius: 6px; background: rgba(255,255,255,0.02);
+}
+.rsx-ev-why, .rsx-ev-tier { font-size: 11.5px; line-height: 1.55; color: var(--muted); margin-bottom: 8px; }
+.rsx-ev-why b, .rsx-ev-tier b { color: var(--text); }
+.rsx-ev-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.rsx-ev-list li { display: flex; flex-direction: column; gap: 2px; padding-top: 8px; border-top: 1px solid var(--line); }
+.rsx-ev-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--text); }
+.rsx-ev-sim {
+  align-self: flex-start; font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em;
+  color: var(--faint); border: 1px dashed var(--line-strong); border-radius: 3px; padding: 1px 5px;
+}
+.rsx-ev-detail { font-size: 11.5px; color: var(--muted); line-height: 1.5; word-break: break-word; }
+.rsx-ev-time { font-family: var(--mono); font-size: 9px; color: var(--faint); }
+.rsx-ev-link { font-size: 10.5px; color: var(--text); }
+
+.rsx-tablewrap { margin-top: 14px; overflow-x: auto; }
+.rsx-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.rsx-table th, .rsx-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+.rsx-table th { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--faint); }
+.rsx-table .num { text-align: right; font-family: var(--mono); }
+
+.rsx-caveats { margin-top: 14px; padding: 10px 11px; border: 1px dashed var(--line-strong); border-radius: 6px; }
+.rsx-caveats-h { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.14em; color: var(--faint); margin-bottom: 7px; }
+.rsx-caveats ul { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 6px; }
+.rsx-caveats li { font-size: 11.5px; color: var(--muted); line-height: 1.55; }
+
+.rsx-form { display: flex; gap: 7px; padding: 12px 16px; border-top: 1px solid var(--line); }
+.rsx-input {
+  flex: 1; min-width: 0; padding: 9px 11px; border-radius: 6px;
+  background: var(--panel); border: 1px solid var(--line); color: var(--text); font-size: 13px;
+}
+.rsx-input::placeholder { color: var(--faint); }
+.rsx-input:focus { outline: 2px solid var(--text); outline-offset: 1px; }
+.rsx-send {
+  font-family: var(--mono); font-size: 10px; font-weight: 800; letter-spacing: 0.12em;
+  padding: 0 14px; min-height: 24px; border-radius: 6px; cursor: pointer;
+  background: var(--text); color: #000; border: 1px solid var(--text);
+}
+.rsx-send:disabled { opacity: 0.45; cursor: not-allowed; }
+
+@media (max-width: 560px) { .rsx { width: 100vw; } }

@@ -19,7 +19,7 @@ import AlertWatcher from "./components/AlertWatcher";
 
 const Search = lazy(() => import("./components/Search"));
 const ContextMenu = lazy(() => import("./components/ContextMenu"));
-const TerminalChat = lazy(() => import("./components/TerminalChat"));
+const ResearchPanel = lazy(() => import("./components/research/ResearchPanel"));
 const Toasts = lazy(() => import("./components/Toasts"));
 const Onboarding = lazy(() => import("./components/Onboarding"));
 const FeedbackWidget = lazy(() => import("./components/FeedbackWidget"));
@@ -58,6 +58,7 @@ import { useWatchlistSync } from "./lib/syncWatchlist";
 import { initAnalytics, trackPageview } from "./lib/analytics";
 import { onConsentChange } from "./lib/consent";
 import "./styles/theme.css";
+import "./styles/research.css";
 
 function ProfileRedirect() {
   const user = useAuth((s) => s.user);
@@ -171,7 +172,7 @@ function Shell() {
       <Suspense fallback={null}>
         <Search />
         <ContextMenu />
-        <TerminalChat />
+        <ResearchPanel />
         <Toasts />
       </Suspense>
       <AlertWatcher />

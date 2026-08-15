@@ -383,14 +383,21 @@ export async function analyzeValuation(symA: string, symB: string): Promise<Answ
 
     // INFERENCE — only made when growth data supports or contradicts it.
     const gA = num(ma.data, "epsGrowthTTMYoy"), gB = num(mb.data, "epsGrowthTTMYoy");
-    if (gA !== null && gB !== null) {
-      const justified = (prem > 0 && gA > gB) || (prem < 0 && gA < gB);
+    if (gA !== null && gB !== null && gB !== 0) {
+      // Direction alone is far too generous: it would rationalise a 24%
+      // premium on a 1pp growth edge. Compare magnitudes — how big is the
+      // valuation gap against the growth gap that is supposed to explain it.
+      const growthGapRel = ((gA - gB) / Math.abs(gB)) * 100;
+      const sameDirection = Math.sign(prem) === Math.sign(growthGapRel);
+      const proportionate = sameDirection && Math.abs(prem) <= Math.abs(growthGapRel) * 2;
       claims.push({
-        text: justified
-          ? `The ${prem > 0 ? "premium" : "discount"} broadly tracks the growth gap (EPS growth ${gA.toFixed(1)}% vs ${gB.toFixed(1)}%), so the two are not obviously mispriced relative to each other.`
-          : `The ${prem > 0 ? "premium" : "discount"} runs against the growth gap (EPS growth ${gA.toFixed(1)}% vs ${gB.toFixed(1)}%), which is the kind of divergence worth investigating.`,
-        tier: "INFERENCE", confidence: 0.45,
-        why: "Compares the direction of the valuation gap with the direction of the earnings-growth gap. One year of growth is a thin basis for this, and multiples also reflect balance sheet, capital intensity and cyclicality that this comparison ignores.",
+        text: proportionate
+          ? `The ${prem > 0 ? "premium" : "discount"} is roughly proportionate to the growth gap (EPS growth ${gA.toFixed(1)}% vs ${gB.toFixed(1)}%, a ${growthGapRel.toFixed(0)}% relative difference).`
+          : sameDirection
+            ? `The ${Math.abs(prem).toFixed(0)}% ${prem > 0 ? "premium" : "discount"} is much larger than the growth gap alone explains — EPS growth differs by only ${Math.abs(growthGapRel).toFixed(0)}% relative (${gA.toFixed(1)}% vs ${gB.toFixed(1)}%), so something other than growth is carrying the valuation.`
+            : `The ${prem > 0 ? "premium" : "discount"} runs against the growth gap (EPS growth ${gA.toFixed(1)}% vs ${gB.toFixed(1)}%), which is the kind of divergence worth investigating.`,
+        tier: "INFERENCE", confidence: 0.4,
+        why: `Compares the size of the valuation gap (${Math.abs(prem).toFixed(0)}%) with the relative earnings-growth gap (${Math.abs(growthGapRel).toFixed(0)}%), calling it proportionate only within a 2× band. That band is our convention, not a market standard. One year of growth is a thin basis regardless, and multiples also reflect balance sheet, capital intensity, buybacks and cyclicality that this ignores entirely.`,
         sources: [srcA, srcB],
       });
     }

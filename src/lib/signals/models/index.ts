@@ -5,6 +5,8 @@ import { VolumeModel } from "./volume";
 import { MarketRegimeModel } from "./regime";
 import { SupportResistanceModel } from "./supportResistance";
 import { EventRiskModel } from "./eventRisk";
+import { NeuralNetModel } from "./neuralNet";
+import { SentimentModel } from "./sentiment";
 import type { Bar } from "../indicators";
 import type { ModelScore, MarketRegime } from "../types";
 
@@ -23,8 +25,11 @@ export function runModularModels(bars: Bar[]): FactorBundle {
   const regime = MarketRegimeModel(bars);
   const levels = SupportResistanceModel(bars);
   const eventRisk = EventRiskModel(bars);
+  const neuralNet = NeuralNetModel(bars);
+  const sentiment = SentimentModel(bars);
+  
   return {
-    scores: [trend, momentum, volatility, volume, regime, levels, eventRisk],
+    scores: [trend, momentum, volatility, volume, regime, levels, eventRisk, neuralNet, sentiment],
     regime: regime.regime,
     support: levels.support,
     resistance: levels.resistance,

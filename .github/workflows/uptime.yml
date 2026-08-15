@@ -15,6 +15,10 @@ on:
   workflow_dispatch:
 
 permissions:
+  # Both are required. Naming a permissions block sets every scope you do not
+  # list to none, so omitting contents:read here fails actions/checkout with a
+  # bare "git exit 128" that looks nothing like a permissions problem.
+  contents: read
   issues: write
 
 concurrency:

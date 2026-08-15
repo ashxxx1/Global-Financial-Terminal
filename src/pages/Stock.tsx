@@ -11,6 +11,7 @@ import { useSeo } from "../lib/seo";
 import { track } from "../lib/analytics";
 import { freshness } from "../lib/marketStatus";
 import { setPrioritySymbol } from "../lib/feeds/stocks";
+import { setIndexPriority } from "../lib/feeds/indices";
 import { sectorSlugForName } from "../lib/sectors";
 import { generateFundamentals } from "../lib/fundamentals";
 import OptionsChain from "../components/OptionsChain";
@@ -46,8 +47,11 @@ export default function Stock() {
 
   // Poll the symbol being viewed far more often than the background sweep.
   useEffect(() => {
+    // US symbols are polled by the equity feed, non-US ones through their US
+    // listing by the index feed. Tell both; each ignores what isn't its own.
     setPrioritySymbol(sym || null);
-    return () => setPrioritySymbol(null);
+    setIndexPriority(sym || null);
+    return () => { setPrioritySymbol(null); setIndexPriority(null); };
   }, [sym]);
 
   const onCompareChange = useCallback((symbols: string[]) => {

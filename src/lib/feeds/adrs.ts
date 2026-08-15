@@ -47,16 +47,21 @@ export const ADR_MAP: Record<string, string> = {
   // ── NL ──
   "NL:ASML": "ASML", "NL:PHIA": "PHG", "NL:ING": "ING", "NL:HEIA": "HEINY", "NL:AD": "ADRNY", "NL:WKL": "WTKWY", "NL:AKZA": "AKZOY",
   // ── TW ──
+  "TW:2303": "UMC",
   "TW:2330": "TSM", "TW:2317": "HNHPF", "TW:2412": "CHT", "TW:3711": "ASX",
   // ── IN ──
+  "IN:DRREDDY": "RDY",
   "IN:INFY": "INFY", "IN:HDFCBANK": "HDB", "IN:ICICIBANK": "IBN", "IN:WIPRO": "WIT", "IN:TATAMOTORS": "TTM",
   // ── CN ──
   "CN:601318": "PNGAY", "CN:002594": "BYDDY", "CN:601398": "IDCBY",
   // ── BR ──
+  "BR:VIVT3": "VIV",
   "BR:PETR4": "PBR", "BR:VALE3": "VALE", "BR:ITUB4": "ITUB", "BR:BBDC4": "BBD", "BR:ABEV3": "ABEV",
   // ── CA ──
+  "CA:BAM": "BAM",
   "CA:RY": "RY", "CA:TD": "TD", "CA:BNS": "BNS", "CA:CNQ": "CNQ", "CA:SU": "SU", "CA:SHOP": "SHOP", "CA:CNR": "CNI", "CA:BCE": "BCE", "CA:ENB": "ENB", "CA:TRP": "TRP",
   // ── AU ──
+  "AU:RIO": "RIO", "AU:WDS": "WDS",
   "AU:BHP": "BHP", "AU:CBA": "CMWAY", "AU:NAB": "NABZY", "AU:ANZ": "ANZGY", "AU:WBC": "WBK", "AU:CSL": "CSLLY",
   // ── ES ──
   "ES:SAN": "SAN", "ES:BBVA": "BBVA", "ES:IBE": "IBDRY", "ES:REP": "REPYY", "ES:TEF": "TEF", "ES:ITX": "IDEXY", "ES:FER": "FER",
@@ -69,17 +74,37 @@ export const ADR_MAP: Record<string, string> = {
   // ── NO ──
   "NO:TEL": "TELNY", "NO:DNB": "DNBBY", "NO:YAR": "YARIY", "NO:MOWI": "MHGVY", "NO:EQNR": "EQNR",
   // ── MX ──
+  "MX:ASURB": "ASR",
   "MX:AMXL": "AMX", "MX:FEMSAUBD": "FMX", "MX:KOFUBL": "KOF", "MX:GMEXICOB": "GMBXF",
   // ── ZA ──
   "ZA:NPN": "NPSNY", "ZA:GLN": "GLNCY", "ZA:SOL": "SSL", "ZA:MTN": "MTNOY",
   // ── HK ──
   "HK:0700": "TCEHY", "HK:9988": "BABA", "HK:1299": "AAGIY", "HK:0388": "HKXCY", "HK:0005": "HSBC",
   // ── IL ──
+  "IL:ELBIT": "ESLT", "IL:MNDY": "MNDY",
   "IL:CHKP": "CHKP", "IL:NICE": "NICE", "IL:TEVA": "TEVA", "IL:ICL": "ICL",
   // ── AR ──
+  "AR:PAMP": "PAM", "AR:CRES": "CRESY",
   "AR:YPF": "YPF", "AR:MELI": "MELI", "AR:BMA": "BMA", "AR:GGAL": "GGAL",
+  // ── CH ── Alcon is Swiss but lists primarily on the NYSE.
+  "CH:ALC": "ALC",
   // ── CL ──
+  "CL:BSANTANDER": "BSAC", "CL:CHILE": "BCH", "CL:ENELCHILE": "ENIC",
   "CL:SQM-B": "SQM", "CL:CCU": "CCU",
+  // ── KR ── Korea's four US-listed majors. The chaebol manufacturers
+  // (Samsung Electronics, Hyundai, SK Hynix) have no US listing at all — only
+  // grey-market lines that quote zero or stale, so they stay simulated.
+  "KR:105560": "KB", "KR:055550": "SHG", "KR:017670": "SKM", "KR:030200": "KT",
+  // ── ID ──
+  "ID:TLKM": "TLK",
+  // ── CO ── Bancolombia's ordinary and preferred lines share one NYSE ADR.
+  "CO:EC": "EC", "CO:BCOLO": "CIB", "CO:PFBCOLOM": "CIB", "CO:GRUPOAVAL": "AVAL",
+  // ── PE ── all three are NYSE primary listings, not ADRs.
+  "PE:SCCO": "SCCO", "PE:BAP": "BAP", "PE:IFS": "IFS",
+  // ── IE ── CRH moved its primary listing to the NYSE in 2023.
+  "IE:CRH": "CRH", "IE:RYA": "RYAAY",
+  // ── BE ──
+  "BE:ABI": "BUD", "BE:ARGX": "ARGX",
   // ── FI ──
   "FI:NOKIA": "NOK",
 };

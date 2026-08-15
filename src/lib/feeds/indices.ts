@@ -1,6 +1,7 @@
 import { setLiveQuote } from "../market";
 import { ETF_PROXIES } from "./proxies";
-import { ADR_MAP } from "./adrs";
+import { ADR_MAP, adrFor } from "./adrs";
+import { metaFor } from "../market";
 
 /**
  * Real prices for indices and commodities, via their tracking ETFs.
@@ -29,6 +30,21 @@ const REPROBE_MS = 120000;
 let started = false;
 let timer: ReturnType<typeof setTimeout> | null = null;
 
+/**
+ * The non-US symbol the user is actually looking at.
+ *
+ * The sweep is ~200 tickers deep, so a given stock comes round roughly every
+ * ten minutes — fine for a background tape, useless for the page in front of
+ * you. The open symbol takes every other slot instead, which puts it on a ~6s
+ * refresh without adding a single request to the overall budget.
+ */
+let priority: { key: string; etf: string } | null = null;
+export function setIndexPriority(sym: string | null): void {
+  const country = sym ? metaFor(sym)?.country : null;
+  const adr = sym && country ? adrFor(sym, country) : undefined;
+  priority = sym && adr ? { key: sym, etf: adr } : null;
+}
+
 interface Quote { c?: number; dp?: number }
 
 export function startIndexFeed(): () => void {
@@ -46,9 +62,11 @@ export function startIndexFeed(): () => void {
 
   let i = 0;
   let dead = 0;
+  let alternate = false;
 
   const tick = async () => {
-    const { key, etf } = entries[i++ % entries.length];
+    alternate = !alternate;
+    const { key, etf } = priority && alternate ? priority : entries[i++ % entries.length];
     try {
       const r = await fetch(`/api/quote?symbol=${encodeURIComponent(etf)}`);
       if (r.status === 429) { schedule(BACKOFF_MS); return; }

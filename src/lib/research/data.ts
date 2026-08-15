@@ -61,9 +61,26 @@ export interface Profile {
   country?: string; currency?: string; weburl?: string; ipo?: string;
 }
 
-/** Finnhub returns ~133 metrics; these are the ones the analyzers cite. */
+/**
+ * Finnhub returns ~133 point-in-time metrics plus historical series: 39 annual
+ * (up to 42 years) and 41 quarterly (up to 149 quarters). The series are what
+ * make historical context possible — see series.ts.
+ */
 export interface Metrics {
   metric?: Record<string, number | string | null>;
+  series?: {
+    annual?: Record<string, { period: string; v: number | null }[]>;
+    quarterly?: Record<string, { period: string; v: number | null }[]>;
+  };
+}
+
+/** Read a historical series, tolerating either cadence being absent. */
+export function seriesOf(
+  m: Metrics | undefined,
+  key: string,
+  cadence: "annual" | "quarterly" = "quarterly",
+): { period: string; v: number | null }[] | undefined {
+  return m?.series?.[cadence]?.[key];
 }
 
 export interface Recommendation {

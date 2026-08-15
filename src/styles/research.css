@@ -145,3 +145,33 @@
 .rsx-send:disabled { opacity: 0.45; cursor: not-allowed; }
 
 @media (max-width: 560px) { .rsx { width: 100vw; } }
+
+/* ── Reproducible calculations ───────────────────────────────────────────── */
+
+.rsx-calc { margin: 10px 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 5px; background: rgba(255,255,255,0.025); }
+.rsx-calc-h { font-family: var(--mono); font-size: 8px; letter-spacing: 0.14em; color: var(--faint); margin-bottom: 7px; }
+.rsx-calc-t { width: 100%; border-collapse: collapse; margin-bottom: 7px; }
+.rsx-calc-t td { padding: 3px 0; font-size: 11px; color: var(--muted); border-bottom: 1px solid rgba(255,255,255,0.05); }
+.rsx-calc-t .num { text-align: right; font-family: var(--mono); color: var(--text); }
+.rsx-calc-expr {
+  font-family: var(--mono); font-size: 10.5px; color: var(--text);
+  padding: 6px 8px; background: rgba(255,255,255,0.04); border-radius: 4px;
+  word-break: break-word; line-height: 1.5;
+}
+.rsx-calc-res { font-family: var(--mono); font-size: 11.5px; font-weight: 700; margin-top: 6px; display: flex; gap: 10px; align-items: baseline; }
+.rsx-calc-n { font-size: 9px; font-weight: 400; color: var(--faint); }
+
+/* The provider's own field name, so the trail is exact rather than approximate. */
+.rsx-key {
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.06em;
+  color: var(--faint); border: 1px solid var(--line); border-radius: 3px;
+  padding: 1px 4px; margin-left: 6px;
+}
+
+/* ── What we cannot see ──────────────────────────────────────────────────── */
+
+.rsx-unavail { margin-top: 14px; padding: 10px 11px; border: 1px solid var(--down); border-radius: 6px; background: rgba(255,77,94,0.05); }
+.rsx-unavail-h { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.14em; color: var(--down); margin-bottom: 7px; }
+.rsx-unavail ul { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 7px; }
+.rsx-unavail li { font-size: 11.5px; color: var(--muted); line-height: 1.55; }
+.rsx-unavail b { color: var(--text); }

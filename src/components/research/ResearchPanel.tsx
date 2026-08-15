@@ -28,7 +28,7 @@ export default function ResearchPanel() {
   const setOpen = useTerminal((s) => s.setChatOpen);
   const watchlist = useTerminal((s) => s.watchlist);
 
-  const [mode, setMode] = useState<Mode>("company");
+  const [mode, setMode] = useState<Mode>("moving");
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -183,6 +183,17 @@ function AnswerView({ answer, table, onFollowUp }: {
         </div>
       )}
 
+      {answer.unavailable && answer.unavailable.length > 0 && (
+        <div className="rsx-unavail">
+          <div className="rsx-unavail-h">DATA WE DO NOT HAVE</div>
+          <ul>
+            {answer.unavailable.map((u, i) => (
+              <li key={i}><b>{u.label}</b> — {u.note}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {answer.caveats.length > 0 && (
         <div className="rsx-caveats">
           <div className="rsx-caveats-h">WHAT THIS ANSWER CANNOT SEE</div>
@@ -224,10 +235,33 @@ function ClaimView({ claim }: { claim: Claim }) {
         <div className="rsx-evidence">
           <div className="rsx-ev-why"><b>How this was reached:</b> {claim.why}</div>
           <div className="rsx-ev-tier"><b>{claim.tier}:</b> {TIER_MEANING[claim.tier]}</div>
+          {claim.calculation && (
+            <div className="rsx-calc">
+              <div className="rsx-calc-h">CALCULATION — recompute it yourself</div>
+              <table className="rsx-calc-t">
+                <tbody>
+                  {claim.calculation.inputs.map((inp, i) => (
+                    <tr key={i}>
+                      <td>{inp.label}{inp.metricKey && <span className="rsx-key">{inp.metricKey}</span>}</td>
+                      <td className="num">{inp.value.toFixed(4)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="rsx-calc-expr">{claim.calculation.expression}</div>
+              <div className="rsx-calc-res">
+                = {claim.calculation.result.toFixed(2)} {claim.calculation.unit}
+                {claim.calculation.n !== undefined && <span className="rsx-calc-n">n = {claim.calculation.n}</span>}
+              </div>
+            </div>
+          )}
           <ul className="rsx-ev-list">
             {claim.sources.map((s, i) => (
               <li key={i}>
-                <span className="rsx-ev-label">{s.label}</span>
+                <span className="rsx-ev-label">
+                  {s.label}
+                  {s.metricKey && <span className="rsx-key">{s.metricKey}</span>}
+                </span>
                 {s.simulated && <span className="rsx-ev-sim">SIMULATED</span>}
                 <span className="rsx-ev-detail">{s.detail}</span>
                 <span className="rsx-ev-time">{new Date(s.asOf).toISOString().replace("T", " ").slice(0, 16)} UTC</span>

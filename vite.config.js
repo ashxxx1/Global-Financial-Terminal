@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
@@ -22,11 +22,14 @@ function localFinnhubApi() {
   return {
     name: 'gft-local-finnhub-api',
     configureServer(server) {
+      // Vite loads .env.local for the client, not for this config, so the dev
+      // API middleware would otherwise always answer "not configured".
+      const env = loadEnv('development', process.cwd(), '')
       server.middlewares.use(async (req, res, next) => {
         const url = req.url || ''
-        if (!url.startsWith('/api/quote') && !url.startsWith('/api/candles')) return next()
+        if (!url.startsWith('/api/quote') && !url.startsWith('/api/candles') && !url.startsWith('/api/research')) return next()
 
-        const key = process.env.FINNHUB_API_KEY || process.env.VITE_FINNHUB_API_KEY || ''
+        const key = process.env.FINNHUB_API_KEY || env.FINNHUB_API_KEY || env.VITE_FINNHUB_API_KEY || ''
         const send = (status, body) => {
           res.statusCode = status
           res.setHeader('content-type', 'application/json')
@@ -37,6 +40,36 @@ function localFinnhubApi() {
           const u = new URL(url, 'http://localhost')
           const symbol = (u.searchParams.get('symbol') || '').toUpperCase()
           if (!/^[A-Z0-9.\-]{1,12}$/.test(symbol)) return send(400, { error: 'bad symbol' })
+
+          // /api/research — mirrors api/research.ts so the research engine is
+          // testable locally. Same dataset table, same validation; no cache
+          // headers because the dev server is not a CDN.
+          if (url.startsWith('/api/research')) {
+            if (!key) return send(501, { error: 'not configured' })
+            const today = new Date().toISOString().slice(0, 10)
+            const ago = (n) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10)
+            const DATASETS = {
+              profile: `/stock/profile2?symbol=${symbol}`,
+              metrics: `/stock/metric?symbol=${symbol}&metric=all`,
+              recommendations: `/stock/recommendation?symbol=${symbol}`,
+              earnings: `/stock/earnings?symbol=${symbol}`,
+              news: `/company-news?symbol=${symbol}&from=${ago(14)}&to=${today}`,
+              filings: `/stock/filings?symbol=${symbol}`,
+              peers: `/stock/peers?symbol=${symbol}`,
+              insider: `/stock/insider-transactions?symbol=${symbol}`,
+            }
+            const dataset = u.searchParams.get('dataset') || ''
+            const pathFor = DATASETS[dataset]
+            if (!pathFor) return send(400, { error: 'unknown dataset' })
+            const upstream = await fetch(
+              `https://finnhub.io/api/v1${pathFor}&token=${key}`.replace('?&', '?'),
+              { signal: AbortSignal.timeout(12000) },
+            )
+            if (upstream.status === 429) return send(429, { error: 'rate limited' })
+            if (upstream.status === 403) return send(403, { error: 'premium dataset', dataset })
+            if (!upstream.ok) return send(502, { error: `upstream ${upstream.status}` })
+            return send(200, { dataset, symbol, data: await upstream.json(), fetchedAt: Date.now() })
+          }
 
           if (url.startsWith('/api/quote')) {
             if (!key) return send(501, { error: 'not configured' })

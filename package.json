@@ -13,7 +13,8 @@
     "sitemap": "node scripts/generate-sitemap.mjs",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run lint && npm run build",
-    "setup": "npm ci && git config core.hooksPath .githooks && echo \"\u2714 hooks installed \u2014 pre-push now runs npm run verify\""
+    "setup": "npm ci && git config core.hooksPath .githooks && echo \"\u2714 hooks installed \u2014 pre-push now runs npm run verify\"",
+    "research:selftest": "node scripts/research-selftest.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.0",

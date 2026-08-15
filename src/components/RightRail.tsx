@@ -55,6 +55,7 @@ export default function RightRail() {
   const suggestQuotes = useQuotes([...SUGGESTED_WATCH]);
 
   const movers = useMemo(() => topMovers(5), []);
+  const [moverSide, setMoverSide] = useState<"gainers" | "losers">("gainers");
 
   /** Suggested rows for the empty watchlist — real quotes when the feed has
    *  them, otherwise placeholders so the layout never jumps. */

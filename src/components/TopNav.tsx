@@ -47,6 +47,18 @@ export default function TopNav() {
     setMoreOpen(false);
   }, [location.pathname]);
 
+  // ⌘J / Ctrl+J toggles research, alongside ⌘K for search.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        setChatOpen(!chatOpen);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [chatOpen, setChatOpen]);
+
   useEffect(() => {
     if (!moreOpen) return;
     const onDoc = (e: MouseEvent) => {
@@ -189,7 +201,17 @@ export default function TopNav() {
           source={liveN > 0 ? "live" : "sim"}
           title={liveN > 0 ? `${liveN} instruments on real feeds (Binance WS · ECB) — rest simulated` : undefined}
         /></span>
-        <button className={`nav-tour ${chatOpen ? "on" : ""}`} title="Terminal AI" aria-pressed={chatOpen} onClick={() => setChatOpen(!chatOpen)}>✦</button>
+        {/* The research engine is the flagship feature; a bare glyph tooltipped
+            with a deleted feature's name was not going to get found. */}
+        <button
+          className={`nav-research ${chatOpen ? "on" : ""}`}
+          title="Research — ask about any company, with sources (⌘J)"
+          aria-pressed={chatOpen}
+          onClick={() => setChatOpen(!chatOpen)}
+        >
+          <span aria-hidden="true">✦</span>
+          <span className="nav-research-label">RESEARCH</span>
+        </button>
         <button className={`nav-tour ${nerdMode ? "on" : ""}`} title={nerdMode ? "Nerd mode on — hide technical detail" : "Nerd mode off — show technical detail"} aria-pressed={nerdMode} onClick={() => setNerdMode(!nerdMode)}>{"{ }"}</button>
         <button className="nav-tour" title="Take the tour" aria-label="Take the tour" onClick={() => window.dispatchEvent(new CustomEvent("gft:start-tour"))}>?</button>
         <ShareButton />

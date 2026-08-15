@@ -175,3 +175,18 @@
 .rsx-unavail ul { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 7px; }
 .rsx-unavail li { font-size: 11.5px; color: var(--muted); line-height: 1.55; }
 .rsx-unavail b { color: var(--text); }
+
+/* ── Nav entry point ─────────────────────────────────────────────────────── */
+
+.nav-research {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em;
+  padding: 5px 10px; min-height: 24px; border-radius: 5px; cursor: pointer;
+  background: transparent; border: 1px solid var(--line-strong); color: var(--text);
+  transition: background 140ms ease, border-color 140ms ease;
+}
+.nav-research:hover { background: rgba(255,255,255,0.07); }
+.nav-research.on { background: var(--text); color: #000; border-color: var(--text); }
+/* Below the mobile breakpoint the glyph carries it alone — the title
+   attribute and aria-pressed keep it named for assistive tech. */
+@media (max-width: 900px) { .nav-research-label { display: none; } }

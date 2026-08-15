@@ -80,7 +80,10 @@ export default function Privacy() {
           <p>We use a small number of processors, and share only what each needs to function:</p>
           <ul>
             <li><b>Google Firebase</b> — authentication and profile storage.</li>
-            <li><b>Vercel</b> — hosting and request logs.</li>
+            <li><b>Vercel</b> — hosting, request logs, and crash reports. When something
+              breaks in your browser we log the error message, the stack trace and the page
+              path. We deliberately strip the query string first, because that is the part
+              of a URL that carries what you typed. No account details are attached.</li>
             <li><b>PostHog</b> — product analytics, only with your consent.</li>
           </ul>
           <p>We do not sell personal information, and we do not share it for cross-context behavioural advertising.</p>

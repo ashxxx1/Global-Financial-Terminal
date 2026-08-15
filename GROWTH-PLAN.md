@@ -77,8 +77,8 @@ with a big roadmap and no users.
 - [x] 18. Define "active user" precisely and write it down
 - [ ] 19. Build the core funnel dashboard: visit → signup → activation → W1 → W4
 - [x] 20. Instrument activation events (first watchlist add, first alert, first country open)
-- [ ] 21. Add Sentry (or equivalent) for runtime error monitoring
-- [ ] 22. Add uptime monitoring with alerting
+- [x] 21. Add Sentry (or equivalent) for runtime error monitoring — first-party instead of a vendor: `src/lib/errors.ts` catches uncaught errors and unhandled rejections, `<ErrorBoundary>` catches render crashes (there was none, so any thrown render blanked the page to white), and `api/client-error.ts` logs to the Vercel runtime logs /privacy already discloses. Deduped and capped at 12 reports/page so a render loop cannot become a request loop. Verified in-browser: boundary catches, reports once, re-throw adds nothing
+- [x] 22. Add uptime monitoring with alerting — `.github/workflows/uptime.yml` every 15 min, no vendor. Asserts on a real price from `/api/quote`, not a 200: this is a CDN-served SPA, so the shell keeps returning 200 long after the data dies, which is exactly how the last outage hid. Failure opens/updates a labelled GitHub issue (email + push via GitHub), recovery closes it. Probe verified passing against production and failing against a bad target
 - [x] 23. Set a weekly metrics review ritual — `docs/WEEKLY-REVIEW.md` (Monday 09:00, five numbers, four questions, one bottleneck)
 
 ### Technical foundation

@@ -9,8 +9,8 @@
 .lpx {
   --ink: #ffffff;
   --ink-2: rgba(255,255,255,0.62);
-  --ink-3: rgba(255,255,255,0.38);
-  --ink-4: rgba(255,255,255,0.16);
+  --ink-3: rgba(255,255,255,0.48);   /* 4.89:1 — 0.38 measured 3.39:1, below the text floor */
+  --ink-4: rgba(255,255,255,0.48);   /* was 0.16 = 1.44:1; used for visible numerals, so it is text */
   --rule: rgba(255,255,255,0.10);
   --rule-2: rgba(255,255,255,0.18);
   --void: #000000;

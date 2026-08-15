@@ -238,19 +238,21 @@ export default function RightRail() {
 
       {/* Movers */}
       <div className="sec-head">
-        <span className="panel-title">Top gainers</span>
-        <span className="label" style={{ color: "var(--up)" }}>24H</span>
+        <span className="panel-title">Movers · 24h</span>
+        <div className="seg" role="group" aria-label="Show gainers or losers">
+          <button type="button" aria-pressed={moverSide === "gainers"}
+            className={moverSide === "gainers" ? "on" : ""}
+            onClick={() => setMoverSide("gainers")}>
+            <span aria-hidden>▲</span><span className="sr-only">Top gainers</span>
+          </button>
+          <button type="button" aria-pressed={moverSide === "losers"}
+            className={moverSide === "losers" ? "on" : ""}
+            onClick={() => setMoverSide("losers")}>
+            <span aria-hidden>▼</span><span className="sr-only">Top losers</span>
+          </button>
+        </div>
       </div>
-      {movers.gainers.map((q, i) => (
-        <Row key={q.symbol} rank={i + 1} symbol={q.symbol} name={q.name} price={q.display}
-          changePct={q.changePct} actionLabel="Open chart" onClick={() => navigate(`/stock/${q.symbol}`)} />
-      ))}
-
-      <div className="sec-head">
-        <span className="panel-title">Top losers</span>
-        <span className="label" style={{ color: "var(--down)" }}>24H</span>
-      </div>
-      {movers.losers.map((q, i) => (
+      {(moverSide === "gainers" ? movers.gainers : movers.losers).map((q, i) => (
         <Row key={q.symbol} rank={i + 1} symbol={q.symbol} name={q.name} price={q.display}
           changePct={q.changePct} actionLabel="Open chart" onClick={() => navigate(`/stock/${q.symbol}`)} />
       ))}

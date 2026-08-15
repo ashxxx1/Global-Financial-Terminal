@@ -91,7 +91,7 @@ with a big roadmap and no users.
 - [x] 30. `sitemap.xml` + `robots.txt`
 - [ ] 31. Set up a staging environment separate from production
 - [ ] 32. Automated backups of Firestore
-- [ ] 33. Accessibility pass to WCAG 2.2 AA (run the `a11y-audit` skill)
+- [x] 33. Accessibility pass to WCAG 2.2 AA — contrast measured, not eyeballed: `--faint` was 3.39:1 (fails 1.4.3) and is now 4.89:1; landing `--ink-3`/`--ink-4` likewise. Fixed invalid `role="tab"` without a tabpanel (1.3.1), added sr-only labels for the ▲/▼ toggle (4.1.2), and 24×24 minimum targets (2.5.8)
 
 ---
 

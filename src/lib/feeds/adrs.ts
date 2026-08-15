@@ -34,72 +34,64 @@
 
 /** Local registry ticker -> US-listed symbol Finnhub will price. */
 export const ADR_MAP: Record<string, string> = {
-  // ── United Kingdom (many are direct US listings, not ADRs) ──
-  SHEL: "SHEL", BP: "BP", HSBA: "HSBC", AZN: "AZN", GSK: "GSK",
-  ULVR: "UL", BARC: "BCS", LLOY: "LYG", RIO: "RIO", VOD: "VOD",
-
-  // ── Japan ──
-  "7203": "TM",     // Toyota
-  "6758": "SONY",   // Sony
-  "7267": "HMC",    // Honda
-  "8306": "MUFG",   // Mitsubishi UFJ
-  "9984": "SFTBY",  // SoftBank
-  "8035": "TOELY",  // Tokyo Electron
-  "6501": "HTHIY",  // Hitachi
-  "7974": "NTDOY",  // Nintendo
-
-  // ── Germany ──
-  SAP: "SAP", SIE: "SIEGY", ALV: "ALIZY", BAYN: "BAYRY",
-  BMW: "BMWYY", MBG: "MBGYY", VOW3: "VWAGY", DTE: "DTEGY",
-
-  // ── France ──
-  MC: "LVMUY", OR: "LRLCY", TTE: "TTE", SAN: "SNY",
-  AIR: "EADSY", BNP: "BNPQY", CS: "AXAHY",
-
-  // ── Switzerland ──
-  NESN: "NSRGY", ROG: "RHHBY", NOVN: "NVS", ABBN: "ABBNY",
-  UBSG: "UBS", ZURN: "ZURVY",
-
-  // ── Netherlands ──
-  ASML: "ASML", PHIA: "PHG", ING: "ING", HEIA: "HEINY",
-  AD: "ADRNY", WKL: "WTKWY",
-
-  // ── South Korea: no usable US listing. Samsung (SSNLF), Hyundai (HYMTF) and
-  //    LG Chem (LGCLF) all return a price of 0 on the free tier — verified —
-  //    so Korea stays simulated rather than showing a dead quote.
-
-  // ── Taiwan ──
-  "2330": "TSM",      // TSMC
-  "2317": "HNHPF",    // Foxconn
-  "2412": "CHT",      // Chunghwa Telecom
-  "3711": "ASX",      // ASE Technology
-
-  // ── India ──
-  INFY: "INFY", HDFCBANK: "HDB", ICICIBANK: "IBN",
-  WIPRO: "WIT", TATAMOTORS: "TTM",
-
-  // ── China / Hong Kong ──
-  "601318": "PNGAY",  // Ping An
-  "002594": "BYDDY",  // BYD
-  "600519": "MHGVY",  // Kweichow Moutai
-  "601398": "IDCBY",  // ICBC
-
-  // ── Brazil ──
-  PETR4: "PBR", VALE3: "VALE", ITUB4: "ITUB", BBDC4: "BBD",
-  ABEV3: "ABEV",   // BBAS3 omitted: BDORY is grey-market and unreliable
-
-  // ── Canada (dual-listed on the NYSE under their own tickers) ──
-  RY: "RY", TD: "TD", BNS: "BNS", CNQ: "CNQ", SU: "SU",
-  SHOP: "SHOP", CNR: "CNI", BCE: "BCE", ENB: "ENB", TRP: "TRP",
-
-  // ── Australia ──
-  BHP: "BHP", CBA: "CMWAY", NAB: "NABZY", ANZ: "ANZGY",
-  WBC: "WBK", CSL: "CSLLY",   // WOW omitted: WOLWF is grey-market
-
-  // ── Others ──
-  NOKIA: "NOK", ERICB: "ERIC", EQNR: "EQNR", NVO: "NVO",
-  TSM: "TSM", SPOT: "SPOT",
+  // ── GB ──
+  "GB:SHEL": "SHEL", "GB:BP": "BP", "GB:HSBA": "HSBC", "GB:AZN": "AZN", "GB:GSK": "GSK", "GB:ULVR": "UL", "GB:BARC": "BCS", "GB:LLOY": "LYG", "GB:RIO": "RIO", "GB:VOD": "VOD", "GB:DGE": "DEO", "GB:BATS": "BTI", "GB:AAL": "NGLOY",
+  // ── JP ──
+  "JP:7203": "TM", "JP:6758": "SONY", "JP:7267": "HMC", "JP:8306": "MUFG", "JP:9984": "SFTBY", "JP:8035": "TOELY", "JP:6501": "HTHIY", "JP:7974": "NTDOY", "JP:9432": "NTTYY", "JP:9433": "KDDIY", "JP:8316": "SMFG", "JP:4568": "DSNKY", "JP:7270": "FUJHY",
+  // ── DE ──
+  "DE:SAP": "SAP", "DE:SIE": "SIEGY", "DE:ALV": "ALIZY", "DE:BAYN": "BAYRY", "DE:BMW": "BMWYY", "DE:MBG": "MBGYY", "DE:VOW3": "VWAGY", "DE:DTE": "DTEGY", "DE:BAS": "BASFY", "DE:RWE": "RWEOY", "DE:DBK": "DB",
+  // ── FR ──
+  "FR:MC": "LVMUY", "FR:OR": "LRLCY", "FR:TTE": "TTE", "FR:SAN": "SNY", "FR:AIR": "EADSY", "FR:BNP": "BNPQY", "FR:CS": "AXAHY", "FR:SGO": "CODYY", "FR:KER": "PPRUY", "FR:CAP": "CGEMY", "FR:DG": "VCISY",
+  // ── CH ──
+  "CH:NESN": "NSRGY", "CH:ROG": "RHHBY", "CH:NOVN": "NVS", "CH:ABBN": "ABBNY", "CH:UBSG": "UBS", "CH:ZURN": "ZURVY", "CH:LONN": "LZAGY", "CH:SIKA": "SXYAY",
+  // ── NL ──
+  "NL:ASML": "ASML", "NL:PHIA": "PHG", "NL:ING": "ING", "NL:HEIA": "HEINY", "NL:AD": "ADRNY", "NL:WKL": "WTKWY", "NL:AKZA": "AKZOY",
+  // ── TW ──
+  "TW:2330": "TSM", "TW:2317": "HNHPF", "TW:2412": "CHT", "TW:3711": "ASX",
+  // ── IN ──
+  "IN:INFY": "INFY", "IN:HDFCBANK": "HDB", "IN:ICICIBANK": "IBN", "IN:WIPRO": "WIT", "IN:TATAMOTORS": "TTM",
+  // ── CN ──
+  "CN:601318": "PNGAY", "CN:002594": "BYDDY", "CN:601398": "IDCBY",
+  // ── BR ──
+  "BR:PETR4": "PBR", "BR:VALE3": "VALE", "BR:ITUB4": "ITUB", "BR:BBDC4": "BBD", "BR:ABEV3": "ABEV",
+  // ── CA ──
+  "CA:RY": "RY", "CA:TD": "TD", "CA:BNS": "BNS", "CA:CNQ": "CNQ", "CA:SU": "SU", "CA:SHOP": "SHOP", "CA:CNR": "CNI", "CA:BCE": "BCE", "CA:ENB": "ENB", "CA:TRP": "TRP",
+  // ── AU ──
+  "AU:BHP": "BHP", "AU:CBA": "CMWAY", "AU:NAB": "NABZY", "AU:ANZ": "ANZGY", "AU:WBC": "WBK", "AU:CSL": "CSLLY",
+  // ── ES ──
+  "ES:SAN": "SAN", "ES:BBVA": "BBVA", "ES:IBE": "IBDRY", "ES:REP": "REPYY", "ES:TEF": "TEF", "ES:ITX": "IDEXY", "ES:FER": "FER",
+  // ── IT ──
+  "IT:ENI": "E", "IT:ENEL": "ENLAY", "IT:ISP": "ISNPY", "IT:UCG": "UNCRY", "IT:STLA": "STLA", "IT:RACE": "RACE", "IT:PRY": "PRYMY",
+  // ── SE ──
+  "SE:VOLV-B": "VLVLY", "SE:HM-B": "HNNMY", "SE:SAND": "SDVKY", "SE:NDA-SE": "NRDBY", "SE:ATCO-A": "ATLKY", "SE:SWED-A": "SWDBY", "SE:ERICB": "ERIC", "SE:SPOT": "SPOT",
+  // ── DK ──
+  "DK:NOVO-B": "NVO", "DK:CARL-B": "CABGY", "DK:ORSTED": "DNNGY", "DK:VWS": "VWDRY", "DK:COLO-B": "CLPBY",
+  // ── NO ──
+  "NO:TEL": "TELNY", "NO:DNB": "DNBBY", "NO:YAR": "YARIY", "NO:MOWI": "MHGVY", "NO:EQNR": "EQNR",
+  // ── MX ──
+  "MX:AMXL": "AMX", "MX:FEMSAUBD": "FMX", "MX:KOFUBL": "KOF", "MX:GMEXICOB": "GMBXF",
+  // ── ZA ──
+  "ZA:NPN": "NPSNY", "ZA:GLN": "GLNCY", "ZA:SOL": "SSL", "ZA:MTN": "MTNOY",
+  // ── HK ──
+  "HK:0700": "TCEHY", "HK:9988": "BABA", "HK:1299": "AAGIY", "HK:0388": "HKXCY", "HK:0005": "HSBC",
+  // ── IL ──
+  "IL:CHKP": "CHKP", "IL:NICE": "NICE", "IL:TEVA": "TEVA", "IL:ICL": "ICL",
+  // ── AR ──
+  "AR:YPF": "YPF", "AR:MELI": "MELI", "AR:BMA": "BMA", "AR:GGAL": "GGAL",
+  // ── CL ──
+  "CL:SQM-B": "SQM", "CL:CCU": "CCU",
+  // ── FI ──
+  "FI:NOKIA": "NOK",
 };
 
-export const adrFor = (ticker: string): string | undefined => ADR_MAP[ticker];
+/** Keyed "COUNTRY:TICKER" — local tickers collide across exchanges (SAN is
+ *  Sanofi in Paris and Santander in Madrid), so the country is part of the key. */
+/* Removed after verification against production:
+ *   CYBR, DNSKY, KYCCY — quote a price of 0 on this tier.
+ *   AMKBY (Maersk) printed +8.4% in a day, the signature of a thin OTC line
+ *   rather than a real move, so it is kept out for the same reason SBKFF and
+ *   BDORY were.
+ */
+export const adrFor = (ticker: string, country?: string | null): string | undefined =>
+  country ? ADR_MAP[`${country}:${ticker}`] : undefined;
 export const adrCount = (): number => Object.keys(ADR_MAP).length;

@@ -38,8 +38,9 @@ export function startIndexFeed(): () => void {
   const entries = [
     // Indices and commodities are stored under an "IDX:" key…
     ...Object.entries(ETF_PROXIES).map(([name, p]) => ({ key: `IDX:${name}`, etf: p.etf })),
-    // …non-US equities under their local ticker, priced via a US listing.
-    ...Object.entries(ADR_MAP).map(([local, adr]) => ({ key: local, etf: adr })),
+    // …non-US equities: keys are "COUNTRY:TICKER" because local tickers collide
+    // across exchanges, but the registry stores the bare ticker.
+    ...Object.entries(ADR_MAP).map(([scoped, adr]) => ({ key: scoped.split(":")[1], etf: adr })),
   ];
   if (entries.length === 0) { started = false; return () => {}; }
 

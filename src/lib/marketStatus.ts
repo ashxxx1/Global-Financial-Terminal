@@ -87,6 +87,17 @@ export function provenanceFor(kind: Kind, source: Source, country: string | null
       detail: "Official ECB reference rates, published once each business day — not intraday.",
     };
   }
+  // Non-US equities priced through a US listing — name it, same as the ETFs.
+  if (kind === "stock" && source === "live" && country && country !== "US") {
+    const adr = name ? adrFor(name, country) : undefined;
+    if (adr) {
+      return {
+        label: `VIA ${adr}`, tone: "stale", provider: `${adr} (US listing) · Finnhub`,
+        delay: "delayed (free tier)",
+        detail: `Priced from ${adr}, this company's US listing. Real price for the real company, quoted in USD — so the value is the US line's, not the local share price, and the daily change carries an FX component.`,
+      };
+    }
+  }
   // Equities: real but delayed when the provider is wired up.
   if (kind === "stock" && source === "live") {
     return {

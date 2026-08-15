@@ -22,7 +22,10 @@
   /* Ink — neutral, no blue cast */
   --text: #FFFFFF;
   --muted: rgba(255, 255, 255, 0.62);
-  --faint: rgba(255, 255, 255, 0.38);
+  /* 0.38 measured 3.39:1 on #000 — below the 4.5:1 floor for normal text, and
+     --faint carries .label, timestamps and row subtitles at 10px. 0.48 measures
+     4.89:1. Accessibility is not traded for aesthetics. */
+  --faint: rgba(255, 255, 255, 0.48);
 
   /* Semantics — market up/down */
   --up: #26D07C;
@@ -2163,3 +2166,51 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
 .gl-related { margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line); }
 .gl-related > div { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .gl-related .chip { text-decoration: none; }
+
+/* ─── Rail consolidation ─────────────────────────────────────────────
+   Grouped block: related widgets share one header and one border instead
+   of each carrying its own full-width chrome. The saving is not pixels,
+   it is the number of headings the eye has to parse on arrival. */
+.rail-group {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 2px;
+}
+.rail-group > * + * { border-top: 1px solid var(--line); }
+/* Grouped children drop their own titles — the group already said it. What
+   they keep is their live status ("2 OPEN", "RISK-ON"), which is the actual
+   information; the repeated heading was the noise. */
+.rail-group .sessions-head .panel-title,
+.rail-group .breadth-head .panel-title { display: none; }
+.rail-group .sessions-head,
+.rail-group .breadth-head { justify-content: flex-end; padding-bottom: 2px; }
+
+/* Segmented control — one header for two views of the same question. */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+.seg button {
+  background: none; border: 0; cursor: pointer; padding: 2px 9px;
+  font-family: var(--mono); font-size: 10px; line-height: 1.5;
+  color: var(--faint); transition: color .15s ease, background .15s ease;
+}
+.seg button:hover { color: var(--text); }
+.seg button.on { background: rgba(255,255,255,0.09); color: var(--text); }
+.seg button:first-child.on { color: var(--up); }
+.seg button:last-child.on { color: var(--down); }
+
+/* Inline proxy tag: names the ETF a row is actually priced from, so
+   "S&P 500 · SPY 777.88" cannot be misread as a broken index level. */
+.via {
+  margin-left: 7px; padding: 1px 5px; border-radius: 3px;
+  border: 1px solid var(--line-strong); background: rgba(255,255,255,0.05);
+  font-family: var(--mono); font-size: 8.5px; font-weight: 500;
+  letter-spacing: .1em; color: var(--faint); vertical-align: middle;
+}
+
+/* Screen-reader-only text. The ▲/▼ toggle is meaningful but unpronounceable,
+   so each button carries a real label that never renders visually. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+/* WCAG 2.5.8 Target Size (minimum) — 24x24 CSS px for pointer targets. The
+   segmented buttons were 2px/9px padding on a 10px glyph, well under. */
+.seg button { min-width: 26px; min-height: 24px; }

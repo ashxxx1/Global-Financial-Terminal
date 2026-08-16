@@ -124,7 +124,6 @@ export default function PostCard({ post, reposted, repostedBy }: PostCardProps) 
             <span className="post-author" onClick={goToProfile} style={{ cursor: "pointer" }}>
               {post.authorName}
             </span>
-            <span className="post-handle">{handle}</span>
             <button
               className="post-time"
               style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}
@@ -170,8 +169,8 @@ export default function PostCard({ post, reposted, repostedBy }: PostCardProps) 
             >
               <IconRepost /> {post.repostCount > 0 ? post.repostCount : ""}
             </button>
-            <button className="post-action" onClick={handleShare} title="Share">
-              {copied ? <span className="share-copied">Copied ✓</span> : <><IconShare /> Share</>}
+            <button className="post-action" onClick={handleShare} title="Share" aria-label="Share post">
+              {copied ? <span className="share-copied">Copied ✓</span> : <IconShare />}
             </button>
           </div>
 

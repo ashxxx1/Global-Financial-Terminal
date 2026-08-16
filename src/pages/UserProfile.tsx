@@ -4,7 +4,7 @@ import { useSeo } from "../lib/seo";
 import { isConfigured } from "../lib/firebase";
 import {
   useAuth, usePublicProfile,
-  updateDisplayName, updateUsername, updateAvatarPhoto,
+  updateDisplayName, updateUsername, updateAvatarPhoto, updateBannerPhoto,
 } from "../lib/auth";
 import {
   useUserPosts, useUserComments, useUserReposts, useMyReposts,
@@ -57,7 +57,9 @@ export default function UserProfile() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const avatarInput = useRef<HTMLInputElement>(null);
+  const bannerInput = useRef<HTMLInputElement>(null);
 
   useSeo({
     title: profile?.displayName ? `${profile.displayName} (GFT)` : "Profile",
@@ -144,11 +146,43 @@ export default function UserProfile() {
     }
   }
 
+  async function onPickBanner(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploadingBanner(true);
+    setProfileError(null);
+    try {
+      await updateBannerPhoto(file);
+    } catch (err) {
+      setProfileError(humanForumError(err));
+    } finally {
+      setUploadingBanner(false);
+    }
+  }
+
   return (
     <div className="user-profile-page forum-theme">
       {/* ── Banner ── */}
-      <div className="profile-banner">
-        {/* Procedural terminal grid gradient — bannerUrl support if added later */}
+      <div className={`profile-banner${profile.bannerURL ? " has-image" : ""}`}>
+        {profile.bannerURL && (
+          <img src={profile.bannerURL} alt="Profile wallpaper" referrerPolicy="no-referrer" />
+        )}
+        {isOwn && (
+          <>
+            <button
+              type="button"
+              className="profile-banner-edit"
+              title="Change wallpaper"
+              aria-label="Change wallpaper"
+              disabled={uploadingBanner}
+              onClick={() => bannerInput.current?.click()}
+            >
+              <IconPencil size={15} />
+            </button>
+            <input ref={bannerInput} type="file" accept="image/*" hidden onChange={onPickBanner} />
+          </>
+        )}
       </div>
 
       {/* ── Profile card ── */}
@@ -208,9 +242,7 @@ export default function UserProfile() {
               <button type="button" className="btn-ghost sm" onClick={() => setEditingName(false)} disabled={savingProfile}>Cancel</button>
             </div>
           </form>
-        ) : (
-          <div className="profile-handle">{handle}</div>
-        )}
+        ) : null}
 
         {/* Joined date */}
         {joinedDate && (
@@ -244,13 +276,13 @@ export default function UserProfile() {
       <div className="profile-feed profile-feed-lg">
         {tab === "posts" && (
           postsLoading ? <PageSkeleton /> :
-          posts.length === 0 ? <PageEmpty icon="✎" text={isOwn ? "No posts yet — say something on the feed." : "No posts yet."} /> :
+          posts.length === 0 ? <PageEmpty icon="" text={isOwn ? "No posts yet, say something on the feed." : "No posts yet."} /> :
           posts.map((p) => <PostCard key={p.id} post={p} reposted={myReposts.has(p.id)} />)
         )}
 
         {tab === "comments" && (
           commentsLoading ? <PageSkeleton /> :
-          comments.length === 0 ? <PageEmpty icon="💬" text="No comments yet." /> :
+          comments.length === 0 ? <PageEmpty icon="" text="No comments yet." /> :
           comments.map((c) => (
             <button key={c.id} className="activity-row" onClick={() => navigate(postPath(c.postId))}>
               <div className="activity-kind">COMMENT</div>
@@ -262,7 +294,7 @@ export default function UserProfile() {
 
         {tab === "reposts" && (
           repostsLoading ? <PageSkeleton /> :
-          reposts.length === 0 ? <PageEmpty icon="🔁" text="No reposts yet." /> :
+          reposts.length === 0 ? <PageEmpty icon="" text="No reposts yet." /> :
           reposts.map((r) => (
             <button key={r.id} className="activity-row" onClick={() => navigate(postPath(r.postId))}>
               <div className="activity-kind">REPOST · {r.post.authorName}</div>
@@ -274,7 +306,7 @@ export default function UserProfile() {
 
         {tab === "media" && (
           postsLoading ? <PageSkeleton /> :
-          media.length === 0 ? <PageEmpty icon="🖼" text="No media yet." /> :
+          media.length === 0 ? <PageEmpty icon="" text="No media yet." /> :
           <MediaGrid posts={media} onOpen={(id) => navigate(postPath(id))} />
         )}
       </div>

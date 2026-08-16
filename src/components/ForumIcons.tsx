@@ -17,10 +17,10 @@ export function IconComment({ size = 15 }: IconProps) {
 export function IconRepost({ size = 15 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" {...base} aria-hidden>
-      <path d="M6 4.5v9a2.5 2.5 0 0 0 2.5 2.5H18" />
-      <path d="M14.5 12.5 18 16l3.5-3.5" />
-      <path d="M18 19.5v-9A2.5 2.5 0 0 0 15.5 8H6" />
-      <path d="M9.5 11.5 6 8l-3.5 3.5" />
+      <path d="M7 7h9a4 4 0 1 1 0 8" />
+      <path d="M15.5 3.5 19 7l-3.5 3.5" />
+      <path d="M17 17H8a4 4 0 1 1 0-8" />
+      <path d="M8.5 20.5 5 17l3.5-3.5" />
     </svg>
   );
 }

@@ -35,6 +35,7 @@ export interface Profile {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
+  bannerURL?: string | null;
   createdAt?: unknown;
   lastSeenAt?: unknown;
 }
@@ -99,7 +100,7 @@ function deriveName(email: string): string {
 }
 
 function toProfile(u: User): Profile {
-  return { uid: u.uid, email: u.email, displayName: u.displayName, photoURL: u.photoURL };
+  return { uid: u.uid, email: u.email, displayName: u.displayName, photoURL: u.photoURL, bannerURL: null };
 }
 
 /** Create the profile doc on first sign-in, refresh lastSeenAt after that. */
@@ -342,6 +343,7 @@ export interface PublicProfile {
   uid: string;
   displayName: string | null;
   photoURL: string | null;
+  bannerURL: string | null;
   username: string | null;
   memberNo: number | null;
   createdAt: Date | null;
@@ -364,6 +366,7 @@ export function usePublicProfile(uid: string | undefined): { profile: PublicProf
             uid,
             displayName: d.displayName ?? null,
             photoURL: d.photoURL ?? null,
+            bannerURL: typeof d.bannerURL === "string" ? d.bannerURL : null,
             username: d.username ?? null,
             memberNo: typeof d.memberNo === "number" ? d.memberNo : null,
             createdAt: d.createdAt?.toDate?.() ?? null,
@@ -432,6 +435,26 @@ export async function updateAvatarPhoto(file: File): Promise<void> {
     await updateDoc(doc(db, "users", u.uid), { photoURL: url }).catch(() => {});
   }
   useAuth.setState({ user: { ...useAuth.getState().user!, photoURL: url } });
+}
+
+/** Upload a new wallpaper image for the user profile banner. */
+export async function updateBannerPhoto(file: File): Promise<void> {
+  const u = auth?.currentUser;
+  if (!u) throw new Error("Not signed in.");
+  if (!storage) throw new Error("Storage is not configured.");
+  if (!file.type.startsWith("image/")) throw new Error("Only image files are accepted.");
+  if (file.size > 8 * 1024 * 1024) throw new Error("Wallpaper must be under 8 MB.");
+
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().slice(0, 8);
+  const path = `banners/${u.uid}/banner_${Date.now()}.${ext}`;
+  const fileRef = storageRef(storage, path);
+  await uploadBytes(fileRef, file, { contentType: file.type });
+  const url = await getDownloadURL(fileRef);
+
+  if (db) {
+    await updateDoc(doc(db, "users", u.uid), { bannerURL: url }).catch(() => {});
+  }
+  useAuth.setState({ user: { ...useAuth.getState().user!, bannerURL: url } });
 }
 
 /** Format a number as an ordinal string: 1→"1st", 2→"2nd", 42→"42nd". */

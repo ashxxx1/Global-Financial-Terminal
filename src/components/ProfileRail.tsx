@@ -36,7 +36,6 @@ export default function ProfileRail() {
 
   if (!user) return null;
   const media = posts.filter((p) => p.media.length > 0);
-  const handle = `@${(user.email ? user.email.split("@")[0] : user.uid.slice(0, 8)).replace(/[^a-z0-9_]/gi, "_").toLowerCase()}`;
 
   return (
     <aside className="forum-rail">
@@ -59,12 +58,11 @@ export default function ProfileRail() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-          <div className="profile-name" style={{ marginTop: 0 }}>{user.displayName || handle}</div>
+          <div className="profile-name" style={{ marginTop: 0 }}>{user.displayName || "Profile"}</div>
           {memberNo != null && (
             <span className="member-badge">#{memberNo}</span>
           )}
         </div>
-        <div className="profile-handle">{handle}</div>
 
         <div className="profile-stats">
           <div className="profile-stat"><b>{posts.length}</b><span>Posts</span></div>

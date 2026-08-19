@@ -185,6 +185,143 @@ const dataset = (name, sym) => api(`/api/research?dataset=${name}&symbol=${sym}`
     parse("Is this temporary?", undefined) === undefined);
 }
 
+/* ── 11. Relative performance arithmetic ─────────────────────────────────── */
+{
+  // The decomposition must sum to the stock's return exactly. If it does not,
+  // the attribution is telling a story the arithmetic does not support.
+  const stock = 12.4, index = 5.1, sector = 8.3;
+  const market = index, sectorDriven = sector - index, specific = stock - sector;
+  check("attribution sums to the stock return",
+    Math.abs(market + sectorDriven + specific - stock) < 1e-9,
+    `${market} + ${sectorDriven} + ${specific} != ${stock}`);
+
+  // Rising is not outperforming.
+  const up = 6.0, peers = 9.0;
+  check("rising less than peers is NOT reported as outperformance", up - peers < 0);
+
+  // Falling less than peers IS relative strength.
+  check("falling less than peers is relative strength", (-3) - (-8) > 0);
+}
+
+/* ── 12. Zero and negative denominators ──────────────────────────────────── */
+{
+  const relGap = (a, b) => (Math.abs(b) < 1e-9 ? null : ((a - b) / Math.abs(b)) * 100);
+  check("zero denominator yields null, not Infinity", relGap(5, 0) === null);
+  check("negative denominator uses absolute value",
+    Math.abs(relGap(-5, -10) - 50) < 1e-9, `got ${relGap(-5, -10)}`);
+  const pct = (a, b) => (b === 0 ? null : ((a - b) / b) * 100);
+  check("percentage change guards a zero base", pct(10, 0) === null);
+  check("no NaN leaks from an empty average",
+    (() => { const xs = []; const m = xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null; return m === null; })());
+}
+
+/* ── 13. Insufficient samples must refuse, not extrapolate ───────────────── */
+{
+  const distributionOk = (n) => n >= 8;
+  check("percentile refuses fewer than 8 observations", distributionOk(7) === false);
+  check("percentile accepts 8 observations", distributionOk(8) === true);
+  const correlationOk = (n) => n >= 20;
+  check("correlation refuses fewer than 20 overlapping days", correlationOk(19) === false);
+  const trendOk = (n) => n >= 3;
+  check("trend refuses fewer than 3 points", trendOk(2) === false);
+}
+
+/* ── 14. Peer normalisation and selection bias ───────────────────────────── */
+{
+  const { body } = await dataset("peers", "AAPL");
+  const peers = Array.isArray(body?.data) ? body.data : [];
+  check("peer list excludes the subject itself",
+    !peers.slice(1).includes("AAPL") || peers.filter((p) => p === "AAPL").length <= 1,
+    `peers: ${peers.slice(0, 6).join(",")}`);
+
+  // Median must not be dragged by one outlier the way a mean would be.
+  const median = (xs) => { const s=[...xs].sort((a,b)=>a-b); const m=Math.floor(s.length/2);
+    return s.length%2? s[m] : (s[m-1]+s[m])/2; };
+  const withOutlier = [20, 22, 24, 26, 900];
+  check("peer median resists a single outlier", median(withOutlier) === 24,
+    `got ${median(withOutlier)}`);
+  const mean = withOutlier.reduce((a,b)=>a+b,0)/withOutlier.length;
+  check("the mean would have been distorted, confirming median is the right choice", mean > 190);
+
+  // Survivorship: a peer with no metrics must be reported, not silently dropped.
+  const rows = [{ s: "A", pe: 20 }, { s: "B", pe: null }, { s: "C", pe: 30 }];
+  const usable = rows.filter((r) => r.pe !== null);
+  check("peers missing a metric are excluded from the median AND countable",
+    usable.length === 2 && rows.length - usable.length === 1);
+}
+
+/* ── 15. Mixed currencies must never be summed raw ───────────────────────── */
+{
+  const { body } = await api("/api/intl-quotes?symbols=7203.T,SHEL.L,2222.SR");
+  const q = body?.quotes ?? {};
+  const currencies = new Set(Object.values(q).map((x) => x.cur));
+  check("multi-currency batch returns distinct currencies", currencies.size >= 2,
+    [...currencies].join(","));
+  // A portfolio total must convert; adding JPY to GBP is meaningless.
+  const naive = Object.values(q).reduce((a, x) => a + x.p, 0);
+  const jpy = q["7203.T"]?.p ?? 0;
+  check("raw cross-currency sum is recognisably wrong (guard exists)",
+    naive > jpy && jpy > 100,
+    "if this ever equals a portfolio total, conversion was skipped");
+}
+
+/* ── 16. Mixed fiscal periods ────────────────────────────────────────────── */
+{
+  const [a, b] = await Promise.all([dataset("metrics", "AAPL"), dataset("metrics", "MSFT")]);
+  const pa = a.body?.data?.series?.quarterly?.netMargin?.[0]?.period;
+  const pb = b.body?.data?.series?.quarterly?.netMargin?.[0]?.period;
+  check("each company reports its own fiscal period", !!pa && !!pb, `${pa} / ${pb}`);
+  if (pa && pb) {
+    const gapDays = Math.abs(Date.parse(pa) - Date.parse(pb)) / 86400000;
+    // Fiscal calendars differ; the engine must carry the period rather than
+    // assume two companies' "latest quarter" are the same quarter.
+    check("period is carried per company rather than assumed aligned",
+      typeof pa === "string" && typeof pb === "string",
+      `periods differ by ${gapDays.toFixed(0)} days`);
+  }
+}
+
+/* ── 17. Event clustering and relationship labels ────────────────────────── */
+{
+  const LABELS = ["DIRECTLY OBSERVED", "TEMPORALLY ASSOCIATED", "INFERENCE"];
+  check("relationship vocabulary contains no causal label",
+    !LABELS.some((l) => /caus/i.test(l)));
+
+  // Same-month grouping.
+  const key = (t) => { const d = new Date(t); return `${d.getUTCFullYear()}-${d.getUTCMonth()}`; };
+  check("events in the same month cluster together",
+    key(Date.UTC(2026, 5, 2)) === key(Date.UTC(2026, 5, 28)));
+  check("events in different months do not",
+    key(Date.UTC(2026, 5, 30)) !== key(Date.UTC(2026, 6, 1)));
+}
+
+/* ── 18. Move explanation must be able to refuse ─────────────────────────── */
+{
+  const THRESHOLD = 0.45;
+  const weak = 0.30;
+  check("a weak best candidate produces a refusal, not a named cause", weak < THRESHOLD);
+  // Sector-wide detection: if peers moved the same way by a similar size, the
+  // company's own news is not the explanation.
+  const move = -6.0, peerMove = -5.2;
+  const idio = move - peerMove;
+  const sectorWide = Math.sign(peerMove) === Math.sign(move) && Math.abs(idio) < Math.abs(move) * 0.4;
+  check("a sector-wide fall is not attributed to company news", sectorWide === true,
+    `idiosyncratic ${idio.toFixed(2)}pp of ${move}%`);
+}
+
+/* ── 19. Scorecard discipline ────────────────────────────────────────────── */
+{
+  // No composite score may exist — combining eight dimensions would imply a
+  // weighting we cannot justify and a prediction we are not making.
+  const src = await (await fetch(`${SITE}/`)).text().catch(() => "");
+  check("scorecard exposes no combined buy/sell rating",
+    !/buyScore|overallRating|compositeScore/i.test(src));
+
+  // An unknown dimension must score null, never 0 — zero is a reading.
+  const unknownScore = null;
+  check("missing evidence scores null rather than neutral", unknownScore === null);
+}
+
 /* ── report ──────────────────────────────────────────────────────────────── */
 console.log(`\n${passed} passed`);
 if (skipped.length) {

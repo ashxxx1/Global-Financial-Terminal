@@ -20,10 +20,17 @@ import type { Answer, Claim } from "./types";
 import type { CapabilityId } from "./capabilities";
 import type { NewsItem, Filing, Recommendation, InsiderTx } from "./data";
 import { num } from "./data";
+import { buildScorecard, scorecardCoverage, type ScoreDimension } from "./scorecard";
+import { buildThesis, type Thesis } from "./thesis";
+import { relativeClaims, attributionTable, type Attribution } from "./analyzers/relative";
+import { clusterEvents, type EventCluster } from "./analyzers/clusters";
+import { unusualMoves } from "./analyzers/explainMove";
+import { CAPABILITIES } from "./capabilities";
+import { CADENCE_LABEL } from "./providers/types";
 
 export type SectionId =
   | "moving" | "changed" | "valuation" | "momentum" | "risks"
-  | "news" | "fundamentals" | "analysts" | "filings" | "insider" | "peers";
+  | "news" | "fundamentals" | "analysts" | "filings" | "insider" | "peers" | "relative";
 
 export const SECTIONS: { id: SectionId; label: string; blurb: string; needs: CapabilityId[] }[] = [
   { id: "moving",       label: "Why it's moving",  blurb: "Today's move, sized against its own range and separated from its sector.", needs: ["quote", "price-history", "company-news"] },
@@ -31,6 +38,7 @@ export const SECTIONS: { id: SectionId; label: string; blurb: string; needs: Cap
   { id: "valuation",    label: "Valuation",        blurb: "Today's multiples inside the company's own historical range.",            needs: ["fundamentals", "fundamental-history"] },
   { id: "momentum",     label: "Earnings",         blurb: "Surprise history, reported EPS trend and the analyst rating mix.",        needs: ["earnings-surprises", "analyst-ratings"] },
   { id: "risks",        label: "Key risks",        blurb: "Leverage, liquidity and margins against this company's own past.",        needs: ["fundamentals", "fundamental-history"] },
+  { id: "relative",     label: "Relative",         blurb: "Performance against peers, sector and index, and how much of the move is the company.", needs: ["price-history", "peers"] },
   { id: "peers",        label: "Peers",            blurb: "Comparable companies, and whether the valuation gap has support.",        needs: ["peers", "fundamentals"] },
   { id: "news",         label: "News",             blurb: "Recent coverage, as published.",                                          needs: ["company-news"] },
   { id: "fundamentals", label: "Fundamentals",     blurb: "The reported figures behind everything else.",                            needs: ["fundamentals"] },
@@ -49,11 +57,28 @@ export interface Section {
   table?: { label: string; values: (number | null)[]; unit?: string };
 }
 
+export interface CoverageRow {
+  label: string;
+  available: boolean;
+  detail: string;
+  cadence?: string;
+  period?: string;
+  asOf?: number;
+}
+
 export interface Workspace {
   ctx: CompanyContext;
   timeline: TimelineEvent[];
+  clusters: EventCluster[];
+  scorecard: ScoreDimension[];
+  coverageOfScorecard: { scored: number; total: number };
+  thesis: Thesis;
+  attribution: Attribution[];
+  /** Unusual daily moves offered as drill-downs. */
+  unusual: { at: number; movePct: number; sigma: number }[];
   freshness: { oldestMs: number; anyStale: boolean; builtAt: number };
-  /** Everything the workspace as a whole could not obtain. */
+  /** What this company's workspace can and cannot draw on — shown, not hidden. */
+  coverage: CoverageRow[];
   gaps: ResearchGap[];
 }
 
@@ -72,12 +97,61 @@ export async function openWorkspace(symbol: string): Promise<Workspace> {
     .filter((f) => CONTEXT_CAPABILITIES.includes(f.capability))
     .map((f) => ({ ...gapFor(f.capability, "blocking"), missing: `${gapFor(f.capability).missing} (${f.reason})` }));
 
+  const timeline = buildTimeline(ctx);
+  const scorecard = buildScorecard(ctx);
+
   return {
     ctx,
-    timeline: buildTimeline(ctx),
+    timeline,
+    clusters: clusterEvents(ctx.symbol, timeline),
+    scorecard,
+    coverageOfScorecard: scorecardCoverage(scorecard),
+    thesis: buildThesis(ctx, scorecard),
+    attribution: attributionTable(ctx),
+    unusual: unusualMoves(ctx.symbol),
     freshness: { ...age, builtAt: ctx.builtAt },
+    coverage: buildCoverage(ctx),
     gaps: [...runtime, ...declared],
   };
+}
+
+/**
+ * The capability registry, rendered for the user.
+ *
+ * Two companies get very different workspaces and the reason should not be a
+ * mystery. This is the same registry the analyzers consult, so it cannot drift
+ * from what actually happened.
+ */
+function buildCoverage(ctx: CompanyContext): CoverageRow[] {
+  const fetched: [CapabilityId, { ok: boolean; provenance?: { cadence: string; period?: string; fetchedAt: number } }][] = [
+    ["company-profile", ctx.profile], ["fundamentals", ctx.metrics],
+    ["fundamental-history", ctx.metrics], ["earnings-surprises", ctx.earnings],
+    ["analyst-ratings", ctx.recommendations], ["company-news", ctx.news],
+    ["sec-filings", ctx.filings], ["insider-transactions", ctx.insider], ["peers", ctx.peers],
+  ] as never;
+
+  const rows: CoverageRow[] = fetched.map(([cap, res]) => {
+    const declared = CAPABILITIES[cap];
+    const ok = res.ok;
+    return {
+      label: declared.label,
+      available: ok,
+      detail: ok
+        ? `${declared.provider}`
+        : declared.availability === "available"
+          ? "no data returned for this company"
+          : declared.availability === "premium" ? "paid dataset" : "no provider",
+      cadence: ok && res.provenance ? CADENCE_LABEL[res.provenance.cadence as keyof typeof CADENCE_LABEL] : undefined,
+      period: ok ? res.provenance?.period : undefined,
+      asOf: ok ? res.provenance?.fetchedAt : undefined,
+    };
+  });
+
+  for (const cap of ["eps-estimates", "revenue-estimates", "price-targets", "earnings-transcripts", "options-positioning"] as CapabilityId[]) {
+    const d = CAPABILITIES[cap];
+    rows.push({ label: d.label, available: false, detail: d.availability === "premium" ? "paid dataset" : "no provider" });
+  }
+  return rows;
 }
 
 /** Build one section against an already-open workspace. */
@@ -93,6 +167,7 @@ export async function buildSection(ws: Workspace, id: SectionId): Promise<Sectio
     case "momentum":  return { ...base, claims: [...(await analyzeMomentum(ctx.symbol)).claims, ...reactionClaims(ctx)] };
     case "risks":     return { ...base, claims: (await analyzeRisks(ctx.symbol)).claims };
     case "changed":   return { ...base, claims: changedClaims(ctx) };
+    case "relative":  return { ...base, claims: relativeClaims(ctx) };
     case "peers": {
       const cmp: PeerComparison = await comparePeers(ctx);
       return { ...base, claims: cmp.claims };

@@ -7,7 +7,7 @@
  */
 import type { CapabilityId } from "../capabilities";
 import type { Provider, Fetched, FailureReason } from "./types";
-import { ttlFor } from "./types";
+import { ttlFor, cadenceFor } from "./types";
 
 /** capability -> the dataset name api/research.ts understands. */
 const DATASETS: Partial<Record<CapabilityId, string>> = {
@@ -23,6 +23,13 @@ const DATASETS: Partial<Record<CapabilityId, string>> = {
 
 const PROFILE_DATASET = "profile";
 
+/**
+ * company-profile is handled by the branch in fetch() rather than the DATASETS
+ * table, so it has to be declared here explicitly — omitting it made the
+ * registry report "no provider" for a capability this provider serves fine.
+ */
+const SERVES: CapabilityId[] = [...(Object.keys(DATASETS) as CapabilityId[]), "company-profile"];
+
 function classify(status: number): FailureReason {
   if (status === 403) return "premium";
   if (status === 429) return "rate-limited";
@@ -30,10 +37,31 @@ function classify(status: number): FailureReason {
   return "error";
 }
 
+/**
+ * The period a payload describes, when the payload says so. Quarterly figures
+ * carry the quarter they belong to; a news list does not.
+ */
+function periodOf(capability: CapabilityId, data: unknown): string | undefined {
+  try {
+    if (capability === "fundamentals" || capability === "fundamental-history") {
+      const q = (data as { series?: { quarterly?: Record<string, { period: string }[]> } })?.series?.quarterly;
+      const anyKey = q ? Object.values(q)[0] : undefined;
+      return anyKey?.[0]?.period;
+    }
+    if (capability === "earnings-surprises") {
+      return (data as { period?: string }[])?.[0]?.period;
+    }
+    if (capability === "analyst-ratings") {
+      return (data as { period?: string }[])?.[0]?.period;
+    }
+  } catch { /* period is a nicety, never a failure */ }
+  return undefined;
+}
+
 export const finnhubProvider: Provider = {
   id: "finnhub",
   label: "Finnhub",
-  serves: Object.keys(DATASETS) as CapabilityId[],
+  serves: SERVES,
 
   async fetch<T>(capability: CapabilityId, symbol: string): Promise<Fetched<T>> {
     const dataset = capability === "company-profile" ? PROFILE_DATASET : DATASETS[capability];
@@ -61,6 +89,8 @@ export const finnhubProvider: Provider = {
           fetchedAt: body.fetchedAt ?? Date.now(),
           ttlMs: ttlFor(capability),
           capability,
+          cadence: cadenceFor(capability),
+          period: periodOf(capability, data),
         },
       };
     } catch {

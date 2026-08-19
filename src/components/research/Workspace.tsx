@@ -5,6 +5,10 @@ import { TIER_MEANING, overallConfidence, type Claim } from "../../lib/research"
 import { gapSentence, type ResearchGap } from "../../lib/research/gaps";
 import type { TimelineEvent } from "../../lib/research/analyzers/timeline";
 import { metaFor } from "../../lib/market";
+import { useTerminal } from "../../store";
+import { portfolioImpact, type PortfolioImpact } from "../../lib/research/portfolioImpact";
+import { explainMove, type MoveExplanation } from "../../lib/research/analyzers/explainMove";
+import type { ScoreDimension } from "../../lib/research/scorecard";
 import { useSeo } from "../../lib/seo";
 
 /**
@@ -31,6 +35,15 @@ export default function ResearchWorkspace() {
   const [sections, setSections] = useState<Record<string, Section>>({});
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<TimelineEvent | null>(null);
+  const [move, setMove] = useState<MoveExplanation | null>(null);
+  const [showCoverage, setShowCoverage] = useState(false);
+  const positions = useTerminal((s) => s.positions);
+
+  /** All computed in the engine; this component only renders the result. */
+  const impact = useMemo<PortfolioImpact | null>(
+    () => (ws ? portfolioImpact(ws.ctx, positions, ws.scorecard) : null),
+    [ws, positions],
+  );
 
   useSeo({
     title: `${meta?.name || sym} — research workspace`,
@@ -84,6 +97,35 @@ export default function ResearchWorkspace() {
         </div>
       </header>
 
+      {ws && (
+        <>
+          <section className="rw-scorecard" aria-label="Research scorecard">
+            {ws.scorecard.map((d) => <ScoreCell key={d.id} dim={d} />)}
+          </section>
+          <div className="rw-scorenote">
+            {ws.coverageOfScorecard.scored} of {ws.coverageOfScorecard.total} dimensions scored from available evidence.
+            Scores describe what the data says about the company — they are not a view on the shares, and there is
+            deliberately no combined rating.
+            <button className="rw-cov-btn" onClick={() => setShowCoverage((v) => !v)} aria-expanded={showCoverage}>
+              {showCoverage ? "HIDE DATA COVERAGE" : "DATA COVERAGE"}
+            </button>
+          </div>
+          {showCoverage && (
+            <section className="rw-coverage" aria-label="Data coverage">
+              {ws.coverage.map((c) => (
+                <div key={c.label} className={`rw-cov ${c.available ? "yes" : "no"}`}>
+                  <span className="rw-cov-mark">{c.available ? "✓" : "—"}</span>
+                  <span className="rw-cov-label">{c.label}</span>
+                  <span className="rw-cov-detail">
+                    {c.detail}{c.cadence ? ` · ${c.cadence}` : ""}{c.period ? ` · period ${c.period.slice(0, 10)}` : ""}
+                  </span>
+                </div>
+              ))}
+            </section>
+          )}
+        </>
+      )}
+
       <div className="rw-body">
         <nav className="rw-rail" aria-label="Research sections">
           {SECTIONS.map((s) => (
@@ -134,6 +176,38 @@ export default function ResearchWorkspace() {
                 <p className="rw-none">Nothing to show — the data behind this section was unavailable.</p>
               )}
               {section.gaps.length > 0 && <Gaps gaps={section.gaps} />}
+              {active === "moving" && ws && ws.unusual.length === 0 && (
+                <section className="rw-unusual">
+                  <div className="rw-calc-h">UNUSUAL MOVES</div>
+                  <p className="rw-none">
+                    No session in the last year moved more than two standard deviations from
+                    this stock&rsquo;s own daily range. A quiet year is a finding; it is not a
+                    missing feature.
+                  </p>
+                </section>
+              )}
+              {active === "moving" && ws && ws.unusual.length > 0 && (
+                <section className="rw-unusual">
+                  <div className="rw-calc-h">UNUSUAL MOVES — CLICK TO EXPLAIN</div>
+                  <div className="rw-unusual-row">
+                    {ws.unusual.map((u) => (
+                      <button
+                        key={u.at}
+                        className="rw-unusual-chip"
+                        onClick={() => setMove(explainMove(ws.ctx, ws.timeline, u.at, u.movePct, u.sigma))}
+                      >
+                        <span>{new Date(u.at).toISOString().slice(5, 10)}</span>
+                        <b style={{ color: u.movePct >= 0 ? "var(--up)" : "var(--down)" }}>
+                          {u.movePct >= 0 ? "+" : ""}{u.movePct.toFixed(1)}%
+                        </b>
+                        <em>{Math.abs(u.sigma).toFixed(1)}σ</em>
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              )}
+              {ws && <ThesisBlock thesis={ws.thesis} />}
+              {impact && <PortfolioBlock impact={impact} symbol={ctx0(ws)} />}
             </>
           )}
         </main>
@@ -160,6 +234,7 @@ export default function ResearchWorkspace() {
       </div>
 
       {selected && <EventDetail event={selected} onClose={() => setSelected(null)} />}
+      {move && <MoveDetail explanation={move} onClose={() => setMove(null)} />}
     </div>
   );
 }
@@ -288,6 +363,157 @@ function EventDetail({ event, onClose }: { event: TimelineEvent; onClose: () => 
         ))}
       </ul>
       {event.url && <a className="rw-event-link" href={event.url} target="_blank" rel="noopener noreferrer">Open original ↗</a>}
+    </div>
+  );
+}
+
+
+/** Symbol accessor kept tiny so the JSX above stays readable. */
+function ctx0(ws: Ws | null): string { return ws?.ctx.symbol ?? ""; }
+
+function ScoreCell({ dim }: { dim: ScoreDimension }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={`rw-score b-${dim.band}`}>
+      <button className="rw-score-btn" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        <span className="rw-score-label">{dim.label}</span>
+        <span className="rw-score-val">{dim.score === null ? "—" : (dim.score > 0 ? "+" : "") + dim.score.toFixed(1)}</span>
+        <span className="rw-score-band">{dim.band}</span>
+      </button>
+      {open && (
+        <div className="rw-score-detail">
+          <p>{dim.missing ?? dim.basis}</p>
+          <div className="rw-score-meta">
+            {Math.round(dim.confidence * 100)}% confidence · {dim.cadence.replace("-", " ")}
+            {dim.period && <> · period {dim.period.slice(0, 10)}</>}
+            {" "}· fetched {new Date(dim.asOf).toISOString().slice(11, 16)} UTC
+          </div>
+          {dim.sources.map((s, i) => (
+            <div key={i} className="rw-score-src">{s.label}: {s.detail}</div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ThesisBlock({ thesis }: { thesis: { bull: { dimension: string; text: string }[]; bear: { dimension: string; text: string }[]; falsifiers: { target: string; test: string; basis: string }[]; note?: string } }) {
+  return (
+    <section className="rw-thesis">
+      <div className="rw-thesis-cols">
+        <div>
+          <div className="rw-calc-h">STRONGEST POSITIVE EVIDENCE</div>
+          {thesis.bull.length === 0 && <p className="rw-none">Nothing measurable points this way.</p>}
+          {thesis.bull.map((p, i) => <p key={i} className="rw-thesis-pt"><b>{p.dimension}</b> — {p.text}</p>)}
+        </div>
+        <div>
+          <div className="rw-calc-h">STRONGEST NEGATIVE EVIDENCE</div>
+          {thesis.bear.length === 0 && <p className="rw-none">Nothing measurable points this way.</p>}
+          {thesis.bear.map((p, i) => <p key={i} className="rw-thesis-pt"><b>{p.dimension}</b> — {p.text}</p>)}
+        </div>
+      </div>
+      {thesis.note && <p className="rw-none">{thesis.note}</p>}
+      {thesis.falsifiers.length > 0 && (
+        <div className="rw-falsify">
+          <div className="rw-calc-h">WHAT WOULD CHANGE THIS</div>
+          {thesis.falsifiers.map((f, i) => (
+            <p key={i} className="rw-thesis-pt"><b>{f.target}</b> — {f.test} <em>{f.basis}</em></p>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function PortfolioBlock({ impact, symbol }: { impact: PortfolioImpact; symbol: string }) {
+  if (impact.portfolioUsd <= 0) {
+    return (
+      <section className="rw-portfolio">
+        <div className="rw-calc-h">YOUR PORTFOLIO</div>
+        <p className="rw-none">No holdings tracked yet — add positions and this research gets placed against what you own.</p>
+      </section>
+    );
+  }
+  return (
+    <section className="rw-portfolio">
+      <div className="rw-calc-h">HOW THIS SITS IN YOUR PORTFOLIO</div>
+      <div className="rw-pf-grid">
+        <div><span>{symbol} weight</span><b>{impact.weightPct === null ? "not held" : `${impact.weightPct.toFixed(1)}%`}</b></div>
+        {impact.sectorExposurePct !== null && (
+          <div><span>{impact.sectorLabel} exposure</span><b>{impact.sectorExposurePct.toFixed(0)}%</b></div>
+        )}
+        {impact.drawdown && (
+          <div>
+            <span>Worst 21-session fall</span>
+            <b style={{ color: "var(--down)" }}>{impact.drawdown.worstMonthPct.toFixed(1)}%</b>
+          </div>
+        )}
+        {impact.drawdown && (
+          <div>
+            <span>Would have cost the portfolio</span>
+            <b style={{ color: "var(--down)" }}>{impact.drawdown.portfolioHitPct.toFixed(2)}%</b>
+          </div>
+        )}
+      </div>
+      {impact.correlated.filter((c) => c.correlation !== null).length > 0 && (
+        <table className="rw-rows">
+          <tbody>
+            {impact.correlated.filter((c) => c.correlation !== null).map((c) => (
+              <tr key={c.symbol}>
+                <td className="rw-row-primary">{c.symbol} <span style={{ color: "var(--faint)" }}>{c.weightPct.toFixed(1)}%</span></td>
+                <td className="rw-row-secondary">r = {c.correlation!.toFixed(2)}</td>
+                <td className="rw-row-meta">{c.sharedSector ? "same sector" : ""} {c.overlapDays}d</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {impact.notes.map((n, i) => <p key={i} className="rw-pf-note">{n.text}</p>)}
+      <p className="rw-pf-foot">
+        Measurements about your own holdings placed beside the research. No recommendation is made or implied.
+        {impact.positionsExcluded > 0 && ` ${impact.positionsExcluded} position${impact.positionsExcluded === 1 ? "" : "s"} excluded — no price or no USD rate.`}
+      </p>
+    </section>
+  );
+}
+
+function MoveDetail({ explanation, onClose }: { explanation: MoveExplanation; onClose: () => void }) {
+  const e = explanation;
+  return (
+    <div className="rw-event" role="dialog" aria-label="Explain this move">
+      <div className="rw-event-head">
+        <div>
+          <div className="rw-event-kind">PRICE MOVE · {new Date(e.at).toISOString().slice(0, 10)}</div>
+          <h2 style={{ color: e.movePct >= 0 ? "var(--up)" : "var(--down)" }}>
+            {e.movePct >= 0 ? "+" : ""}{e.movePct.toFixed(2)}%{e.sigma !== null && ` · ${Math.abs(e.sigma).toFixed(1)}σ`}
+          </h2>
+        </div>
+        <button className="fb-x" onClick={onClose} aria-label="Close">×</button>
+      </div>
+
+      <div className="rw-react">
+        <div className="rw-react-row"><span>Sector median that session</span>
+          <b>{e.peerMovePct === null ? "—" : `${e.peerMovePct >= 0 ? "+" : ""}${e.peerMovePct.toFixed(2)}%`}</b></div>
+        <div className="rw-react-row"><span>Unexplained by the sector</span>
+          <b>{e.idiosyncraticPct === null ? "—" : `${e.idiosyncraticPct >= 0 ? "+" : ""}${e.idiosyncraticPct.toFixed(2)}pp`}</b></div>
+      </div>
+
+      <p className={`rw-verdict v-${e.verdict}`}>{e.verdictText}</p>
+
+      {e.candidates.length > 0 && (
+        <>
+          <div className="rw-calc-h">CANDIDATE EVIDENCE, RANKED</div>
+          <ul className="rw-sources">
+            {e.candidates.map((c, i) => (
+              <li key={i}>
+                <span className="rw-src-label">{c.event.kind.toUpperCase()} · relevance {c.relevance.toFixed(2)}</span>
+                <span className="rw-src-detail">{c.event.title}</span>
+                <span className="rw-src-time">{c.reasons.join(" · ")}</span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }

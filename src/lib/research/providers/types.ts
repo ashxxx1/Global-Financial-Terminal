@@ -23,6 +23,22 @@ export type FailureReason =
   | "not-configured"
   | "error";
 
+/**
+ * How often the underlying datum actually changes. A quarterly balance-sheet
+ * figure rendered beside a live price must not read as equally current, and the
+ * only way to prevent that is to carry the cadence with the value.
+ */
+export type Cadence = "real-time" | "delayed" | "daily" | "quarterly" | "annual" | "event-driven";
+
+export const CADENCE_LABEL: Record<Cadence, string> = {
+  "real-time": "real time",
+  delayed: "delayed",
+  daily: "updated daily",
+  quarterly: "quarterly reporting",
+  annual: "annual reporting",
+  "event-driven": "published as events occur",
+};
+
 export interface Provenance {
   /** Human name of whoever served this, for the evidence trail. */
   provider: string;
@@ -36,6 +52,13 @@ export interface Provenance {
   /** How stale this may be before it misleads, in ms. */
   ttlMs: number;
   capability: CapabilityId;
+  /** How often this data actually changes at source. */
+  cadence: Cadence;
+  /**
+   * The period the data describes, when that differs from when we fetched it —
+   * "Q2 2026" for a balance sheet, absent for a live quote.
+   */
+  period?: string;
 }
 
 export type Fetched<T> =
@@ -70,3 +93,20 @@ export const TTL: Record<string, number> = {
 };
 
 export const ttlFor = (c: CapabilityId): number => TTL[c] ?? 15 * 60_000;
+
+/** What the source's own update rhythm is, per capability. */
+export const CADENCE: Record<string, Cadence> = {
+  quote: "delayed",
+  "price-history": "daily",
+  "company-profile": "annual",
+  fundamentals: "quarterly",
+  "fundamental-history": "quarterly",
+  "earnings-surprises": "quarterly",
+  "analyst-ratings": "event-driven",
+  "company-news": "event-driven",
+  "sec-filings": "event-driven",
+  "insider-transactions": "event-driven",
+  peers: "annual",
+};
+
+export const cadenceFor = (c: CapabilityId): Cadence => CADENCE[c] ?? "delayed";

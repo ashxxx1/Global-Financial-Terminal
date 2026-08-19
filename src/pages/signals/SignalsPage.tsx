@@ -1,24 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useSeo } from "../../lib/seo";
 import { bootstrapSignals, isDemoMode } from "../../lib/signals/api";
 import { marketsForFilter } from "../../lib/signals/assets";
 import { computePerformance } from "../../lib/signals/performance";
-import { fmtConfidence, fmtPct, sameDay, todayKey, yesterdayKey } from "../../lib/signals/format";
+import { fmtPct, sameDay, todayKey, yesterdayKey } from "../../lib/signals/format";
 import type { Signal } from "../../lib/signals/types";
 import SignalCard from "../../components/signals/SignalCard";
 import SignalStatusBadge, {
   DemoBanner,
   SignalsDisclaimer,
-  SignalsSubnav,
-  SignalDirectionBadge,
 } from "../../components/signals/SignalStatusBadge";
-import { MetricStrip, SignalFiltersBar } from "../../components/signals/SignalsHomeWidget";
+import { SignalFiltersBar } from "../../components/signals/SignalsHomeWidget";
 
 export default function SignalsPage() {
   useSeo({
-    title: "GFT Signals — Model Market Forecasts",
-    description: "Model-generated market forecasts tracked in public. Every call stays on the record.",
+    title: "GFT Signals — AI Market Forecasts",
+    description: "Deep learning & sentiment driven market forecasts. Tracked in public.",
     path: "/terminal/signals",
   });
 
@@ -26,7 +25,6 @@ export default function SignalsPage() {
   const [market, setMarket] = useState("ALL");
   const [direction, setDirection] = useState("ALL");
   const [sort, setSort] = useState("confidence");
-  const [bestWindow, setBestWindow] = useState<"week" | "month" | "all">("month");
 
   useEffect(() => {
     setSignals(bootstrapSignals());
@@ -47,15 +45,17 @@ export default function SignalsPage() {
       winRate: stats.winRate,
       return30d,
       streak: stats.currentStreak,
+      profitFactor: stats.profitFactor,
     };
   }, [signals]);
+
   const today = todayKey();
   const yday = yesterdayKey();
 
   const todays = useMemo(() => {
     let list = signals.filter((s) => sameDay(s.createdAt, today));
     const markets = marketsForFilter(market);
-    if (markets) list = list.filter((s) => markets.includes(s.market) || (market === "INDICES" && s.assetType === "INDEX") || (market === "EQUITIES" && s.assetType === "EQUITY") || (market === "COMMODITIES" && s.assetType === "COMMODITY") || (market === "FX" && s.assetType === "FX") || (market === "CRYPTO" && s.assetType === "CRYPTO"));
+    if (markets) list = list.filter((s) => markets.includes(s.market) || (market === "INDICES" && s.assetType === "INDEX") || (market === "EQUITIES" && s.assetType === "EQUITY") || (market === "COMMODITIES" && s.assetType === "COMMODITY") || (market === "FX" && s.assetType === "FX") || (market === "CRYPTO" && s.assetType === "CRYPTO") || (market === "FUTURES" && s.assetType === "FUTURES") || (market === "OPTIONS" && s.assetType === "OPTIONS"));
     if (market === "INDICES") list = list.filter((s) => s.assetType === "INDEX");
     if (market === "EQUITIES") list = list.filter((s) => s.assetType === "EQUITY");
     if (direction !== "ALL") list = list.filter((s) => s.direction === direction);
@@ -68,179 +68,179 @@ export default function SignalsPage() {
     return list;
   }, [signals, market, direction, sort, today]);
 
-  const watch = useMemo(
-    () => [...signals.filter((s) => sameDay(s.createdAt, today))].sort((a, b) => b.confidence - a.confidence).slice(0, 5),
-    [signals, today],
-  );
-
   const yesterday = useMemo(() => signals.filter((s) => sameDay(s.createdAt, yday)), [signals, yday]);
   const yHits = yesterday.filter((s) => s.status === "TARGET_HIT").length;
+  const yStops = yesterday.filter((s) => s.status === "STOP_HIT").length;
+  const yReturn = yesterday.reduce((a, s) => a + (s.realizedReturn ?? 0), 0);
 
-  const resolved = useMemo(() => signals.filter((s) => s.realizedReturn != null), [signals]);
-  const best = useMemo(() => {
-    const cutoff = bestWindow === "week" ? Date.now() - 7 * 86400000 : bestWindow === "month" ? Date.now() - 30 * 86400000 : 0;
-    return [...resolved]
-      .filter((s) => (s.resolvedAt ?? 0) >= cutoff && s.status === "TARGET_HIT")
-      .sort((a, b) => (b.realizedReturn ?? 0) - (a.realizedReturn ?? 0))
-      .slice(0, 5);
-  }, [resolved, bestWindow]);
-  const worst = useMemo(() => {
-    return [...resolved]
-      .filter((s) => s.status === "STOP_HIT")
-      .sort((a, b) => (a.realizedReturn ?? 0) - (b.realizedReturn ?? 0))
-      .slice(0, 5);
-  }, [resolved]);
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    }
+  };
 
-  const stats = useMemo(() => computePerformance(signals), [signals]);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
+  // Bento Box Styles
+  const bentoCardStyle = {
+    background: "rgba(255, 255, 255, 0.03)",
+    border: "1px solid rgba(255, 255, 255, 0.08)",
+    borderRadius: "16px",
+    padding: "20px",
+    backdropFilter: "blur(12px)",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+    overflow: "hidden" as const,
+  };
 
   return (
-    <div className="sig-page" style={{ padding: 18, maxWidth: 1180, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 12, flexWrap: "wrap", marginBottom: 8 }}>
-        <div style={{ flex: 1, minWidth: 220 }}>
-          <div className="label" style={{ color: "var(--purple)" }}>TODAY · {new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase()}</div>
-          <h1 style={{ margin: "6px 0 4px", fontSize: 26, fontWeight: 800, letterSpacing: "0.04em" }}>GFT SIGNALS</h1>
-          <p style={{ margin: 0, color: "var(--muted)", maxWidth: 520 }}>Model-generated market forecasts. Tracked in public.</p>
+    <div style={{ padding: "24px 32px", maxWidth: 1400, margin: "0 auto" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+        <div>
+          <div className="label" style={{ color: "var(--gold)", letterSpacing: "0.15em", marginBottom: 4 }}>
+            AI PREDICTION ENGINE · {new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" }).toUpperCase()}
+          </div>
+          <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, letterSpacing: "0.02em" }}>Market Signals</h1>
         </div>
         <DemoBanner demo={isDemoMode()} />
       </div>
 
-      <SignalsSubnav active="today" />
-
-      <MetricStrip
-        items={[
-          { label: "TODAY'S SIGNALS", value: String(metrics.todaysCount) },
-          { label: "ACTIVE", value: String(metrics.active), tone: "var(--gold)" },
-          { label: "TARGETS HIT", value: String(metrics.targetsHitToday), tone: "var(--up)" },
-          { label: "MODEL WIN RATE", value: metrics.winRate == null ? "—" : `${(metrics.winRate * 100).toFixed(1)}%`, tone: "var(--purple)" },
-          { label: "30D RETURN*", value: fmtPct(metrics.return30d), tone: metrics.return30d >= 0 ? "var(--up)" : "var(--down)" },
-          { label: "CURRENT STREAK", value: String(metrics.streak) },
-        ]}
-      />
-
-      <section className="panel" style={{ marginBottom: 16, padding: "14px 16px" }}>
-        <div className="label" style={{ marginBottom: 8 }}>GFT DAILY FORECAST · MARKETS TO WATCH</div>
-        {watch.length === 0 ? (
-          <div>
-            <div style={{ fontWeight: 700, marginBottom: 4 }}>NO HIGH-CONVICTION SIGNALS</div>
-            <div style={{ color: "var(--muted)", fontSize: 13 }}>Market conditions do not currently meet GFT&apos;s signal threshold.</div>
+      <motion.div 
+        variants={containerVariants} 
+        initial="hidden" 
+        animate="show"
+        style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 16 }}
+      >
+        {/* KPI Row (Bento Grid) */}
+        <motion.div variants={itemVariants} style={{ ...bentoCardStyle, gridColumn: "span 3", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div className="label" style={{ color: "var(--muted)" }}>TODAY'S SIGNALS</div>
+          <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "var(--mono)", marginTop: 8 }}>{metrics.todaysCount}</div>
+          <div style={{ fontSize: 13, color: "var(--gold)", marginTop: 4 }}>{metrics.active} Active Now</div>
+        </motion.div>
+        
+        <motion.div variants={itemVariants} style={{ ...bentoCardStyle, gridColumn: "span 3", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div className="label" style={{ color: "var(--muted)" }}>AI WIN RATE</div>
+          <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "var(--mono)", marginTop: 8, color: "var(--purple)" }}>
+            {metrics.winRate == null ? "—" : `${(metrics.winRate * 100).toFixed(1)}%`}
           </div>
-        ) : (
-          <div style={{ display: "grid", gap: 8 }}>
-            {watch.map((s, i) => (
-              <Link key={s.id} to={`/terminal/signals/${s.id}`} style={{
-                display: "grid", gridTemplateColumns: "28px 1fr auto auto", gap: 12, alignItems: "center",
-                padding: "8px 4px", borderBottom: "1px solid var(--line)", color: "inherit", textDecoration: "none",
-              }}>
-                <span className="mono" style={{ color: "var(--faint)" }}>{i + 1}.</span>
-                <span style={{ fontWeight: 700 }}>{s.symbol}</span>
-                <SignalDirectionBadge direction={s.direction} />
-                <span className="mono" style={{ color: "var(--purple)", fontWeight: 700 }}>{fmtConfidence(s.confidence)}</span>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
+          <div style={{ fontSize: 13, color: "var(--faint)", marginTop: 4 }}>Across all asset classes</div>
+        </motion.div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 280px", gap: 14, marginBottom: 18 }} className="sig-split">
-        <section>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 10 }}>
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, letterSpacing: "0.08em" }}>TODAY&apos;S SIGNALS</h2>
-            <span className="label">{todays.length} SHOWN</span>
+        <motion.div variants={itemVariants} style={{ ...bentoCardStyle, gridColumn: "span 3", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div className="label" style={{ color: "var(--muted)" }}>PROFIT FACTOR</div>
+          <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "var(--mono)", marginTop: 8, color: "var(--up)" }}>
+            {metrics.profitFactor == null ? "—" : metrics.profitFactor.toFixed(2)}
           </div>
-          <SignalFiltersBar market={market} setMarket={setMarket} direction={direction} setDirection={setDirection} sort={sort} setSort={setSort} />
-          {todays.length === 0 ? (
-            <div className="panel" style={{ padding: 24, color: "var(--muted)" }}>
-              No signals match these filters. The model only publishes when conviction clears the threshold.
+          <div style={{ fontSize: 13, color: "var(--faint)", marginTop: 4 }}>Gross Profit / Gross Loss</div>
+        </motion.div>
+
+        <motion.div variants={itemVariants} style={{ ...bentoCardStyle, gridColumn: "span 3", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <div className="label" style={{ color: "var(--muted)" }}>30D RETURN (EST)</div>
+          <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "var(--mono)", marginTop: 8, color: metrics.return30d >= 0 ? "var(--up)" : "var(--down)" }}>
+            {fmtPct(metrics.return30d)}
+          </div>
+          <div style={{ fontSize: 13, color: "var(--faint)", marginTop: 4 }}>Current Streak: {metrics.streak}</div>
+        </motion.div>
+
+        {/* Left Column: Today's Signals */}
+        <motion.div variants={itemVariants} style={{ gridColumn: "span 8" }}>
+          <div style={{ ...bentoCardStyle, height: "100%" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>LIVE PREDICTIONS</h2>
             </div>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 12 }}>
-              {todays.map((s) => <SignalCard key={s.id} signal={s} />)}
-            </div>
-          )}
-        </section>
-
-        <aside>
-          <div className="panel" style={{ marginBottom: 12 }}>
-            <div className="panel-head"><span className="panel-title">YESTERDAY&apos;S CALLS</span></div>
-            <div className="panel-body" style={{ display: "grid", gap: 8 }}>
-              {yesterday.length === 0 && <div style={{ color: "var(--muted)", fontSize: 13 }}>No calls on record for yesterday.</div>}
-              {yesterday.slice(0, 6).map((s) => (
-                <Link key={s.id} to={`/terminal/signals/${s.id}`} style={{ display: "flex", justifyContent: "space-between", gap: 8, textDecoration: "none", color: "inherit" }}>
-                  <span style={{ fontWeight: 650 }}>{s.symbol}</span>
-                  <span style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <SignalStatusBadge status={s.status} />
-                    <span className="mono" style={{ fontSize: 12, color: (s.realizedReturn ?? 0) >= 0 ? "var(--up)" : "var(--down)" }}>
-                      {s.realizedReturn == null ? "—" : fmtPct(s.realizedReturn)}
-                    </span>
-                  </span>
-                </Link>
-              ))}
-              <div style={{ marginTop: 8, paddingTop: 10, borderTop: "1px solid var(--line)" }}>
-                <div style={{ fontWeight: 800, fontSize: 18 }}>{yHits} / {yesterday.length}</div>
-                <div className="label">TARGETS HIT · {yesterday.length ? `${((yHits / yesterday.length) * 100).toFixed(0)}% SUCCESS RATE` : "—"}</div>
-                <Link to="/terminal/signals/history" className="chip" style={{ marginTop: 10, display: "inline-block", textDecoration: "none" }}>VIEW ALL RESULTS</Link>
-              </div>
+            
+            <SignalFiltersBar market={market} setMarket={setMarket} direction={direction} setDirection={setDirection} sort={sort} setSort={setSort} />
+            
+            <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+              {todays.length === 0 ? (
+                <div style={{ gridColumn: "span 2", padding: 40, textAlign: "center", color: "var(--muted)", background: "rgba(0,0,0,0.2)", borderRadius: 8 }}>
+                  No signals match these filters today. The AI model only publishes when conviction clears the threshold.
+                </div>
+              ) : (
+                todays.map((s) => <SignalCard key={s.id} signal={s} />)
+              )}
             </div>
           </div>
+        </motion.div>
 
-          <div className="panel" style={{ marginBottom: 12 }}>
-            <div className="panel-head">
-              <span className="panel-title">WHAT WE GOT RIGHT</span>
+        {/* Right Column: End of Day Review */}
+        <motion.div variants={itemVariants} style={{ gridColumn: "span 4", display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ ...bentoCardStyle, flex: 1, background: "linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 12, marginBottom: 16 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "var(--gold)" }}>END OF DAY REVIEW</h2>
+              <span className="label">YESTERDAY</span>
             </div>
-            <div style={{ display: "flex", gap: 4, padding: "0 12px 8px", flexWrap: "wrap" }}>
-              {(["week", "month", "all"] as const).map((w) => (
-                <button key={w} type="button" className={`chip ${bestWindow === w ? "active" : ""}`} onClick={() => setBestWindow(w)}>
-                  {w === "week" ? "BEST THIS WEEK" : w === "month" ? "BEST THIS MONTH" : "BEST ALL TIME"}
-                </button>
-              ))}
-            </div>
-            <div className="panel-body" style={{ display: "grid", gap: 8 }}>
-              {best.map((s) => (
-                <Link key={s.id} to={`/terminal/signals/${s.id}`} style={{ display: "flex", justifyContent: "space-between", textDecoration: "none", color: "inherit" }}>
-                  <span>{s.symbol}</span>
-                  <span className="mono" style={{ color: "var(--up)" }}>{fmtPct(s.realizedReturn)}</span>
-                </Link>
-              ))}
-              {!best.length && <div style={{ color: "var(--muted)", fontSize: 13 }}>No target hits in this window yet.</div>}
-            </div>
-          </div>
 
-          <div className="panel">
-            <div className="panel-head"><span className="panel-title">WHAT WE GOT WRONG</span></div>
-            <div className="panel-body" style={{ display: "grid", gap: 8 }}>
-              {worst.map((s) => (
-                <Link key={s.id} to={`/terminal/signals/${s.id}`} style={{ display: "flex", justifyContent: "space-between", textDecoration: "none", color: "inherit" }}>
-                  <span>{s.symbol}</span>
-                  <span className="mono" style={{ color: "var(--down)" }}>{fmtPct(s.realizedReturn)}</span>
-                </Link>
-              ))}
-              {!worst.length && <div style={{ color: "var(--muted)", fontSize: 13 }}>No stop hits on record yet.</div>}
-            </div>
+            {yesterday.length === 0 ? (
+              <div style={{ color: "var(--muted)", fontSize: 14, textAlign: "center", padding: "20px 0" }}>No predictions on record for yesterday.</div>
+            ) : (
+              <>
+                {/* Big summary stat */}
+                <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+                  <div style={{ flex: 1, background: "rgba(0,0,0,0.3)", borderRadius: 12, padding: 16, textAlign: "center", border: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div className="label">WIN RATE</div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: "var(--up)", fontFamily: "var(--mono)", marginTop: 4 }}>
+                      {((yHits / yesterday.length) * 100).toFixed(0)}%
+                    </div>
+                  </div>
+                  <div style={{ flex: 1, background: "rgba(0,0,0,0.3)", borderRadius: 12, padding: 16, textAlign: "center", border: "1px solid rgba(255,255,255,0.05)" }}>
+                    <div className="label">NET RETURN</div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: yReturn >= 0 ? "var(--up)" : "var(--down)", fontFamily: "var(--mono)", marginTop: 4 }}>
+                      {fmtPct(yReturn)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="label" style={{ marginBottom: 8 }}>PREDICTION BREAKDOWN ({yesterday.length})</div>
+                <div style={{ display: "flex", height: 8, borderRadius: 4, overflow: "hidden", marginBottom: 16 }}>
+                  <div style={{ width: `${(yHits/yesterday.length)*100}%`, background: "var(--up)" }} title={`${yHits} Targets Hit`} />
+                  <div style={{ width: `${(yStops/yesterday.length)*100}%`, background: "var(--down)" }} title={`${yStops} Stops Hit`} />
+                  <div style={{ flex: 1, background: "var(--muted)" }} title="Expired/Ambiguous" />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 340, overflowY: "auto", paddingRight: 4 }}>
+                  {yesterday.map((s) => (
+                    <Link key={s.id} to={`/terminal/signals/${s.id}`} style={{ 
+                      display: "flex", justifyContent: "space-between", alignItems: "center",
+                      padding: "10px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8,
+                      textDecoration: "none", color: "inherit", border: "1px solid transparent",
+                      transition: "border 0.2s"
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.borderColor = "transparent")}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: 14 }}>{s.symbol}</div>
+                        <div style={{ fontSize: 11, color: "var(--faint)", marginTop: 2 }}>{s.assetType}</div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <SignalStatusBadge status={s.status} />
+                        <div className="mono" style={{ fontSize: 12, color: (s.realizedReturn ?? 0) >= 0 ? "var(--up)" : "var(--down)", marginTop: 4 }}>
+                          {s.realizedReturn == null ? "—" : fmtPct(s.realizedReturn)}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                
+                <div style={{ textAlign: "center", marginTop: 16 }}>
+                  <Link to="/terminal/signals/history" className="chip" style={{ display: "inline-block", textDecoration: "none", padding: "8px 16px" }}>
+                    VIEW FULL HISTORY
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
-        </aside>
+        </motion.div>
+      </motion.div>
+      
+      <div style={{ marginTop: 24 }}>
+        <SignalsDisclaimer />
       </div>
-
-      <div className="panel" style={{ padding: 14, marginBottom: 8 }}>
-        <div className="label" style={{ marginBottom: 8 }}>RESULT MIX (RESOLVED)</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }} className="sig-mix">
-          <Mix label="TARGET HIT" value={stats.targetHitRate} color="var(--up)" />
-          <Mix label="STOP HIT" value={stats.stopHitRate} color="var(--down)" />
-          <Mix label="EXPIRED" value={stats.expiredRate} color="var(--muted)" />
-          <Mix label="AMBIGUOUS" value={stats.ambiguousRate} color="var(--blue)" />
-        </div>
-      </div>
-
-      <SignalsDisclaimer />
-      <div className="label" style={{ marginTop: 6 }}>*30D return is hypothetical equal-notional model performance from resolved signals.</div>
-    </div>
-  );
-}
-
-function Mix({ label, value, color }: { label: string; value: number | null; color: string }) {
-  return (
-    <div>
-      <div className="mono" style={{ fontSize: 22, fontWeight: 800, color }}>{value == null ? "—" : `${(value * 100).toFixed(0)}%`}</div>
-      <div className="label">{label}</div>
     </div>
   );
 }

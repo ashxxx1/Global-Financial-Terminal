@@ -27,7 +27,7 @@ export type SignalStatus =
   | "INVALIDATED"
   | "AMBIGUOUS";
 
-export type AssetType = "INDEX" | "EQUITY" | "FX" | "CRYPTO" | "COMMODITY";
+export type AssetType = "INDEX" | "EQUITY" | "FX" | "CRYPTO" | "COMMODITY" | "FUTURES" | "OPTIONS";
 
 export type MarketRegion =
   | "US"

@@ -2238,3 +2238,37 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
 /* WCAG 2.5.8 Target Size (minimum) — 24x24 CSS px for pointer targets. The
    segmented buttons were 2px/9px padding on a 10px glyph, well under. */
 .seg button { min-width: 26px; min-height: 24px; }
+
+/* ── Portfolio (growth-plan items 73 & 74) ───────────────────────────────── */
+
+.pf-excluded {
+  padding: 10px 12px; margin-bottom: 14px; font-size: 12px; line-height: 1.6;
+  color: var(--muted); border: 1px dashed var(--line-strong); border-radius: 6px;
+}
+.pf-excluded b { color: var(--text); }
+.pf-sym {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: var(--mono); font-size: 12.5px; font-weight: 700; color: var(--text);
+}
+.pf-sym:hover { text-decoration: underline; }
+.pf-sim {
+  margin-left: 6px; font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em;
+  color: var(--faint); border: 1px dashed var(--line-strong); border-radius: 3px; padding: 1px 4px;
+}
+.pf-bar { display: block; height: 4px; background: rgba(255,255,255,0.10); border-radius: 2px; overflow: hidden; }
+.pf-bar > span { display: block; height: 100%; background: var(--text); }
+.pf-note { font-size: 11px; color: var(--faint); line-height: 1.6; margin: 0 0 16px; }
+
+.pf-add { margin-top: 4px; }
+.pf-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.pf-field { display: flex; flex-direction: column; gap: 4px; }
+.pf-field span { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; color: var(--faint); }
+.pf-field input {
+  width: 130px; padding: 7px 9px; border-radius: 5px; font-size: 13px;
+  background: var(--panel); border: 1px solid var(--line); color: var(--text);
+}
+.pf-field input:focus { outline: 2px solid var(--text); outline-offset: 1px; }
+.pf-msg { font-size: 12px; color: var(--text); margin: 10px 0 0; }
+.pf-errors { margin: 8px 0 0; padding-left: 18px; }
+.pf-errors li { font-size: 11.5px; color: var(--down); line-height: 1.5; }
+.pf-hint { font-size: 11px; color: var(--faint); margin: 8px 0 0; line-height: 1.5; }

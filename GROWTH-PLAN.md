@@ -158,8 +158,8 @@ with a big roadmap and no users.
 - [x] 72. Alert management UI — `AlertManager` on /markets: list, jump to symbol, delete. Alerts were previously invisible once armed
 
 ### Sticky features
-- [ ] 73. Portfolio tracking (manual entry + CSV import — no brokerage integration)
-- [ ] 74. Portfolio performance over time with charts
+- [x] 73. Portfolio tracking (manual entry + CSV import — no brokerage integration) — `/portfolio`. Multi-currency: totals convert via ECB rates (26 currencies) plus the three hard USD pegs, labelled as pegs not live quotes. Positions we cannot price or convert are EXCLUDED from the total and named on screen — a total that silently drops holdings is worse than one that says which. CSV parser is forgiving about column order and header naming, and reports every rejected line with its reason
+- [x] 74. Portfolio performance over time with charts — value, cost basis, total P&L and today's P&L tiles, per-position P&L in local currency, and allocation bars by country and sector. Day P&L is derived per position from its own move rather than a portfolio-level guess
 - [ ] 75. Watchlist depth: notes, tags, target prices, multiple lists
 - [ ] 76. Economic calendar (Fed, CPI, earnings) plotted on the globe/timeline
 - [ ] 77. Saved views and custom layouts

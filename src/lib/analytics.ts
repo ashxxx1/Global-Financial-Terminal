@@ -90,6 +90,9 @@ export interface EventMap {
   watchlist_added: { symbol: string };
   watchlist_removed: { symbol: string };
   alert_created: { symbol: string };
+  /** Portfolio — growth-plan items 73 & 74. */
+  position_added: { symbol: string };
+  positions_imported: { count: number };
   alert_fired: { symbol: string };
   search_opened: Record<string, never>;
   news_clicked: { source: string };

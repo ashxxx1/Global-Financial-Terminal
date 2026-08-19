@@ -51,6 +51,7 @@ const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
+const Portfolio = lazy(() => import("./pages/Portfolio"));
 const Macro = lazy(() => import("./pages/Macro"));
 import { useAuth, authRequired } from "./lib/auth";
 import { useTerminal } from "./store";
@@ -132,6 +133,7 @@ function Shell() {
             <Route path="/" element={<World />} />
             <Route path="/country/:code" element={<Country />} />
             <Route path="/markets" element={<Markets />} />
+            <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/stock/:symbol" element={<Stock />} />
             <Route path="/macro" element={<Macro />} />
             <Route path="/compare" element={<Compare />} />

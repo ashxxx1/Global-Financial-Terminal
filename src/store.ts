@@ -17,6 +17,25 @@ export interface PriceAlert {
 }
 export interface AlertNotice { id: string; text: string; time: string; }
 
+/**
+ * One holding — growth-plan item 73. Manual entry and CSV only; no brokerage
+ * integration, which would need regulated credentials we have no business
+ * handling.
+ */
+export interface Position {
+  id: string;
+  symbol: string;
+  name: string;
+  country: string | null;
+  /** Share count. Fractional allowed. */
+  shares: number;
+  /** Cost per share, in the instrument's own quoted currency. */
+  costPerShare: number;
+  currency: string;
+  addedAt: string;
+  note?: string;
+}
+
 interface TerminalState {
   chatOpen: boolean;
   setChatOpen: (v: boolean) => void;
@@ -25,6 +44,13 @@ interface TerminalState {
   addWatch: (w: WatchItem) => void;
   removeWatch: (symbol: string) => void;
   inWatchlist: (symbol: string) => boolean;
+
+  /** Holdings — growth-plan items 73 & 74. */
+  positions: Position[];
+  addPosition: (p: Omit<Position, "id" | "addedAt">) => void;
+  updatePosition: (id: string, patch: Partial<Omit<Position, "id">>) => void;
+  removePosition: (id: string) => void;
+  importPositions: (rows: Omit<Position, "id" | "addedAt">[]) => number;
 
   alerts: PriceAlert[];
   addAlert: (a: Omit<PriceAlert, "id" | "createdAt">) => void;
@@ -82,6 +108,31 @@ export const useTerminal = create<TerminalState>()(
         track("watchlist_removed", { symbol });
       },
       inWatchlist: (symbol) => get().watchlist.some((x) => x.symbol === symbol),
+
+      positions: [],
+      addPosition: (p) => {
+        set({
+          positions: [
+            ...get().positions,
+            { ...p, id: `${p.symbol}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, addedAt: new Date().toISOString() },
+          ],
+        });
+        track("position_added", { symbol: p.symbol });
+      },
+      updatePosition: (id, patch) =>
+        set({ positions: get().positions.map((x) => (x.id === id ? { ...x, ...patch } : x)) }),
+      removePosition: (id) => set({ positions: get().positions.filter((x) => x.id !== id) }),
+      importPositions: (rows) => {
+        const now = Date.now();
+        const made = rows.map((p, i) => ({
+          ...p,
+          id: `${p.symbol}-${now}-${i}`,
+          addedAt: new Date().toISOString(),
+        }));
+        set({ positions: [...get().positions, ...made] });
+        track("positions_imported", { count: made.length });
+        return made.length;
+      },
 
       alerts: [],
       addAlert: (a) => {
@@ -169,6 +220,7 @@ export const useTerminal = create<TerminalState>()(
         nerdMode: s.nerdMode,
         highDensity: s.highDensity,
         onboarded: s.onboarded,
+        positions: s.positions,
         activated: s.activated,
       }),
     }

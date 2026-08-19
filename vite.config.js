@@ -68,7 +68,11 @@ function localFinnhubApi() {
             return send(200, { quotes, fetchedAt: Date.now() })
           }
           const symbol = (u.searchParams.get('symbol') || '').toUpperCase()
-          if (!/^[A-Z0-9.\-]{1,12}$/.test(symbol)) return send(400, { error: 'bad symbol' })
+          // Market-wide datasets take no symbol; mirror api/research.ts so dev
+          // and production reject and accept exactly the same calls.
+          const symbolOptional = url.startsWith('/api/research') && /dataset=earnings-calendar/.test(url)
+          if (!symbolOptional && !/^[A-Z0-9.\-]{1,12}$/.test(symbol)) return send(400, { error: 'bad symbol' })
+          if (symbolOptional && symbol && !/^[A-Z0-9.\-]{1,12}$/.test(symbol)) return send(400, { error: 'bad symbol' })
 
           // /api/research — mirrors api/research.ts so the research engine is
           // testable locally. Same dataset table, same validation; no cache
@@ -85,11 +89,13 @@ function localFinnhubApi() {
               news: `/company-news?symbol=${symbol}&from=${ago(14)}&to=${today}`,
               filings: `/stock/filings?symbol=${symbol}`,
               peers: `/stock/peers?symbol=${symbol}`,
+              'earnings-calendar': `/calendar/earnings?from=${today}&to=${new Date(Date.now() + 45 * 86400000).toISOString().slice(0, 10)}`,
               insider: `/stock/insider-transactions?symbol=${symbol}`,
             }
             const dataset = u.searchParams.get('dataset') || ''
             const pathFor = DATASETS[dataset]
             if (!pathFor) return send(400, { error: 'unknown dataset' })
+            // earnings-calendar is market-wide and takes no symbol.
             const upstream = await fetch(
               `https://finnhub.io/api/v1${pathFor}&token=${key}`.replace('?&', '?'),
               { signal: AbortSignal.timeout(12000) },

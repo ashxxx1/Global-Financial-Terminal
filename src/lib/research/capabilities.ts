@@ -37,7 +37,7 @@ export interface Capability {
 export type CapabilityId =
   | "quote" | "price-history" | "company-profile" | "fundamentals" | "fundamental-history"
   | "earnings-surprises" | "analyst-ratings" | "company-news" | "sec-filings"
-  | "insider-transactions" | "peers"
+  | "insider-transactions" | "peers" | "upcoming-earnings"
   // Known-absent. Declared so analyzers can name them precisely.
   | "eps-estimates" | "revenue-estimates" | "price-targets"
   | "earnings-transcripts" | "options-positioning" | "filing-text"
@@ -58,12 +58,16 @@ export const CAPABILITIES: Record<CapabilityId, Capability> = {
   "sec-filings": { id: "sec-filings", label: "SEC filings index", availability: "available", dataset: "filings", provider: "Finnhub", verifiedAt: VERIFIED },
   "insider-transactions": { id: "insider-transactions", label: "Insider transactions", availability: "available", dataset: "insider", provider: "Finnhub", verifiedAt: VERIFIED },
   peers: { id: "peers", label: "Peer list", availability: "available", dataset: "peers", provider: "Finnhub", verifiedAt: VERIFIED },
+  "upcoming-earnings": {
+    id: "upcoming-earnings", label: "Scheduled earnings dates", availability: "available",
+    dataset: "earnings-calendar", provider: "Finnhub", verifiedAt: "2026-08-19",
+  },
 
   "eps-estimates": {
     id: "eps-estimates", label: "Forward EPS estimates", availability: "premium", provider: "Finnhub (paid tier)",
-    absence: "Forward EPS estimates are a paid dataset. Our plan returns 403 for them, so we cannot see what analysts expect next quarter, or whether they have been raising or cutting.",
-    alternative: { capability: "earnings-surprises", difference: "We can show what the company actually delivered against consensus in past quarters. That is realised performance, not a forward expectation — a company can be beating consistently while analysts cut the future." },
-    verifiedAt: VERIFIED,
+    absence: "The estimate-revision dataset is paid and our plan returns 403 for it, so we cannot see whether analysts have been RAISING OR CUTTING their numbers. Note the earnings calendar does carry a single consensus EPS estimate for a scheduled print, so what consensus currently expects is visible — the history of how it got there is not.",
+    alternative: { capability: "upcoming-earnings", difference: "We can show the next scheduled print and the single consensus EPS estimate attached to it, plus what the company actually delivered in past quarters. What is missing is the direction of travel — whether that estimate has been rising or falling." },
+    verifiedAt: "2026-08-19",
   },
   "revenue-estimates": {
     id: "revenue-estimates", label: "Forward revenue estimates", availability: "premium", provider: "Finnhub (paid tier)",

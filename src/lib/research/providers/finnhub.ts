@@ -19,6 +19,7 @@ const DATASETS: Partial<Record<CapabilityId, string>> = {
   "sec-filings": "filings",
   "insider-transactions": "insider",
   peers: "peers",
+  "upcoming-earnings": "earnings-calendar",
 };
 
 const PROFILE_DATASET = "profile";

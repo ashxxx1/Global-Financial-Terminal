@@ -53,6 +53,7 @@ import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
 const Portfolio = lazy(() => import("./pages/Portfolio"));
 const Watchlist = lazy(() => import("./pages/Watchlist"));
+const Calendar = lazy(() => import("./pages/Calendar"));
 
 const ResearchWorkspace = lazy(() => import("./components/research/Workspace"));
 
@@ -146,6 +147,7 @@ function Shell() {
             <Route path="/markets" element={<Markets />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/watchlist" element={<Watchlist />} />
+            <Route path="/calendar" element={<Calendar />} />
 
             <Route path="/research/:symbol" element={<ResearchWorkspace />} />
 

@@ -2346,3 +2346,33 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
   font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em; color: var(--faint);
   border: 1px solid var(--line); border-radius: 3px; padding: 1px 4px;
 }
+
+/* ── Calendar (growth-plan item 76) ──────────────────────────────────────── */
+
+.cal-src { font-size: 11px; color: var(--faint); line-height: 1.55; margin: 0 0 10px; }
+.cal-src.warn { color: var(--muted); border-left: 2px solid #F5C451; padding-left: 8px; }
+.cal-none { font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; }
+.cal-day { margin-bottom: 10px; }
+.cal-date {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; color: var(--faint);
+  padding-bottom: 4px; border-bottom: 1px solid var(--line); margin-bottom: 4px;
+}
+.cal-row {
+  width: 100%; display: grid; grid-template-columns: 58px 1fr auto auto; gap: 8px;
+  align-items: baseline; text-align: left; padding: 5px 6px; min-height: 24px;
+  border-radius: 4px; cursor: pointer; background: transparent; border: none; color: var(--text);
+}
+.cal-row:hover { background: rgba(255,255,255,0.05); }
+.cal-sym { font-family: var(--mono); font-size: 11.5px; font-weight: 700; }
+.cal-name { font-size: 11.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-tag {
+  font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.1em;
+  border: 1px solid var(--line-strong); border-radius: 3px; padding: 1px 4px; color: var(--faint);
+}
+.cal-tag.held { color: var(--up); border-color: var(--up); }
+.cal-est { font-family: var(--mono); font-size: 10px; color: var(--faint); white-space: nowrap; }
+.cal-macro { display: grid; grid-template-columns: 58px 8px 1fr auto; gap: 8px; align-items: center; padding: 5px 6px; }
+.cal-macro-date { font-family: var(--mono); font-size: 9px; color: var(--faint); }
+.cal-macro-dot { width: 6px; height: 6px; border-radius: 50%; }
+.cal-macro-title { font-size: 11.5px; color: var(--text); }
+.cal-macro-country { font-family: var(--mono); font-size: 9px; color: var(--faint); }

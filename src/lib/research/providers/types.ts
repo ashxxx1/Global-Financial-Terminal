@@ -90,6 +90,7 @@ export const TTL: Record<string, number> = {
   "sec-filings": 60 * 60_000,
   "insider-transactions": 60 * 60_000,
   peers: 24 * 60 * 60_000,
+  "upcoming-earnings": 6 * 60 * 60_000,
 };
 
 export const ttlFor = (c: CapabilityId): number => TTL[c] ?? 15 * 60_000;
@@ -107,6 +108,7 @@ export const CADENCE: Record<string, Cadence> = {
   "sec-filings": "event-driven",
   "insider-transactions": "event-driven",
   peers: "annual",
+  "upcoming-earnings": "daily",
 };
 
 export const cadenceFor = (c: CapabilityId): Cadence => CADENCE[c] ?? "delayed";

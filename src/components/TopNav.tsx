@@ -22,6 +22,7 @@ const PRIMARY_LINKS = [
 const OVERFLOW_LINKS = [
   { to: "/portfolio", label: "PORTFOLIO" },
   { to: "/watchlist", label: "WATCHLIST" },
+  { to: "/calendar", label: "CALENDAR" },
   { to: "/macro", label: "MACRO" },
   { to: "/compare", label: "COMPARE" },
   { to: "/glossary", label: "GLOSSARY" },

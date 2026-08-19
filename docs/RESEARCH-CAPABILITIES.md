@@ -20,10 +20,19 @@ and is the registry the analyzers actually read.
 | `sec-filings` | `filings` | Metadata and links only — **not** the text |
 | `insider-transactions` | `insider` | ~116 recent filings |
 | `peers` | `peers` | 12 names |
+| `upcoming-earnings` | `earnings-calendar` | Scheduled prints, next 45 days, market-wide — **carries a consensus EPS estimate** |
 
 ## Paid tier (returns 403 on our plan)
 
 `eps-estimates` · `revenue-estimates` · `price-targets` · `earnings-transcripts`
+
+**One nuance, added 2026-08-19.** `eps-estimates` means the estimate *revision
+history* — whether analysts have been raising or cutting. That is still paid.
+But the earnings calendar carries a single consensus EPS estimate per scheduled
+print, so "what does consensus expect for the next quarter" **is** answerable.
+The registry draws that line precisely rather than declaring estimates wholly
+unavailable, because the looser claim was making the terminal look blinder than
+it is.
 
 ## Not available from any source we hold
 

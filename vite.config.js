@@ -27,7 +27,7 @@ function localFinnhubApi() {
       const env = loadEnv('development', process.cwd(), '')
       server.middlewares.use(async (req, res, next) => {
         const url = req.url || ''
-        if (!url.startsWith('/api/quote') && !url.startsWith('/api/candles') && !url.startsWith('/api/research')) return next()
+        if (!url.startsWith('/api/quote') && !url.startsWith('/api/candles') && !url.startsWith('/api/research') && !url.startsWith('/api/intl-quotes')) return next()
 
         const key = process.env.FINNHUB_API_KEY || env.FINNHUB_API_KEY || env.VITE_FINNHUB_API_KEY || ''
         const send = (status, body) => {
@@ -38,6 +38,35 @@ function localFinnhubApi() {
 
         try {
           const u = new URL(url, 'http://localhost')
+
+          // /api/intl-quotes — mirrors api/intl-quotes.ts. Batched local-exchange
+          // prices; no key needed, so it works in dev out of the box.
+          if (url.startsWith('/api/intl-quotes')) {
+            const SUBUNIT = { GBp: 100, ZAc: 100, ILA: 100, KWF: 1000 }
+            const list = (u.searchParams.get('symbols') || '').split(',').map((x) => x.trim()).filter(Boolean)
+            if (!list.length || list.length > 20) return send(400, { error: 'bad symbols' })
+            if (list.some((x) => !/^[A-Za-z0-9.\-^]{1,16}$/.test(x))) return send(400, { error: 'bad symbol' })
+            const up = await fetch(
+              `https://query1.finance.yahoo.com/v7/finance/spark?symbols=${list.map(encodeURIComponent).join(',')}&range=5d&interval=1d`,
+              { headers: { 'user-agent': 'Mozilla/5.0 (compatible; GFTTerminal/1.0)', accept: 'application/json' }, signal: AbortSignal.timeout(12000) },
+            )
+            if (!up.ok) return send(502, { error: `upstream ${up.status}` })
+            const body = await up.json()
+            const quotes = {}
+            for (const e of body?.spark?.result ?? []) {
+              const m = e?.response?.[0]?.meta
+              if (!(m?.regularMarketPrice > 0)) continue
+              const div = SUBUNIT[m.currency] ?? 1
+              const prev = m.chartPreviousClose
+              quotes[e.symbol] = {
+                p: m.regularMarketPrice / div,
+                dp: prev > 0 ? ((m.regularMarketPrice - prev) / prev) * 100 : 0,
+                cur: m.currency || '',
+                at: (m.regularMarketTime ?? 0) * 1000,
+              }
+            }
+            return send(200, { quotes, fetchedAt: Date.now() })
+          }
           const symbol = (u.searchParams.get('symbol') || '').toUpperCase()
           if (!/^[A-Z0-9.\-]{1,12}$/.test(symbol)) return send(400, { error: 'bad symbol' })
 

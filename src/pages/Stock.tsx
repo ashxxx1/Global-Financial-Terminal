@@ -12,6 +12,7 @@ import { track } from "../lib/analytics";
 import { freshness } from "../lib/marketStatus";
 import { setPrioritySymbol } from "../lib/feeds/stocks";
 import { setIndexPriority } from "../lib/feeds/indices";
+import { setIntlPriority } from "../lib/feeds/intlLive";
 import { sectorSlugForName } from "../lib/sectors";
 import { generateFundamentals } from "../lib/fundamentals";
 import OptionsChain from "../components/OptionsChain";
@@ -51,7 +52,8 @@ export default function Stock() {
     // listing by the index feed. Tell both; each ignores what isn't its own.
     setPrioritySymbol(sym || null);
     setIndexPriority(sym || null);
-    return () => { setPrioritySymbol(null); setIndexPriority(null); };
+    setIntlPriority(sym || null);
+    return () => { setPrioritySymbol(null); setIndexPriority(null); setIntlPriority(null); };
   }, [sym]);
 
   const onCompareChange = useCallback((symbols: string[]) => {
@@ -128,7 +130,7 @@ export default function Stock() {
           Compare
         </Link>
         <span style={{ marginLeft: "auto" }}>
-          <ProvenanceBadge kind={meta.kind} source={quote?.source ?? "sim"} country={meta.country} />
+          <ProvenanceBadge kind={meta.kind} source={quote?.source ?? "sim"} country={meta.country} name={sym} />
         </span>
       </div>
 

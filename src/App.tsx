@@ -9,7 +9,7 @@ import { startCryptoFeed } from "./lib/feeds/crypto";
 import { startFxFeed } from "./lib/feeds/fx";
 import { startQuakeFeed } from "./lib/feeds/quakes";
 import { startStockFeed } from "./lib/feeds/stocks";
-import { startIntlFeed } from "./lib/feeds/intl";
+import { startIntlFeed } from "./lib/feeds/intlLive";
 import { connectBackend, BACKEND_URL } from "./lib/feeds/backend";
 import TopNav from "./components/TopNav";
 import Ticker from "./components/Ticker";
@@ -116,7 +116,7 @@ function Shell() {
     startFxFeed();
     startQuakeFeed();
     const stopStocks = startStockFeed();   // live US equities via /api/quote
-    const stopIntl = startIntlFeed();      // non-US daily closes via /api/intl-quote
+    const stopIntl = startIntlFeed();      // non-US local-exchange prices via /api/intl-quotes
     return () => { stopStocks(); stopIntl(); };
   }, []);
 

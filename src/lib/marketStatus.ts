@@ -1,6 +1,7 @@
 import type { Source, Kind } from "./market";
 import { proxyFor } from "./feeds/proxies";
 import { adrFor } from "./feeds/adrs";
+import { yahooFor } from "./feeds/yahooSymbols";
 
 /**
  * Human "as of" labelling for a quote — growth-plan item 7.
@@ -110,8 +111,19 @@ export function provenanceFor(
       detail: "Official ECB reference rates, published once each business day — not intraday.",
     };
   }
-  // Non-US equities priced through a US listing — name it, same as the ETFs.
+  // Non-US equities. The local listing is the better answer and is checked
+  // first: it is the actual share on its own exchange in its own currency,
+  // where an ADR can only ever be a dollar proxy carrying an FX component.
   if (kind === "stock" && source === "live" && country && country !== "US") {
+    const local = name ? yahooFor(name, country) : undefined;
+    if (local) {
+      return {
+        label: "LOCAL", tone: "stale",
+        provider: `${local.y} (home exchange) · Yahoo Finance`,
+        delay: "delayed (typically 15 min)",
+        detail: `Priced on its own exchange as ${local.y}, quoted in ${local.cur}. This is the local share price rather than a US proxy, so there is no FX component in the daily change. Exchange feeds are typically delayed around 15 minutes.`,
+      };
+    }
     const adr = name ? adrFor(name, country) : undefined;
     if (adr) {
       return {

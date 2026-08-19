@@ -9,14 +9,21 @@ import type { Source, Kind } from "../lib/market";
  * on /data-sources; the tooltip carries the full sentence.
  */
 export default function ProvenanceBadge({
-  kind, source, country = null, className = "",
+  kind, source, country = null, name, className = "",
 }: {
   kind: Kind;
   source: Source;
   country?: string | null;
+  /**
+   * The instrument's ticker (equities) or display name (indices). Without it
+   * provenanceFor cannot tell a local-exchange listing from an ADR from a
+   * generic delayed quote, and silently falls back to the vaguest label — a
+   * badge describing a different number than the one beside it.
+   */
+  name?: string;
   className?: string;
 }) {
-  const p = provenanceFor(kind, source, country);
+  const p = provenanceFor(kind, source, country, name);
   return (
     <span className={`fresh fresh-${p.tone} ${className}`} title={`${p.detail} (${p.provider} · ${p.delay})`}>
       <span className="fresh-dot" />{p.label}

@@ -1,6 +1,7 @@
 import { setLiveQuote } from "../market";
 import { ETF_PROXIES } from "./proxies";
 import { ADR_MAP, adrFor } from "./adrs";
+import { YAHOO_SYMBOLS } from "./yahooSymbols";
 import { metaFor } from "../market";
 
 /**
@@ -54,9 +55,13 @@ export function startIndexFeed(): () => void {
   const entries = [
     // Indices and commodities are stored under an "IDX:" key…
     ...Object.entries(ETF_PROXIES).map(([name, p]) => ({ key: `IDX:${name}`, etf: p.etf })),
-    // …non-US equities: keys are "COUNTRY:TICKER" because local tickers collide
-    // across exchanges, but the registry stores the bare ticker.
-    ...Object.entries(ADR_MAP).map(([scoped, adr]) => ({ key: scoped.split(":")[1], etf: adr })),
+    // …non-US equities via a US listing — but ONLY where the local exchange
+    // feed cannot price them. Polling both would have the ADR's USD proxy
+    // overwrite the real local share price a moment after it arrived, and the
+    // provenance badge would then be describing the wrong number.
+    ...Object.entries(ADR_MAP)
+      .filter(([scoped]) => !YAHOO_SYMBOLS[scoped])
+      .map(([scoped, adr]) => ({ key: scoped.split(":")[1], etf: adr })),
   ];
   if (entries.length === 0) { started = false; return () => {}; }
 

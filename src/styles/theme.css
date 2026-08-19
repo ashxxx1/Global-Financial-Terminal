@@ -2272,3 +2272,20 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
 .pf-errors { margin: 8px 0 0; padding-left: 18px; }
 .pf-errors li { font-size: 11.5px; color: var(--down); line-height: 1.5; }
 .pf-hint { font-size: 11px; color: var(--faint); margin: 8px 0 0; line-height: 1.5; }
+
+/* Broker import (growth-plan item 73, second pass) */
+.pf-broker {
+  display: inline-block; margin-right: 8px; padding: 1px 6px;
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.1em;
+  color: var(--text); border: 1px solid var(--line-strong); border-radius: 3px;
+}
+.pf-adjusted { margin-top: 8px; }
+.pf-adjusted summary { font-size: 11.5px; color: var(--muted); cursor: pointer; }
+.pf-adjusted ul { margin: 6px 0 0; padding-left: 18px; }
+.pf-adjusted li { font-family: var(--mono); font-size: 10.5px; color: var(--faint); line-height: 1.6; }
+.pf-paste { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.pf-paste textarea {
+  width: 100%; min-width: 280px; padding: 8px 10px; border-radius: 5px; font-size: 12px;
+  font-family: var(--mono); background: var(--panel); border: 1px solid var(--line); color: var(--text);
+}
+.pf-paste textarea:focus { outline: 2px solid var(--text); outline-offset: 1px; }

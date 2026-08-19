@@ -21,6 +21,43 @@ interface Entry {
 
 const ENTRIES: Entry[] = [
   {
+    date: "2026-08-19",
+    version: "1.6",
+    title: "Your portfolio, and your broker's own file",
+    items: [
+      { kind: "new", text: "Portfolio tracking. Add holdings by hand, paste rows, or drop in your broker's export. Value, cost basis, total P&L, today's P&L, and allocation by country and sector." },
+      { kind: "new", text: "Broker exports are detected automatically — Schwab, Fidelity, Vanguard, Robinhood, E*TRADE, Interactive Brokers, Zerodha, Groww, Trading 212, Hargreaves Lansdown, DEGIRO, Trade Republic, Wealthsimple and Coinbase. We never ask for a brokerage login; there is nothing to connect." },
+      { kind: "new", text: "Totals convert to USD using ECB reference rates across 26 currencies. Holdings in a currency we cannot convert are left out of the total and named on screen rather than dropped silently." },
+      { kind: "fixed", text: "A broker column giving the cost of a whole position rather than a per-share price used to be read as the per-share price — turning a 72% gain into a reported 93% loss. It is now detected from the column name and divided down, and the adjustment is shown." },
+      { kind: "fixed", text: "European exports that write 1.549,80 rather than 1,549.80 were being read as 154980. Both conventions now parse." },
+      { kind: "improved", text: "Import tells you what it skipped and why — cash rows, subtotals, tickers we do not track, and any ticker it had to adjust to match." },
+    ],
+  },
+  {
+    date: "2026-08-19",
+    version: "1.5",
+    title: "400 more companies priced on their own exchanges",
+    items: [
+      { kind: "new", text: "Non-US shares are now priced on their home exchange in their own currency — Tokyo, Mumbai, Seoul, Shanghai, Riyadh, Johannesburg, São Paulo and more. 443 of 593 companies are on live prices, up from 178." },
+      { kind: "improved", text: "This replaces the old approach of pricing foreign companies through their US listing, which quoted them in dollars and mixed a currency move into the daily change." },
+      { kind: "fixed", text: "London quotes in pence and Johannesburg in cents. Those are now converted, so Shell reads £33.99 rather than £3,399." },
+      { kind: "fixed", text: "The source badge on a stock page could describe a different feed than the price beside it. It now names the actual exchange the quote came from." },
+    ],
+  },
+  {
+    date: "2026-08-15",
+    version: "1.4",
+    title: "Research that shows its working",
+    items: [
+      { kind: "new", text: "A research panel that answers questions about any company from real data: why a stock is moving, what changed last quarter, whether the valuation is expensive against its own history, earnings momentum, and key risks." },
+      { kind: "new", text: "Every statement is labelled FACT, CALCULATION, INFERENCE or OPINION, and every calculation shows its inputs and formula so you can recompute it yourself." },
+      { kind: "new", text: "When you ask for something we do not have — price targets, earnings-call transcripts, analyst estimates — it says so by name and offers the closest thing it can answer, instead of quietly answering a different question." },
+      { kind: "fixed", text: "Replaced the old 'Terminal AI' panel, which invented figures it had never looked up." },
+      { kind: "fixed", text: "Margin and return trends were being reported at a hundredth of their true size, so a 16-point move in profitability read as 0.16. Now correct, with a test that fails if it ever regresses." },
+      { kind: "improved", text: "Uptime monitoring and crash reporting, so an outage or a blank page reaches us without anyone having to report it." },
+    ],
+  },
+  {
     date: "2026-08-10",
     version: "1.3",
     title: "Say where every number comes from",

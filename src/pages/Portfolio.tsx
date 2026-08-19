@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTerminal } from "../store";
 import { subscribe, metaFor, allStockSymbols } from "../lib/market";
 import { valuePortfolio, parseHoldingsCsv } from "../lib/portfolio/compute";
+import { BROKERS } from "../lib/portfolio/brokers";
 import { ensureRates, PEGGED, ratesAsOf } from "../lib/fxRates";
 import { useSeo } from "../lib/seo";
 
@@ -186,7 +187,7 @@ function FxNote() {
   );
 }
 
-type Feedback = { msg: string; errors: string[] } | null;
+type Feedback = { msg: string; errors: string[]; adjusted?: string[]; broker?: string } | null;
 
 function EmptyState({ onAdd, onImport, feedback, setFeedback }: {
   onAdd: ReturnType<typeof useTerminal.getState>["addPosition"];
@@ -217,6 +218,8 @@ function AddPanel({ onAdd, onImport, feedback, setFeedback }: {
   const [shares, setShares] = useState("");
   const [cost, setCost] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [showPaste, setShowPaste] = useState(false);
+  const [pasted, setPasted] = useState("");
   const msg = feedback?.msg ?? null;
   const errors = feedback?.errors ?? [];
 
@@ -242,19 +245,23 @@ function AddPanel({ onAdd, onImport, feedback, setFeedback }: {
     setFeedback({ msg: `Added ${n} ${sym}.`, errors: [] });
   };
 
-  const onFile = async (f: File) => {
+  const ingest = (text: string, sourceLabel: string) => {
     setFeedback(null);
-    const text = await f.text();
-    const { rows, errors: errs } = parseHoldingsCsv(text);
+    const { rows, errors: errs, adjusted, broker, skippedNonHoldings } = parseHoldingsCsv(text);
     const made = rows.map((r) => {
       const m = metaFor(r.symbol)!;
       return { symbol: r.symbol, name: m.name, country: m.country, shares: r.shares, costPerShare: r.costPerShare, currency: m.currency };
     });
     const n = made.length ? onImport(made) : 0;
-    setFeedback({
-      msg: `Imported ${n} holding${n === 1 ? "" : "s"}${errs.length ? `, ${errs.length} line${errs.length === 1 ? "" : "s"} skipped` : ""}.`,
-      errors: errs,
-    });
+    const bits = [`Imported ${n} holding${n === 1 ? "" : "s"} from ${sourceLabel}`];
+    if (skippedNonHoldings) bits.push(`${skippedNonHoldings} cash/total row${skippedNonHoldings === 1 ? "" : "s"} ignored`);
+    if (errs.length) bits.push(`${errs.length} line${errs.length === 1 ? "" : "s"} skipped`);
+    setFeedback({ msg: bits.join(", ") + ".", errors: errs, adjusted, broker: broker.label });
+  };
+
+  const onFile = async (f: File) => {
+    const text = await f.text();
+    ingest(text, f.name);
   };
 
   return (
@@ -274,22 +281,51 @@ function AddPanel({ onAdd, onImport, feedback, setFeedback }: {
           <input value={cost} onChange={(e) => setCost(e.target.value)} placeholder="150.00" inputMode="decimal" />
         </label>
         <button className="chip" type="submit">ADD HOLDING</button>
-        <button className="chip" type="button" onClick={() => fileRef.current?.click()}>IMPORT CSV</button>
+        <button className="chip" type="button" onClick={() => fileRef.current?.click()}>IMPORT FILE</button>
+        <button className="chip" type="button" aria-expanded={showPaste} onClick={() => setShowPaste((v) => !v)}>PASTE ROWS</button>
         <input
           ref={fileRef} type="file" accept=".csv,text/csv" hidden
           onChange={(e) => { const f = e.target.files?.[0]; if (f) void onFile(f); e.target.value = ""; }}
         />
       </form>
-      {msg && <p className="pf-msg">{msg}</p>}
+      {msg && (
+        <p className="pf-msg">
+          {feedback?.broker && <span className="pf-broker">{feedback.broker}</span>}
+          {msg}
+        </p>
+      )}
+      {feedback?.adjusted && feedback.adjusted.length > 0 && (
+        <details className="pf-adjusted">
+          <summary>{feedback.adjusted.length} ticker{feedback.adjusted.length === 1 ? "" : "s"} matched after adjustment — worth checking</summary>
+          <ul>{feedback.adjusted.slice(0, 12).map((a, i) => <li key={i}>{a}</li>)}</ul>
+        </details>
+      )}
       {errors.length > 0 && (
         <ul className="pf-errors">
           {errors.slice(0, 6).map((x, i) => <li key={i}>{x}</li>)}
           {errors.length > 6 && <li>…and {errors.length - 6} more.</li>}
         </ul>
       )}
+      {showPaste && (
+        <div className="pf-paste">
+          <label className="pf-field" style={{ width: "100%" }}>
+            <span>Paste rows from your broker</span>
+            <textarea
+              value={pasted}
+              onChange={(e) => setPasted(e.target.value)}
+              rows={5}
+              placeholder={"Symbol,Shares,Cost\nAAPL,25,180.50"}
+            />
+          </label>
+          <button className="chip" type="button" disabled={!pasted.trim()} onClick={() => { ingest(pasted, "pasted rows"); setPasted(""); }}>
+            IMPORT PASTED
+          </button>
+        </div>
+      )}
       <p className="pf-hint">
-        CSV needs a symbol and a share count; a cost column is used when present.
-        Column order does not matter if the header names them.
+        Detected automatically for {BROKERS.length} brokers — {BROKERS.slice(0, 6).map((b) => b.label).join(", ")} and others.
+        Any CSV with a symbol and a share count works; a cost column is used when present.
+        We never ask for brokerage logins, and there is nothing to connect.
       </p>
     </div>
   );

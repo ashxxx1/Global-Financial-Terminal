@@ -12,6 +12,8 @@
 import { quoteFor, metaFor } from "../market";
 import { toUsd, type ConversionBasis } from "../fxRates";
 import type { Position } from "../../store";
+import { detectBroker, findCol, parseNumber, isNonHolding, looksLikeIsin, costIsTotal, NAME_ALIASES, GENERIC } from "./brokers";
+import { resolveSymbol } from "./resolve";
 
 export interface ValuedPosition {
   position: Position;
@@ -116,32 +118,59 @@ export function valuePortfolio(positions: Position[]): PortfolioSummary {
 }
 
 /**
- * Parse a CSV of holdings. Deliberately forgiving about column order and
- * header naming, because the file is going to come out of a broker export that
- * we do not control.
+ * Parse a holdings export from a broker.
  *
- * Returns rows and the reasons any line was rejected — an import that silently
- * drops three of twenty lines is how someone ends up trusting a wrong total.
+ * Detects which broker produced the file from its header row and applies that
+ * broker's quirks — column names, ticker format, decimal separator. Everything
+ * it could not use comes back as a reason string, because an import that
+ * quietly drops rows is how someone ends up trusting a wrong total.
  */
-export function parseHoldingsCsv(text: string): {
+export interface ImportResult {
   rows: { symbol: string; shares: number; costPerShare: number }[];
   errors: string[];
-} {
+  /** Matches that needed a transform — worth surfacing, they can be wrong. */
+  adjusted: string[];
+  broker: { id: string; label: string; region: string };
+  /** Rows skipped as subtotals or cash lines rather than failures. */
+  skippedNonHoldings: number;
+}
+
+export function parseHoldingsCsv(text: string): ImportResult {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const rows: { symbol: string; shares: number; costPerShare: number }[] = [];
+  const rows: ImportResult["rows"] = [];
   const errors: string[] = [];
-  if (lines.length === 0) return { rows, errors: ["The file is empty."] };
+  const adjusted: string[] = [];
+  let skippedNonHoldings = 0;
 
-  const split = (l: string) => l.split(/[,;\t]/).map((c) => c.trim().replace(/^"|"$/g, ""));
-  const header = split(lines[0]).map((h) => h.toLowerCase());
-  const find = (...names: string[]) => header.findIndex((h) => names.some((n) => h.includes(n)));
+  if (lines.length === 0) {
+    return { rows, errors: ["The file is empty."], adjusted, broker: { id: "generic", label: "Generic CSV", region: "—" }, skippedNonHoldings };
+  }
 
-  let iSym = find("symbol", "ticker", "instrument");
-  let iQty = find("shares", "quantity", "qty", "units");
-  let iCost = find("cost", "price", "average", "avg");
+  // Delimiter: whichever appears most in the header line.
+  const head = lines[0];
+  const delim = [",", ";", "\t"]
+    .map((d) => ({ d, n: head.split(d).length }))
+    .sort((a, b) => b.n - a.n)[0].d;
+  const split = (l: string) => l.split(delim).map((c) => c.trim().replace(/^"|"$/g, ""));
+
+  const headers = split(lines[0]);
+  const profile = detectBroker(headers);
+
+  let iSym = findCol(headers, profile.symbolCol);
+  let iQty = findCol(headers, profile.qtyCol);
+  let iCost = findCol(headers, profile.costCol);
+  const iCur = profile.currencyCol ? findCol(headers, profile.currencyCol) : -1;
   let start = 1;
 
-  // No recognisable header — assume symbol, shares, cost in that order.
+  // Fall back to the generic alias set before giving up on the header.
+  if (iSym < 0) iSym = findCol(headers, GENERIC.symbolCol);
+  if (iQty < 0) iQty = findCol(headers, GENERIC.qtyCol);
+  if (iCost < 0) iCost = findCol(headers, GENERIC.costCol);
+
+  // A second column that might identify the instrument. European exports lead
+  // with an ISIN we cannot match while carrying the company name alongside it.
+  const iName = findCol(headers, NAME_ALIASES);
+
   if (iSym < 0 || iQty < 0) {
     iSym = 0; iQty = 1; iCost = 2; start = 0;
     errors.push("No header row recognised, so columns were read as symbol, shares, cost per share.");
@@ -149,14 +178,50 @@ export function parseHoldingsCsv(text: string): {
 
   for (let i = start; i < lines.length; i++) {
     const c = split(lines[i]);
-    const symbol = (c[iSym] || "").toUpperCase();
-    const shares = Number((c[iQty] || "").replace(/[^0-9.-]/g, ""));
-    const costPerShare = iCost >= 0 ? Number((c[iCost] || "").replace(/[^0-9.-]/g, "")) : NaN;
+    const rawSym = c[iSym] || "";
 
-    if (!symbol) { errors.push(`Line ${i + 1}: no symbol.`); continue; }
-    if (!Number.isFinite(shares) || shares <= 0) { errors.push(`Line ${i + 1} (${symbol}): share count is not a positive number.`); continue; }
-    if (!metaFor(symbol)) { errors.push(`Line ${i + 1}: we do not track ${symbol}.`); continue; }
-    rows.push({ symbol, shares, costPerShare: Number.isFinite(costPerShare) ? costPerShare : 0 });
+    if (isNonHolding(rawSym, lines[i])) { skippedNonHoldings++; continue; }
+
+    let res = resolveSymbol(rawSym, profile.cleanSymbol);
+    // Fall back to the name column when the identifier column cannot be matched
+    // — an ISIN is a valid identifier, just not one we hold a table for.
+    if (!res.symbol && iName >= 0 && iName !== iSym && c[iName]) {
+      const alt = resolveSymbol(c[iName], profile.cleanSymbol);
+      if (alt.symbol) res = { ...alt, via: alt.via ?? `"${c[iName]}" → ${alt.symbol}` };
+    }
+    if (!res.symbol) {
+      errors.push(
+        looksLikeIsin(rawSym)
+          ? `Line ${i + 1}: ${rawSym} is an ISIN, not a ticker — we cannot match it without a ticker column.`
+          : `Line ${i + 1}: we do not track ${rawSym || "(blank)"}.`,
+      );
+      continue;
+    }
+    if (res.via) adjusted.push(`Line ${i + 1}: ${res.via}`);
+
+    const shares = parseNumber(c[iQty] || "", profile.europeanNumbers);
+    if (!Number.isFinite(shares) || shares <= 0) {
+      errors.push(`Line ${i + 1} (${res.symbol}): share count "${c[iQty] ?? ""}" is not a positive number.`);
+      continue;
+    }
+
+    let costPerShare = iCost >= 0 ? parseNumber(c[iCost] || "", profile.europeanNumbers) : NaN;
+    if (!Number.isFinite(costPerShare)) costPerShare = 0;
+    // Hargreaves quotes UK holdings in pence against our pounds.
+    if (profile.id === "hl" && /\(p\)/i.test(headers[iCost] || "")) costPerShare /= 100;
+    // Divide a whole-position cost down to per share.
+    if (iCost >= 0 && costPerShare > 0 && shares > 0 && costIsTotal(headers[iCost] || "")) {
+      costPerShare = costPerShare / shares;
+      adjusted.push(`Line ${i + 1} (${res.symbol}): "${headers[iCost]}" read as a position total, divided by ${shares} shares.`);
+    }
+
+    rows.push({ symbol: res.symbol, shares, costPerShare });
+    if (iCur >= 0 && c[iCur]) { /* currency comes from our own registry, not the file */ }
   }
-  return { rows, errors };
+
+  return {
+    rows, errors, adjusted,
+    broker: { id: profile.id, label: profile.label, region: profile.region },
+    skippedNonHoldings,
+  };
 }

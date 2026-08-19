@@ -52,6 +52,8 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
 const Portfolio = lazy(() => import("./pages/Portfolio"));
+const ResearchWorkspace = lazy(() => import("./components/research/Workspace"));
+
 const Macro = lazy(() => import("./pages/Macro"));
 import { useAuth, authRequired } from "./lib/auth";
 import { useTerminal } from "./store";
@@ -60,6 +62,7 @@ import { initAnalytics, trackPageview } from "./lib/analytics";
 import { onConsentChange } from "./lib/consent";
 import "./styles/theme.css";
 import "./styles/research.css";
+import "./styles/workspace.css";
 
 function ProfileRedirect() {
   const user = useAuth((s) => s.user);
@@ -96,6 +99,12 @@ function Shell() {
   useWatchlistSync();
   useEffect(() => { trackPageview(pathname); }, [pathname]);
   const onWorld = pathname === "/";
+  /**
+   * The research workspace carries its own rail and timeline and needs the full
+   * content width. Rendering the shell's rail beside it squeezed the timeline
+   * to unreadable and duplicated the watchlist the workspace already covers.
+   */
+  const onResearch = pathname.startsWith("/research/");
   const onboarded = useTerminal((st) => st.onboarded);
   const nerdMode = useTerminal((st) => st.nerdMode);
   const highDensity = useTerminal((st) => st.highDensity);
@@ -134,6 +143,8 @@ function Shell() {
             <Route path="/country/:code" element={<Country />} />
             <Route path="/markets" element={<Markets />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/research/:symbol" element={<ResearchWorkspace />} />
+
             <Route path="/stock/:symbol" element={<Stock />} />
             <Route path="/macro" element={<Macro />} />
             <Route path="/compare" element={<Compare />} />
@@ -168,7 +179,7 @@ function Shell() {
           </Suspense>
           </div>
         </main>
-        <RightRail />
+        {!onResearch && <RightRail />}
       </div>
       <Ticker />
       <Suspense fallback={null}>

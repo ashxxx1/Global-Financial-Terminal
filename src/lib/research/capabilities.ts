@@ -35,7 +35,7 @@ export interface Capability {
 }
 
 export type CapabilityId =
-  | "quote" | "price-history" | "fundamentals" | "fundamental-history"
+  | "quote" | "price-history" | "company-profile" | "fundamentals" | "fundamental-history"
   | "earnings-surprises" | "analyst-ratings" | "company-news" | "sec-filings"
   | "insider-transactions" | "peers"
   // Known-absent. Declared so analyzers can name them precisely.
@@ -49,6 +49,7 @@ const VERIFIED = "2026-08-15";
 export const CAPABILITIES: Record<CapabilityId, Capability> = {
   quote: { id: "quote", label: "Live quote", availability: "available", provider: "Finnhub / Binance / ECB", verifiedAt: VERIFIED },
   "price-history": { id: "price-history", label: "Price history", availability: "available", provider: "Finnhub", verifiedAt: VERIFIED },
+  "company-profile": { id: "company-profile", label: "Company profile", availability: "available", dataset: "profile", provider: "Finnhub", verifiedAt: VERIFIED },
   fundamentals: { id: "fundamentals", label: "Current fundamentals", availability: "available", dataset: "metrics", provider: "Finnhub", verifiedAt: VERIFIED },
   "fundamental-history": { id: "fundamental-history", label: "Historical fundamentals", availability: "available", dataset: "metrics", provider: "Finnhub", verifiedAt: VERIFIED },
   "earnings-surprises": { id: "earnings-surprises", label: "Earnings surprises", availability: "available", dataset: "earnings", provider: "Finnhub", verifiedAt: VERIFIED },

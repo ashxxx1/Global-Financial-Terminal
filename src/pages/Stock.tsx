@@ -131,6 +131,13 @@ export default function Stock() {
         </Link>
         <span style={{ marginLeft: "auto" }}>
           <ProvenanceBadge kind={meta.kind} source={quote?.source ?? "sim"} country={meta.country} name={sym} />
+          <button
+            className="chip"
+            onClick={() => navigate(`/research/${sym}`)}
+            title="Open the full research workspace for this company"
+          >
+            ✦ RESEARCH
+          </button>
         </span>
       </div>
 

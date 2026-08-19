@@ -15,42 +15,35 @@ export type Fetched<T> =
   | { ok: true; data: T; fetchedAt: number }
   | { ok: false; reason: "premium" | "rate-limited" | "empty" | "error" };
 
-/** In-memory cache. The edge already caches; this stops one question from
- *  re-requesting the same dataset five times inside one analyzer run. */
-const cache = new Map<string, { at: number; value: Fetched<unknown> }>();
-const TTL_MS = 5 * 60 * 1000;
+import { getCapability } from "./providers";
+import type { CapabilityId } from "./capabilities";
+
+/**
+ * Legacy shape-level accessor, now a thin adapter over the provider layer.
+ *
+ * The analyzers written before providers existed still ask for a "dataset".
+ * Rather than rewrite them all at once, this maps the dataset name onto a
+ * capability so every request shares one cache, one TTL policy and one
+ * provenance trail. New code should call getCapability directly.
+ */
+const DATASET_CAPABILITY: Record<DatasetName, CapabilityId> = {
+  profile: "company-profile",
+  metrics: "fundamentals",
+  recommendations: "analyst-ratings",
+  earnings: "earnings-surprises",
+  news: "company-news",
+  filings: "sec-filings",
+  peers: "peers",
+  insider: "insider-transactions",
+};
 
 export async function fetchDataset<T>(dataset: DatasetName, symbol: string): Promise<Fetched<T>> {
-  const key = `${dataset}:${symbol}`;
-  const hit = cache.get(key);
-  if (hit && Date.now() - hit.at < TTL_MS) return hit.value as Fetched<T>;
-
-  let result: Fetched<T>;
-  try {
-    const r = await fetch(`/api/research?dataset=${dataset}&symbol=${encodeURIComponent(symbol)}`);
-    if (r.status === 403) {
-      result = { ok: false, reason: "premium" };
-    } else if (r.status === 429) {
-      result = { ok: false, reason: "rate-limited" };
-    } else if (!r.ok) {
-      result = { ok: false, reason: "error" };
-    } else {
-      const body = await r.json();
-      const data = body?.data;
-      const empty =
-        data == null ||
-        (Array.isArray(data) && data.length === 0) ||
-        (typeof data === "object" && Object.keys(data).length === 0);
-      result = empty
-        ? { ok: false, reason: "empty" }
-        : { ok: true, data: data as T, fetchedAt: body.fetchedAt ?? Date.now() };
-    }
-  } catch {
-    result = { ok: false, reason: "error" };
-  }
-
-  cache.set(key, { at: Date.now(), value: result });
-  return result;
+  const res = await getCapability<T>(DATASET_CAPABILITY[dataset], symbol);
+  if (res.ok) return { ok: true, data: res.data, fetchedAt: res.provenance.fetchedAt };
+  const reason = res.reason === "premium" ? "premium"
+    : res.reason === "rate-limited" ? "rate-limited"
+    : res.reason === "empty" ? "empty" : "error";
+  return { ok: false, reason };
 }
 
 /* ── Shapes we actually consume, narrowed to the fields used ─────────────── */

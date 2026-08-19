@@ -5,6 +5,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { track } from "./lib/analytics";
+import type { SavedImpactAnalysis, MonitoredThesis } from "./lib/impact/types";
 
 /**
  * A watchlist entry — growth-plan item 75.
@@ -116,6 +117,15 @@ interface TerminalState {
   updatePosition: (id: string, patch: Partial<Omit<Position, "id">>) => void;
   removePosition: (id: string) => void;
   importPositions: (rows: Omit<Position, "id" | "addedAt">[]) => number;
+
+  savedImpact: SavedImpactAnalysis[];
+  saveImpact: (a: SavedImpactAnalysis) => void;
+  removeImpact: (id: string) => void;
+
+  impactTheses: MonitoredThesis[];
+  addImpactThesis: (t: MonitoredThesis) => void;
+  removeImpactThesis: (id: string) => void;
+  patchImpactThesis: (id: string, patch: Partial<MonitoredThesis>) => void;
 
   alerts: PriceAlert[];
   addAlert: (a: Omit<PriceAlert, "id" | "createdAt">) => void;
@@ -231,6 +241,19 @@ export const useTerminal = create<TerminalState>()(
         return made.length;
       },
 
+      savedImpact: [],
+      saveImpact: (a) =>
+        set({
+          savedImpact: [a, ...get().savedImpact.filter((x) => x.id !== a.id)].slice(0, 24),
+        }),
+      removeImpact: (id) => set({ savedImpact: get().savedImpact.filter((x) => x.id !== id) }),
+
+      impactTheses: [],
+      addImpactThesis: (t) => set({ impactTheses: [t, ...get().impactTheses.filter((x) => x.id !== t.id)].slice(0, 24) }),
+      removeImpactThesis: (id) => set({ impactTheses: get().impactTheses.filter((x) => x.id !== id) }),
+      patchImpactThesis: (id, patch) =>
+        set({ impactTheses: get().impactTheses.map((t) => (t.id === id ? { ...t, ...patch } : t)) }),
+
       alerts: [],
       addAlert: (a) => {
         track("alert_created", { symbol: a.symbol });
@@ -323,6 +346,8 @@ export const useTerminal = create<TerminalState>()(
         watchLists: s.watchLists,
         savedViews: s.savedViews,
         activated: s.activated,
+        savedImpact: s.savedImpact,
+        impactTheses: s.impactTheses,
       }),
     }
   )

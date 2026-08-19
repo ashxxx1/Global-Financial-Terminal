@@ -62,6 +62,7 @@ async function main() {
     url("/terminal/signals/performance", { changefreq: "daily", priority: "0.8", lastmod: today }),
     url("/terminal/signals/methodology", { changefreq: "monthly", priority: "0.6", lastmod: today }),
     url("/news", { changefreq: "hourly", priority: "0.9", lastmod: today }),
+    url("/impact", { changefreq: "hourly", priority: "0.95", lastmod: today }),
     url("/changelog", { changefreq: "weekly", priority: "0.5", lastmod: today }),
     url("/data-sources", { changefreq: "monthly", priority: "0.4", lastmod: today }),
     url("/glossary", { changefreq: "monthly", priority: "0.7", lastmod: today }),

@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTerminal } from "../../store";
 import { ask, MODES, TIER_MEANING, overallConfidence } from "../../lib/research";
 import type { Answer, Claim, Mode, Tier } from "../../lib/research";
 import { STARTERS } from "../../lib/research";
+import { looksLikeImpactQuestion } from "../../lib/impact/extract";
 
 /**
  * The research copilot surface.
@@ -24,6 +26,7 @@ interface Turn {
 const TIER_ORDER: Tier[] = ["FACT", "CALCULATION", "INFERENCE", "OPINION"];
 
 export default function ResearchPanel() {
+  const navigate = useNavigate();
   const open = useTerminal((s) => s.chatOpen);
   const setOpen = useTerminal((s) => s.setChatOpen);
   const watchlist = useTerminal((s) => s.watchlist);
@@ -40,6 +43,11 @@ export default function ResearchPanel() {
 
   const run = useCallback(async (question: string) => {
     if (!question.trim() || busy) return;
+    if (looksLikeImpactQuestion(question)) {
+      setOpen(false);
+      navigate(`/impact?q=${encodeURIComponent(question.trim())}`);
+      return;
+    }
     setInput("");
     setBusy(true);
     setTurns((t) => [...t, { question, answer: null }]);
@@ -66,7 +74,7 @@ export default function ResearchPanel() {
     } finally {
       setBusy(false);
     }
-  }, [busy, ctxSymbol, watchlist]);
+  }, [busy, ctxSymbol, watchlist, navigate, setOpen]);
 
   if (!open) return null;
 

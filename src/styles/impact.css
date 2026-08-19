@@ -1,0 +1,155 @@
+/**
+ * Impact Copilot surface — terminal research, not a chat bubble transcript.
+ * Layout: command bar, then a dense analysis grid.
+ */
+.imp {
+  padding: 16px 18px 40px;
+  max-width: 1180px;
+}
+.imp-kicker {
+  font-family: var(--mono); font-size: 10px; font-weight: 800;
+  letter-spacing: 0.18em; color: var(--faint); margin: 0 0 6px;
+}
+.imp-title {
+  font-family: var(--serif); font-size: 28px; font-weight: 400;
+  letter-spacing: 0.01em; margin: 0 0 6px; line-height: 1.15;
+}
+.imp-lede {
+  font-size: 13px; color: var(--muted); line-height: 1.5; margin: 0 0 16px; max-width: 62ch;
+}
+
+.imp-ask {
+  display: flex; gap: 8px; align-items: stretch; margin-bottom: 10px;
+}
+.imp-input {
+  flex: 1; min-height: 44px; padding: 10px 12px;
+  background: var(--navy); border: 1px solid var(--line-strong); border-radius: 6px;
+  color: var(--text); font-size: 13.5px; font-family: var(--sans);
+}
+.imp-input:focus { outline: 1px solid var(--line-strong); }
+.imp-send {
+  font-family: var(--mono); font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+  padding: 0 16px; min-width: 108px; border-radius: 6px; cursor: pointer;
+  background: var(--text); color: #000; border: 1px solid var(--text);
+}
+.imp-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.imp-examples { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.imp-ex {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.02em;
+  padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px;
+  background: transparent; color: var(--muted); cursor: pointer;
+}
+.imp-ex:hover { color: var(--text); border-color: var(--line-strong); }
+
+.imp-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.imp-tab {
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  padding: 6px 10px; border: 1px solid var(--line); background: transparent;
+  color: var(--muted); border-radius: 4px; cursor: pointer;
+}
+.imp-tab.on { color: #000; background: var(--text); border-color: var(--text); }
+
+.imp-note, .imp-err, .imp-busy {
+  font-size: 12.5px; color: var(--muted); padding: 10px 0; line-height: 1.5;
+}
+.imp-err { color: var(--down); }
+
+.imp-disc {
+  font-size: 11px; color: var(--faint); line-height: 1.5;
+  border-top: 1px solid var(--line); padding-top: 12px; margin-top: 22px;
+}
+
+.imp-grid { display: grid; gap: 12px; }
+.imp-card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  padding: 12px 14px;
+}
+.imp-h {
+  font-family: var(--mono); font-size: 10px; font-weight: 800;
+  letter-spacing: 0.16em; color: var(--faint); margin: 0 0 8px;
+}
+.imp-body { font-size: 13px; line-height: 1.5; margin: 0; }
+.imp-meta { font-family: var(--mono); font-size: 10px; color: var(--faint); }
+
+.imp-chain { display: grid; gap: 0; }
+.imp-step { display: grid; grid-template-columns: 148px 1fr; gap: 12px; align-items: start; padding: 8px 0; }
+.imp-step + .imp-step { border-top: 1px dashed var(--line); }
+.imp-step-lbl {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 800;
+  letter-spacing: 0.12em; color: var(--gold);
+}
+.imp-arrow { display: none; }
+
+.imp-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.imp-pill {
+  font-family: var(--mono); font-size: 10px; padding: 4px 8px; border-radius: 3px;
+  border: 1px solid var(--line); color: var(--muted);
+}
+.imp-pill.pos { color: var(--up); background: var(--up-dim); border-color: transparent; }
+.imp-pill.neg { color: var(--down); background: var(--down-dim); border-color: transparent; }
+.imp-pill.mix { color: var(--text); background: var(--gold-dim); border-color: transparent; }
+
+.imp-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.imp-co {
+  border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px;
+  background: rgba(255,255,255,0.015);
+}
+.imp-co-hd { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.imp-co-name { font-size: 13.5px; font-weight: 700; margin: 0; }
+.imp-co-tk { font-family: var(--mono); font-size: 11px; color: var(--gold); }
+.imp-sig {
+  font-family: var(--mono); font-size: 9.5px; font-weight: 800; letter-spacing: 0.1em;
+  padding: 3px 7px; border-radius: 3px;
+}
+.imp-sig.POSITIVE { color: var(--up); background: var(--up-dim); }
+.imp-sig.NEGATIVE { color: var(--down); background: var(--down-dim); }
+.imp-sig.WATCH { color: var(--text); background: var(--gold-dim); }
+
+.imp-whybtn {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
+  background: none; border: 1px solid var(--line); color: var(--muted);
+  padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-top: 8px;
+}
+.imp-trace { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.55; }
+.imp-trace ol { margin: 6px 0 0; padding-left: 18px; }
+.imp-trace li { margin-bottom: 4px; }
+
+.imp-confbar { height: 4px; background: rgba(255,255,255,0.12); border-radius: 2px; overflow: hidden; margin: 6px 0; }
+.imp-conffill { height: 100%; background: var(--text); display: block; }
+
+.imp-scen { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.imp-scen label { display: grid; gap: 4px; font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; color: var(--faint); }
+.imp-scen select, .imp-scen input {
+  background: var(--navy); border: 1px solid var(--line); color: var(--text);
+  padding: 6px 8px; border-radius: 4px; font-size: 12px;
+}
+
+.imp-saved { display: grid; gap: 8px; }
+.imp-saved button.row {
+  text-align: left; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; padding: 10px 12px; color: var(--text); cursor: pointer;
+}
+.imp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.imp-btn {
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  padding: 7px 11px; border: 1px solid var(--line-strong); background: transparent;
+  color: var(--text); border-radius: 4px; cursor: pointer;
+}
+.imp-btn:hover { background: var(--raised); }
+
+.imp-news a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--line); }
+.imp-news a:hover { border-color: var(--text); }
+
+.imp-status { font-family: var(--mono); font-size: 10px; font-weight: 800; letter-spacing: 0.12em; }
+.imp-status.STRENGTHENING { color: var(--up); }
+.imp-status.WEAKENING { color: var(--down); }
+.imp-status.NEUTRAL { color: var(--muted); }
+
+@media (max-width: 860px) {
+  .imp { padding: 12px 12px 32px; }
+  .imp-title { font-size: 22px; }
+  .imp-cols, .imp-scen, .imp-step { grid-template-columns: 1fr; }
+  .imp-ask { flex-direction: column; }
+  .imp-send { min-height: 40px; }
+}

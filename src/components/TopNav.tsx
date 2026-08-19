@@ -15,6 +15,7 @@ const PRIMARY_LINKS = [
   { to: "/", label: "WORLD", end: true },
   { to: "/markets", label: "MARKETS" },
   { to: "/news", label: "NEWS" },
+  { to: "/impact", label: "IMPACT" },
   { to: "/terminal/signals", label: "SIGNALS" },
   { to: "/forum", label: "FORUM" },
 ];
@@ -141,7 +142,8 @@ export default function TopNav() {
             style={({ isActive }) => {
               const signalsActive = l.label === "SIGNALS" && (location.pathname.startsWith("/terminal/signals") || location.pathname.startsWith("/signals"));
               const forumActive = l.label === "FORUM" && (location.pathname.startsWith("/forum") || location.pathname.startsWith("/user/"));
-              return linkStyle(isActive || signalsActive || forumActive);
+              const impactActive = l.label === "IMPACT" && location.pathname.startsWith("/impact");
+              return linkStyle(isActive || signalsActive || forumActive || impactActive);
             }}
           >
             {l.label}

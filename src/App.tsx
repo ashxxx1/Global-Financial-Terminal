@@ -56,6 +56,7 @@ const Watchlist = lazy(() => import("./pages/Watchlist"));
 const Calendar = lazy(() => import("./pages/Calendar"));
 
 const ResearchWorkspace = lazy(() => import("./components/research/Workspace"));
+const ImpactCopilot = lazy(() => import("./pages/ImpactCopilot"));
 
 const Macro = lazy(() => import("./pages/Macro"));
 import { useAuth, authRequired } from "./lib/auth";
@@ -66,6 +67,7 @@ import { onConsentChange } from "./lib/consent";
 import "./styles/theme.css";
 import "./styles/research.css";
 import "./styles/workspace.css";
+import "./styles/impact.css";
 
 function ProfileRedirect() {
   const user = useAuth((s) => s.user);
@@ -107,7 +109,7 @@ function Shell() {
    * content width. Rendering the shell's rail beside it squeezed the timeline
    * to unreadable and duplicated the watchlist the workspace already covers.
    */
-  const onResearch = pathname.startsWith("/research/");
+  const onResearch = pathname.startsWith("/research/") || pathname.startsWith("/impact");
   const onboarded = useTerminal((st) => st.onboarded);
   const nerdMode = useTerminal((st) => st.nerdMode);
   const highDensity = useTerminal((st) => st.highDensity);
@@ -150,6 +152,7 @@ function Shell() {
             <Route path="/calendar" element={<Calendar />} />
 
             <Route path="/research/:symbol" element={<ResearchWorkspace />} />
+            <Route path="/impact" element={<ImpactCopilot />} />
 
             <Route path="/stock/:symbol" element={<Stock />} />
             <Route path="/macro" element={<Macro />} />

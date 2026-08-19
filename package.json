@@ -15,7 +15,8 @@
     "verify": "npm run typecheck && npm run lint && npm run build",
     "setup": "npm ci && git config core.hooksPath .githooks && echo \"\u2714 hooks installed \u2014 pre-push now runs npm run verify\"",
     "research:selftest": "node scripts/research-selftest.mjs",
-    "research:test": "node scripts/research-tests.mjs"
+    "research:test": "node scripts/research-tests.mjs",
+    "impact:test": "npx --yes tsx scripts/impact-tests.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.0",

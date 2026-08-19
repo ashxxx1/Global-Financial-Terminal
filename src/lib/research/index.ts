@@ -64,6 +64,23 @@ export async function ask(question: string, ctx: AskContext): Promise<AskResult>
     case "screen":         answer = await analyzeScreen(); break;
     case "portfolio":      answer = await analyzePortfolio(ctx.watchlist); break;
     case "macro":          answer = await analyzeMacro(); break;
+    case "impact":
+      answer = {
+        title: "Financial Impact Copilot",
+        mode: "macro",
+        headline: "This is an event-transmission question. The Impact Copilot maps EVENT → MECHANISM → SECTORS → COMPANIES with catalog exposure and documented precedents.",
+        claims: [{
+          text: "Open the Impact Copilot at /impact for winners, losers, confidence, historical precedent and scenario controls. The research panel does not invent that map here.",
+          tier: "OPINION",
+          confidence: 0.55,
+          why: "Impact analysis is a separate engine over the same universe; mixing it into a single-stock fact answer would hide the transmission chain.",
+          sources: [],
+        }],
+        caveats: ["Not investment advice. Open /impact to run the full map on this wording."],
+        asOf: Date.now(),
+        suggestions: [question, "Oil reaches $150 — who benefits?", "Fed cuts rates — what changes?"],
+      };
+      break;
     case "market":
     default:               answer = await analyzeMarket(); break;
   }

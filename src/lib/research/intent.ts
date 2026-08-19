@@ -11,11 +11,12 @@
  */
 import { allStockSymbols, metaFor } from "../market";
 import type { CapabilityId } from "./capabilities";
+import { looksLikeImpactQuestion } from "../impact/extract";
 
 export type Intent =
   | "moving" | "persistence" | "changed" | "valuation" | "valuation-pair"
   | "momentum" | "risks" | "filings" | "screen"
-  | "market" | "portfolio" | "macro" | "unavailable";
+  | "market" | "portfolio" | "macro" | "impact" | "unavailable";
 
 export interface Parsed {
   intent: Intent;
@@ -92,6 +93,13 @@ export function parseQuestion(raw: string, context: { symbol?: string }): Parsed
     if (p.test.test(raw)) {
       return { intent: "unavailable", symbols: primary ? [primary] : [], inherited, wants: p.wants };
     }
+  }
+
+  // Event → impact questions belong to the Impact Copilot, not the company
+  // fact panel. Checked before "rates"/"macro" so a Fed-cut query is not
+  // answered as a generic backdrop.
+  if (looksLikeImpactQuestion(raw)) {
+    return { intent: "impact", symbols: primary ? [primary] : [], inherited: false };
   }
 
   if (has("temporary", "will it last", "permanent", "does it recover", "bounce back", "revert", "is this a blip")) {

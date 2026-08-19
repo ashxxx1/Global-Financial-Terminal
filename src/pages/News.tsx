@@ -275,6 +275,13 @@ export default function News() {
                     Open chart · {s}
                   </button>
                 ))}
+                <button
+                  className="chip"
+                  style={{ fontSize: 10, padding: "4px 10px" }}
+                  onClick={() => navigate(`/impact?q=${encodeURIComponent(heroArticle.title)}`)}
+                >
+                  ANALYZE IMPACT
+                </button>
                 {heroArticle.url && (
                   <a
                     href={heroArticle.url}

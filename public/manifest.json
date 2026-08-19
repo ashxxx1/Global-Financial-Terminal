@@ -25,5 +25,23 @@
     "finance",
     "business",
     "news"
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Markets",
+      "short_name": "Markets",
+      "url": "/markets"
+    },
+    {
+      "name": "Portfolio",
+      "short_name": "Portfolio",
+      "url": "/portfolio"
+    },
+    {
+      "name": "News",
+      "short_name": "News",
+      "url": "/news"
+    }
+  ],
+  "orientation": "any"
 }

@@ -52,6 +52,8 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 import Login from "./pages/Login";
 const Landing = lazy(() => import("./pages/Landing"));
 const Portfolio = lazy(() => import("./pages/Portfolio"));
+const Watchlist = lazy(() => import("./pages/Watchlist"));
+
 const ResearchWorkspace = lazy(() => import("./components/research/Workspace"));
 
 const Macro = lazy(() => import("./pages/Macro"));
@@ -143,6 +145,8 @@ function Shell() {
             <Route path="/country/:code" element={<Country />} />
             <Route path="/markets" element={<Markets />} />
             <Route path="/portfolio" element={<Portfolio />} />
+            <Route path="/watchlist" element={<Watchlist />} />
+
             <Route path="/research/:symbol" element={<ResearchWorkspace />} />
 
             <Route path="/stock/:symbol" element={<Stock />} />

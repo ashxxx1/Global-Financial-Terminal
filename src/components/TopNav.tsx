@@ -5,6 +5,7 @@ import { liveSymbolCount } from "../lib/market";
 import { useTerminal } from "../store";
 import SourceBadge from "./SourceBadge";
 import ShareButton from "./ShareButton";
+import SavedViews from "./SavedViews";
 import AccountModal from "./AccountModal";
 import { useAuth } from "../lib/auth";
 
@@ -20,6 +21,7 @@ const PRIMARY_LINKS = [
 
 const OVERFLOW_LINKS = [
   { to: "/portfolio", label: "PORTFOLIO" },
+  { to: "/watchlist", label: "WATCHLIST" },
   { to: "/macro", label: "MACRO" },
   { to: "/compare", label: "COMPARE" },
   { to: "/glossary", label: "GLOSSARY" },
@@ -215,6 +217,7 @@ export default function TopNav() {
         </button>
         <button className={`nav-tour ${nerdMode ? "on" : ""}`} title={nerdMode ? "Nerd mode on — hide technical detail" : "Nerd mode off — show technical detail"} aria-pressed={nerdMode} onClick={() => setNerdMode(!nerdMode)}>{"{ }"}</button>
         <button className="nav-tour" title="Take the tour" aria-label="Take the tour" onClick={() => window.dispatchEvent(new CustomEvent("gft:start-tour"))}>?</button>
+        <SavedViews />
         <ShareButton />
         <span className="mono nerd-only" style={{ fontSize: 12, color: "var(--up)" }}>{clock} UTC</span>
         <AccountChip />

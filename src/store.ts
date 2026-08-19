@@ -6,16 +6,69 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { track } from "./lib/analytics";
 
-export interface WatchItem { symbol: string; name: string; country: string | null; }
+/**
+ * A watchlist entry — growth-plan item 75.
+ *
+ * Notes, tags and a target price make a watchlist a working document rather
+ * than a list of tickers. `listId` groups entries so one account can keep
+ * several lists without a second data structure.
+ */
+export interface WatchItem {
+  symbol: string;
+  name: string;
+  country: string | null;
+  /** Which list this belongs to. Absent means the default list. */
+  listId?: string;
+  note?: string;
+  tags?: string[];
+  /** Price the user is watching for, in the instrument's own currency. */
+  targetPrice?: number;
+  addedAt?: string;
+}
+
+/** A named watchlist. The default one is implicit and always present. */
+export interface WatchList { id: string; name: string; }
+/**
+ * Alert kinds — growth-plan item 71.
+ *
+ * "price" is the original crossing alert. The others exist because a level
+ * alert only catches what you already thought to watch for: a percentage move
+ * catches the day something happens, a volume spike catches it before the news
+ * does, and a news alert catches what the price has not reacted to yet.
+ */
+export type AlertKind = "price" | "percent" | "volume" | "news";
+
 export interface PriceAlert {
   id: string;
   symbol: string;
+  kind?: AlertKind;
   metric?: string;
   direction?: "above" | "below";
+  /** Price level, percentage move, or volume multiple, depending on kind. */
   targetValue: number;
   createdAt: string;
+  /** Set once fired, so a one-shot alert does not repeat every tick. */
+  firedAt?: string;
+  /** Alerts repeat by default only for news; the rest are one-shot. */
+  repeat?: boolean;
 }
 export interface AlertNotice { id: string; text: string; time: string; }
+
+/**
+ * A saved view — growth-plan item 77.
+ *
+ * Deliberately a route plus the two layout toggles rather than a serialised
+ * component tree: it survives any redesign, and a saved view that breaks when
+ * the page changes is worse than none.
+ */
+export interface SavedView {
+  id: string;
+  name: string;
+  path: string;
+  nerdMode: boolean;
+  highDensity: boolean;
+  createdAt: string;
+}
 
 /**
  * One holding — growth-plan item 73. Manual entry and CSV only; no brokerage
@@ -44,6 +97,18 @@ interface TerminalState {
   addWatch: (w: WatchItem) => void;
   removeWatch: (symbol: string) => void;
   inWatchlist: (symbol: string) => boolean;
+  /** Item 75 — annotate a watchlist entry in place. */
+  updateWatch: (symbol: string, patch: Partial<Omit<WatchItem, "symbol">>) => void;
+  watchLists: WatchList[];
+  addWatchList: (name: string) => string;
+  removeWatchList: (id: string) => void;
+  activeList: string | null;
+  setActiveList: (id: string | null) => void;
+
+  /** Item 77 — saved views: a named route plus the layout toggles. */
+  savedViews: SavedView[];
+  saveView: (v: Omit<SavedView, "id" | "createdAt">) => void;
+  removeView: (id: string) => void;
 
   /** Holdings — growth-plan items 73 & 74. */
   positions: Position[];
@@ -57,6 +122,8 @@ interface TerminalState {
   removeAlert: (id: string) => void;
   notices: AlertNotice[];
   fireAlert: (alert: PriceAlert, price: number) => void;
+  /** One-shot alerts record when they fired so they do not repeat. */
+  markAlertFired: (id: string) => void;
   clearNotices: () => void;
 
   searchOpen: boolean;
@@ -109,6 +176,36 @@ export const useTerminal = create<TerminalState>()(
       },
       inWatchlist: (symbol) => get().watchlist.some((x) => x.symbol === symbol),
 
+      updateWatch: (symbol, patch) =>
+        set({ watchlist: get().watchlist.map((w) => (w.symbol === symbol ? { ...w, ...patch } : w)) }),
+      watchLists: [],
+      addWatchList: (name) => {
+        const id = `wl-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        set({ watchLists: [...get().watchLists, { id, name }] });
+        return id;
+      },
+      removeWatchList: (id) =>
+        set({
+          watchLists: get().watchLists.filter((l) => l.id !== id),
+          // Entries in a deleted list fall back to the default rather than
+          // disappearing with it — losing a note the user wrote would be worse
+          // than an entry showing up somewhere unexpected.
+          watchlist: get().watchlist.map((w) => (w.listId === id ? { ...w, listId: undefined } : w)),
+          activeList: get().activeList === id ? null : get().activeList,
+        }),
+      activeList: null,
+      setActiveList: (activeList) => set({ activeList }),
+
+      savedViews: [],
+      saveView: (v) =>
+        set({
+          savedViews: [
+            ...get().savedViews.filter((x) => x.path !== v.path || x.name !== v.name),
+            { ...v, id: `view-${Date.now()}`, createdAt: new Date().toISOString() },
+          ].slice(-12),
+        }),
+      removeView: (id) => set({ savedViews: get().savedViews.filter((x) => x.id !== id) }),
+
       positions: [],
       addPosition: (p) => {
         set({
@@ -146,6 +243,8 @@ export const useTerminal = create<TerminalState>()(
         });
       },
       removeAlert: (id) => set({ alerts: get().alerts.filter((a) => a.id !== id) }),
+      markAlertFired: (id) =>
+        set({ alerts: get().alerts.map((a) => (a.id === id ? { ...a, firedAt: new Date().toISOString() } : a)) }),
       notices: [],
       fireAlert: (alert, price) => {
         track("alert_fired", { symbol: alert.symbol });
@@ -221,6 +320,8 @@ export const useTerminal = create<TerminalState>()(
         highDensity: s.highDensity,
         onboarded: s.onboarded,
         positions: s.positions,
+        watchLists: s.watchLists,
+        savedViews: s.savedViews,
         activated: s.activated,
       }),
     }

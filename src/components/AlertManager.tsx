@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useTerminal } from "../store";
+import { useTerminal, type PriceAlert } from "../store";
 import { metaFor } from "../lib/market";
 
 /**
@@ -10,6 +10,22 @@ import { metaFor } from "../lib/market";
  * alert you cannot trust, which is fatal for the one feature most likely to
  * bring somebody back to the product.
  */
+/**
+ * How each alert kind reads — growth-plan item 71.
+ *
+ * Kept here rather than in the row so all four render consistently, and so a
+ * new kind cannot be added without deciding how it is described.
+ */
+function describeAlert(a: PriceAlert): string {
+  const above = a.direction !== "below";
+  switch (a.kind ?? "price") {
+    case "percent": return `${above ? "▲" : "▼"} moves ${above ? "" : "−"}${Math.abs(a.targetValue)}% in a day`;
+    case "volume":  return `▲ volume ${a.targetValue}× its median`;
+    case "news":    return "◆ any news";
+    default:        return `${above ? "▲ above" : "▼ below"} ${a.targetValue}`;
+  }
+}
+
 export default function AlertManager() {
   const alerts = useTerminal((s) => s.alerts);
   const removeAlert = useTerminal((s) => s.removeAlert);
@@ -38,9 +54,12 @@ export default function AlertManager() {
                     <b>{a.symbol}</b>
                     {name && <span>{name}</span>}
                   </button>
-                  <span className={`alert-dir ${above ? "up" : "down"}`}>
-                    {above ? "▲ above" : "▼ below"} <span className="mono">{a.targetValue}</span>
-                  </span>
+                  <span className={`alert-dir ${above ? "up" : "down"}`}>{describeAlert(a)}</span>
+                  {a.firedAt && (
+                    <span className="alert-fired" title={`Fired ${new Date(a.firedAt).toISOString().slice(0, 16).replace("T", " ")} UTC`}>
+                      FIRED
+                    </span>
+                  )}
                   <button
                     className="alert-del"
                     onClick={() => removeAlert(a.id)}

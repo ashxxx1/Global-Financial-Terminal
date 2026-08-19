@@ -23,6 +23,9 @@ export default function AccountModal({ onClose }: { onClose: () => void }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [memberNo, setMemberNo] = useState<number | null>(null);
+  /** Churn survey — growth-plan item 82. Optional, and never blocking. */
+  const [reason, setReason] = useState("");
+  const [reasonNote, setReasonNote] = useState("");
 
   useEffect(() => { void fetchMemberNo().then(setMemberNo); }, []);
 
@@ -57,6 +60,12 @@ export default function AccountModal({ onClose }: { onClose: () => void }) {
   const handleDelete = async () => {
     setBusy("delete"); setError("");
     try {
+      // Record why before the account goes, since afterwards there is nobody
+      // to ask. Fire-and-forget: a failed survey must never block a deletion
+      // the user is legally entitled to.
+      if (reason) {
+        try { track("account_deleted", { reason, note: reasonNote.slice(0, 200) }); } catch { /* never block */ }
+      }
       await deleteAccount(needPassword ? password : undefined);
       // Auth state flips to signed-out; the modal unmounts with the user.
     } catch (e) {
@@ -133,6 +142,37 @@ export default function AccountModal({ onClose }: { onClose: () => void }) {
 
         {confirming && (
           <div className="acct-confirm">
+            <fieldset className="acct-survey">
+              <legend className="acct-row-sub">
+                Before you go — what pushed you to delete? Optional, and it will not
+                change anything about the deletion.
+              </legend>
+              {[
+                ["not-useful", "It was not useful to me"],
+                ["data-quality", "I did not trust the data"],
+                ["missing-feature", "Something I needed was missing"],
+                ["too-complex", "Too complicated to use"],
+                ["found-alternative", "I found something better"],
+                ["other", "Something else"],
+              ].map(([value, label]) => (
+                <label key={value} className="acct-survey-opt">
+                  <input
+                    type="radio" name="churn-reason" value={value}
+                    checked={reason === value}
+                    onChange={(e) => setReason(e.target.value)}
+                  />
+                  {label}
+                </label>
+              ))}
+              {reason && (
+                <input
+                  className="fb-email" value={reasonNote}
+                  onChange={(e) => setReasonNote(e.target.value)}
+                  placeholder="Anything more you want to tell us (optional)"
+                />
+              )}
+            </fieldset>
+
             <label className="acct-row-sub" htmlFor="acct-confirm-in">
               Type <b>DELETE</b> to confirm.
             </label>

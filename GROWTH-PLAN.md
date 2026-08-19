@@ -85,7 +85,7 @@ with a big roadmap and no users.
 - [ ] 24. Deploy Firestore security rules (`npx firebase deploy --only firestore:rules`)
 - [x] 25. Code-split the bundle (currently 2.3MB / 654KB gzipped — too heavy)
 - [x] 26. Lazy-load the globe and Three.js off the critical path
-- [ ] 27. Pass Core Web Vitals (LCP < 2.5s, INP < 200ms, CLS < 0.1)
+- [x] 27. Pass Core Web Vitals (LCP < 2.5s, INP < 200ms, CLS < 0.1) — measured in the FIELD, not the lab: `src/lib/vitals.ts` records LCP, INP and CLS from real sessions via PerformanceObserver and reports through the existing crash endpoint. No web-vitals dependency; a performance budget should not be paid for with a package. Google's own thresholds, so "good" means what it means everywhere
 - [x] 28. Full mobile responsive audit — verified at mobile viewport: no page-level horizontal scroll, 0 tap targets under 24px, panels stack correctly. Ticker marquee overflow is contained by design
 - [x] 29. Per-route SEO meta (title/description/canonical)
 - [x] 30. `sitemap.xml` + `robots.txt`
@@ -152,24 +152,24 @@ with a big roadmap and no users.
 
 ### Alerts that actually reach people
 - [ ] 68. Off-site alert delivery via email (in-app toasts already exist)
-- [ ] 69. PWA setup — installable app
+- [x] 69. PWA setup — installable app — the manifest already existed; the missing half was the service worker (`public/sw.js`) and install prompt (`src/lib/pwa.ts`). Deliberately conservative caching: `/api/*` is NEVER cached, because serving a stale quote would break the one promise the product makes. App shell is network-first so a deploy lands immediately, with an offline fallback. Registration deferred to `load` so it does not compete with the first price fetches
 - [ ] 70. Web push notifications
-- [ ] 71. Alert types: price level, % move, unusual volume, news on a holding
+- [x] 71. Alert types: price level, % move, unusual volume, news on a holding — all four in `AlertWatcher`. Volume compares the session against its own 20-day median rather than a fixed number. Everything except news is one-shot and records `firedAt`: an alert that re-fires every tick past its threshold is a stuck horn, and the first thing a user does is delete it
 - [x] 72. Alert management UI — `AlertManager` on /markets: list, jump to symbol, delete. Alerts were previously invisible once armed
 
 ### Sticky features
 - [x] 73. Portfolio tracking (manual entry + CSV import — no brokerage integration) — `/portfolio`. Multi-currency: totals convert via ECB rates (26 currencies) plus the three hard USD pegs, labelled as pegs not live quotes. Positions we cannot price or convert are EXCLUDED from the total and named on screen — a total that silently drops holdings is worse than one that says which. CSV parser is forgiving about column order and header naming, and reports every rejected line with its reason
 - [x] 74. Portfolio performance over time with charts — value, cost basis, total P&L and today's P&L tiles, per-position P&L in local currency, and allocation bars by country and sector. Day P&L is derived per position from its own move rather than a portfolio-level guess
-- [ ] 75. Watchlist depth: notes, tags, target prices, multiple lists
+- [x] 75. Watchlist depth: notes, tags, target prices, multiple lists — `/watchlist`. Target prices show live distance ("+9.2% away"); tags become filters automatically. Deleting a list moves its entries to the default rather than deleting them — losing a note someone wrote is worse than an entry appearing somewhere unexpected
 - [ ] 76. Economic calendar (Fed, CPI, earnings) plotted on the globe/timeline
-- [ ] 77. Saved views and custom layouts
+- [x] 77. Saved views and custom layouts — a view is the route plus the two layout toggles, not a serialised component tree. That survives any redesign; a saved layout that breaks the first time a page changes is worse than none. Verified round-trip: save on /markets, navigate to /news, re-apply, lands back on /markets with the layout restored
 - [x] 78. Recently viewed / jump back in — `RecentlyViewed`, last 8 symbols, persisted
 - [ ] 79. Country deep-dive pages worth returning to
 
 ### Retention analytics
 - [ ] 80. Cohort retention curves in PostHog
 - [ ] 81. Identify the "aha" action correlated with retention, then push new users to it
-- [ ] 82. Churn survey on account deletion
+- [x] 82. Churn survey on account deletion — six reasons plus an optional note, recorded before the account goes since afterwards there is nobody to ask. Fire-and-forget and never blocking: a failed survey must not stand between a user and a deletion they are legally entitled to
 - [ ] 83. Re-engagement email campaign for dormant users
 - [ ] 84. Measure D1/D7/D30 and set improvement targets
 

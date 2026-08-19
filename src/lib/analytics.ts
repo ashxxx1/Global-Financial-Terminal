@@ -122,7 +122,8 @@ export interface EventMap {
   forum_comment_added: { postId: string };
   forum_comment_deleted: { postId: string };
   data_exported: Record<string, never>;
-  account_deleted: Record<string, never>;
+  /** Churn survey — growth-plan item 82. Reason is optional at the call site. */
+  account_deleted: { reason?: string; note?: string };
 }
 
 export function track<K extends keyof EventMap>(event: K, props?: EventMap[K]): void {

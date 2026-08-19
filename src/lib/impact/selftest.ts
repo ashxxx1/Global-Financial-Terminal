@@ -27,6 +27,7 @@ export function runImpactSelftest(): { name: string; ok: boolean; detail?: strin
   const oRank = rankCompanies(oil);
   check("oil XOM beneficiary", oRank.some((c) => c.symbol === "XOM" && c.side === "beneficiary"));
   check("oil does not treat LONGi as a producer", !oRank.some((c) => c.symbol === "601012" && c.side === "beneficiary"));
+  check("oil does not treat Airtel as an airline", !oRank.some((c) => c.symbol === "BHARTIARTL"));
 
   const fed = extractEvent("The Fed cut rates by 50 bps. What sectors are likely to benefit?");
   check("rate-cut kind", fed.kind === "rate-cut", fed.kind);

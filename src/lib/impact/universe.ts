@@ -34,7 +34,7 @@ const TAG_RULES: { tag: string; test: (s: string, name: string, sector: string, 
     return /XOM|CVX|SHEL|BP|RELIANCE|ONGC|PETR4|2222/.test(s) || /exxon|chevron|shell|petrobras|ongc|reliance|aramco|bp plc|oil|petro/i.test(n) || /XOM|CVX|SHEL|BP/.test(s);
   } },
   { tag: "defence", test: (s, n, sec) => sec === "Defence" },
-  { tag: "bank", test: (s, n, sec) => sec === "Banking & Finance" },
+  { tag: "bank", test: (s, n, sec) => sec === "Banking & Finance" && /bank|banc|hsbc|barclays|goldman|jpmorgan|unibanco|bradesco/i.test(n) && !/visa|mastercard|exchange|insurance|aia |ping an/i.test(n) },
   { tag: "ev-cn", test: (s, n) => /002594|300750/.test(s) || /byd|catl/i.test(n) },
   { tag: "auto", test: (s, n, sec) => sec === "Automotive" },
   { tag: "transport", test: (s, n, sec) => sec === "Transportation" },
@@ -95,11 +95,8 @@ const RULES: Rule[] = [
           ? "Integrated and upstream energy names typically see cash flow expand when crude prices rise, all else equal."
           : "A lower oil price compresses upstream realisations." };
       }
-      if (c.sector === "Transportation" || c.tags.includes("auto")) {
-        return { side: up ? "negative" : "beneficiary", score: 64, why: "Fuel is a large variable cost for transport and a demand headwind for auto if prices spike." };
-      }
-      if (c.sector === "Airlines" || /air/i.test(c.name)) {
-        return { side: "negative", score: 70, why: "Jet fuel is a primary cost line for airlines." };
+      if (c.sector === "Transportation" || c.tags.includes("auto") || /airline|airways|air france|airbus/i.test(c.name)) {
+        return { side: up ? "negative" : "beneficiary", score: 64, why: "Fuel is a large variable cost for transport, airlines and auto demand if prices spike." };
       }
       if (c.sector === "Consumer" && up) {
         return { side: "negative", score: 48, why: "Higher energy prices can squeeze real household income and discretionary spend — a second-order effect, so conviction is lower." };

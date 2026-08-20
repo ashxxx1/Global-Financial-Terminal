@@ -15,6 +15,7 @@ import { historyFor } from "../../market";
 import type { CompanyContext } from "../context";
 import type { Source } from "../types";
 import type { EarningsPoint, NewsItem, Filing, Recommendation, InsiderTx } from "../data";
+import { isRelevant } from "./newsRelevance";
 
 export type EventKind = "earnings" | "filing" | "insider" | "rating" | "news";
 
@@ -172,6 +173,7 @@ export function buildTimeline(ctx: CompanyContext, limit = 40): TimelineEvent[] 
   // News — capped, because 250 headlines would bury everything else.
   if (ctx.news.ok) {
     for (const n of (ctx.news.data as NewsItem[]).slice(0, 12)) {
+      if (!isRelevant(n, ctx.name ?? ctx.symbol, ctx.symbol)) continue;
       const at = n.datetime * 1000;
       push({
         id: `news-${n.datetime}-${n.headline.slice(0, 20)}`,

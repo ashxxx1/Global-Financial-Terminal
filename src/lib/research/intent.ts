@@ -27,12 +27,28 @@ export interface Parsed {
   unresolved?: string;
 }
 
+/**
+ * Generic corporate-suffix and sector words that appear in many company names
+ * and should never trigger a name-word match on their own. Used in addition
+ * to, not instead of, the existing STOP set for ticker tokens.
+ */
+const GENERIC_NAME_WORDS = new Set([
+  "company", "companies", "corp", "corporation", "inc", "incorporated",
+  "group", "holdings", "holding", "international", "national", "global",
+  "industries", "industry", "systems", "technologies", "technology",
+  "resources", "solutions", "enterprises", "limited", "ltd", "plc",
+  "co", "the",
+]);
+
 let index: { symbol: string; name: string; words: string[] }[] | null = null;
 function symbolIndex() {
   if (index) return index;
   index = allStockSymbols().map((s) => {
     const name = (metaFor(s)?.name || s).toLowerCase();
-    return { symbol: s, name, words: name.split(/[^a-z0-9]+/).filter((w) => w.length > 2) };
+    return {
+      symbol: s, name,
+      words: name.split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !GENERIC_NAME_WORDS.has(w)),
+    };
   });
   return index;
 }
@@ -46,25 +62,34 @@ const STOP = new Set([
 ]);
 
 function resolveSymbols(qLower: string): string[] {
-  const found: { symbol: string; at: number }[] = [];
+  const found: { symbol: string; at: number; strong: boolean }[] = [];
   const seen = new Set<string>();
 
+  // Exact ticker matches — strong signal.
   for (const m of qLower.matchAll(/\b([a-z]{1,5})\b/g)) {
     const up = m[1].toUpperCase();
     if (STOP.has(m[1])) continue;
-    if (metaFor(up) && !seen.has(up)) { seen.add(up); found.push({ symbol: up, at: m.index ?? 0 }); }
+    if (metaFor(up) && !seen.has(up)) {
+      seen.add(up);
+      found.push({ symbol: up, at: m.index ?? 0, strong: true });
+    }
   }
+  // Name-word matches — weak signal.
   for (const entry of symbolIndex()) {
     if (seen.has(entry.symbol)) continue;
     for (const w of entry.words) {
       if (new RegExp(`\\b${w}\\b`).test(qLower)) {
         seen.add(entry.symbol);
-        found.push({ symbol: entry.symbol, at: qLower.indexOf(w) });
+        found.push({ symbol: entry.symbol, at: qLower.indexOf(w), strong: false });
         break;
       }
     }
   }
-  return found.sort((a, b) => a.at - b.at).map((f) => f.symbol);
+  // Strong (exact ticker) matches always outrank name-word matches;
+  // within the same tier, earliest mention wins.
+  return found
+    .sort((a, b) => (a.strong === b.strong ? a.at - b.at : a.strong ? -1 : 1))
+    .map((f) => f.symbol);
 }
 
 /**
@@ -87,7 +112,9 @@ export function parseQuestion(raw: string, context: { symbol?: string }): Parsed
   const symbols = resolveSymbols(q);
   const primary = symbols[0] ?? context.symbol;
   const inherited = symbols.length === 0 && !!context.symbol;
-  const has = (...xs: string[]) => xs.some((x) => q.includes(x));
+  const hasWord = (haystack: string, w: string) => new RegExp(`\\b${w}\\b`, "i").test(haystack);
+  const has = (...xs: string[]) =>
+    xs.some((x) => (x.includes(" ") ? q.includes(x) : hasWord(q, x)));
 
   for (const p of UNAVAILABLE_PATTERNS) {
     if (p.test.test(raw)) {

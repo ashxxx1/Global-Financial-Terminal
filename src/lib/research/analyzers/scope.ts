@@ -171,7 +171,13 @@ export async function analyzeMarket(): Promise<Answer> {
     claims,
     caveats: ["Breadth covers only instruments on a live feed. Several hundred non-US names remain simulated on our data plan and are excluded rather than counted as if real."],
     asOf: Date.now(),
-    suggestions: ranked.length ? [`Why is ${syms[0]} moving today?`] : [],
+    suggestions: (() => {
+      if (!syms.length) return [];
+      const topMover = syms
+        .map((s) => ({ s, chg: Math.abs(quoteFor(s)!.changePct) }))
+        .sort((a, b) => b.chg - a.chg)[0]?.s;
+      return topMover ? [`Why is ${topMover} moving today?`] : [];
+    })(),
   };
 }
 

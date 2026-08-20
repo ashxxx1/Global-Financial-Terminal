@@ -21,13 +21,15 @@ import "../styles/charts.css";
 
 export default function Stock() {
   const { symbol = "" } = useParams();
-  const sym = symbol.toUpperCase();
+  const sym = decodeURIComponent(symbol).toUpperCase();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const vsParam = (searchParams.get("vs") || "").toUpperCase();
+  // Try raw first, then with IDX: prefix for index/commodity/fx/crypto symbols
+  const meta = metaFor(sym) || metaFor(`IDX:${sym}`);
+  const effectiveSym = metaFor(sym) ? sym : `IDX:${sym}`;
   const vs = vsParam && vsParam !== sym && metaFor(vsParam) ? vsParam : "";
-  const meta = metaFor(sym);
-  const quote = useQuote(meta ? sym : null);
+  const quote = useQuote(meta ? effectiveSym : null);
   useSeo({
     title: meta ? `${sym} — ${meta.name} Share Price & Chart` : "Stock",
     description: meta

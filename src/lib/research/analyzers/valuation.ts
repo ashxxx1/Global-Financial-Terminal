@@ -217,6 +217,7 @@ export async function analyzeValuationPair(symA: string, symB: string): Promise<
     headline: buildHeadline(claims, `${nameA} against ${nameB}`),
     claims, caveats,
     table: rows.map((r) => ({ label: r.label, a: r.a, b: r.b })),
+    tableColumns: { a: symA, b: symB },
     unavailable: unavailableList(["eps-estimates", "price-targets"]),
     asOf: Date.now(),
     suggestions: [`Is ${symA}'s valuation expensive against its own history?`, `What are the key risks to ${symA}?`],

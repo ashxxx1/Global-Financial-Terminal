@@ -21,6 +21,7 @@ interface Turn {
   answer: Answer | null;
   error?: string;
   table?: { label: string; a: number | null; b: number | null; lowerIsCheaper: boolean }[];
+  tableColumns?: { a: string; b: string };
 }
 
 const TIER_ORDER: Tier[] = ["FACT", "CALCULATION", "INFERENCE", "OPINION"];
@@ -62,6 +63,7 @@ export default function ResearchPanel() {
         next[next.length - 1] = {
           question, answer,
           table: (answer as Answer & { table?: Turn["table"] }).table,
+          tableColumns: answer.tableColumns,
         };
         return next;
       });
@@ -125,7 +127,7 @@ export default function ResearchPanel() {
             <div className="rsx-q">{t.question}</div>
             {t.answer === null && !t.error && <div className="rsx-loading">Retrieving and checking sources…</div>}
             {t.error && <div className="rsx-error">{t.error}</div>}
-            {t.answer && <AnswerView answer={t.answer} table={t.table} onFollowUp={(q) => void run(q)} />}
+            {t.answer && <AnswerView answer={t.answer} table={t.table} tableColumns={t.tableColumns} onFollowUp={(q) => void run(q)} />}
           </article>
         ))}
         <div ref={endRef} />
@@ -148,9 +150,10 @@ export default function ResearchPanel() {
   );
 }
 
-function AnswerView({ answer, table, onFollowUp }: {
+function AnswerView({ answer, table, tableColumns, onFollowUp }: {
   answer: Answer;
   table?: Turn["table"];
+  tableColumns?: Turn["tableColumns"];
   onFollowUp: (q: string) => void;
 }) {
   const conf = overallConfidence(answer.claims);
@@ -177,7 +180,7 @@ function AnswerView({ answer, table, onFollowUp }: {
       {table && table.length > 0 && (
         <div className="rsx-tablewrap">
           <table className="rsx-table">
-            <thead><tr><th>Metric</th><th className="num">A</th><th className="num">B</th></tr></thead>
+            <thead><tr><th>Metric</th><th className="num">{tableColumns?.a ?? "A"}</th><th className="num">{tableColumns?.b ?? "B"}</th></tr></thead>
             <tbody>
               {table.map((r) => (
                 <tr key={r.label}>

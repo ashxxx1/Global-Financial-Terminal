@@ -125,7 +125,6 @@ export default function RightRail() {
       </div>
       {watchQuotes.length === 0 ? (
         <div className="empty-state">
-          <span className="es-icon">☆</span>
           <span className="es-text">
             Your watchlist is empty.<br />
             Start with these three — tap to open the chart.
@@ -181,7 +180,7 @@ export default function RightRail() {
       {news.length === 0 ? (
         newsFailed ? (
           <div className="empty-state">
-            <span className="es-icon">⚠</span>
+
             <span className="es-text">Headlines unavailable right now.<br />Retrying every 5 minutes.</span>
           </div>
         ) : (

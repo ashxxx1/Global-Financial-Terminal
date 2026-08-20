@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Signal } from "../../lib/signals/types";
 import { fmtConfidence, fmtPx } from "../../lib/signals/format";
+import { quoteSymbolFor } from "../../lib/signals/api";
 import { SignalDirectionBadge } from "./SignalStatusBadge";
 
 /** Compact homepage / rail widget for today's top signal + yesterday summary. */
@@ -34,7 +35,7 @@ export default function SignalsHomeWidget({
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <Link to={`/terminal/signals/${top.id}`} className="chip active" style={{ textDecoration: "none", display: "inline-block" }}>VIEW SIGNAL</Link>
-              <Link to={`/stock/${top.symbol}`} className="chip" style={{ textDecoration: "none", display: "inline-block" }}>Open chart</Link>
+              <Link to={`/stock/${encodeURIComponent(quoteSymbolFor(top))}`} className="chip" style={{ textDecoration: "none", display: "inline-block" }}>Open chart</Link>
             </div>
           </>
         ) : (

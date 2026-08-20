@@ -21,7 +21,7 @@
   --down: #ff4d4d;
   --down-dim: rgba(255,77,77,0.12);
   --serif: "Instrument Serif", "Times New Roman", serif;
-  --code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --code: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   position: fixed; inset: 0; z-index: 100; overflow-y: auto; overflow-x: hidden;
   background: var(--void); color: var(--ink);
@@ -381,7 +381,7 @@ body:has(.lpx) .consent-btn.ghost:hover { background: rgba(255,255,255,0.08); }
   --ink: #fff; --ink-2: rgba(255,255,255,0.62); --ink-3: rgba(255,255,255,0.38);
   --rule: rgba(255,255,255,0.10); --rule-2: rgba(255,255,255,0.18);
   --serif: "Instrument Serif", "Times New Roman", serif;
-  --code: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --code: ui-monospace, Menlo, monospace;
   background: #000 !important; color: #fff;
 }
 .lpx-auth .auth-aurora { display: none; }              /* no coloured bloom */
@@ -420,15 +420,15 @@ body:has(.lpx) .consent-btn.ghost:hover { background: rgba(255,255,255,0.08); }
 .lpx-auth .auth-field input:focus { outline: none; border-color: #fff; }
 .lpx-auth .auth-field input::placeholder { color: rgba(255,255,255,0.28); }
 
-.lpx-auth .auth-submit, .lpx-auth .auth-oauth {
+.lpx-auth .auth-submit, .lpx-auth .oauth-btn {
   border-radius: 999px; font-family: var(--code); font-size: 11.5px;
   letter-spacing: .12em; text-transform: uppercase; font-weight: 500;
   padding: 13px 20px; transition: opacity .2s ease, transform .2s cubic-bezier(0.16,1,0.3,1);
 }
 .lpx-auth .auth-submit { background: #fff; color: #000; border: 1px solid #fff; background-image: none; }
 .lpx-auth .auth-submit:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); filter: none; }
-.lpx-auth .auth-oauth { background: transparent; color: #fff; border: 1px solid var(--rule-2); }
-.lpx-auth .auth-oauth:hover { border-color: #fff; }
+.lpx-auth .oauth-btn { background: transparent; color: #fff; border: 1px solid var(--rule-2); }
+.lpx-auth .oauth-btn:hover { border-color: #fff; }
 .lpx-auth .auth-or { color: var(--ink-3); font-family: var(--code); font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; }
 .lpx-auth .auth-or::before, .lpx-auth .auth-or::after { background: var(--rule); }
 .lpx-auth .auth-link { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
@@ -444,7 +444,7 @@ body:has(.lpx) .consent-btn.ghost:hover { background: rgba(255,255,255,0.08); }
 }
 .lpx-auth :focus-visible { outline: 1px solid #fff; outline-offset: 2px; }
 .lpx-auth .auth-tab:focus-visible { outline-offset: -2px; }
-.lpx-auth .auth-oauth { box-shadow: none; }
+.lpx-auth .oauth-btn { box-shadow: none; }
 
 /* ── The globe, in full colour ─────────────────────────────────────────
    The one vivid object on a black-and-white page. This does not break the

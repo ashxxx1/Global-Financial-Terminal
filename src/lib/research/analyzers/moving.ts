@@ -15,6 +15,7 @@ import {
   pct, mag, marketSource, median, dailyVol, sectorPeers,
   buildHeadline, capabilityCaveats, unavailableList, noQuoteAnswer, hist,
 } from "./shared";
+import { isRelevant } from "./newsRelevance";
 import type { CapabilityId } from "../capabilities";
 
 const WANTED: CapabilityId[] = [
@@ -102,7 +103,10 @@ export async function analyzeMoving(symbol: string): Promise<Answer> {
   // News as fact, attribution as inference — kept apart on purpose.
   const news = await fetchDataset<NewsItem[]>("news", symbol);
   if (news.ok) {
-    const recent = news.data.filter((n) => n.datetime * 1000 >= Date.now() - 48 * 3600 * 1000).slice(0, 6);
+    const recent = news.data
+      .filter((n) => n.datetime * 1000 >= Date.now() - 48 * 3600 * 1000)
+      .filter((n) => isRelevant(n, name, symbol))
+      .slice(0, 6);
     if (recent.length > 0) {
       claims.push({
         text: `${recent.length} article${recent.length > 1 ? "s" : ""} published in the last 48 hours, most recent: "${recent[0].headline}".`,

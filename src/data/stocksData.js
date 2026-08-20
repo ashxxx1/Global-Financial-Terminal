@@ -30,6 +30,9 @@ export const STOCKS_BY_COUNTRY = {
     { ticker: "LMT",    name: "Lockheed Martin",       price: 456.78,  changePct: +1.23, currency: "$", sector: "Defence" },
     { ticker: "RTX",    name: "RTX Corp.",             price: 123.45,  changePct: +0.89, currency: "$", sector: "Defence" },
     { ticker: "BRK.B",  name: "Berkshire Hathaway",    price: 398.45,  changePct: +0.34, currency: "$", sector: "Banking & Finance" },
+    { ticker: "AMD",    name: "Advanced Micro Devices", price: 164.23,  changePct: +3.12, currency: "$", sector: "Technology" },
+    { ticker: "SPY",    name: "SPDR S&P 500 ETF",       price: 548.67,  changePct: +0.45, currency: "$", sector: "Banking & Finance" },
+    { ticker: "QQQ",    name: "Invesco QQQ Trust",       price: 478.12,  changePct: +0.78, currency: "$", sector: "Technology" },
   ],
 
   GB: [

@@ -94,6 +94,8 @@ export interface Answer {
   /** Set when the question asked for something unavailable. */
   unavailable?: { label: string; note: string }[];
   table?: { label: string; a: number | null; b: number | null }[];
+  /** Column labels for the comparison table (e.g. { a: "AAPL", b: "MSFT" }). */
+  tableColumns?: { a: string; b: string };
 }
 
 /** The weakest tier present — an answer is only as strong as its softest claim. */

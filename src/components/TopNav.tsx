@@ -215,7 +215,7 @@ export default function TopNav() {
           aria-pressed={chatOpen}
           onClick={() => setChatOpen(!chatOpen)}
         >
-          <span aria-hidden="true">✦</span>
+
           <span className="nav-research-label">RESEARCH</span>
         </button>
         <button className={`nav-tour ${nerdMode ? "on" : ""}`} title={nerdMode ? "Nerd mode on — hide technical detail" : "Nerd mode off — show technical detail"} aria-pressed={nerdMode} onClick={() => setNerdMode(!nerdMode)}>{"{ }"}</button>

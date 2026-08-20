@@ -90,11 +90,6 @@ export default function Sparkline({
       />
       {/* live head dot */}
       <circle cx={shape.last[0]} cy={shape.last[1]} r="1.9" fill={color} />
-      {/* The pulsing halo is part of the "live" feel; suppress it wherever the
-          sparkline is static, or it reads as an unexplained coloured dot. */}
-      {animate && (
-        <circle cx={shape.last[0]} cy={shape.last[1]} r="1.9" fill={color} className="spark-ping" />
-      )}
     </svg>
   );
 }

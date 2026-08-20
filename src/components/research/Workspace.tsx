@@ -34,6 +34,8 @@ export default function ResearchWorkspace() {
   const [active, setActive] = useState<SectionId>("moving");
   const [sections, setSections] = useState<Record<string, Section>>({});
   const [loading, setLoading] = useState(true);
+  const [sectionError, setSectionError] = useState<Record<string, string>>({});
+  const [sectionLoading, setSectionLoading] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState<TimelineEvent | null>(null);
   const [move, setMove] = useState<MoveExplanation | null>(null);
   const [showCoverage, setShowCoverage] = useState(false);
@@ -53,16 +55,26 @@ export default function ResearchWorkspace() {
 
   useEffect(() => {
     let live = true;
-    setLoading(true); setWs(null); setSections({});
+    setLoading(true); setWs(null); setSections({}); setSectionError({}); setSectionLoading({});
     void openWorkspace(sym).then((w) => { if (live) { setWs(w); setLoading(false); } });
     return () => { live = false; };
   }, [sym]);
 
   const load = useCallback(async (w: Ws, id: SectionId) => {
-    if (sections[id]) return;
-    const s = await buildSection(w, id);
-    setSections((prev) => ({ ...prev, [id]: s }));
-  }, [sections]);
+    if (sections[id] || sectionLoading[id]) return;
+    setSectionLoading((p) => ({ ...p, [id]: true }));
+    try {
+      const s = await buildSection(w, id);
+      setSections((prev) => ({ ...prev, [id]: s }));
+    } catch (e) {
+      setSectionError((p) => ({
+        ...p,
+        [id]: e instanceof Error ? e.message : "Failed to load this section.",
+      }));
+    } finally {
+      setSectionLoading((p) => ({ ...p, [id]: false }));
+    }
+  }, [sections, sectionLoading]);
 
   useEffect(() => { if (ws) void load(ws, active); }, [ws, active, load]);
 
@@ -143,6 +155,8 @@ export default function ResearchWorkspace() {
 
         <main className="rw-main">
           {loading && <div className="rw-loading">Retrieving and checking sources…</div>}
+          {!loading && sectionLoading[active] && <div className="rw-loading">Loading section…</div>}
+          {!loading && sectionError[active] && <div className="rw-loading" style={{ color: "var(--down)" }}>{sectionError[active]}</div>}
           {!loading && section && (
             <>
               <p className="rw-blurb">{SECTIONS.find((s) => s.id === active)?.blurb}</p>

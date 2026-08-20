@@ -1,16 +1,4 @@
-/**
- * Globe3D — the interactive Earth. Engineering notes (lessons paid for in v0):
- *  · Texture + geojson ship same-origin from /public — no CDN, no slow first paint.
- *  · Natural Earth 110m only. Its winding matches the engine convention; the old
- *    hand-injected india.geojson was CCW-wound and rendered as a globe-covering
- *    cap (the historic "green globe" bug). India renders from NE like everyone.
- *  · Country caps stay fully transparent — semi-transparent caps stack front+back
- *    into an opaque wash. Indicators are HTML markers instead.
- *  · Hover drives ONLY a React overlay card, never polygon accessors (per-hover
- *    material churn leaked meshes in v0).
- *  · Cleanup disposes the renderer but never calls WEBGL_lose_context.loseContext()
- *    (StrictMode's phantom unmount would kill the context → blank first load).
- */
+
 import { useEffect, useRef, useState, useCallback } from "react";
 import Globe from "react-globe.gl";
 import * as THREE from "three";
@@ -19,14 +7,12 @@ import { getCountryStats } from "../data/countryStats";
 import type { QuakeEvent } from "../lib/feeds/quakes";
 import type { EconCalendarEvent } from "../data/econCalendar";
 import { colorForEconKind } from "../data/econCalendar";
-
 import { riskFor, sentimentFor } from "../lib/countryRisk";
 import type { LiveArticle } from "../lib/newsFeed";
 
 export type OverlayMode = "market" | "risk" | "sentiment" | "quakes" | "calendar";
 
 interface Feature { properties: Record<string, unknown>; [k: string]: unknown; }
-
 // ISO_A3 → ISO_A2 for Natural Earth features whose ISO_A2 is "-99"
 const A3: Record<string, string> = {
   USA: "US", GBR: "GB", JPN: "JP", DEU: "DE", CHN: "CN", IND: "IN", BRA: "BR", AUS: "AU",
@@ -226,41 +212,41 @@ export default function Globe3D({
   // "quakes" = USGS; "calendar" = CPI/Fed/earnings; other modes = per-country signals.
   const markers = overlay === "quakes"
     ? quakes.map((q) => ({
-        code: q.id, lat: q.lat, lng: q.lng,
-        color: q.mag >= 6 ? "var(--down)" : q.mag >= 5 ? "var(--gold)" : "var(--blue)",
-        intensity: Math.min(1, q.mag / 7),
-      }))
+      code: q.id, lat: q.lat, lng: q.lng,
+      color: q.mag >= 6 ? "var(--down)" : q.mag >= 5 ? "var(--gold)" : "var(--blue)",
+      intensity: Math.min(1, q.mag / 7),
+    }))
     : overlay === "calendar"
       ? calendar.map((e) => ({
-          code: e.id,
-          lat: e.lat,
-          lng: e.lng,
-          color: colorForEconKind(e.kind),
-          intensity: e.importance === "high" ? 0.95 : 0.55,
-        }))
+        code: e.id,
+        lat: e.lat,
+        lng: e.lng,
+        color: colorForEconKind(e.kind),
+        intensity: e.importance === "high" ? 0.95 : 0.55,
+      }))
       : Object.values(COUNTRIES).map((c) => {
-          const stats = (() => { try { return getCountryStats(c.code); } catch { return null; } })();
-          const ret = stats?.marketReturns?.["1D"] ?? 0;
-          let color = "var(--blue)";
-          let intensity = c.newsIntensity;
-          if (overlay === "market") { color = ret >= 0 ? "var(--up)" : "var(--down)"; intensity = Math.min(1, Math.abs(ret) / 2.5 + 0.25); }
-          if (overlay === "risk") {
-            // Items 3/4: computed from live dispersion, breadth and real macro
-            // rather than the hardcoded riskScore constant this used to read.
-            const r = riskFor(c.code);
-            color = r.score > 60 ? "var(--down)" : r.score > 40 ? "var(--gold)" : "var(--up)";
-            intensity = r.score / 100;
+        const stats = (() => { try { return getCountryStats(c.code); } catch { return null; } })();
+        const ret = stats?.marketReturns?.["1D"] ?? 0;
+        let color = "var(--blue)";
+        let intensity = c.newsIntensity;
+        if (overlay === "market") { color = ret >= 0 ? "var(--up)" : "var(--down)"; intensity = Math.min(1, Math.abs(ret) / 2.5 + 0.25); }
+        if (overlay === "risk") {
+          // Items 3/4: computed from live dispersion, breadth and real macro
+          // rather than the hardcoded riskScore constant this used to read.
+          const r = riskFor(c.code);
+          color = r.score > 60 ? "var(--down)" : r.score > 40 ? "var(--gold)" : "var(--up)";
+          intensity = r.score / 100;
+        }
+        if (overlay === "sentiment") {
+          const sent = sentimentFor(c.code, articles);
+          if (!sent) { color = "var(--faint)"; intensity = 0.12; }   // too few headlines to claim a mood
+          else {
+            color = sent.label === "Bullish" ? "var(--up)" : sent.label === "Bearish" ? "var(--down)" : "var(--gold)";
+            intensity = Math.min(1, Math.abs(sent.score - 50) / 25 + 0.3);
           }
-          if (overlay === "sentiment") {
-            const sent = sentimentFor(c.code, articles);
-            if (!sent) { color = "var(--faint)"; intensity = 0.12; }   // too few headlines to claim a mood
-            else {
-              color = sent.label === "Bullish" ? "var(--up)" : sent.label === "Bearish" ? "var(--down)" : "var(--gold)";
-              intensity = Math.min(1, Math.abs(sent.score - 50) / 25 + 0.3);
-            }
-          }
-          return { code: c.code, lat: c.lat, lng: c.lng, color, intensity };
-        });
+        }
+        return { code: c.code, lat: c.lat, lng: c.lng, color, intensity };
+      });
 
   return (
     <div ref={containerRef} style={{ position: "absolute", inset: 0, overflow: "hidden" }}>

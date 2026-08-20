@@ -3,8 +3,9 @@
  * otherwise uses local deterministic demo/live store.
  */
 import { BACKEND_URL } from "../feeds/backend";
+import { loadPublishedRecord, hasPublishedRecord } from "./publishedRecord";
 import { ensureDemoDataset } from "./demo";
-import { generateSignals, isDemoMode } from "./generate";
+import { generateSignals, isDemoMode as isModelDemoMode } from "./generate";
 import { computeDailyPerformance, computePerformance, trailingReturn } from "./performance";
 import { resolveActiveSignals } from "./resolve";
 import { getMarketDataProvider } from "./marketDataProvider";
@@ -13,6 +14,55 @@ import { SIGNAL_ASSETS } from "./assets";
 import type { DailyPerformance, PerformanceStats, Signal } from "./types";
 
 let bootstrapped = false;
+
+/** Signals from the published record, if one has been loaded. */
+function publishedSignals(): Signal[] {
+  const rec = hasPublishedRecord() ? loadedRecord : null;
+  return rec?.signals ?? [];
+}
+
+let loadedRecord: Awaited<ReturnType<typeof loadPublishedRecord>> = null;
+
+/**
+ * Load the shared record before bootstrapping.
+ *
+ * Callers should await this; bootstrapSignals stays synchronous so existing
+ * call sites keep working, and simply falls back to the demo seed if this has
+ * not run yet.
+ */
+export async function initSignals(now = Date.now()): Promise<Signal[]> {
+  loadedRecord = await loadPublishedRecord();
+
+  // Publish independently of the `bootstrapped` guard. Another surface — the
+  // rail's signals widget — usually calls bootstrapSignals on mount first, and
+  // that guard would otherwise skip hydration entirely, leaving the demo seed
+  // in place with a published record sitting unused on disk.
+  const rec = publishedSignals();
+  if (rec.length > 0) {
+    signalStore.hydrate();
+
+    // Migration: browsers that visited before the published record existed
+    // still hold the seeded demo signals. Left in place they would blend with
+    // the real ones and the performance pages would report a hit rate mixing
+    // both — worse than the demo was, because it would no longer be labelled.
+    // replaceAll is the only clean way to drop them.
+    signalStore.replaceAll(rec, []);
+    bootstrapped = true;
+    return signalStore.list();
+  }
+  return bootstrapSignals(now);
+}
+
+/**
+ * Is the track record still a demo?
+ *
+ * False once a published record exists — that record is shared, real-priced and
+ * auditable, so the DEMO label would be actively misleading. The label stays on
+ * until then, because a per-browser seed is not a track record.
+ */
+export function isDemoMode(): boolean {
+  return !hasPublishedRecord() && isModelDemoMode();
+}
 
 export function bootstrapSignals(now = Date.now()): Signal[] {
   if (bootstrapped) {
@@ -37,7 +87,18 @@ export function bootstrapSignals(now = Date.now()): Signal[] {
   bootstrapped = true;
   signalStore.hydrate();
 
-  if (isDemoMode()) {
+  // A published record supersedes everything below. It is shared, resolved
+  // against real prices, and its history is auditable in git — where the demo
+  // seed was per-browser, so no two visitors ever saw the same "record".
+  if (hasPublishedRecord()) {
+    const rec = publishedSignals();
+    if (rec.length > 0) {
+      signalStore.publish(rec, []);
+      return signalStore.list();
+    }
+  }
+
+  if (isModelDemoMode()) {
     ensureDemoDataset(now);
   } else if (signalStore.size === 0) {
     const { signals, audits } = generateSignals({ asOf: now, allowClosedMarket: true, demo: false });
@@ -129,4 +190,4 @@ export function quoteSymbolFor(signal: Signal): string {
   return SIGNAL_ASSETS.find((a) => a.assetId === signal.assetId)?.quoteSymbol ?? `IDX:${signal.symbol}`;
 }
 
-export { signalStore, isDemoMode };
+export { signalStore };

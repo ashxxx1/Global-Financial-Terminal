@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSeo } from "../../lib/seo";
-import { bootstrapSignals, isDemoMode } from "../../lib/signals/api";
+import { initSignals, isDemoMode } from "../../lib/signals/api";
 import { fmtConfidence, fmtDate, fmtPct, fmtPx, statusLabel } from "../../lib/signals/format";
 import type { Signal, SignalStatus } from "../../lib/signals/types";
 import { DemoBanner, SignalsDisclaimer, SignalsSubnav } from "../../components/signals/SignalStatusBadge";
@@ -19,7 +19,7 @@ export default function SignalHistoryPage() {
   const [result, setResult] = useState("ALL");
   const [q, setQ] = useState("");
 
-  useEffect(() => { setSignals(bootstrapSignals()); }, []);
+  useEffect(() => { void initSignals().then(setSignals); }, []);
 
   const rows = useMemo(() => {
     return signals.filter((s) => {

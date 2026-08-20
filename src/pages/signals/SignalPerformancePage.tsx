@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSeo } from "../../lib/seo";
-import { bootstrapSignals, isDemoMode } from "../../lib/signals/api";
+import { initSignals, isDemoMode } from "../../lib/signals/api";
 import { computeCumulativeSeries, computePerformance } from "../../lib/signals/performance";
 import { fmtPct } from "../../lib/signals/format";
 import type { Signal } from "../../lib/signals/types";
@@ -18,7 +18,7 @@ export default function SignalPerformancePage() {
   });
 
   const [signals, setSignals] = useState<Signal[]>([]);
-  useEffect(() => { setSignals(bootstrapSignals()); }, []);
+  useEffect(() => { void initSignals().then(setSignals); }, []);
 
   const stats = useMemo(() => computePerformance(signals), [signals]);
   const series = useMemo(() => computeCumulativeSeries(signals), [signals]);

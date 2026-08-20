@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSeo } from "../../lib/seo";
-import { bootstrapSignals, isDemoMode } from "../../lib/signals/api";
+import { initSignals, isDemoMode } from "../../lib/signals/api";
 import { computeDailyPerformance } from "../../lib/signals/performance";
 import { fmtPct } from "../../lib/signals/format";
 import type { Signal } from "../../lib/signals/types";
@@ -22,7 +22,7 @@ export default function SignalCalendarPage() {
   });
   const [selected, setSelected] = useState<string | null>(null);
 
-  useEffect(() => { setSignals(bootstrapSignals()); }, []);
+  useEffect(() => { void initSignals().then(setSignals); }, []);
   const daily = useMemo(() => computeDailyPerformance(signals), [signals]);
   const byDate = useMemo(() => new Map(daily.map((d) => [d.date, d])), [daily]);
 

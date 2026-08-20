@@ -2377,3 +2377,10 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
 .cal-macro-dot { width: 6px; height: 6px; border-radius: 50%; }
 .cal-macro-title { font-size: 11.5px; color: var(--text); }
 .cal-macro-country { font-family: var(--mono); font-size: 9px; color: var(--faint); }
+
+/* Country benchmark provenance — live proxy vs the static fallback. */
+.ctry-idx-src {
+  margin-left: 6px; font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em;
+  color: var(--faint); border: 1px solid var(--line); border-radius: 3px; padding: 1px 4px;
+  text-transform: uppercase;
+}

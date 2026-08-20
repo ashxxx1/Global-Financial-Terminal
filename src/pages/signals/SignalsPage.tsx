@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useSeo } from "../../lib/seo";
-import { bootstrapSignals, isDemoMode } from "../../lib/signals/api";
+import { initSignals, isDemoMode } from "../../lib/signals/api";
 import { marketsForFilter } from "../../lib/signals/assets";
 import { computePerformance } from "../../lib/signals/performance";
 import { fmtPct, sameDay, todayKey, yesterdayKey } from "../../lib/signals/format";
@@ -26,8 +26,26 @@ export default function SignalsPage() {
   const [direction, setDirection] = useState("ALL");
   const [sort, setSort] = useState("confidence");
 
+  /**
+   * Demo status is state, not a call during render.
+   *
+   * The published record is fetched, so isDemoMode() is still true on first
+   * paint and the banner would read DEMO until something unrelated caused a
+   * re-render — mislabelling a real track record for as long as the user did
+   * not interact.
+   */
+  // undefined until the record has been checked. Defaulting either way
+  // mislabels the track record for the first paint, and "DEMO" on a real
+  // record is exactly as wrong as "LIVE" on a demo one.
+  const [demo, setDemo] = useState<boolean | undefined>(undefined);
   useEffect(() => {
-    setSignals(bootstrapSignals());
+    let live = true;
+    void initSignals().then((list) => {
+      if (!live) return;
+      setSignals(list);
+      setDemo(isDemoMode());
+    });
+    return () => { live = false; };
   }, []);
 
   const metrics = useMemo(() => {
@@ -106,7 +124,7 @@ export default function SignalsPage() {
           </div>
           <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, letterSpacing: "0.02em" }}>Market Signals</h1>
         </div>
-        <DemoBanner demo={isDemoMode()} />
+        {demo !== undefined && <DemoBanner demo={demo} />}
       </div>
 
       <motion.div 

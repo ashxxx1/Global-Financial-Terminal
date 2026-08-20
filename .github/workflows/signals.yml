@@ -1,0 +1,51 @@
+name: Signals
+
+# Publishes the shared signal track record.
+#
+# Runs while US and European markets are both open, because the model refuses
+# to issue for a closed market — correctly. Issuing after the close would mean
+# faking the market status, which is how a track record quietly becomes fiction.
+#
+# The commit IS the audit trail: git history shows when each signal was written
+# and proves it was not back-filled. A performance claim nobody can check is
+# worth nothing.
+
+on:
+  schedule:
+    - cron: "45 14 * * 1-5"   # 14:45 UTC — after the US open, before Europe closes
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: signals
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      - name: Resolve open signals and issue today's
+        run: node scripts/signals-run.mjs
+        env:
+          SITE: https://global-financial-terminal-eight.vercel.app
+
+      - name: Commit the record
+        run: |
+          if git diff --quiet -- public/signals/track-record.json; then
+            echo "no change to the record"
+            exit 0
+          fi
+          git config user.name "gft-signals"
+          git config user.email "signals@users.noreply.github.com"
+          git add public/signals/track-record.json
+          git commit -m "chore(signals): daily run $(date -u +%Y-%m-%d)"
+          git push

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { COUNTRIES, stocksOf } from "../lib/market";
+import { COUNTRIES, stocksOf, quoteFor, subscribe } from "../lib/market";
 import { useQuotes } from "../lib/hooks";
 import { getCountryStats } from "../data/countryStats";
 import { fetchCountryNews, agoLabel, type Article } from "../lib/news";
@@ -21,6 +21,26 @@ export default function Country() {
   const navigate = useNavigate();
   const meta = COUNTRIES[iso];
   const stats = useMemo(() => { try { return getCountryStats(iso); } catch { return null; } }, [iso]);
+
+  // Re-render on the shared market clock so the live benchmark figure moves.
+  const [tick, setTick] = useState(0);
+  useEffect(() => subscribe(() => setTick((t) => t + 1)), []);
+
+  /**
+   * The benchmark's move, live where we can price it.
+   *
+   * countryStats ships a static marketReturns figure that predates the ETF
+   * proxy feed. Now that the terminal prices 24 indices for real, showing a
+   * frozen number next to live stock prices on the same page is the kind of
+   * quiet staleness this product keeps having to hunt down.
+   */
+  const indexLive = useMemo(() => {
+    const name = meta?.marketIndex;
+    if (!name) return null;
+    const q = quoteFor(`IDX:${name}`);
+    if (!q || q.source !== "live") return null;
+    return { changePct: q.changePct, display: q.display };
+  }, [meta?.marketIndex, tick]);
   const symbols = useMemo(() => stocksOf(iso), [iso]);
   const quotes = useQuotes(symbols);
   // Keyword-shaped title: this is the template the programmatic country pages
@@ -74,7 +94,11 @@ export default function Country() {
         <span className="label">{iso}</span>
         {stats && (
           <span className={`chg ${up ? "up" : "down"}`}>
-            {meta?.marketIndex || "Index"} {up ? "+" : ""}{(stats.marketReturns?.["1D"] ?? 0).toFixed(2)}% 1D
+            {meta?.marketIndex || "Index"}{" "}
+            {indexLive
+              ? `${indexLive.changePct >= 0 ? "+" : ""}${indexLive.changePct.toFixed(2)}% 1D`
+              : `${up ? "+" : ""}${(stats.marketReturns?.["1D"] ?? 0).toFixed(2)}% 1D`}
+            <span className="ctry-idx-src">{indexLive ? "live" : "static"}</span>
           </span>
         )}
         {/* Item 2: the headline number here is the country index, which is

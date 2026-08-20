@@ -95,6 +95,25 @@ function setJsonLd(url: string, title: string, description: string): void {
   });
 }
 
+/**
+ * URL for a page-specific Open Graph card — growth-plan item 96.
+ *
+ * A shared link with a real card is clicked several times more often than a
+ * bare URL, and this is the cheapest distribution work available. Values are
+ * encoded here so callers cannot accidentally emit a broken query string.
+ */
+export function ogImageFor(opts: {
+  title: string; subtitle?: string; value?: string; change?: number; kind?: string;
+}): string {
+  const q = new URLSearchParams();
+  q.set("title", opts.title);
+  if (opts.subtitle) q.set("subtitle", opts.subtitle);
+  if (opts.value) q.set("value", opts.value);
+  if (typeof opts.change === "number" && Number.isFinite(opts.change)) q.set("change", opts.change.toFixed(2));
+  if (opts.kind) q.set("kind", opts.kind);
+  return `${SITE}/api/og?${q.toString()}`;
+}
+
 export function useSeo({ title, description, path, image, noindex }: Seo): void {
   useEffect(() => {
     const url = `${SITE}${path ?? window.location.pathname}`;

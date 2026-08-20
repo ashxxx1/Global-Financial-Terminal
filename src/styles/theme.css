@@ -2384,3 +2384,23 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
   color: var(--faint); border: 1px solid var(--line); border-radius: 3px; padding: 1px 4px;
   text-transform: uppercase;
 }
+
+/* ── Instrument pages (growth-plan items 92–94) ──────────────────────────── */
+
+.inst-prov { font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0 0 16px; max-width: 720px; }
+.inst-prov b { color: var(--text); font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; }
+.inst-prov span { color: var(--faint); }
+.inst-range-bar {
+  display: block; position: relative; height: 4px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--down), var(--line-strong), var(--up));
+}
+.inst-range-bar > span {
+  position: absolute; top: -4px; width: 2px; height: 12px; background: var(--text); border-radius: 1px;
+}
+.inst-range-ends {
+  display: flex; justify-content: space-between; margin-top: 7px;
+  font-family: var(--mono); font-size: 10px; color: var(--faint);
+}
+.inst-note { font-size: 11.5px; color: var(--muted); line-height: 1.6; margin: 0 0 16px; max-width: 720px; }
+.inst-links { display: flex; flex-wrap: wrap; gap: 6px; }
+.inst-foot { font-size: 11px; color: var(--faint); line-height: 1.6; margin-top: 20px; }

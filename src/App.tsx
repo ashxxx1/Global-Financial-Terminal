@@ -54,6 +54,7 @@ const Landing = lazy(() => import("./pages/Landing"));
 const Portfolio = lazy(() => import("./pages/Portfolio"));
 const Watchlist = lazy(() => import("./pages/Watchlist"));
 const Calendar = lazy(() => import("./pages/Calendar"));
+const Instrument = lazy(() => import("./pages/Instrument"));
 
 const ResearchWorkspace = lazy(() => import("./components/research/Workspace"));
 const ImpactCopilot = lazy(() => import("./pages/ImpactCopilot"));
@@ -150,6 +151,11 @@ function Shell() {
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/watchlist" element={<Watchlist />} />
             <Route path="/calendar" element={<Calendar />} />
+            {/* Programmatic instrument pages — growth-plan items 92, 93, 94. */}
+            <Route path="/index/:slug" element={<Instrument kind="index" />} />
+            <Route path="/fx/:slug" element={<Instrument kind="fx" />} />
+            <Route path="/crypto/:slug" element={<Instrument kind="crypto" />} />
+
 
             <Route path="/research/:symbol" element={<ResearchWorkspace />} />
             <Route path="/impact" element={<ImpactCopilot />} />

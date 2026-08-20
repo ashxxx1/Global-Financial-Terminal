@@ -10,7 +10,7 @@ import ProvenanceBadge from "../components/ProvenanceBadge";
 import Connections from "../components/Connections";
 import { connectionsForCountry } from "../lib/graph";
 import { useTerminal } from "../store";
-import { useSeo } from "../lib/seo";
+import { useSeo, ogImageFor } from "../lib/seo";
 import { track } from "../lib/analytics";
 
 const TABS = ["OVERVIEW", "AI PICKS", "MARKETS", "NEWS", "AI SUMMARY"] as const;
@@ -53,6 +53,14 @@ export default function Country() {
       ? `Live ${meta.name} market data: benchmark index, currency, top stocks, economic indicators and the latest financial news.`
       : "Live country market data, indices, currencies and financial news.",
     path: `/country/${iso}`,
+    image: meta
+      ? ogImageFor({
+          title: meta.name,
+          subtitle: `${meta.marketIndex || "Benchmark"} · live market data`,
+          change: indexLive?.changePct,
+          kind: "country",
+        })
+      : undefined,
   });
   const [tab, setTab] = useState<(typeof TABS)[number]>("OVERVIEW");
 

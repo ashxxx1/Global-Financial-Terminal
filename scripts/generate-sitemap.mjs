@@ -17,6 +17,25 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SITE = process.env.SITE_URL || "https://global-financial-terminal-eight.vercel.app";
 
+/**
+ * Index, currency-pair and crypto slugs, read from the same data module the app
+ * builds its registry from — so the sitemap cannot drift from the routes that
+ * actually resolve.
+ */
+async function instrumentPaths() {
+  const src = await readFile(path.join(ROOT, "src", "data", "mockData.js"), "utf8");
+  const names = [...src.matchAll(/name:\s*"([^"]+)",\s*value:/g)].map((m) => m[1]);
+  const slug = (x) => x.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const out = [];
+  for (const n of names) {
+    // Same classification the registry uses: crypto first, then FX, else index.
+    const seg = /^(BTC|ETH|SOL|XRP|ADA|DOGE|LTC|DOT)\b/i.test(n) ? "crypto"
+      : /\//.test(n) ? "fx" : "index";
+    out.push(`/${seg}/${slug(n)}`);
+  }
+  return [...new Set(out)];
+}
+
 /** Pull the country codes out of the data module without importing JSX/TS. */
 async function countryCodes() {
   const src = await readFile(path.join(ROOT, "src/data/countryStats.js"), "utf8");
@@ -45,6 +64,7 @@ async function main() {
   const glossarySlugs = await glossary();
   const today = new Date().toISOString().slice(0, 10);
   const codes = await countryCodes();
+  const instruments = await instrumentPaths();
   const syms = await tickers();
 
   const entries = [
@@ -71,6 +91,8 @@ async function main() {
     url("/privacy", { changefreq: "yearly", priority: "0.3", lastmod: today }),
     ...codes.map((c) => url(`/country/${c}`, { priority: "0.8", lastmod: today })),
     ...syms.map((s) => url(`/stock/${s}`, { priority: "0.6", lastmod: today })),
+    // Index, currency and crypto pages — growth-plan items 92, 93, 94.
+    ...instruments.map((pth) => url(pth, { changefreq: "hourly", priority: "0.7", lastmod: today })),
   ];
 
   const xml =

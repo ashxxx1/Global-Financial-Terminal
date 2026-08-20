@@ -7,7 +7,7 @@ import Connections from "../components/Connections";
 import TradingChart from "../components/charts/TradingChart";
 import { connectionsForStock } from "../lib/graph";
 import { useTerminal } from "../store";
-import { useSeo } from "../lib/seo";
+import { useSeo, ogImageFor } from "../lib/seo";
 import { track } from "../lib/analytics";
 import { freshness } from "../lib/marketStatus";
 import { setPrioritySymbol } from "../lib/feeds/stocks";
@@ -36,6 +36,12 @@ export default function Stock() {
       ? `${meta.name} (${sym}) live share price, interactive trading chart, sector context and related market connections.`
       : "Live share price and chart.",
     path: `/stock/${sym}`,
+    image: meta
+      ? ogImageFor({
+          title: meta.name, subtitle: `${sym} · ${meta.sector}`,
+          value: quote?.display, change: quote?.changePct, kind: "stock",
+        })
+      : undefined,
   });
   const { addWatch, removeWatch, inWatchlist } = useTerminal();
   const [showOptions, setShowOptions] = useState(false);

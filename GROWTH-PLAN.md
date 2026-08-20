@@ -188,15 +188,15 @@ with a big roadmap and no users.
 - [ ] 89. Build 68 country pages: "[Country] Stock Market Today — Live Index, Currency & News"
 - [ ] 90. Build ticker pages for every symbol in the registry
 - [ ] 91. Build sector pages
-- [ ] 92. Build index pages (S&P 500, FTSE, Nikkei…)
-- [ ] 93. Build currency pair pages
-- [ ] 94. Build crypto asset pages
+- [x] 92. Build index pages (S&P 500, FTSE, Nikkei…) — `/index/:slug`, e.g. `/index/s-p-500`. States the ETF proxy inline and refuses to rescale it into a synthetic index level
+- [x] 93. Build currency pair pages — `/fx/:slug`, e.g. `/fx/eur-usd`
+- [x] 94. Build crypto asset pages — `/crypto/:slug`, e.g. `/crypto/btc-usd`; these are genuinely LIVE from Binance and the badge says so
 - [ ] 95. Template comparison pages ("X vs Y")
-- [ ] 96. Auto-generated OG image per page (huge for social CTR)
+- [x] 96. Auto-generated OG image per page — `api/og.ts` generalises the old compare-only card to any page: title, subtitle, value and a signed change in the right colour. Wired into stock, country and instrument pages. Every value is XML-escaped and length-clamped because it all arrives from a query string. SVG rather than a rasteriser — renders in every scraper that matters, costs no dependency
 - [x] 97. Schema.org structured data — JSON-LD Organization/WebSite/WebPage graph emitted per route from `useSeo`, with SearchAction for a sitelinks searchbox
-- [ ] 98. Internal linking strategy across the page graph
+- [x] 98. Internal linking strategy across the page graph — instrument pages link to the countries they benchmark and the companies in that market; country pages link back through the benchmark. The sitemap generator reads the same data module the app builds its registry from, so it cannot drift from routes that actually resolve (728 URLs)
 - [ ] 99. Keyword research to prioritize which templates ship first
-- [ ] 100. Ensure pages have genuine unique value — thin programmatic pages get penalized
+- [x] 100. Ensure pages have genuine unique value — this shaped the instrument template. Each page carries what a search result cannot: the true source and its delay, the real one-year range and where the price sits in it, the ETF proxy named inline, and links into the connected markets. An unknown slug returns an honest 'not tracked' page rather than an empty shell
 
 ### Content & authority
 - [ ] 101. Launch a blog on the same domain

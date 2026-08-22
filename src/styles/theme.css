@@ -2262,13 +2262,24 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
 
 .pf-add { margin-top: 4px; }
 .pf-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
-.pf-field { display: flex; flex-direction: column; gap: 4px; }
+.pf-field { display: flex; flex-direction: column; gap: 4px; position: relative; }
 .pf-field span { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; color: var(--faint); }
 .pf-field input {
   width: 130px; padding: 7px 9px; border-radius: 5px; font-size: 13px;
   background: var(--panel); border: 1px solid var(--line); color: var(--text);
 }
 .pf-field input:focus { outline: 2px solid var(--text); outline-offset: 1px; }
+.pf-suggest {
+  position: absolute; top: 100%; left: 0; z-index: 8;
+  min-width: 130px; margin-top: 2px; padding: 4px 0;
+  background: var(--panel); border: 1px solid var(--line-strong); border-radius: 5px;
+}
+.pf-suggest-item {
+  display: block; width: 100%; text-align: left; padding: 6px 10px;
+  background: transparent; border: 0; color: var(--text);
+  font-family: var(--mono); font-size: 12px; cursor: pointer;
+}
+.pf-suggest-item:hover, .pf-suggest-item:focus { background: var(--line); }
 .pf-msg { font-size: 12px; color: var(--text); margin: 10px 0 0; }
 .pf-errors { margin: 8px 0 0; padding-left: 18px; }
 .pf-errors li { font-size: 11.5px; color: var(--down); line-height: 1.5; }

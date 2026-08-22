@@ -11,7 +11,7 @@
 
 // P0-1: compare pairs + symbol registration
 import { POPULAR_COMPARE_PAIRS } from "../src/lib/charts/compareColors";
-import { metaFor, allStockSymbols } from "../src/lib/market";
+import { metaFor, allStockSymbols, quoteFor } from "../src/lib/market";
 
 // P0-2: signals → chart routing
 import { SIGNAL_ASSETS } from "../src/lib/signals/assets";
@@ -24,6 +24,8 @@ import { getEconCalendar } from "../src/data/econCalendar";
 
 // P1-3: news relevance
 import { isRelevant } from "../src/lib/research/analyzers/newsRelevance";
+
+import { tickerSuggestions } from "../src/lib/portfolio/resolve";
 
 /* ── Test runner ───────────────────────────────────────────────────────── */
 
@@ -200,6 +202,74 @@ function check(name: string, cond: boolean, detail = "") {
     topMover === "NVDA",
     `got ${topMover}`,
   );
+}
+
+/* ── Official 2026 release calendar (verification report) ──────────────── */
+{
+  const now = Date.parse("2026-08-22T12:00:00Z");
+  const cal = getEconCalendar(now);
+  const ymd = (t: number) => new Date(t).toISOString().slice(0, 10);
+
+  const usCpi = cal.filter((e) => e.title === "US CPI");
+  check("US CPI next print is 11 Sep 2026 (BLS)", usCpi.some((e) => ymd(e.time) === "2026-09-11"));
+  check("US CPI is not dated 22 Aug 2026", usCpi.every((e) => ymd(e.time) !== "2026-08-22"));
+
+  const ez = cal.filter((e) => e.title === "Eurozone CPI");
+  check("Eurozone CPI next print is 1 Sep 2026 flash (Eurostat)", ez.some((e) => ymd(e.time) === "2026-09-01"));
+  check("Eurozone CPI is not dated 23 Aug 2026", ez.every((e) => ymd(e.time) !== "2026-08-23"));
+
+  const uk = cal.filter((e) => e.title === "UK CPI");
+  check("UK CPI next print is 16 Sep 2026 (ONS)", uk.some((e) => ymd(e.time) === "2026-09-16"));
+  check("UK CPI is not dated 24 Aug 2026", uk.every((e) => ymd(e.time) !== "2026-08-24"));
+
+  const nfp = cal.filter((e) => e.title === "US Nonfarm payrolls");
+  check("US NFP next print is 4 Sep 2026 (BLS)", nfp.some((e) => ymd(e.time) === "2026-09-04"));
+  check("US NFP is not dated 25 Aug 2026", nfp.every((e) => ymd(e.time) !== "2026-08-25"));
+}
+
+/* ── Snapshot levels (Aug 2026 session) ───────────────────────────────── */
+{
+  const spx = metaFor("IDX:S&P 500");
+  check("S&P 500 snapshot is ~7,708 not ~5,500", !!spx && spx.base > 7000 && spx.base < 8000, `base=${spx?.base}`);
+  const dax = metaFor("IDX:DAX 40");
+  check("DAX snapshot is ~26,091 not ~18,200", !!dax && dax.base > 25000 && dax.base < 27000, `base=${dax?.base}`);
+  const gold = metaFor("IDX:GOLD");
+  check("Gold snapshot is ~$4,488 not ~$2,380", !!gold && gold.base > 4000 && gold.base < 5000, `base=${gold?.base}`);
+  const vix = metaFor("IDX:VIX");
+  check("VIX snapshot is in the mid-teens", !!vix && vix.base >= 15 && vix.base <= 16.5, `base=${vix?.base}`);
+  const hsi = metaFor("IDX:HANG SENG");
+  check("Hang Seng snapshot is ~25,495", !!hsi && hsi.base > 25000 && hsi.base < 26000, `base=${hsi?.base}`);
+
+  const xom = metaFor("XOM");
+  check("XOM snapshot is ~$164.77 not ~$117", !!xom && xom.base > 150 && xom.base < 180, `base=${xom?.base}`);
+  const cvx = metaFor("CVX");
+  check("CVX snapshot is ~$205 not ~$156", !!cvx && cvx.base > 190 && cvx.base < 220, `base=${cvx?.base}`);
+  const ongc = metaFor("ONGC");
+  check("ONGC snapshot is ~₹239 not ~₹266", !!ongc && ongc.base > 220 && ongc.base < 250, `base=${ongc?.base}`);
+  const aramco = metaFor("2222");
+  check("Aramco snapshot is ~SAR 26.40 not ~29.50", !!aramco && aramco.base > 25 && aramco.base < 28, `base=${aramco?.base}`);
+
+  const spy = quoteFor("SPY");
+  check("SPY ETF price is hundreds, not the S&P 500 level", !!spy && spy.price > 100 && spy.price < 2000, `price=${spy?.price}`);
+}
+
+/* ── SPY / QQQ signals quote the ETF, not the index ────────────────────── */
+{
+  const spy = SIGNAL_ASSETS.find((a) => a.symbol === "SPY");
+  const qqq = SIGNAL_ASSETS.find((a) => a.symbol === "QQQ");
+  check("SPY signal quoteSymbol is SPY", spy?.quoteSymbol === "SPY", `got ${spy?.quoteSymbol}`);
+  check("QQQ signal quoteSymbol is QQQ", qqq?.quoteSymbol === "QQQ", `got ${qqq?.quoteSymbol}`);
+  check("SPY quoteSymbol resolves", metaFor("SPY") !== null);
+}
+
+/* ── AAPL must not resolve to AAL ──────────────────────────────────────── */
+{
+  const all = allStockSymbols();
+  const hits = tickerSuggestions("AAPL", all, 8);
+  check("AAPL suggestions include AAPL", hits.includes("AAPL"));
+  check("AAPL suggestions do not include AAL", !hits.includes("AAL"));
+  check("AAPL is Apple, not Anglo American", metaFor("AAPL")?.name.includes("Apple") === true);
+  check("AAL remains Anglo American", metaFor("AAL")?.name.includes("Anglo") === true);
 }
 
 /* ── Report ────────────────────────────────────────────────────────────── */

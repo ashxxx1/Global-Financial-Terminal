@@ -11,9 +11,9 @@
  * rather than quietly passing an ETF off as an index:
  *
  *   - The PRICE shown is the ETF's real price. It is not the index level; SPY
- *     trades near 548 while the S&P 500 is near 5,480. We do not scale it into
- *     a fake index level, because a synthesised number that looks official is
- *     exactly the thing /data-sources exists to prevent.
+ *     trades near the S&P 500 / 10 while the index itself is in the thousands.
+ *     We do not scale it into a fake index level, because a synthesised number
+ *     that looks official is exactly the thing /data-sources exists to prevent.
  *   - The CHANGE is the ETF's real daily change, which is what tracking is for
  *     and is accurate to within tracking error and FX.
  *   - Provenance renders "via SPY" so the substitution is visible on screen,

@@ -32,8 +32,8 @@ export const SIGNAL_ASSETS: SignalAsset[] = [
   { assetId: "fut-es", symbol: "ES1!", name: "E-mini S&P 500", assetType: "FUTURES", market: "US", exchange: "CME", timezone: "America/Chicago", marketOpenHour: 17, marketOpenMinute: 0, quoteSymbol: "IDX:S&P 500" },
   { assetId: "fut-nq", symbol: "NQ1!", name: "E-mini Nasdaq-100", assetType: "FUTURES", market: "US", exchange: "CME", timezone: "America/Chicago", marketOpenHour: 17, marketOpenMinute: 0, quoteSymbol: "IDX:NASDAQ" },
   // Options
-  { assetId: "opt-spy", symbol: "SPY", name: "SPY Options", assetType: "OPTIONS", market: "US", exchange: "CBOE", timezone: "America/New_York", marketOpenHour: 9, marketOpenMinute: 30, quoteSymbol: "IDX:S&P 500" },
-  { assetId: "opt-qqq", symbol: "QQQ", name: "QQQ Options", assetType: "OPTIONS", market: "US", exchange: "CBOE", timezone: "America/New_York", marketOpenHour: 9, marketOpenMinute: 30, quoteSymbol: "IDX:NASDAQ" },
+  { assetId: "opt-spy", symbol: "SPY", name: "SPY Options", assetType: "OPTIONS", market: "US", exchange: "CBOE", timezone: "America/New_York", marketOpenHour: 9, marketOpenMinute: 30, quoteSymbol: "SPY" },
+  { assetId: "opt-qqq", symbol: "QQQ", name: "QQQ Options", assetType: "OPTIONS", market: "US", exchange: "CBOE", timezone: "America/New_York", marketOpenHour: 9, marketOpenMinute: 30, quoteSymbol: "QQQ" },
 ];
 
 export function assetById(id: string): SignalAsset | undefined {

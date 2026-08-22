@@ -20,8 +20,8 @@ export const STOCKS_BY_COUNTRY = {
     { ticker: "JPM",    name: "JPMorgan Chase",        price: 234.56,  changePct: +0.78, currency: "$", sector: "Banking & Finance" },
     { ticker: "BAC",    name: "Bank of America",       price: 42.34,   changePct: +0.45, currency: "$", sector: "Banking & Finance" },
     { ticker: "GS",     name: "Goldman Sachs",         price: 512.34,  changePct: +0.92, currency: "$", sector: "Banking & Finance" },
-    { ticker: "XOM",    name: "ExxonMobil Corp.",      price: 117.89,  changePct: -0.45, currency: "$", sector: "Energy" },
-    { ticker: "CVX",    name: "Chevron Corp.",         price: 156.78,  changePct: -0.34, currency: "$", sector: "Energy" },
+    { ticker: "XOM",    name: "ExxonMobil Corp.",      price: 164.77,  changePct: -0.45, currency: "$", sector: "Energy" },
+    { ticker: "CVX",    name: "Chevron Corp.",         price: 205.40,  changePct: -0.34, currency: "$", sector: "Energy" },
     { ticker: "UNH",    name: "UnitedHealth Group",    price: 512.34,  changePct: -0.67, currency: "$", sector: "Healthcare" },
     { ticker: "JNJ",    name: "Johnson & Johnson",     price: 145.67,  changePct: +0.23, currency: "$", sector: "Healthcare" },
     { ticker: "PG",     name: "Procter & Gamble",      price: 167.89,  changePct: +0.34, currency: "$", sector: "Consumer" },
@@ -31,7 +31,7 @@ export const STOCKS_BY_COUNTRY = {
     { ticker: "RTX",    name: "RTX Corp.",             price: 123.45,  changePct: +0.89, currency: "$", sector: "Defence" },
     { ticker: "BRK.B",  name: "Berkshire Hathaway",    price: 398.45,  changePct: +0.34, currency: "$", sector: "Banking & Finance" },
     { ticker: "AMD",    name: "Advanced Micro Devices", price: 164.23,  changePct: +3.12, currency: "$", sector: "Technology" },
-    { ticker: "SPY",    name: "SPDR S&P 500 ETF",       price: 548.67,  changePct: +0.45, currency: "$", sector: "Banking & Finance" },
+    { ticker: "SPY",    name: "SPDR S&P 500 ETF",       price: 770.80,  changePct: +0.45, currency: "$", sector: "Banking & Finance" },
     { ticker: "QQQ",    name: "Invesco QQQ Trust",       price: 478.12,  changePct: +0.78, currency: "$", sector: "Technology" },
   ],
 
@@ -118,7 +118,7 @@ export const STOCKS_BY_COUNTRY = {
     { ticker: "BHARTIARTL",name: "Bharti Airtel",       price: 1678.34, changePct: +1.45, currency: "₹", sector: "Telecom" },
     { ticker: "TATAMOTORS",name: "Tata Motors",         price: 1023.45, changePct: +2.34, currency: "₹", sector: "Automotive" },
     { ticker: "MARUTI",    name: "Maruti Suzuki",       price: 12456.78,changePct: +1.12, currency: "₹", sector: "Automotive" },
-    { ticker: "ONGC",      name: "ONGC Ltd.",           price: 267.89,  changePct: +0.45, currency: "₹", sector: "Energy" },
+    { ticker: "ONGC",      name: "ONGC Ltd.",           price: 239.00,  changePct: -0.45, currency: "₹", sector: "Energy" },
     { ticker: "HINDUNILVR",name: "Hindustan Unilever",  price: 2456.78, changePct: -0.34, currency: "₹", sector: "Consumer" },
     { ticker: "ADANIENT",  name: "Adani Enterprises",   price: 2867.34, changePct: +2.34, currency: "₹", sector: "Industrial" },
     { ticker: "BAJFINANCE",name: "Bajaj Finance",       price: 7234.56, changePct: +0.56, currency: "₹", sector: "Banking & Finance" },
@@ -184,7 +184,7 @@ export const STOCKS_BY_COUNTRY = {
   ],
 
   SA: [
-    { ticker: "2222",  name: "Saudi Aramco",           price: 29.45,   changePct: +1.12, currency: "SAR", sector: "Energy" },
+    { ticker: "2222",  name: "Saudi Aramco",           price: 26.40,   changePct: -0.90, currency: "SAR", sector: "Energy" },
     { ticker: "2010",  name: "SABIC",                  price: 87.34,   changePct: +0.67, currency: "SAR", sector: "Industrial" },
     { ticker: "1180",  name: "Al Rajhi Bank",          price: 89.45,   changePct: +1.23, currency: "SAR", sector: "Banking & Finance" },
     { ticker: "1050",  name: "NCB / SNB",              price: 34.56,   changePct: +0.89, currency: "SAR", sector: "Banking & Finance" },

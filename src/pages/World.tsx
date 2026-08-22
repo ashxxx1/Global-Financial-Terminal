@@ -20,7 +20,7 @@ function quakesFromEvents(events: Envelope[]): QuakeEvent[] {
     });
 }
 
-import { getEconCalendar, colorForEconKind } from "../data/econCalendar";
+import { getEconCalendar, colorForEconKind, formatEconStamp } from "../data/econCalendar";
 
 const OVERLAYS: { id: OverlayMode; label: string; live?: boolean; demo?: boolean }[] = [
   { id: "market", label: "MARKET PERF" },
@@ -123,7 +123,7 @@ export default function World() {
             <div className="panel" style={{ padding: "10px 12px" }}>
               <div className="label" style={{ color: "var(--gold)" }}>ECONOMIC CALENDAR</div>
               <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 4, lineHeight: 1.4 }}>
-                CPI · central banks · earnings — pins on the globe. Scheduled seeds until a live calendar feed is wired.
+                CPI and jobs dates follow official BLS, ONS and Eurostat calendars. Other pins are published schedules. Times are shown in the release timezone.
               </div>
             </div>
             {calendar.slice(0, 8).map((e) => (
@@ -138,7 +138,7 @@ export default function World() {
                   <span className="label" style={{ color: colorForEconKind(e.kind) }}>● {e.kind}</span>
                   <span className="label">{e.country}</span>
                   <span className="label" style={{ marginLeft: "auto" }}>
-                    {new Date(e.time).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hour12: false })}
+                    {formatEconStamp(e)}
                   </span>
                 </div>
                 <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text)", lineHeight: 1.35 }}>{e.title}</div>

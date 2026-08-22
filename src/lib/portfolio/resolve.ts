@@ -75,3 +75,21 @@ export function resolveSymbol(raw: string, brokerClean?: (s: string) => string):
 
   return { symbol: null, kind: "none" };
 }
+
+/**
+ * Autocomplete for the portfolio ticker field.
+ *
+ * Native <datalist> treats a shorter listed ticker as a match for a longer
+ * typed one (AAL completes when the user types AAPL). Suggestions therefore
+ * never include a proper prefix of the current query, and an exact hit always
+ * comes first.
+ */
+export function tickerSuggestions(query: string, symbols: string[], limit = 6): string[] {
+  const q = query.trim().toUpperCase();
+  if (!q) return [];
+  const exact = symbols.filter((s) => s === q);
+  const prefixed = symbols.filter(
+    (s) => s !== q && s.startsWith(q) && !(q.startsWith(s) && s.length < q.length),
+  );
+  return [...exact, ...prefixed].slice(0, limit);
+}

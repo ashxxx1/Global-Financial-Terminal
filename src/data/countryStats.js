@@ -1,17 +1,17 @@
 // Standalone data module — no app imports.
 
 export const indicesData = [
-  { name: "S&P 500", value: "5,487.23", change: "+1.24%", isPositive: true },
-  { name: "DOW JONES", value: "43,218.45", change: "+0.87%", isPositive: true },
-  { name: "NASDAQ", value: "19,876.54", change: "+1.67%", isPositive: true },
-  { name: "FTSE 100", value: "8,143.76", change: "-0.29%", isPositive: false },
-  { name: "DAX 40", value: "18,234.56", change: "-0.78%", isPositive: false },
-  { name: "NIKKEI 225", value: "39,847.12", change: "+0.79%", isPositive: true },
-  { name: "HANG SENG", value: "18,342.11", change: "+0.43%", isPositive: true },
-  { name: "SSE COMP", value: "3,124.56", change: "+1.47%", isPositive: true },
+  { name: "S&P 500", value: "7,707.98", change: "+1.51%", isPositive: true },
+  { name: "DOW JONES", value: "53,463.05", change: "+0.85%", isPositive: true },
+  { name: "NASDAQ", value: "26,331.09", change: "+1.37%", isPositive: true },
+  { name: "FTSE 100", value: "10,743.35", change: "-0.62%", isPositive: false },
+  { name: "DAX 40", value: "26,091.33", change: "-0.64%", isPositive: false },
+  { name: "NIKKEI 225", value: "65,326.42", change: "-3.20%", isPositive: false },
+  { name: "HANG SENG", value: "25,495.07", change: "+0.09%", isPositive: true },
+  { name: "SSE COMP", value: "3,894.42", change: "-2.40%", isPositive: false },
   { name: "CAC 40", value: "7,823.45", change: "-0.44%", isPositive: false },
   { name: "ASX 200", value: "7,834.21", change: "+0.73%", isPositive: true },
-  { name: "NIFTY 50", value: "24,567.89", change: "+0.96%", isPositive: true },
+  { name: "NIFTY 50", value: "24,078.30", change: "-0.20%", isPositive: false },
   { name: "BOVESPA", value: "128,456", change: "-0.95%", isPositive: false },
   { name: "TSX COMP", value: "22,145.67", change: "+0.40%", isPositive: true },
   { name: "KOSPI", value: "2,847.23", change: "+1.23%", isPositive: true },
@@ -20,8 +20,8 @@ export const indicesData = [
 
 export const topTicks = [
   { name: "BTC", value: "$67,234", change: "+2.4%", isPositive: true },
-  { name: "GOLD", value: "$2,387", change: "+0.8%", isPositive: true },
-  { name: "VIX", value: "14.32", change: "-3.2%", isPositive: true },
+  { name: "GOLD", value: "$4,488", change: "+0.8%", isPositive: true },
+  { name: "VIX", value: "15.62", change: "-1.2%", isPositive: true },
 ];
 
 // ─── Accurate country stats (IMF/World Bank 2024 data) ───────────────────────

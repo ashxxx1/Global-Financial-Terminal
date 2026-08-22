@@ -162,9 +162,9 @@ export default function Calendar() {
           <div className="panel-head"><span className="panel-title">Macro schedule</span></div>
           <div style={{ padding: "6px 12px 12px" }}>
             <p className="cal-src warn">
-              Projected, not confirmed. These are rolled forward from a seed schedule
-              because we have no licensed macro-calendar feed. Treat the dates as
-              indicative and check the central bank before acting on one.
+              CPI and nonfarm payrolls follow the official BLS, ONS and Eurostat
+              2026 calendars. Other entries are published central-bank or earnings
+              schedules, not a live licensed feed — confirm the source before acting.
             </p>
             {upcomingMacro.map((e: EconCalendarEvent) => (
               <div key={e.id} className="cal-macro">

@@ -4,6 +4,7 @@ import { useTerminal } from "../store";
 import { subscribe, metaFor, allStockSymbols } from "../lib/market";
 import { valuePortfolio, parseHoldingsCsv } from "../lib/portfolio/compute";
 import { BROKERS } from "../lib/portfolio/brokers";
+import { tickerSuggestions } from "../lib/portfolio/resolve";
 import { ensureRates, PEGGED, ratesAsOf } from "../lib/fxRates";
 import { useSeo } from "../lib/seo";
 
@@ -223,11 +224,10 @@ function AddPanel({ onAdd, onImport, feedback, setFeedback }: {
   const msg = feedback?.msg ?? null;
   const errors = feedback?.errors ?? [];
 
-  const suggestions = useMemo(() => {
-    const q = symbol.trim().toUpperCase();
-    if (q.length < 1) return [];
-    return allStockSymbols().filter((s) => s.startsWith(q)).slice(0, 6);
-  }, [symbol]);
+  const suggestions = useMemo(
+    () => tickerSuggestions(symbol, allStockSymbols(), 6),
+    [symbol],
+  );
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -269,8 +269,45 @@ function AddPanel({ onAdd, onImport, feedback, setFeedback }: {
       <form onSubmit={submit} className="pf-form">
         <label className="pf-field">
           <span>Symbol</span>
-          <input value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder="AAPL" list="pf-syms" />
-          <datalist id="pf-syms">{suggestions.map((s) => <option key={s} value={s} />)}</datalist>
+          <input
+            value={symbol}
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            placeholder="AAPL"
+            onChange={(e) => {
+              const next = e.target.value.toUpperCase();
+              const prev = symbol.trim().toUpperCase();
+              const inputType = (e.nativeEvent as InputEvent).inputType || "";
+              const deleted = inputType.startsWith("delete");
+              // Chrome <datalist>/autocomplete can replace AAPL with AAL because
+              // AAL is a prefix. Ignore that replacement unless the user deleted.
+              if (
+                !deleted &&
+                prev.length > next.length &&
+                prev.startsWith(next) &&
+                metaFor(prev) &&
+                metaFor(next)
+              ) {
+                return;
+              }
+              setSymbol(e.target.value);
+            }}
+          />
+          {suggestions.length > 0 && (
+            <div className="pf-suggest" role="listbox">
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className="pf-suggest-item"
+                  onMouseDown={(ev) => { ev.preventDefault(); setSymbol(s); }}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
         </label>
         <label className="pf-field">
           <span>Shares</span>

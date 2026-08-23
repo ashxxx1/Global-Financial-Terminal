@@ -16,7 +16,8 @@
     "setup": "npm ci && git config core.hooksPath .githooks && echo \"\u2714 hooks installed \u2014 pre-push now runs npm run verify\"",
     "research:selftest": "node scripts/research-selftest.mjs",
     "research:test": "node scripts/research-tests.mjs",
-    "impact:test": "npx --yes tsx scripts/impact-tests.ts"
+    "impact:test": "npx --yes tsx scripts/impact-tests.ts",
+    "anomaly:test": "npx --yes tsx scripts/anomaly-tests.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.0",

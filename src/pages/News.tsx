@@ -6,7 +6,7 @@
  * article source links, auto-refresh countdown, smooth stagger animations.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSeo } from "../lib/seo";
 import {
   fetchGlobalNews,
@@ -41,16 +41,22 @@ export default function News() {
     path: "/news",
   });
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [articles, setArticles] = useState<LiveArticle[]>([]);
   const [breaking, setBreaking] = useState<LiveArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
   const [category, setCategory] = useState<Category>("ALL");
   const [sentiment, setSentiment] = useState<SentimentFilter>("ALL");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") ?? "");
   const [countdown, setCountdown] = useState(300); // seconds
   const [heroIdx, setHeroIdx] = useState(0);
   const lastFetch = useRef(0);
+
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q != null) setSearchQuery(q);
+  }, [searchParams]);
 
   // Merge SIM fallback articles into LiveArticle shape for unified rendering
   const simFallback = useMemo(() => {

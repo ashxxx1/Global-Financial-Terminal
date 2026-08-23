@@ -21,6 +21,15 @@ interface Entry {
 
 const ENTRIES: Entry[] = [
   {
+    date: "2026-08-23",
+    version: "1.7",
+    title: "GFT Anomaly Detector on Markets",
+    items: [
+      { kind: "new", text: "Markets now surfaces the top five statistical anomalies — extreme price and volume prints, news-versus-price splits, sector residuals, broken pair correlations, and macro pattern breaks — ranked by a 0–100 score." },
+      { kind: "new", text: "Investigate opens an evidence drawer: summary, interpretation, factor table (normal vs current), possible explanations, and jumps to Chart, News, or Impact. Framing is evidence, not a trade call." },
+    ],
+  },
+  {
     date: "2026-08-19",
     version: "1.6",
     title: "Your portfolio, and your broker's own file",

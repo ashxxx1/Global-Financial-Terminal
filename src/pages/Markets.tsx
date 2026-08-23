@@ -7,6 +7,7 @@ import ProvenanceBadge from "../components/ProvenanceBadge";
 import AlertManager, { RecentlyViewed } from "../components/AlertManager";
 import SectorHeatmap from "../components/SectorHeatmap";
 import PulseGauge from "../components/PulseGauge";
+import AnomaliesWidget from "../components/anomalies/AnomaliesWidget";
 import { useSeo } from "../lib/seo";
 import { subscribe } from "../lib/market";
 import { useEffect } from "react";
@@ -19,7 +20,7 @@ export default function Markets() {
   const savedCompare = useTerminal((s) => s.savedCompare);
   useSeo({
     title: "Global Markets — Indices, FX, Crypto & Commodities",
-    description: "Live global market data: world indices, currencies, crypto and commodities, plus a sector heat map and market-pulse gauge.",
+    description: "Live global market data: world indices, currencies, crypto and commodities, plus GFT anomalies, a sector heat map and market-pulse gauge.",
     path: "/markets",
   });
   const all = useIndices();
@@ -72,13 +73,17 @@ export default function Markets() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 260px", gap: 14, marginBottom: 14, alignItems: "start" }}>
+      <div style={{ marginBottom: 14 }}>
+        <AnomaliesWidget limit={5} />
+      </div>
+
+      <div className="markets-pulse-grid">
         <SectorHeatmap onOpen={(sym) => navigate(`/stock/${sym}`)} />
         <PulseGauge />
       </div>
 
       {/* Items 72 & 78 — alerts you can see and manage, and a way back in. */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 14, marginBottom: 14, alignItems: "start" }}>
+      <div className="markets-tools-grid">
         <AlertManager />
         <RecentlyViewed />
       </div>

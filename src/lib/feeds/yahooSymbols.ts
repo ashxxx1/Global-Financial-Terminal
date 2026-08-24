@@ -516,6 +516,18 @@ export const YAHOO_SYMBOLS: Record<string, { y: string; cur: string }> = {
   "RU:ALRS": { y: "ALRS.ME", cur: "RUB" },
   // ── UA ── MHP trades in London, not Kyiv.
   "UA:MHP": { y: "MHPC.IL", cur: "USD" },
+  // ── Added 2026-08-24, each verified live before inclusion ──
+  "AU:MQG": { y: "MQG.AX", cur: "AUD" },
+  "FR:AI": { y: "AI.PA", cur: "EUR" },
+  "FR:SU": { y: "SU.PA", cur: "EUR" },
+  "GB:REL": { y: "REL.L", cur: "GBp" },
+  "IN:ITC": { y: "ITC.NS", cur: "INR" },
+  "IN:TITAN": { y: "TITAN.NS", cur: "INR" },
+  "JP:7974": { y: "7974.T", cur: "JPY" },
+  "JP:8058": { y: "8058.T", cur: "JPY" },
+  "KR:373220": { y: "373220.KS", cur: "KRW" },
+  "MX:GFNORTEO": { y: "GFNORTEO.MX", cur: "MXN" },
+  "NL:INGA": { y: "INGA.AS", cur: "EUR" },
 };
 
 /** The Yahoo symbol for one of our tickers, if it has a verified local listing. */

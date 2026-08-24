@@ -2,6 +2,7 @@
  * Impact Copilot entry: question + scenario + optional positions → analysis.
  */
 import { extractEvent } from "./extract";
+import type { Source } from "../market";
 import { applyScenario, scenarioFromExtracted } from "./scenario";
 import { catalogNote, rankCompanies } from "./universe";
 import { enrichSymbol } from "./enrich";
@@ -147,8 +148,8 @@ export async function analyzeImpact(
   ];
   if (caveatCatalog) caveats.push(caveatCatalog);
   for (const e of enriched) if (e.e.caveat) caveats.push(`${e.c.symbol}: ${e.e.caveat}`);
-  const simN = enriched.filter((x) => x.e.quoteSource === "sim").length;
-  if (simN) caveats.push(`${simN} quotes are simulated (labelled SIM) because no live feed is attached for those listings.`);
+  const noPriceN = enriched.filter((x) => x.e.quoteSource === "pending" || x.e.quoteSource === "unavailable").length;
+  if (noPriceN) caveats.push(`${noPriceN} of these companies show no price: either a feed covers them and has not answered yet, or no feed reaches their exchange. No figure is substituted for them.`);
 
   const watch = [
     ...extracted.macro,

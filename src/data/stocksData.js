@@ -10,6 +10,24 @@ export const STOCKS_BY_COUNTRY = {
   /* ─── AMERICAS ─────────────────────────────────────────────────────────── */
 
   US: [
+    { ticker: "AVGO", name: "Broadcom Inc.", price: 360.73, changePct: +0.00, currency: "$", sector: "Technology" },
+    { ticker: "ORCL", name: "Oracle Corp.", price: 143.37, changePct: +0.00, currency: "$", sector: "Technology" },
+    { ticker: "CRM", name: "Salesforce Inc.", price: 209.56, changePct: +0.00, currency: "$", sector: "Technology" },
+    { ticker: "AMD", name: "Advanced Micro Devices", price: 457.78, changePct: +0.00, currency: "$", sector: "Technology" },
+    { ticker: "ADBE", name: "Adobe Inc.", price: 276.11, changePct: +0.00, currency: "$", sector: "Technology" },
+    { ticker: "NFLX", name: "Netflix Inc.", price: 80.52, changePct: +0.00, currency: "$", sector: "Media" },
+    { ticker: "COST", name: "Costco Wholesale", price: 969.09, changePct: +0.00, currency: "$", sector: "Consumer" },
+    { ticker: "WMT", name: "Walmart Inc.", price: 105.45, changePct: +0.00, currency: "$", sector: "Consumer" },
+    { ticker: "LLY", name: "Eli Lilly & Co.", price: 1245.53, changePct: +0.00, currency: "$", sector: "Healthcare" },
+    { ticker: "ABBV", name: "AbbVie Inc.", price: 265.55, changePct: +0.00, currency: "$", sector: "Healthcare" },
+    { ticker: "MRK", name: "Merck & Co.", price: 151.03, changePct: +0.00, currency: "$", sector: "Healthcare" },
+    { ticker: "BAC", name: "Bank of America", price: 62.16, changePct: +0.00, currency: "$", sector: "Banking & Finance" },
+    { ticker: "GS", name: "Goldman Sachs", price: 1032.99, changePct: +0.00, currency: "$", sector: "Banking & Finance" },
+    { ticker: "MS", name: "Morgan Stanley", price: 213.42, changePct: +0.00, currency: "$", sector: "Banking & Finance" },
+    { ticker: "XOM", name: "Exxon Mobil", price: 163.37, changePct: +0.00, currency: "$", sector: "Energy" },
+    { ticker: "CAT", name: "Caterpillar Inc.", price: 805.95, changePct: +0.00, currency: "$", sector: "Industrial" },
+    { ticker: "BA", name: "Boeing Co.", price: 209.7, changePct: +0.00, currency: "$", sector: "Defence" },
+    { ticker: "GE", name: "GE Aerospace", price: 341.35, changePct: +0.00, currency: "$", sector: "Industrial" },
     { ticker: "AAPL",   name: "Apple Inc.",           price: 212.49,  changePct: +2.34, currency: "$", sector: "Technology" },
     { ticker: "MSFT",   name: "Microsoft Corp.",       price: 431.87,  changePct: +1.12, currency: "$", sector: "Technology" },
     { ticker: "NVDA",   name: "Nvidia Corp.",          price: 134.25,  changePct: +4.67, currency: "$", sector: "Technology" },
@@ -18,9 +36,6 @@ export const STOCKS_BY_COUNTRY = {
     { ticker: "AMZN",   name: "Amazon.com Inc.",       price: 198.73,  changePct: +0.89, currency: "$", sector: "Consumer" },
     { ticker: "TSLA",   name: "Tesla Inc.",            price: 245.67,  changePct: -1.23, currency: "$", sector: "Automotive" },
     { ticker: "JPM",    name: "JPMorgan Chase",        price: 234.56,  changePct: +0.78, currency: "$", sector: "Banking & Finance" },
-    { ticker: "BAC",    name: "Bank of America",       price: 42.34,   changePct: +0.45, currency: "$", sector: "Banking & Finance" },
-    { ticker: "GS",     name: "Goldman Sachs",         price: 512.34,  changePct: +0.92, currency: "$", sector: "Banking & Finance" },
-    { ticker: "XOM",    name: "ExxonMobil Corp.",      price: 164.77,  changePct: -0.45, currency: "$", sector: "Energy" },
     { ticker: "CVX",    name: "Chevron Corp.",         price: 205.40,  changePct: -0.34, currency: "$", sector: "Energy" },
     { ticker: "UNH",    name: "UnitedHealth Group",    price: 512.34,  changePct: -0.67, currency: "$", sector: "Healthcare" },
     { ticker: "JNJ",    name: "Johnson & Johnson",     price: 145.67,  changePct: +0.23, currency: "$", sector: "Healthcare" },
@@ -30,40 +45,42 @@ export const STOCKS_BY_COUNTRY = {
     { ticker: "LMT",    name: "Lockheed Martin",       price: 456.78,  changePct: +1.23, currency: "$", sector: "Defence" },
     { ticker: "RTX",    name: "RTX Corp.",             price: 123.45,  changePct: +0.89, currency: "$", sector: "Defence" },
     { ticker: "BRK.B",  name: "Berkshire Hathaway",    price: 398.45,  changePct: +0.34, currency: "$", sector: "Banking & Finance" },
-    { ticker: "AMD",    name: "Advanced Micro Devices", price: 164.23,  changePct: +3.12, currency: "$", sector: "Technology" },
     { ticker: "SPY",    name: "SPDR S&P 500 ETF",       price: 770.80,  changePct: +0.45, currency: "$", sector: "Banking & Finance" },
     { ticker: "QQQ",    name: "Invesco QQQ Trust",       price: 478.12,  changePct: +0.78, currency: "$", sector: "Technology" },
   ],
 
   GB: [
+    { ticker: "AZN", name: "AstraZeneca", price: 121.1, changePct: +0.00, currency: "£", sector: "Healthcare" },
+    { ticker: "ULVR", name: "Unilever plc", price: 47.83, changePct: +0.00, currency: "£", sector: "Consumer" },
+    { ticker: "RIO", name: "Rio Tinto plc", price: 76.66, changePct: +0.00, currency: "£", sector: "Mining & Resources" },
+    { ticker: "REL", name: "RELX plc", price: 26.52, changePct: +0.00, currency: "£", sector: "Media" },
     { ticker: "SHEL",  name: "Shell plc",              price: 28.45,   changePct: -0.34, currency: "£", sector: "Energy" },
     { ticker: "BP",    name: "BP plc",                 price: 5.12,    changePct: -0.78, currency: "£", sector: "Energy" },
     { ticker: "HSBA",  name: "HSBC Holdings",          price: 7.23,    changePct: +0.56, currency: "£", sector: "Banking & Finance" },
     { ticker: "LLOY",  name: "Lloyds Banking Group",   price: 0.56,    changePct: -0.23, currency: "£", sector: "Banking & Finance" },
     { ticker: "BARC",  name: "Barclays plc",           price: 2.34,    changePct: +0.45, currency: "£", sector: "Banking & Finance" },
-    { ticker: "AZN",   name: "AstraZeneca",            price: 123.45,  changePct: +1.23, currency: "£", sector: "Healthcare" },
     { ticker: "GSK",   name: "GSK plc",                price: 16.78,   changePct: +0.67, currency: "£", sector: "Healthcare" },
-    { ticker: "ULVR",  name: "Unilever",               price: 42.34,   changePct: -0.45, currency: "£", sector: "Consumer" },
     { ticker: "DGE",   name: "Diageo plc",             price: 23.45,   changePct: -0.89, currency: "£", sector: "Consumer" },
     { ticker: "VOD",   name: "Vodafone Group",         price: 0.72,    changePct: -1.23, currency: "£", sector: "Telecom" },
     { ticker: "BT.A",  name: "BT Group",               price: 1.45,    changePct: +0.34, currency: "£", sector: "Telecom" },
-    { ticker: "RIO",   name: "Rio Tinto",              price: 45.67,   changePct: +0.78, currency: "£", sector: "Mining & Resources" },
     { ticker: "AAL",   name: "Anglo American",         price: 21.34,   changePct: -1.12, currency: "£", sector: "Mining & Resources" },
     { ticker: "LSEG",  name: "London Stock Exchange",  price: 104.56,  changePct: +0.89, currency: "£", sector: "Banking & Finance" },
     { ticker: "BATS",  name: "BAT Industries",         price: 22.34,   changePct: +0.12, currency: "£", sector: "Consumer" },
   ],
 
   JP: [
+    { ticker: "8306", name: "Mitsubishi UFJ", price: 3481.0, changePct: +0.00, currency: "¥", sector: "Banking & Finance" },
+    { ticker: "9432", name: "NTT", price: 166.5, changePct: +0.00, currency: "¥", sector: "Telecom" },
+    { ticker: "6501", name: "Hitachi Ltd.", price: 5266.0, changePct: +0.00, currency: "¥", sector: "Industrial" },
+    { ticker: "7974", name: "Nintendo Co.", price: 8793.0, changePct: +0.00, currency: "¥", sector: "Media" },
+    { ticker: "8058", name: "Mitsubishi Corp.", price: 4793.0, changePct: +0.00, currency: "¥", sector: "Industrial" },
     { ticker: "7203",  name: "Toyota Motor",           price: 2834,    changePct: +1.45, currency: "¥", sector: "Automotive" },
     { ticker: "7267",  name: "Honda Motor",            price: 1423,    changePct: +0.89, currency: "¥", sector: "Automotive" },
     { ticker: "7270",  name: "Subaru Corp.",           price: 2123,    changePct: +0.67, currency: "¥", sector: "Automotive" },
     { ticker: "6758",  name: "Sony Group",             price: 13450,   changePct: +2.34, currency: "¥", sector: "Technology" },
     { ticker: "6861",  name: "Keyence Corp.",          price: 67890,   changePct: +1.67, currency: "¥", sector: "Technology" },
-    { ticker: "6501",  name: "Hitachi",                price: 3456,    changePct: +1.12, currency: "¥", sector: "Industrial" },
     { ticker: "9984",  name: "SoftBank Group",         price: 9234,    changePct: +3.12, currency: "¥", sector: "Technology" },
-    { ticker: "9432",  name: "NTT Corp.",              price: 167,     changePct: +0.45, currency: "¥", sector: "Telecom" },
     { ticker: "9433",  name: "KDDI Corp.",             price: 4234,    changePct: +0.34, currency: "¥", sector: "Telecom" },
-    { ticker: "8306",  name: "Mitsubishi UFJ",         price: 1567,    changePct: +0.78, currency: "¥", sector: "Banking & Finance" },
     { ticker: "8316",  name: "Sumitomo Mitsui",        price: 3456,    changePct: +0.56, currency: "¥", sector: "Banking & Finance" },
     { ticker: "4519",  name: "Chugai Pharma",          price: 4567,    changePct: -0.45, currency: "¥", sector: "Healthcare" },
     { ticker: "4568",  name: "Daiichi Sankyo",         price: 4123,    changePct: +0.89, currency: "¥", sector: "Healthcare" },
@@ -71,15 +88,15 @@ export const STOCKS_BY_COUNTRY = {
   ],
 
   DE: [
+    { ticker: "SIE", name: "Siemens AG", price: 280.6, changePct: +0.00, currency: "€", sector: "Industrial" },
+    { ticker: "DTE", name: "Deutsche Telekom", price: 29.07, changePct: +0.00, currency: "€", sector: "Telecom" },
+    { ticker: "MBG", name: "Mercedes-Benz Group", price: 45.05, changePct: +0.00, currency: "€", sector: "Automotive" },
     { ticker: "VOW3",  name: "Volkswagen AG",          price: 112.34,  changePct: -2.34, currency: "€", sector: "Automotive" },
     { ticker: "BMW",   name: "BMW AG",                 price: 87.45,   changePct: -1.56, currency: "€", sector: "Automotive" },
-    { ticker: "MBG",   name: "Mercedes-Benz",          price: 67.34,   changePct: -1.23, currency: "€", sector: "Automotive" },
-    { ticker: "SIE",   name: "Siemens AG",             price: 198.45,  changePct: +0.67, currency: "€", sector: "Industrial" },
     { ticker: "SAP",   name: "SAP SE",                 price: 198.56,  changePct: +1.23, currency: "€", sector: "Technology" },
     { ticker: "BAYN",  name: "Bayer AG",               price: 28.34,   changePct: -0.89, currency: "€", sector: "Healthcare" },
     { ticker: "ALV",   name: "Allianz SE",             price: 287.34,  changePct: -0.34, currency: "€", sector: "Banking & Finance" },
     { ticker: "DBK",   name: "Deutsche Bank",          price: 16.78,   changePct: -0.67, currency: "€", sector: "Banking & Finance" },
-    { ticker: "DTE",   name: "Deutsche Telekom",       price: 23.45,   changePct: +0.45, currency: "€", sector: "Telecom" },
     { ticker: "EOAN",  name: "E.ON SE",                price: 12.34,   changePct: +0.23, currency: "€", sector: "Utilities" },
     { ticker: "RWE",   name: "RWE AG",                 price: 34.56,   changePct: +0.56, currency: "€", sector: "Utilities" },
     { ticker: "BAS",   name: "BASF SE",                price: 45.67,   changePct: -0.78, currency: "€", sector: "Industrial" },
@@ -105,12 +122,14 @@ export const STOCKS_BY_COUNTRY = {
   ],
 
   IN: [
+    { ticker: "HDFCBANK", name: "HDFC Bank", price: 729.0, changePct: +0.00, currency: "₹", sector: "Banking & Finance" },
+    { ticker: "ITC", name: "ITC Ltd.", price: 269.7, changePct: +0.00, currency: "₹", sector: "Consumer" },
+    { ticker: "TITAN", name: "Titan Company", price: 5079.0, changePct: +0.00, currency: "₹", sector: "Consumer" },
     { ticker: "RELIANCE",  name: "Reliance Industries", price: 2987.45, changePct: +1.56, currency: "₹", sector: "Energy" },
     { ticker: "TCS",       name: "Tata Consultancy",    price: 3876.23, changePct: +0.89, currency: "₹", sector: "Technology" },
     { ticker: "INFY",      name: "Infosys Ltd.",        price: 1567.89, changePct: +0.67, currency: "₹", sector: "Technology" },
     { ticker: "WIPRO",     name: "Wipro Ltd.",          price: 478.90,  changePct: +1.12, currency: "₹", sector: "Technology" },
     { ticker: "HCLTECH",   name: "HCL Technologies",    price: 1678.45, changePct: +0.89, currency: "₹", sector: "Technology" },
-    { ticker: "HDFCBANK",  name: "HDFC Bank",           price: 1745.67, changePct: +1.23, currency: "₹", sector: "Banking & Finance" },
     { ticker: "ICICIBANK", name: "ICICI Bank",          price: 1234.56, changePct: +1.45, currency: "₹", sector: "Banking & Finance" },
     { ticker: "AXISBANK",  name: "Axis Bank",           price: 1123.45, changePct: +0.78, currency: "₹", sector: "Banking & Finance" },
     { ticker: "SBIN",      name: "State Bank of India", price: 823.45,  changePct: +0.56, currency: "₹", sector: "Banking & Finance" },
@@ -128,9 +147,9 @@ export const STOCKS_BY_COUNTRY = {
   ],
 
   BR: [
+    { ticker: "ITUB4", name: "Itau Unibanco", price: 38.77, changePct: +0.00, currency: "R$", sector: "Banking & Finance" },
     { ticker: "PETR4",  name: "Petrobras",             price: 38.45,   changePct: -1.23, currency: "R$", sector: "Energy" },
     { ticker: "VALE3",  name: "Vale S.A.",              price: 56.78,   changePct: -0.89, currency: "R$", sector: "Mining & Resources" },
-    { ticker: "ITUB4",  name: "Itaú Unibanco",         price: 34.56,   changePct: -0.45, currency: "R$", sector: "Banking & Finance" },
     { ticker: "BBDC4",  name: "Bradesco",              price: 14.23,   changePct: -0.78, currency: "R$", sector: "Banking & Finance" },
     { ticker: "BBAS3",  name: "Banco do Brasil",       price: 23.45,   changePct: -0.56, currency: "R$", sector: "Banking & Finance" },
     { ticker: "ABEV3",  name: "Ambev S.A.",            price: 12.34,   changePct: -1.45, currency: "R$", sector: "Consumer" },
@@ -141,6 +160,8 @@ export const STOCKS_BY_COUNTRY = {
   ],
 
   AU: [
+    { ticker: "CSL", name: "CSL Limited", price: 169.11, changePct: +0.00, currency: "A$", sector: "Healthcare" },
+    { ticker: "MQG", name: "Macquarie Group", price: 247.87, changePct: +0.00, currency: "A$", sector: "Banking & Finance" },
     { ticker: "BHP",   name: "BHP Group",              price: 45.23,   changePct: +1.12, currency: "A$", sector: "Mining & Resources" },
     { ticker: "RIO",   name: "Rio Tinto",              price: 123.45,  changePct: +0.78, currency: "A$", sector: "Mining & Resources" },
     { ticker: "FMG",   name: "Fortescue Metals",       price: 23.45,   changePct: +1.67, currency: "A$", sector: "Mining & Resources" },
@@ -149,28 +170,29 @@ export const STOCKS_BY_COUNTRY = {
     { ticker: "ANZ",   name: "ANZ Banking Group",      price: 28.34,   changePct: +0.45, currency: "A$", sector: "Banking & Finance" },
     { ticker: "WBC",   name: "Westpac Banking",        price: 24.56,   changePct: +0.34, currency: "A$", sector: "Banking & Finance" },
     { ticker: "WOW",   name: "Woolworths Group",       price: 34.56,   changePct: +0.23, currency: "A$", sector: "Consumer" },
-    { ticker: "CSL",   name: "CSL Limited",            price: 287.45,  changePct: +1.23, currency: "A$", sector: "Healthcare" },
     { ticker: "WDS",   name: "Woodside Energy",        price: 28.45,   changePct: -0.67, currency: "A$", sector: "Energy" },
     { ticker: "QAN",   name: "Qantas Airways",         price: 6.78,    changePct: +0.89, currency: "A$", sector: "Transportation" },
     { ticker: "TLS",   name: "Telstra Group",          price: 3.89,    changePct: +0.12, currency: "A$", sector: "Telecom" },
   ],
 
   CA: [
-    { ticker: "RY",    name: "Royal Bank of Canada",   price: 134.56,  changePct: +0.67, currency: "C$", sector: "Banking & Finance" },
+    { ticker: "RY", name: "Royal Bank of Canada", price: 282.86, changePct: +0.00, currency: "C$", sector: "Banking & Finance" },
+    { ticker: "CNR", name: "Canadian National Railway", price: 175.62, changePct: +0.00, currency: "C$", sector: "Transportation" },
     { ticker: "TD",    name: "Toronto-Dominion Bank",  price: 78.45,   changePct: +0.45, currency: "C$", sector: "Banking & Finance" },
     { ticker: "BNS",   name: "Bank of Nova Scotia",    price: 56.78,   changePct: +0.34, currency: "C$", sector: "Banking & Finance" },
     { ticker: "CNQ",   name: "Canadian Natural Resources",price: 45.67,changePct: -0.23, currency: "C$", sector: "Energy" },
     { ticker: "SU",    name: "Suncor Energy",          price: 51.23,   changePct: -0.45, currency: "C$", sector: "Energy" },
     { ticker: "SHOP",  name: "Shopify Inc.",           price: 87.45,   changePct: +2.34, currency: "C$", sector: "Technology" },
-    { ticker: "CNR",   name: "Canadian National Railway",price: 156.78,changePct: +0.56, currency: "C$", sector: "Transportation" },
     { ticker: "BCE",   name: "BCE Inc.",               price: 34.56,   changePct: -0.89, currency: "C$", sector: "Telecom" },
     { ticker: "BAM",   name: "Brookfield Asset Mgmt",  price: 45.67,   changePct: +1.23, currency: "C$", sector: "Banking & Finance" },
     { ticker: "ABX",   name: "Barrick Gold",           price: 21.34,   changePct: +0.78, currency: "C$", sector: "Mining & Resources" },
   ],
 
   FR: [
+    { ticker: "OR", name: "L'Oreal SA", price: 392.5, changePct: +0.00, currency: "€", sector: "Consumer" },
+    { ticker: "AI", name: "Air Liquide", price: 167.7, changePct: +0.00, currency: "€", sector: "Industrial" },
+    { ticker: "SU", name: "Schneider Electric", price: 291.8, changePct: +0.00, currency: "€", sector: "Industrial" },
     { ticker: "MC",    name: "LVMH Moët Hennessy",     price: 623.45,  changePct: +1.23, currency: "€", sector: "Consumer" },
-    { ticker: "OR",    name: "L'Oréal",                price: 378.45,  changePct: +0.89, currency: "€", sector: "Consumer" },
     { ticker: "TTE",   name: "TotalEnergies",          price: 56.78,   changePct: -0.56, currency: "€", sector: "Energy" },
     { ticker: "SAN",   name: "Sanofi",                 price: 87.45,   changePct: +0.45, currency: "€", sector: "Healthcare" },
     { ticker: "AIR",   name: "Airbus SE",              price: 156.78,  changePct: +0.89, currency: "€", sector: "Industrial" },
@@ -197,6 +219,7 @@ export const STOCKS_BY_COUNTRY = {
   ],
 
   KR: [
+    { ticker: "373220", name: "LG Energy Solution", price: 362000.0, changePct: +0.00, currency: "₩", sector: "Industrial" },
     { ticker: "005930", name: "Samsung Electronics",  price: 78900,   changePct: +1.56, currency: "₩", sector: "Technology" },
     { ticker: "000660", name: "SK Hynix",             price: 234560,  changePct: +2.34, currency: "₩", sector: "Technology" },
     { ticker: "035420", name: "Naver Corp.",          price: 187000,  changePct: +1.12, currency: "₩", sector: "Technology" },
@@ -238,6 +261,7 @@ export const STOCKS_BY_COUNTRY = {
   ],
 
   MX: [
+    { ticker: "GFNORTEO", name: "Banorte", price: 187.93, changePct: +0.00, currency: "Mex$", sector: "Banking & Finance" },
     { ticker: "AMXL",  name: "América Móvil",          price: 14.56,   changePct: +0.89, currency: "MX$", sector: "Telecom" },
     { ticker: "FEMSAUBD",name:"FEMSA",                  price: 156.78,  changePct: +0.67, currency: "MX$", sector: "Consumer" },
     { ticker: "WALMEX", name: "Walmart México",         price: 67.89,   changePct: +0.45, currency: "MX$", sector: "Consumer" },
@@ -292,10 +316,10 @@ export const STOCKS_BY_COUNTRY = {
   /* ─── EUROPE ────────────────────────────────────────────────────────────── */
 
   ES: [
+    { ticker: "IBE", name: "Iberdrola SA", price: 20.03, changePct: +0.00, currency: "€", sector: "Utilities" },
     { ticker: "SAN",   name: "Santander Bank",         price: 4.56,    changePct: -0.89, currency: "€", sector: "Banking & Finance" },
     { ticker: "BBVA",  name: "BBVA",                   price: 9.78,    changePct: -0.67, currency: "€", sector: "Banking & Finance" },
     { ticker: "CaixaBank",name:"CaixaBank",            price: 5.23,    changePct: -0.45, currency: "€", sector: "Banking & Finance" },
-    { ticker: "IBE",   name: "Iberdrola",              price: 12.34,   changePct: +0.34, currency: "€", sector: "Utilities" },
     { ticker: "REP",   name: "Repsol",                 price: 14.56,   changePct: -0.56, currency: "€", sector: "Energy" },
     { ticker: "TEF",   name: "Telefónica",             price: 4.12,    changePct: -0.23, currency: "€", sector: "Telecom" },
     { ticker: "ITX",   name: "Inditex (Zara)",         price: 45.67,   changePct: -1.12, currency: "€", sector: "Consumer" },
@@ -305,9 +329,9 @@ export const STOCKS_BY_COUNTRY = {
   ],
 
   IT: [
+    { ticker: "ISP", name: "Intesa Sanpaolo", price: 6.82, changePct: +0.00, currency: "€", sector: "Banking & Finance" },
     { ticker: "ENI",   name: "Eni SpA",                price: 14.56,   changePct: -0.45, currency: "€", sector: "Energy" },
     { ticker: "ENEL",  name: "Enel SpA",               price: 6.78,    changePct: +0.34, currency: "€", sector: "Utilities" },
-    { ticker: "ISP",   name: "Intesa Sanpaolo",        price: 3.45,    changePct: +0.23, currency: "€", sector: "Banking & Finance" },
     { ticker: "UCG",   name: "UniCredit SpA",          price: 34.56,   changePct: +0.56, currency: "€", sector: "Banking & Finance" },
     { ticker: "STLA",  name: "Stellantis NV",          price: 12.34,   changePct: -1.23, currency: "€", sector: "Automotive" },
     { ticker: "ATL",   name: "Atlantia SpA",           price: 23.45,   changePct: +0.45, currency: "€", sector: "Transportation" },
@@ -318,6 +342,7 @@ export const STOCKS_BY_COUNTRY = {
   ],
 
   NL: [
+    { ticker: "INGA", name: "ING Groep", price: 30.04, changePct: +0.00, currency: "€", sector: "Banking & Finance" },
     { ticker: "ASML",  name: "ASML Holding",           price: 789.45,  changePct: +2.45, currency: "€", sector: "Technology" },
     { ticker: "PHIA",  name: "Philips NV",             price: 23.45,   changePct: +0.67, currency: "€", sector: "Healthcare" },
     { ticker: "ING",   name: "ING Groep",              price: 14.56,   changePct: +0.45, currency: "€", sector: "Banking & Finance" },
@@ -355,6 +380,7 @@ export const STOCKS_BY_COUNTRY = {
   ],
 
   CH: [
+    { ticker: "ZURN", name: "Zurich Insurance", price: 589.6, changePct: +0.00, currency: "CHF", sector: "Banking & Finance" },
     { ticker: "NESN",  name: "Nestlé SA",              price: 87.45,   changePct: +0.56, currency: "CHF", sector: "Consumer" },
     { ticker: "ROG",   name: "Roche Holding",          price: 234.56,  changePct: +0.78, currency: "CHF", sector: "Healthcare" },
     { ticker: "NOVN",  name: "Novartis AG",            price: 89.45,   changePct: +0.45, currency: "CHF", sector: "Healthcare" },
@@ -362,7 +388,6 @@ export const STOCKS_BY_COUNTRY = {
     { ticker: "GIVN",  name: "Givaudan SA",            price: 2890.45, changePct: +0.34, currency: "CHF", sector: "Industrial" },
     { ticker: "UBSG",  name: "UBS Group",              price: 23.45,   changePct: +0.89, currency: "CHF", sector: "Banking & Finance" },
     { ticker: "ALC",   name: "Alcon AG",               price: 74.25,   changePct: +0.99, currency: "CHF", sector: "Healthcare" },
-    { ticker: "ZURN",  name: "Zurich Insurance",       price: 456.78,  changePct: +0.45, currency: "CHF", sector: "Banking & Finance" },
     { ticker: "LONN",  name: "Lonza Group",            price: 456.78,  changePct: +0.89, currency: "CHF", sector: "Healthcare" },
     { ticker: "SIKA",  name: "Sika AG",                price: 234.56,  changePct: +0.67, currency: "CHF", sector: "Industrial" },
   ],
@@ -621,9 +646,9 @@ export const STOCKS_BY_COUNTRY = {
   /* ─── ASIA-PACIFIC ──────────────────────────────────────────────────────── */
 
   TW: [
+    { ticker: "2317", name: "Hon Hai Precision", price: 243.5, changePct: +0.00, currency: "NT$", sector: "Technology" },
     { ticker: "2330",  name: "TSMC",                   price: 945.67,  changePct: +2.34, currency: "NT$", sector: "Technology" },
     { ticker: "2454",  name: "MediaTek",               price: 1234.56, changePct: +1.89, currency: "NT$", sector: "Technology" },
-    { ticker: "2317",  name: "Foxconn (Hon Hai)",       price: 189.45,  changePct: +1.12, currency: "NT$", sector: "Technology" },
     { ticker: "2303",  name: "United Microelectronics", price: 56.78,   changePct: +1.56, currency: "NT$", sector: "Technology" },
     { ticker: "2308",  name: "Delta Electronics",       price: 345.67,  changePct: +0.89, currency: "NT$", sector: "Industrial" },
     { ticker: "2882",  name: "Cathay Financial",        price: 56.78,   changePct: +0.67, currency: "NT$", sector: "Banking & Finance" },

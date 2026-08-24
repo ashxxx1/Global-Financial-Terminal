@@ -19,7 +19,7 @@ function CompanyBlock({ c }: { c: CompanyImpact }) {
             {" · "}{c.country || "—"}{" · "}{c.sector}
             {c.lastPrice ? ` · ${c.lastPrice}` : ""}
             {c.changePct != null ? ` (${pct(c.changePct)})` : ""}
-            {c.quoteSource === "sim" ? " · SIM" : c.quoteSource === "live" ? " · LIVE" : ""}
+            {c.quoteSource === "pending" ? " · SIM" : c.quoteSource === "live" ? " · LIVE" : ""}
           </div>
         </div>
         <span className={`imp-sig ${c.signal}`}>{c.signalLabel}</span>

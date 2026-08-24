@@ -204,7 +204,7 @@ export default function TopNav() {
           </span>
         )}
         <span className="nerd-only"><SourceBadge
-          source={liveN > 0 ? "live" : "sim"}
+          source={liveN > 0 ? "live" : "pending"}
           title={liveN > 0 ? `${liveN} instruments on real feeds (Binance WS · ECB) — rest simulated` : undefined}
         /></span>
         {/* The research engine is the flagship feature; a bare glyph tooltipped

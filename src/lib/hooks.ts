@@ -3,7 +3,7 @@
  * Everything subscribes to the one shared tick, so all quotes move together.
  */
 import { useEffect, useMemo, useState } from "react";
-import { subscribe, quoteFor, indexSymbols, historyFor, type Quote, type Candle, type Source } from "./market";
+import { subscribe, quoteFor, indexSymbols, historyFor, type Quote, type Candle, type Source, type HistorySource } from "./market";
 
 export function useQuote(symbol: string | null | undefined): Quote | null {
   const [q, setQ] = useState<Quote | null>(() => (symbol ? quoteFor(symbol) : null));
@@ -30,9 +30,9 @@ export function useIndices(): Quote[] {
   return useQuotes(symbols);
 }
 
-export function useHistory(symbol: string | null, range = "1M"): { candles: Candle[]; source: Source } {
+export function useHistory(symbol: string | null, range = "1M"): { candles: Candle[]; source: HistorySource } {
   return useMemo(
-    () => (symbol ? historyFor(symbol, range) : { candles: [], source: "sim" as Source }),
+    () => (symbol ? historyFor(symbol, range) : { candles: [], source: "unavailable" as HistorySource }),
     [symbol, range]
   );
 }

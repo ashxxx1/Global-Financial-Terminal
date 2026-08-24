@@ -108,7 +108,7 @@ export async function comparePeers(ctx: CompanyContext): Promise<PeerComparison>
   const medians: Record<string, number | null> = {};
   for (const met of PEER_METRICS) {
     medians[met.key] = median(
-      peers.map((p) => p.values[met.key]).filter((v): v is number => typeof v === "number"),
+      peers.map((p) => p.values[met.key]).filter((v): v is number => typeof v === "number" && Number.isFinite(v)),
     );
   }
 

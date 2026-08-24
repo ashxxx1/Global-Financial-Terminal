@@ -112,7 +112,7 @@ export default function Sector() {
           price={leadQuote?.price}
           changePct={leadQuote?.changePct}
           country={lead.country}
-          source={leadQuote?.source ?? "sim"}
+          source={leadQuote?.source ?? "pending"}
           maxCompare={1}
         />
       )}

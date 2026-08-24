@@ -90,11 +90,11 @@ export function attribution(ctx: CompanyContext, h: Horizon): Attribution {
     : [];
   const sectorReturns = sectorMembers
     .map((s) => returnOver(s, h))
-    .filter((x): x is number => x !== null);
+    .filter((x): x is number => x !== null && Number.isFinite(x));
   const sector = median(sectorReturns);
 
   const peerSyms = peerCandidates(ctx, 8).map((p) => p.symbol);
-  const peerReturns = peerSyms.map((s) => returnOver(s, h)).filter((x): x is number => x !== null);
+  const peerReturns = peerSyms.map((s) => returnOver(s, h)).filter((x): x is number => x !== null && Number.isFinite(x));
   const peerMedian = median(peerReturns);
 
   const marketDriven = index;

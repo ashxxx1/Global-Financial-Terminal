@@ -283,7 +283,7 @@ export default function Compare() {
             price={leftQuote?.price}
             changePct={leftQuote?.changePct}
             country={leftMeta!.country}
-            source={leftQuote?.source ?? "sim"}
+            source={leftQuote?.source ?? "pending"}
             initialCompare={[right]}
             compareLocked
             onCompareChange={(syms) => {
@@ -300,7 +300,7 @@ export default function Compare() {
               price={leftQuote?.price}
               changePct={leftQuote?.changePct}
               country={leftMeta!.country}
-              source={leftQuote?.source ?? "sim"}
+              source={leftQuote?.source ?? "pending"}
               maxCompare={1}
             />
             <TradingChart
@@ -310,7 +310,7 @@ export default function Compare() {
               price={rightQuote?.price}
               changePct={rightQuote?.changePct}
               country={rightMeta!.country}
-              source={rightQuote?.source ?? "sim"}
+              source={rightQuote?.source ?? "pending"}
               maxCompare={1}
             />
           </div>

@@ -48,7 +48,7 @@ export default function Markets() {
         <ProvenanceBadge
           kind={group === "FX" ? "fx" : group === "CRYPTO" ? "crypto"
             : group === "COMMODITIES" ? "commodity" : group === "MOVERS" ? "stock" : "index"}
-          source={rows.some((q) => q.source === "live") ? "live" : "sim"}
+          source={rows.some((q) => q.source === "live") ? "live" : "pending"}
         />
         <button
           type="button"

@@ -63,7 +63,7 @@ export default function AlertWatcher() {
             if (candles.length < 20) break;
             const vols = candles.slice(-21, -1)
               .map((c) => (c as { v?: number }).v)
-              .filter((v): v is number => typeof v === "number" && v > 0);
+              .filter((v): v is number => typeof v === "number" && Number.isFinite(v) && v > 0);
             const today = (candles[candles.length - 1] as { v?: number }).v;
             if (vols.length < 10 || typeof today !== "number" || today <= 0) break;
             const sorted = [...vols].sort((a, b) => a - b);

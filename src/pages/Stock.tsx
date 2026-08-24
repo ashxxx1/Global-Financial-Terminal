@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuote } from "../lib/hooks";
-import { metaFor, COUNTRIES } from "../lib/market";
+import { metaFor, COUNTRIES, reasonFor, hasPrice } from "../lib/market";
 import ProvenanceBadge from "../components/ProvenanceBadge";
 import Connections from "../components/Connections";
 import TradingChart from "../components/charts/TradingChart";
@@ -98,6 +98,7 @@ export default function Stock() {
         <button className="chip" onClick={() => navigate(-1)}>← BACK</button>
         <p style={{ color: "var(--faint)" }}>Unknown symbol “{sym}”.</p>
       </div>
+
     );
   }
 
@@ -138,7 +139,7 @@ export default function Stock() {
           Compare
         </Link>
         <span style={{ marginLeft: "auto" }}>
-          <ProvenanceBadge kind={meta.kind} source={quote?.source ?? "sim"} country={meta.country} name={sym} />
+          <ProvenanceBadge kind={meta.kind} source={quote?.source ?? "pending"} country={meta.country} name={sym} />
           <button
             className="chip"
             onClick={() => navigate(`/research/${sym}`)}
@@ -149,6 +150,21 @@ export default function Stock() {
         </span>
       </div>
 
+      {/* No price: say which kind of absence this is, and why. A blank cell
+          invites the reader to assume a bug; a stated reason does not. */}
+      {!hasPrice(quote) && (
+        <div className={`no-price ${quote?.source === "unavailable" ? "hard" : "soft"}`}>
+          <span className="no-price-tag">
+            {quote?.source === "unavailable" ? "NO PRICE FEED" : "AWAITING FEED"}
+          </span>
+          <span>
+            {quote?.source === "unavailable"
+              ? reasonFor(sym)
+              : "A feed covers this listing and has not answered yet. We show no number rather than a placeholder."}
+          </span>
+        </div>
+      )}
+
       <TradingChart
         symbol={sym}
         name={meta.name}
@@ -156,7 +172,7 @@ export default function Stock() {
         price={quote?.price}
         changePct={quote?.changePct}
         country={meta.country}
-        source={quote?.source ?? "sim"}
+        source={quote?.source ?? "pending"}
         initialCompare={vs ? [vs] : []}
         maxCompare={1}
         onCompareChange={onCompareChange}
@@ -167,7 +183,7 @@ export default function Stock() {
         <button className={`chip ${showOptions ? "active blue" : ""}`} onClick={() => setShowOptions(!showOptions)}>Options Chain</button>
         <button className="chip" onClick={() => setShowAlertModal(true)}>Set Smart Alert</button>
         {(() => {
-          const f = freshness(quote?.source ?? "sim", meta.country);
+          const f = freshness(quote?.source ?? "pending", meta.country);
           return (
             <span className={`fresh fresh-${f.tone}`} title={f.detail} style={{ marginLeft: "auto" }}>
               <span className="fresh-dot" />{f.label}

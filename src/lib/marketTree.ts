@@ -84,8 +84,8 @@ export function countryTree(code: string): CountryNode | null {
       sector: m?.sector || "Unclassified",
       band: cap?.band ?? "unclassified",
       capUsdM: cap?.usdM ?? null,
-      price: q?.display ?? null,
-      changePct: q?.changePct ?? null,
+      price: q && Number.isFinite(q.price) ? q.display : null,
+      changePct: q && Number.isFinite(q.changePct) ? q.changePct : null,
       live: q?.source === "live",
     };
   });
@@ -104,7 +104,7 @@ export function countryTree(code: string): CountryNode | null {
       return {
         sector,
         rows: sr.sort((a, b) => (b.capUsdM ?? -1) - (a.capUsdM ?? -1)),
-        medianChange: median(sr.map((r) => r.changePct).filter((x): x is number => x !== null)),
+        medianChange: median(sr.map((r) => r.changePct).filter((x): x is number => typeof x === "number" && Number.isFinite(x) && Number.isFinite(x))),
         liveCount: sr.filter((r) => r.live).length,
         byBand,
       };
@@ -116,7 +116,7 @@ export function countryTree(code: string): CountryNode | null {
     code, name: meta.name, sectors,
     total: rows.length,
     liveCount: rows.filter((r) => r.live).length,
-    medianChange: median(rows.map((r) => r.changePct).filter((x): x is number => x !== null)),
+    medianChange: median(rows.map((r) => r.changePct).filter((x): x is number => typeof x === "number" && Number.isFinite(x) && Number.isFinite(x))),
   };
 }
 
@@ -125,7 +125,7 @@ export function allCountries(): { code: string; name: string; count: number; liv
   return countryList()
     .map((c) => {
       const syms = stocksOf(c.code);
-      const moves = syms.map((s) => quoteFor(s)?.changePct).filter((x): x is number => typeof x === "number");
+      const moves = syms.map((s) => quoteFor(s)?.changePct).filter((x): x is number => typeof x === "number" && Number.isFinite(x));
       return {
         code: c.code, name: c.name, count: syms.length,
         liveCount: syms.filter((s) => quoteFor(s)?.source === "live").length,

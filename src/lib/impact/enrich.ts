@@ -3,6 +3,7 @@
  * fundamental snapshots. Failures become caveats — never invented metrics.
  */
 import { quoteFor } from "../market";
+import type { Source } from "../market";
 import { fetchDataset, num, type Metrics, type NewsItem } from "../research/data";
 import type { MetricPoint } from "./types";
 
@@ -10,7 +11,7 @@ const US_LIKE = /^[A-Z]{1,5}$/;
 
 export interface EnrichedQuote {
   metrics: MetricPoint[];
-  quoteSource: "live" | "cached" | "sim" | "none";
+  quoteSource: Source | "none";
   lastPrice: string | null;
   changePct: number | null;
   caveat: string | null;
@@ -35,7 +36,7 @@ export async function enrichSymbol(symbol: string): Promise<EnrichedQuote> {
       value: `${q.display} (${q.changePct >= 0 ? "+" : ""}${q.changePct.toFixed(2)}%)`,
       source: q.source === "live" ? "Live quote" : q.source === "cached" ? "Cached quote" : "GFT quote (simulated — labelled)",
       asOf: Date.now(),
-      simulated: q.source === "sim",
+      simulated: q.source === "pending" || quoteSource === "unavailable",
     });
   }
 

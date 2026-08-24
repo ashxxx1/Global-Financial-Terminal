@@ -36,7 +36,7 @@ function Row({ symbol, name, price, changePct, rank, onClick, actionLabel }: {
       <span className="mrow-right">
         <span className="mrow-price mono">{price}</span>
         <span className="mrow-chg mono" style={{ color: up ? "var(--up)" : "var(--down)" }}>
-          {up ? "▲" : "▼"} {Math.abs(changePct).toFixed(2)}%
+          {Number.isFinite(changePct) ? <>{up ? "▲" : "▼"} {Math.abs(changePct).toFixed(2)}%</> : "—"}
         </span>
       </span>
     </button>

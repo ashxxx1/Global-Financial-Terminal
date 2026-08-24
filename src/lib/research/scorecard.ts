@@ -81,7 +81,7 @@ export function buildScorecard(ctx: CompanyContext): ScoreDimension[] {
     if (rev === null && eps === null) {
       dims.push(unknownDim("growth", "Growth", "No reported growth figures.", metricsAsOf));
     } else {
-      const vals = [rev, eps].filter((x): x is number => x !== null);
+      const vals = [rev, eps].filter((x): x is number => x !== null && Number.isFinite(x));
       const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
       // 20%+ is strong, 0% neutral, negative weak. Thresholds are conventions.
       const score = Math.max(-2, Math.min(2, avg / 10));
@@ -115,7 +115,7 @@ export function buildScorecard(ctx: CompanyContext): ScoreDimension[] {
       dims.push(unknownDim("earnings", "Earnings momentum", "No earnings history retrieved.", ctx.builtAt));
     } else {
       const sp = (ctx.earnings.data as EarningsPoint[])
-        .map((e) => e.surprisePercent).filter((x): x is number => typeof x === "number");
+        .map((e) => e.surprisePercent).filter((x): x is number => typeof x === "number" && Number.isFinite(x));
       if (sp.length < 3) {
         dims.push(unknownDim("earnings", "Earnings momentum", `Only ${sp.length} quarters of surprise data.`, ctx.builtAt));
       } else {

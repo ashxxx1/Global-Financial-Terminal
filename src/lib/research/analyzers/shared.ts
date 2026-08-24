@@ -36,7 +36,7 @@ export const mag = (n: number) => `${Math.abs(n).toFixed(2)}%`;
 export function marketSource(symbol: string): Source {
   const meta = metaFor(symbol);
   const q = quoteFor(symbol);
-  const prov = provenanceFor(meta?.kind ?? "stock", q?.source ?? "sim", meta?.country ?? null, meta?.name);
+  const prov = provenanceFor(meta?.kind ?? "stock", q?.source ?? "pending", meta?.country ?? null, meta?.name);
   return {
     kind: "market",
     label: prov.label,

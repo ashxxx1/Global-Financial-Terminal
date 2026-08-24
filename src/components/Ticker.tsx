@@ -1,3 +1,4 @@
+import { formatChange } from "../lib/market";
 import { Link } from "react-router-dom";
 import { useIndices } from "../lib/hooks";
 import { useTerminal } from "../store";
@@ -33,7 +34,7 @@ export default function Ticker() {
                 <span style={{ color: "var(--faint)", fontSize: 10, letterSpacing: "0.06em" }}>{q.name}</span>
                 <span style={{ color: "var(--text)", fontWeight: 700 }}>{q.display}</span>
                 <span className={`chg ${up ? "up" : "down"}`} style={{ fontSize: 9.5 }}>
-                  {up ? "+" : ""}{q.changePct.toFixed(2)}%
+                  {formatChange(q.changePct)}
                 </span>
               </span>
             );
@@ -47,10 +48,10 @@ export default function Ticker() {
             <>
               <SourceBadge source="live" title={`${liveN} instruments on real feeds (Binance · ECB)`} />
               <span className="label" style={{ fontSize: 8 }}>{liveN}</span>
-              <SourceBadge source="sim" title="Remaining instruments simulated" />
+              <SourceBadge source="pending" title="Remaining instruments simulated" />
             </>
           ) : (
-            <SourceBadge source={quotes[0]?.source ?? "sim"} />
+            <SourceBadge source={quotes[0]?.source ?? "pending"} />
           );
         })()}
       </div>

@@ -133,7 +133,7 @@ export default function Country() {
         )}
         {/* Item 2: the headline number here is the country index, which is
             simulated — say so explicitly rather than with an opaque "SIM". */}
-        <span style={{ marginLeft: "auto" }}><ProvenanceBadge kind="index" source="sim" country={iso} /></span>
+        <span style={{ marginLeft: "auto" }}><ProvenanceBadge kind="index" source="pending" country={iso} /></span>
       </div>
 
       {/* Tabs */}
@@ -246,7 +246,7 @@ export default function Country() {
       {tab === "NEWS" && (
         <div style={{ display: "grid", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <SourceBadge source={newsLive ? "live" : "sim"} />
+            <SourceBadge source={newsLive ? "live" : "pending"} />
             <span className="label">
               {newsLive ? "GNews wire · auto-refresh 3 min · deduped · entity-linked" : "Deterministic engine — add VITE_GNEWS_API_KEY for the live wire"}
             </span>
@@ -301,7 +301,7 @@ export default function Country() {
         <div className="panel">
           <div className="panel-head">
             <span className="panel-title">AI country synthesis <span className="demo-tag">DEMO</span></span>
-            <SourceBadge source="sim" />
+            <SourceBadge source="pending" />
           </div>
           <div className="panel-body" style={{ display: "grid", gap: 14 }}>
             <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7 }}>{aiSummary}</p>

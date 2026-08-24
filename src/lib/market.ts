@@ -8,9 +8,36 @@
  * be layered in later ("live") with zero UI changes.
  */
 import { STOCKS_BY_COUNTRY } from "../data/stocksData";
+import { availabilityOf, unavailableReason } from "./priceAvailability";
 import { GLOBAL_INDICES, COUNTRIES_DATA } from "../data/mockData";
 
-export type Source = "live" | "cached" | "sim";
+/**
+ * Where a price came from.
+ *
+ * "sim" is retired. It described a deterministic invented price, and however
+ * carefully it was labelled it still put a plausible number where a real one
+ * belongs. The two states that replaced it are honest about which kind of
+ * absence you are looking at:
+ *
+ *   pending      a feed covers this and has not answered yet
+ *   unavailable  no feed exists for it; unavailableReason() says why
+ */
+export type Source = "live" | "cached" | "pending" | "unavailable";
+
+/**
+ * Where a CANDLE SERIES came from. Separate from Source on purpose.
+ *
+ * Spot prices no longer fall back to a simulation — an invented price sitting
+ * where a real one belongs is the thing this terminal spent a month removing.
+ * Chart history is a different question and is not yet solved: real daily bars
+ * come from /api/candles for symbols our providers cover, and the local
+ * generator still fills the rest so a chart has a shape to draw.
+ *
+ * That generator is honest only because "synthetic" is carried here and the
+ * chart prints it on the axis. It is a known gap, tracked, and it must never
+ * be widened back into spot prices.
+ */
+export type HistorySource = "live" | "cached" | "synthetic" | "unavailable";
 export type Kind = "stock" | "index" | "fx" | "crypto" | "commodity";
 
 export interface Quote {
@@ -147,25 +174,60 @@ export function quoteFor(symbol: string, t: number = Date.now()): Quote | null {
     };
   }
 
-  const price = m.base * (1 + wiggle(m, t));
-  const dayOpen = m.base / (1 + m.snapChange / 100);
-  const changePct = ((price - dayOpen) / dayOpen) * 100;
+  // No live value. Say which kind of nothing this is rather than inventing a
+  // number to fill the cell.
+  const availability = availabilityOf(symbol, m.kind, m.country, m.name);
   return {
-    symbol, name: m.name, price, changePct, currency: m.currency, sector: m.sector,
-    country: m.country, kind: m.kind, source: "sim", display: formatPrice(price, m.fmt),
+    symbol, name: m.name,
+    // NaN rather than 0: a zero silently participates in sums and averages,
+    // where NaN forces every caller to handle the absence explicitly.
+    price: Number.NaN,
+    changePct: Number.NaN,
+    currency: m.currency, sector: m.sector, country: m.country, kind: m.kind,
+    source: availability === "coverable" ? "pending" : "unavailable",
+    display: "—",
   };
+}
+
+/**
+ * Render a percentage change, or an em dash when there is no number.
+ *
+ * Every call site that did `changePct.toFixed(2)` printed "NaN%" for an
+ * unpriced instrument. Fixing them individually invites the next one to be
+ * missed, so the formatting lives here and components call it.
+ */
+export function formatChange(pct: number | null | undefined, withSign = true): string {
+  if (typeof pct !== "number" || !Number.isFinite(pct)) return "—";
+  return `${withSign && pct >= 0 ? "+" : ""}${pct.toFixed(2)}%`;
+}
+
+/**
+ * Whether a quote carries a real number. Use before any arithmetic.
+ *
+ * Deliberately NOT a type predicate. An unpriced quote is still a Quote — it
+ * has a symbol, a name and a source — so narrowing the false branch to `never`
+ * would stop callers reading the very fields they need to explain the absence.
+ */
+export const hasPrice = (q: Quote | null | undefined): boolean =>
+  !!q && Number.isFinite(q.price);
+
+/** Why this instrument shows no price. Empty when it is merely pending. */
+export function reasonFor(symbol: string): string {
+  const m = REGISTRY[symbol];
+  if (!m) return "We do not track this symbol.";
+  return unavailableReason(symbol, m.kind, m.country, m.name);
 }
 
 /* ── history: seeded daily candles, cached ── */
 const RANGE_DAYS: Record<string, number> = { "1W": 7, "1M": 30, "3M": 90, "6M": 180, "1Y": 365 };
-const histCache = new Map<string, { candles: Candle[]; source: Source }>();
+const histCache = new Map<string, { candles: Candle[]; source: HistorySource }>();
 
-export function historyFor(symbol: string, range = "1M"): { candles: Candle[]; source: Source } {
+export function historyFor(symbol: string, range = "1M"): { candles: Candle[]; source: HistorySource } {
   const ck = symbol + ":" + range;
   const hit = histCache.get(ck);
   if (hit) return hit;
   const m = REGISTRY[symbol];
-  if (!m) return { candles: [], source: "sim" };
+  if (!m) return { candles: [], source: "unavailable" as HistorySource };
 
   const n = RANGE_DAYS[range] || 30;
   let seed = hash(symbol + range);
@@ -182,7 +244,7 @@ export function historyFor(symbol: string, range = "1M"): { candles: Candle[]; s
     candles.unshift({ t: Date.now() - i * 86400000, o: open, h, l, c: close });
     close = open;
   }
-  const out = { candles, source: "sim" as Source };
+  const out = { candles, source: "synthetic" as HistorySource };
   histCache.set(ck, out);
   return out;
 }
@@ -228,7 +290,11 @@ export const countryList = (): CountryMeta[] =>
 /* Movers computed from live quotes */
 export function topMovers(n = 6): { gainers: Quote[]; losers: Quote[] } {
   const t = Date.now();
-  const qs = allStockSymbols().map((s) => quoteFor(s, t)!)
+  // Only instruments with a real number can be ranked. Unpriced ones sort
+  // unpredictably against NaN and would otherwise drift into the leaders.
+  const qs = allStockSymbols()
+    .map((s) => quoteFor(s, t))
+    .filter((q): q is Quote => !!q && Number.isFinite(q.changePct))
     .sort((a, b) => b.changePct - a.changePct);
   return { gainers: qs.slice(0, n), losers: qs.slice(-n).reverse() };
 }

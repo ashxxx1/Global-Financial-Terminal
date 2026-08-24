@@ -106,7 +106,7 @@ function buildFalsifiers(ctx: CompanyContext, points: ThesisPoint[]): Falsifier[
       }
       case "Earnings momentum": {
         if (ctx.earnings.ok) {
-          const sp = (ctx.earnings.data as EarningsPoint[]).map((e) => e.surprisePercent).filter((x): x is number => typeof x === "number");
+          const sp = (ctx.earnings.data as EarningsPoint[]).map((e) => e.surprisePercent).filter((x): x is number => typeof x === "number" && Number.isFinite(x));
           const beats = sp.filter((x) => x > 0).length;
           out.push({
             target: "Earnings momentum",

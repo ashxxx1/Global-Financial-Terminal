@@ -3,11 +3,12 @@ import type { Source } from "../lib/market";
 const V: Record<Source, { label: string; color: string; dim: string; pulse: boolean; title: string }> = {
   live:   { label: "LIVE",   color: "var(--up)",   dim: "var(--up-dim)",   pulse: true,  title: "Live data feed" },
   cached: { label: "CACHED", color: "var(--blue)", dim: "var(--blue-dim)", pulse: false, title: "Cached — last known values" },
-  sim:    { label: "SIM",    color: "var(--gold)", dim: "var(--gold-dim)", pulse: false, title: "Simulated — deterministic synthetic movement, not real market data" },
+  pending: { label: "…",      color: "var(--muted)", dim: "transparent",   pulse: false, title: "A feed covers this instrument and has not answered yet. No price is shown rather than a placeholder." },
+  unavailable: { label: "NO FEED", color: "var(--faint)", dim: "transparent", pulse: false, title: "No price feed exists for this instrument on any provider we can reach." },
 };
 
-export default function SourceBadge({ source = "sim" as Source, style, title }: { source?: Source; style?: React.CSSProperties; title?: string }) {
-  const v = V[source] || V.sim;
+export default function SourceBadge({ source = "pending" as Source, style, title }: { source?: Source; style?: React.CSSProperties; title?: string }) {
+  const v = V[source] || V.pending;
   return (
     <span
       title={title || v.title}

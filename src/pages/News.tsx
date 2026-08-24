@@ -180,7 +180,7 @@ export default function News() {
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, letterSpacing: "-0.01em" }}>
             <span className="hero-shine">Global News Wire</span>
           </h1>
-          <SourceBadge source={isLive ? "live" : "sim"} />
+          <SourceBadge source={isLive ? "live" : "pending"} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
           <div

@@ -21,6 +21,7 @@ import {
   type MouseEventParams,
 } from "lightweight-charts";
 import TimeframeSelector from "./TimeframeSelector";
+import type { Source } from "../../lib/market";
 import ChartToolbar from "./ChartToolbar";
 import ChartCrosshair from "./ChartCrosshair";
 import IndicatorMenu from "./IndicatorMenu";
@@ -46,7 +47,7 @@ export interface TradingChartProps {
   price?: number | null;
   changePct?: number | null;
   country?: string | null;
-  source?: "live" | "cached" | "sim";
+  source?: Source;
   className?: string;
   /** Prefill compare peers (e.g. from ?vs= or /compare/:a/:b). */
   initialCompare?: string[];
@@ -98,7 +99,7 @@ function defaultIndicators(): Set<IndicatorId> {
 }
 
 export default function TradingChart({
-  symbol, name, currency = "", price, changePct, country, source = "sim", className,
+  symbol, name, currency = "", price, changePct, country, source = "pending", className,
   initialCompare = [], compareLocked = false, maxCompare = 4, onCompareChange,
 }: TradingChartProps) {
   const shellRef = useRef<HTMLElement>(null);
@@ -620,7 +621,8 @@ export default function TradingChart({
   };
 
   const sessionLabel = useMemo(() => {
-    if (source === "sim") return "Simulated series";
+    if (source === "pending") return "Awaiting feed";
+    if (source === "unavailable") return "No feed for this instrument";
     return fresh.label;
   }, [source, fresh.label]);
 

@@ -1,3 +1,4 @@
+import type { Source } from "../market";
 /**
  * GFT Financial Impact Copilot — evidence model.
  *
@@ -111,7 +112,7 @@ export interface CompanyImpact {
   timeHorizon: string;
   metrics: MetricPoint[];
   reasoning: ReasoningTrace;
-  quoteSource: "live" | "cached" | "sim" | "none";
+  quoteSource: Source | "none";
   lastPrice: string | null;
   changePct: number | null;
 }

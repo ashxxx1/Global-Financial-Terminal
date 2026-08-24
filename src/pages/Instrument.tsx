@@ -46,7 +46,7 @@ export default function Instrument({ kind }: { kind: Kind }) {
   useEffect(() => subscribe(() => setTick((t) => t + 1)), []);
 
   const q = key ? quoteFor(key) : null;
-  const prov = meta ? provenanceFor(meta.kind, q?.source ?? "sim", meta.country ?? null, meta.name) : null;
+  const prov = meta ? provenanceFor(meta.kind, q?.source ?? "pending", meta.country ?? null, meta.name) : null;
   const proxy = meta ? proxyFor(meta.name) : undefined;
 
   const range = useMemo(() => {
@@ -108,7 +108,7 @@ export default function Instrument({ kind }: { kind: Kind }) {
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", marginBottom: 6 }}>
         <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>{meta.name}</h1>
         <span className="label" style={{ color: "var(--faint)" }}>{label.toUpperCase()}</span>
-        <ProvenanceBadge kind={meta.kind} source={q?.source ?? "sim"} country={meta.country} name={meta.name} />
+        <ProvenanceBadge kind={meta.kind} source={q?.source ?? "pending"} country={meta.country} name={meta.name} />
       </div>
 
       <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginBottom: 18, flexWrap: "wrap" }}>

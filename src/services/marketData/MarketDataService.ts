@@ -7,7 +7,7 @@
  *
  * Never silently invents "live" data.
  */
-import { historyFor, metaFor, type Source } from "../../lib/market";
+import { historyFor, metaFor, type Source, type HistorySource } from "../../lib/market";
 import type {
   CandleResolution,
   CompareSeries,
@@ -48,7 +48,12 @@ function cacheKey(ticker: string, resolution: string, from: number, to: number):
   return `${ticker}|${resolution}|${from}|${to}`;
 }
 
-function mapSource(s: Source): MarketDataSource {
+/**
+ * Chart history carries HistorySource, not Source — spot prices no longer have
+ * a simulated state but candle series still do, and the two must not be
+ * conflated.
+ */
+function mapSource(s: Source | HistorySource): MarketDataSource {
   if (s === "live") return "live";
   if (s === "cached") return "cached";
   return "sim";

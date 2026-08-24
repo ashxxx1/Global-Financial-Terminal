@@ -607,6 +607,114 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/AVGO</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/ORCL</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/CRM</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/AMD</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/ADBE</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/NFLX</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/COST</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/WMT</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/LLY</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/ABBV</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/MRK</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/BAC</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/GS</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/MS</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/XOM</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/CAT</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/BA</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/GE</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/AAPL</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -650,24 +758,6 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/JPM</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/BAC</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/GS</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/XOM</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -727,12 +817,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/AMD</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/SPY</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -740,6 +824,30 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/QQQ</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/AZN</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/ULVR</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/RIO</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/REL</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -775,19 +883,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/AZN</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/GSK</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/ULVR</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -811,12 +907,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/RIO</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/AAL</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -830,6 +920,36 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/BATS</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/8306</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/9432</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/6501</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/7974</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/8058</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -865,31 +985,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/6501</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/9984</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/9432</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/9433</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/8306</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -919,13 +1021,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/VOW3</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/SIE</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/BMW</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/DTE</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -937,7 +1039,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/SIE</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/VOW3</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/BMW</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -967,12 +1075,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/DTE</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/EOAN</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -986,12 +1088,6 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/BAS</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/MRK</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -1087,6 +1183,24 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/HDFCBANK</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/ITC</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/TITAN</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/RELIANCE</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -1112,12 +1226,6 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/HCLTECH</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/HDFCBANK</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -1207,6 +1315,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/ITUB4</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/PETR4</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -1214,12 +1328,6 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/VALE3</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/ITUB4</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -1267,6 +1375,18 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/CSL</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/MQG</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/BHP</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -1309,12 +1429,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/CSL</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/WDS</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -1334,6 +1448,12 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/RY</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/CNR</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -1369,12 +1489,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/CNR</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/BCE</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -1393,13 +1507,19 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/MC</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/OR</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/OR</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/AI</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/MC</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -1520,6 +1640,12 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/4220</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/373220</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -1706,6 +1832,12 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/NESTLE</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/GFNORTEO</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -1951,6 +2083,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/IBE</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/BBVA</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -1958,12 +2096,6 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/CaixaBank</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/IBE</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -2005,6 +2137,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/ISP</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/ENI</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -2012,12 +2150,6 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/ENEL</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/ISP</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -2060,6 +2192,12 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/TIT</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/INGA</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -2227,6 +2365,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/ZURN</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/NESN</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -2264,12 +2408,6 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/ALC</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/ZURN</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -3301,6 +3439,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/stock/2317</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/2330</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -3308,12 +3452,6 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/stock/2454</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/stock/2317</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -4519,25 +4657,37 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/AAPL/MSFT</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/AVGO/ORCL</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/MSFT/NVDA</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/ORCL/CRM</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/NVDA/GOOGL</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/CRM/AMD</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/GOOGL/META</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/AMD/ADBE</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/COST/WMT</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/WMT/AMZN</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -4549,31 +4699,19 @@
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/JPM/BAC</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/LLY/ABBV</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/BAC/GS</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/ABBV/MRK</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/GS/V</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/V/MA</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/XOM/CVX</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/MRK/UNH</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -4585,7 +4723,73 @@
     <priority>0.75</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/BAC/GS</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/GS/MS</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/MS/JPM</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/JPM/V</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/XOM/CVX</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/CAT/GE</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/BA/LMT</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/LMT/RTX</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/AZN/GSK</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/ULVR/DGE</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/DGE/BATS</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/RIO/AAL</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -4615,31 +4819,25 @@
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/AZN/GSK</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/ULVR/DGE</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/DGE/BATS</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/VOD/BT.A</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/RIO/AAL</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/8306/8316</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/9432/9433</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/6501/8058</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -4669,37 +4867,25 @@
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/9432/9433</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/8306/8316</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/4519/4568</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/VOW3/BMW</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/BMW/MBG</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/SIE/BAS</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/MBG/VOW3</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/VOW3/BMW</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -4753,30 +4939,6 @@
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/RELIANCE/ONGC</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/TCS/INFY</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/INFY/WIPRO</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/WIPRO/HCLTECH</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/HDFCBANK/ICICIBANK</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -4796,6 +4958,42 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/SBIN/KOTAKBANK</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/ITC/TITAN</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/TITAN/HINDUNILVR</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/RELIANCE/ONGC</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/TCS/INFY</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/INFY/WIPRO</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/WIPRO/HCLTECH</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -4837,13 +5035,7 @@
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/BHP/RIO</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/RIO/FMG</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/MQG/CBA</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -4862,6 +5054,18 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/ANZ/WBC</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/BHP/RIO</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/RIO/FMG</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -4891,13 +5095,25 @@
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/MC/OR</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/OR/MC</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/OR/KER</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/MC/KER</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/AI/SU</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/SU/AIR</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -4940,6 +5156,12 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/1050/1211</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/373220/051910</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -5036,6 +5258,12 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/MTNN/AIRTELAFRI</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/GFNORTEO/GFINBURO</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -5173,13 +5401,19 @@
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/ASML/WKL</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/INGA/ING</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/ING/NN</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/ASML/WKL</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -5251,6 +5485,12 @@
     <priority>0.75</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/ZURN/UBSG</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/ROG/NOVN</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
@@ -5276,12 +5516,6 @@
   </url>
   <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/GIVN/SIKA</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/UBSG/ZURN</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
@@ -5629,19 +5863,19 @@
     <priority>0.75</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/2317/2330</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/compare/2330/2454</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/2454/2317</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>https://global-financial-terminal-eight.vercel.app/compare/2317/2303</loc>
+    <loc>https://global-financial-terminal-eight.vercel.app/compare/2454/2303</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>

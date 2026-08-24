@@ -87,7 +87,7 @@ export async function analyzeScreen(): Promise<Answer> {
       fetchDataset<Metrics>("metrics", sym),
     ]);
     if (!earn.ok || !met.ok) continue;
-    const sp = earn.data.map((e) => e.surprisePercent).filter((x): x is number => typeof x === "number");
+    const sp = earn.data.map((e) => e.surprisePercent).filter((x): x is number => typeof x === "number" && Number.isFinite(x));
     const pe = num(met.data, "peTTM");
     if (sp.length < 2 || pe === null) continue;
     results.push({ sym, surprise: sp[0], pe, improving: sp[0] > sp[sp.length - 1] });

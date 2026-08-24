@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { COUNTRIES, stocksOf, quoteFor, subscribe } from "../lib/market";
+import { COUNTRIES, stocksOf, quoteFor, subscribe, metaFor } from "../lib/market";
 import { useQuotes } from "../lib/hooks";
 import { getCountryStats } from "../data/countryStats";
 import { fetchCountryNews, agoLabel, type Article } from "../lib/news";
@@ -63,6 +63,28 @@ export default function Country() {
       : undefined,
   });
   const [tab, setTab] = useState<(typeof TABS)[number]>("OVERVIEW");
+
+  /**
+   * Today's movers in this market — growth-plan item 79.
+   *
+   * The rest of this page is context that barely changes between visits: GDP,
+   * policy rate, a benchmark return. This is the part that gives someone a
+   * reason to come back tomorrow, and it is computed from the same live quotes
+   * the rest of the terminal uses rather than a stored figure.
+   */
+  const movers = useMemo(() => {
+    if (!iso) return { gainers: [], losers: [], live: 0, total: 0 };
+    const rows = stocksOf(iso)
+      .map((sym) => ({ sym, q: quoteFor(sym), meta: metaFor(sym) }))
+      .filter((r): r is { sym: string; q: NonNullable<ReturnType<typeof quoteFor>>; meta: ReturnType<typeof metaFor> } => !!r.q);
+    const sorted = [...rows].sort((a, b) => b.q.changePct - a.q.changePct);
+    return {
+      gainers: sorted.slice(0, 5),
+      losers: sorted.slice(-5).reverse(),
+      live: rows.filter((r) => r.q.source === "live").length,
+      total: rows.length,
+    };
+  }, [iso, tick]);
 
   // Value action: opening a country is the core "orientation" job.
   useEffect(() => { if (iso) track("country_opened", { code: iso }); }, [iso]);
@@ -153,6 +175,39 @@ export default function Country() {
           </div>
           <Connections nodes={connectionsForCountry(iso)} />
         </>
+      )}
+
+      {tab === "OVERVIEW" && movers.total > 0 && (
+        <div className="panel" style={{ marginBottom: 16 }}>
+          <div className="panel-head">
+            <span className="panel-title">Movers today</span>
+            <span className="label" style={{ color: "var(--faint)" }}>
+              {movers.live} of {movers.total} on live prices
+            </span>
+          </div>
+          <div className="ctry-movers">
+            {[["Gainers", movers.gainers], ["Losers", movers.losers]].map(([label, rows]) => (
+              <div key={label as string}>
+                <div className="label" style={{ color: "var(--faint)", marginBottom: 6 }}>{label as string}</div>
+                {(rows as typeof movers.gainers).map((r) => (
+                  <button key={r.sym} className="ctry-mover" onClick={() => navigate(`/research/${r.sym}`)}>
+                    <span className="mono">{r.sym}</span>
+                    <span className="ctry-mover-name">{r.meta?.name}</span>
+                    <span style={{ color: r.q.changePct >= 0 ? "var(--up)" : "var(--down)" }}>
+                      {r.q.changePct >= 0 ? "+" : ""}{r.q.changePct.toFixed(2)}%
+                    </span>
+                    {r.q.source !== "live" && <span className="ctry-mover-sim">SIM</span>}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+          <p className="ctry-movers-foot">
+            Click any name for its full research workspace. Names still on simulated
+            prices are marked, and are ranked alongside live ones — so treat a SIM
+            row as illustrative, not as today&rsquo;s actual leader.
+          </p>
+        </div>
       )}
 
       {tab === "MARKETS" && (

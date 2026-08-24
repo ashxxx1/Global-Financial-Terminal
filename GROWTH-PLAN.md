@@ -89,7 +89,7 @@ with a big roadmap and no users.
 - [x] 28. Full mobile responsive audit — verified at mobile viewport: no page-level horizontal scroll, 0 tap targets under 24px, panels stack correctly. Ticker marquee overflow is contained by design
 - [x] 29. Per-route SEO meta (title/description/canonical)
 - [x] 30. `sitemap.xml` + `robots.txt`
-- [ ] 31. Set up a staging environment separate from production
+- [x] 31. Set up a staging environment separate from production — `docs/ENVIRONMENT.md` already covered data safety; the missing half was that a Vercel preview URL is pixel-identical to production, so nobody could tell which they were reading. `EnvBanner` now shows the deployment, branch and commit on anything that is not production, and renders nothing where silence is correct. `VERCEL_ENV` is inlined at build time via vite `define`
 - [ ] 32. Automated backups of Firestore
 - [x] 33. Accessibility pass to WCAG 2.2 AA — contrast measured, not eyeballed: `--faint` was 3.39:1 (fails 1.4.3) and is now 4.89:1; landing `--ink-3`/`--ink-4` likewise. Fixed invalid `role="tab"` without a tabpanel (1.3.1), added sr-only labels for the ▲/▼ toggle (4.1.2), and 24×24 minimum targets (2.5.8)
 
@@ -164,7 +164,7 @@ with a big roadmap and no users.
 - [x] 76. Economic calendar (Fed, CPI, earnings) plotted on the globe/timeline — the globe already pinned macro events; `/calendar` adds somewhere to read them in order plus **real** scheduled earnings dates with the consensus estimate for each print, filterable to what you watch or hold. The two sources are kept visually and textually distinct: the earnings dates are published fact, the macro schedule is a rolled-forward seed and says so, because a projected central-bank date sitting unlabelled next to a confirmed earnings date is exactly the blending this product refuses
 - [x] 77. Saved views and custom layouts — a view is the route plus the two layout toggles, not a serialised component tree. That survives any redesign; a saved layout that breaks the first time a page changes is worse than none. Verified round-trip: save on /markets, navigate to /news, re-apply, lands back on /markets with the layout restored
 - [x] 78. Recently viewed / jump back in — `RecentlyViewed`, last 8 symbols, persisted
-- [ ] 79. Country deep-dive pages worth returning to
+- [x] 79. Country deep-dive pages worth returning to — the rest of the page is context that barely changes between visits (GDP, policy rate, a benchmark return). Added today's movers for that market, computed from the same live quotes the terminal uses, each linking into the company's full research workspace. Rows still on simulated prices are marked SIM and the footnote says to treat them as illustrative rather than as today's actual leader
 
 ### Retention analytics
 - [ ] 80. Cohort retention curves in PostHog
@@ -191,11 +191,11 @@ with a big roadmap and no users.
 - [x] 92. Build index pages (S&P 500, FTSE, Nikkei…) — `/index/:slug`, e.g. `/index/s-p-500`. States the ETF proxy inline and refuses to rescale it into a synthetic index level
 - [x] 93. Build currency pair pages — `/fx/:slug`, e.g. `/fx/eur-usd`
 - [x] 94. Build crypto asset pages — `/crypto/:slug`, e.g. `/crypto/btc-usd`; these are genuinely LIVE from Binance and the badge says so
-- [ ] 95. Template comparison pages ("X vs Y")
+- [x] 95. Template comparison pages ("X vs Y") — 241 pairs in the sitemap, same-sector and same-market only. "AAPL vs JPM" is a page nobody searches for and generating it would be inflating a URL count, which is precisely the thin-content trap item 100 exists to avoid
 - [x] 96. Auto-generated OG image per page — `api/og.ts` generalises the old compare-only card to any page: title, subtitle, value and a signed change in the right colour. Wired into stock, country and instrument pages. Every value is XML-escaped and length-clamped because it all arrives from a query string. SVG rather than a rasteriser — renders in every scraper that matters, costs no dependency
 - [x] 97. Schema.org structured data — JSON-LD Organization/WebSite/WebPage graph emitted per route from `useSeo`, with SearchAction for a sitelinks searchbox
 - [x] 98. Internal linking strategy across the page graph — instrument pages link to the countries they benchmark and the companies in that market; country pages link back through the benchmark. The sitemap generator reads the same data module the app builds its registry from, so it cannot drift from routes that actually resolve (728 URLs)
-- [ ] 99. Keyword research to prioritize which templates ship first
+- [x] 99. Keyword research to prioritize which templates ship first — `docs/SEO-PRIORITIES.md`. No keyword tool is available, so rather than invent volume figures the ranking runs on evidence we have: what we can serve well, intent shape, and visible competition. Research and compare rank first because they are the only templates where we have something the incumbents do not — and the doc says plainly that item 85 (SSR) gates every row, since none of it indexes today
 - [x] 100. Ensure pages have genuine unique value — this shaped the instrument template. Each page carries what a search result cannot: the true source and its delay, the real one-year range and where the price sits in it, the ETF proxy named inline, and links into the connected markets. An unknown slug returns an honest 'not tracked' page rather than an empty shell
 
 ### Content & authority

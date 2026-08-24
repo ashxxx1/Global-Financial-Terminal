@@ -192,6 +192,18 @@ function localFinnhubApi() {
 
 // https://vite.dev/config/
 export default defineConfig({
+  /**
+   * Which deployment this bundle is. Vercel sets VERCEL_ENV to production,
+   * preview or development; it is not VITE_-prefixed, so it is inlined here.
+   * The app shows a banner on anything that is not production — a preview URL
+   * looks identical to the real thing otherwise, and someone reading a price
+   * off a staging build has no way to know it is not the live terminal.
+   */
+  define: {
+    __DEPLOY_ENV__: JSON.stringify(process.env.VERCEL_ENV || "development"),
+    __DEPLOY_REF__: JSON.stringify(process.env.VERCEL_GIT_COMMIT_REF || ""),
+    __DEPLOY_SHA__: JSON.stringify((process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7)),
+  },
   // Root path by default (Vercel/Netlify/tunnel); GitHub Pages project sites
   // build with VITE_BASE=/Global-Financial-Terminal/ (see .github/workflows/pages.yml).
   base: process.env.VITE_BASE || '/',

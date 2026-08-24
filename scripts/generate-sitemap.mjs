@@ -18,6 +18,43 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SITE = process.env.SITE_URL || "https://global-financial-terminal-eight.vercel.app";
 
 /**
+ * Comparison pairs worth publishing.
+ *
+ * Same-sector, same-market pairs only. "AAPL vs JPM" is a page nobody searches
+ * for and we would be generating it purely to inflate a URL count — which is
+ * the thin-content trap item 100 exists to avoid. Pairing within a sector keeps
+ * every page a comparison someone might actually make.
+ *
+ * Capped per sector so the sitemap stays a set of pages we would defend, rather
+ * than every combination the maths allows.
+ */
+async function comparisonPaths() {
+  const src = await readFile(path.join(ROOT, "src", "data", "stocksData.js"), "utf8");
+  const blocks = [...src.matchAll(/^\s*([A-Z]{2}):\s*\[/gm)];
+  const out = [];
+
+  for (let i = 0; i < blocks.length; i++) {
+    const chunk = src.slice(blocks[i].index, i + 1 < blocks.length ? blocks[i + 1].index : src.length);
+    const rows = [...chunk.matchAll(/ticker:\s*"([^"]+)"[^}]*?sector:\s*"([^"]+)"/g)]
+      .map((m) => ({ ticker: m[1], sector: m[2] }));
+
+    const bySector = new Map();
+    for (const r of rows) {
+      if (!bySector.has(r.sector)) bySector.set(r.sector, []);
+      bySector.get(r.sector).push(r.ticker);
+    }
+    for (const [, tickers] of bySector) {
+      // Adjacent pairs within a sector: the largest names sit first in the
+      // source data, so this pairs the ones people actually compare.
+      for (let k = 0; k + 1 < Math.min(tickers.length, 5); k++) {
+        out.push(`/compare/${tickers[k]}/${tickers[k + 1]}`);
+      }
+    }
+  }
+  return [...new Set(out)];
+}
+
+/**
  * Index, currency-pair and crypto slugs, read from the same data module the app
  * builds its registry from — so the sitemap cannot drift from the routes that
  * actually resolve.
@@ -65,6 +102,7 @@ async function main() {
   const today = new Date().toISOString().slice(0, 10);
   const codes = await countryCodes();
   const instruments = await instrumentPaths();
+  const comparisons = await comparisonPaths();
   const syms = await tickers();
 
   const entries = [
@@ -93,6 +131,10 @@ async function main() {
     ...syms.map((s) => url(`/stock/${s}`, { priority: "0.6", lastmod: today })),
     // Index, currency and crypto pages — growth-plan items 92, 93, 94.
     ...instruments.map((pth) => url(pth, { changefreq: "hourly", priority: "0.7", lastmod: today })),
+    // Comparison templates — growth-plan item 95. Ranked 2nd in
+    // docs/SEO-PRIORITIES.md because the answer is the product here, not the
+    // quote, so it is a page the incumbents do not already own.
+    ...comparisons.map((pth) => url(pth, { changefreq: "daily", priority: "0.75", lastmod: today })),
   ];
 
   const xml =

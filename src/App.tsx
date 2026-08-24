@@ -14,6 +14,7 @@ import { connectBackend, BACKEND_URL } from "./lib/feeds/backend";
 import TopNav from "./components/TopNav";
 import Ticker from "./components/Ticker";
 import RightRail from "./components/RightRail";
+import EnvBanner from "./components/EnvBanner";
 
 import AlertWatcher from "./components/AlertWatcher";
 
@@ -139,6 +140,7 @@ function Shell() {
   return (
     <div className="shell">
       <div className="ambient" aria-hidden />
+      <EnvBanner />
       <TopNav />
       <div className="shell-main">
         <main className="shell-content" style={{ overflowY: onWorld ? "hidden" : "auto" }}>

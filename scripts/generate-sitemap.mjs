@@ -17,6 +17,17 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SITE = process.env.SITE_URL || "https://global-financial-terminal-eight.vercel.app";
 
+/** Published market notes — growth-plan items 101, 102. */
+async function blogPaths() {
+  try {
+    const raw = await readFile(path.join(ROOT, "public", "blog", "index.json"), "utf8");
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list.map((p) => ({ slug: p.slug, date: p.date })) : [];
+  } catch {
+    return [];   // no posts yet is not an error
+  }
+}
+
 /**
  * Comparison pairs worth publishing.
  *
@@ -103,6 +114,7 @@ async function main() {
   const codes = await countryCodes();
   const instruments = await instrumentPaths();
   const comparisons = await comparisonPaths();
+  const posts = await blogPaths();
   const syms = await tickers();
 
   const entries = [
@@ -121,6 +133,8 @@ async function main() {
     url("/terminal/signals/methodology", { changefreq: "monthly", priority: "0.6", lastmod: today }),
     url("/news", { changefreq: "hourly", priority: "0.9", lastmod: today }),
     url("/impact", { changefreq: "hourly", priority: "0.95", lastmod: today }),
+    url("/blog", { changefreq: "weekly", priority: "0.8", lastmod: today }),
+    ...posts.map((p) => url(`/blog/${p.slug}`, { changefreq: "monthly", priority: "0.7", lastmod: p.date })),
     url("/changelog", { changefreq: "weekly", priority: "0.5", lastmod: today }),
     url("/data-sources", { changefreq: "monthly", priority: "0.4", lastmod: today }),
     url("/glossary", { changefreq: "monthly", priority: "0.7", lastmod: today }),

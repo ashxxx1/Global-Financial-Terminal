@@ -91,6 +91,18 @@
     <priority>0.95</priority>
   </url>
   <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/blog</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://global-financial-terminal-eight.vercel.app/blog/market-week-2026-08-24</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://global-financial-terminal-eight.vercel.app/changelog</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>weekly</changefreq>

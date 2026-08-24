@@ -1,0 +1,112 @@
+{
+ "slug": "market-week-2026-08-24",
+ "title": "What the world's markets did — week to 24 August 2026",
+ "date": "2026-08-24",
+ "kind": "weekly-recap",
+ "summary": "5 of 10 major markets rose over the week. Bovespa led at +3.52%; Nikkei 225 lagged at -3.40%.",
+ "sections": [
+  {
+   "heading": "Markets",
+   "note": "Five-session returns, measured from the closing prices of each market's index-tracking fund.",
+   "rows": [
+    {
+     "label": "S&P 500",
+     "meta": "United States",
+     "value": "-1.18%",
+     "raw": -1.181617648510892
+    },
+    {
+     "label": "Nasdaq 100",
+     "meta": "United States",
+     "value": "-3.23%",
+     "raw": -3.2266003467079885
+    },
+    {
+     "label": "FTSE 100",
+     "meta": "United Kingdom",
+     "value": "+1.92%",
+     "raw": 1.9206794850317093
+    },
+    {
+     "label": "DAX",
+     "meta": "Germany",
+     "value": "+0.39%",
+     "raw": 0.386719716067113
+    },
+    {
+     "label": "Nikkei 225",
+     "meta": "Japan",
+     "value": "-3.40%",
+     "raw": -3.3971673084207468
+    },
+    {
+     "label": "Hang Seng",
+     "meta": "Hong Kong",
+     "value": "+3.31%",
+     "raw": 3.3125871356838985
+    },
+    {
+     "label": "CAC 40",
+     "meta": "France",
+     "value": "-0.40%",
+     "raw": -0.40305182259019406
+    },
+    {
+     "label": "ASX 200",
+     "meta": "Australia",
+     "value": "+1.68%",
+     "raw": 1.675129786848137
+    },
+    {
+     "label": "Nifty 50",
+     "meta": "India",
+     "value": "-0.47%",
+     "raw": -0.47398265766978787
+    },
+    {
+     "label": "Bovespa",
+     "meta": "Brazil",
+     "value": "+3.52%",
+     "raw": 3.517808807424836
+    }
+   ]
+  },
+  {
+   "heading": "Commodities",
+   "note": "Priced through the same tracking funds the terminal uses; the change is real, the level is the fund's.",
+   "rows": [
+    {
+     "label": "Gold",
+     "meta": "",
+     "value": "+5.23%",
+     "raw": 5.233175104627828
+    },
+    {
+     "label": "Oil",
+     "meta": "",
+     "value": "+1.44%",
+     "raw": 1.4352678427650158
+    },
+    {
+     "label": "Silver",
+     "meta": "",
+     "value": "+4.43%",
+     "raw": 4.431759951608353
+    },
+    {
+     "label": "Copper",
+     "meta": "",
+     "value": "-0.05%",
+     "raw": -0.05008631786094825
+    }
+   ]
+  }
+ ],
+ "takeaways": [
+  "5 of 10 markets advanced.",
+  "Bovespa was strongest at +3.52%; Nikkei 225 weakest at -3.40%.",
+  "A 6.9 point spread between the strongest and weakest market is wide: where you were invested mattered more than whether you were invested."
+ ],
+ "method": "Every figure here is computed from daily closing prices through the same feeds the terminal runs on, so you can check any of it against the live product. Returns are five-session, not calendar-week. This post reports what moved and deliberately does not explain why: attributing a market move needs evidence this generator does not have, and a guess dressed as analysis is worse than none.",
+ "generatedAt": "2026-08-24T20:02:58.160Z"
+}

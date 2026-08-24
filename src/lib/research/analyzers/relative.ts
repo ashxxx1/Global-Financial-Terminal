@@ -121,7 +121,7 @@ export function relativeClaims(ctx: CompanyContext): Claim[] {
   const rows = attributionTable(ctx);
   const src = (label: string, detail: string): Source => ({
     kind: "market", label, detail, asOf: ctx.builtAt, capability: "price-history",
-    simulated: ctx.quote ? !ctx.quote.live : true,
+    unpriced: ctx.quote ? !ctx.quote.live : true,
   });
 
   const usable = rows.filter((r) => r.stock !== null);

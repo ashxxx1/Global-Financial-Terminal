@@ -56,6 +56,7 @@ const Portfolio = lazy(() => import("./pages/Portfolio"));
 const Watchlist = lazy(() => import("./pages/Watchlist"));
 const Calendar = lazy(() => import("./pages/Calendar"));
 const Instrument = lazy(() => import("./pages/Instrument"));
+const Blog = lazy(() => import("./pages/Blog"));
 const MarketsTree = lazy(() => import("./pages/MarketsTree"));
 
 const ResearchWorkspace = lazy(() => import("./components/research/Workspace"));
@@ -183,6 +184,8 @@ function Shell() {
             <Route path="/signals/history" element={<SignalHistoryPage />} />
             <Route path="/signals/performance" element={<SignalPerformancePage />} />
             <Route path="/signals/:id" element={<SignalDetailPage />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<Blog />} />
             <Route path="/changelog" element={<Changelog />} />
             <Route path="/data-sources" element={<DataSources />} />
             <Route path="/forum" element={<Forum />} />

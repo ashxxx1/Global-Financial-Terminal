@@ -135,7 +135,7 @@ export async function analyzeMarket(): Promise<Answer> {
   claims.push({
     text: `${up} of ${moves.length} live-priced names are up today (${((up / Math.max(1, moves.length)) * 100).toFixed(0)}% breadth), median move ${med !== null ? pct(med) : "—"}.`,
     tier: "CALCULATION", confidence: 0.9,
-    why: `Counted across the ${moves.length} instruments currently on a live feed. Names still on simulated prices are excluded so they cannot distort breadth.`,
+    why: `Counted across the ${moves.length} instruments currently on a live feed. Names without a usable price are excluded so they cannot distort breadth.`,
     sources: [{ kind: "market", label: "Live universe", detail: `${moves.length} live instruments, ${up} advancing`, asOf: Date.now() }],
   });
 
@@ -169,7 +169,7 @@ export async function analyzeMarket(): Promise<Answer> {
     mode: "market",
     headline: buildHeadline(claims, "Breadth and leadership"),
     claims,
-    caveats: ["Breadth covers only instruments on a live feed. Several hundred non-US names remain simulated on our data plan and are excluded rather than counted as if real."],
+    caveats: ["Breadth covers only instruments on a live feed. Names our providers do not reach have no price at all and are excluded rather than counted as flat."],
     asOf: Date.now(),
     suggestions: (() => {
       if (!syms.length) return [];
@@ -214,7 +214,7 @@ export async function analyzePortfolio(symbols: string[]): Promise<Answer> {
     sources: rows.slice(0, 8).map((r) => ({
       kind: "market" as const, label: r.s,
       detail: `${r.q!.display} (${pct(r.q!.changePct)})`,
-      asOf: Date.now(), simulated: r.q!.source !== "live",
+      asOf: Date.now(), unpriced: !Number.isFinite(r.q!.price),
     })),
   });
 
@@ -227,9 +227,9 @@ export async function analyzePortfolio(symbols: string[]): Promise<Answer> {
     });
   }
 
-  const simulated = rows.filter((r) => r.q!.source !== "live");
-  if (simulated.length > 0) {
-    caveats.push(`${simulated.length} of ${rows.length} names (${simulated.map((r) => r.s).join(", ")}) are on simulated prices, so their contribution above is not real market data.`);
+  const unpriced = rows.filter((r) => !Number.isFinite(r.q!.price));
+  if (unpriced.length > 0) {
+    caveats.push(`${unpriced.length} of ${rows.length} names (${unpriced.map((r) => r.s).join(", ")}) have no usable price and are excluded from the figures above rather than counted as zero.`);
   }
   caveats.push("Without position sizes this measures the list, not your exposure. Two names at 40% and 2% of a book are counted identically here.");
 
@@ -255,7 +255,7 @@ export async function analyzeMacro(): Promise<Answer> {
       tier: "FACT",
       confidence: f.q!.source === "live" ? 1 : 0.5,
       why: `Source: ${prov.provider} (${prov.delay}).`,
-      sources: [{ kind: "market", label: prov.label, detail: `${f.s} ${f.q!.display}`, asOf: Date.now(), simulated: f.q!.source !== "live" }],
+      sources: [{ kind: "market", label: prov.label, detail: `${f.s} ${f.q!.display}`, asOf: Date.now(), unpriced: !Number.isFinite(f.q!.price) }],
     });
   }
 

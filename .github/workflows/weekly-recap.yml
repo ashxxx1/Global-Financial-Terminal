@@ -1,0 +1,50 @@
+name: Weekly recap
+
+# Publishes the weekly market note — growth-plan item 102.
+#
+# Friday after the US close, so the week the post describes is actually
+# finished. Committing the JSON means the post is static: no build step, no
+# database, and the git history shows exactly when each recap was written,
+# which matters for anything making claims about market moves.
+
+on:
+  schedule:
+    - cron: "30 21 * * 5"   # Friday 21:30 UTC — after the US close
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-recap
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Generate the recap
+        run: node scripts/weekly-recap.mjs
+        env:
+          SITE: https://global-financial-terminal-eight.vercel.app
+
+      - name: Refresh the sitemap
+        run: node scripts/generate-sitemap.mjs
+
+      - name: Commit
+        run: |
+          if git diff --quiet -- public/blog public/sitemap.xml; then
+            echo "nothing new to publish"
+            exit 0
+          fi
+          git config user.name "gft-recap"
+          git config user.email "recap@users.noreply.github.com"
+          git add public/blog public/sitemap.xml
+          git commit -m "content: weekly market recap $(date -u +%Y-%m-%d)"
+          git push

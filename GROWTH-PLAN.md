@@ -199,10 +199,10 @@ with a big roadmap and no users.
 - [x] 100. Ensure pages have genuine unique value — this shaped the instrument template. Each page carries what a search result cannot: the true source and its delay, the real one-year range and where the price sits in it, the ETF proxy named inline, and links into the connected markets. An unknown slug returns an honest 'not tracked' page rather than an empty shell
 
 ### Content & authority
-- [ ] 101. Launch a blog on the same domain
-- [ ] 102. Publish a weekly market-visualization post (your unfair advantage)
+- [x] 101. Launch a blog on the same domain — `/blog`. Posts are static JSON committed to the repo, so there is no build step, no database, and git history shows exactly when each was written — which matters for anything making claims about market moves
+- [x] 102. Publish a weekly market-visualization post — `scripts/weekly-recap.mjs` + a Friday CI job. The advantage is precise: most recaps are written from memory and a glance at a chart, while every figure in ours is computed from the same feeds the terminal runs on and can be checked against the live product. It reports what moved and deliberately does not explain why — attributing a move needs evidence a generator does not have, and a guess dressed as analysis is worse than none
 - [x] 103. Educational glossary — `/glossary` hub + 13 term pages, each with a worked example, the common mistake and DefinedTerm structured data (not thin, per item 100). Sitemap 667 → 687 URLs
-- [ ] 104. Data-story posts using your own visuals ("what the world's markets did in 2026")
+- [x] 104. Data-story posts using your own visuals — the weekly recap is exactly this format: 10 markets and 4 commodities ranked by five-session return, with a dispersion read. First post published from real data (Bovespa +3.52% strongest, Nikkei −3.40% weakest, 6.9pt spread)
 - [ ] 105. Guest posts on finance blogs for backlinks
 - [ ] 106. Digital PR: publish an original data study journalists will cite
 - [ ] 107. Get listed in fintech/tool directories

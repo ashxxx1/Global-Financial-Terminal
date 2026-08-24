@@ -37,16 +37,16 @@ export async function analyzeMoving(symbol: string): Promise<Answer> {
   const claims: Claim[] = [];
   const caveats: string[] = [];
   const ms = marketSource(symbol);
-  const live = !ms.simulated;
+  const live = !ms.unpriced;
 
   claims.push({
     text: `${name} is ${q.changePct >= 0 ? "up" : "down"} ${mag(q.changePct)} at ${q.display}.`,
     tier: "FACT", confidence: live ? 1 : 0.5,
     why: live ? "Read directly from the live quote feed."
-      : "This symbol has no live feed on our data plan — the price is simulated and labelled as such throughout the terminal.",
+      : "No price is available for this listing, so there is nothing to attribute. We show no figure rather than a substitute.",
     sources: [ms],
   });
-  if (!live) caveats.push(`${symbol} is not priced live on our data plan, so everything below rests on a simulated price.`);
+  if (!live) caveats.push(`${symbol} has no usable price, so the statements below rest on what little is measurable without one.`);
 
   // Size the move against the stock's own normal daily range.
   const vol = dailyVol(symbol);
@@ -59,7 +59,7 @@ export async function analyzeMoving(symbol: string): Promise<Answer> {
       sources: [ms, {
         kind: "market", label: "Price history",
         detail: `${vol.n} daily returns, sample σ = ${vol.sd.toFixed(3)}%`,
-        asOf: Date.now(), capability: "price-history", simulated: ms.simulated,
+        asOf: Date.now(), capability: "price-history", unpriced: ms.unpriced,
       }],
       calculation: {
         expression: `${q.changePct.toFixed(2)} ÷ ${vol.sd.toFixed(3)}`,

@@ -146,7 +146,7 @@ export function buildScorecard(ctx: CompanyContext): ScoreDimension[] {
         id: "price", label: "Price momentum", score, band: band(score),
         basis: `${a.stock >= 0 ? "+" : ""}${a.stock.toFixed(1)}% over 3M against a peer median of ${a.peerMedian >= 0 ? "+" : ""}${a.peerMedian.toFixed(1)}%.`,
         confidence: 0.8,
-        sources: [{ kind: "market", label: "Relative return", detail: `3M: stock ${a.stock.toFixed(2)}%, peers ${a.peerMedian.toFixed(2)}% across ${a.peerN} names`, asOf: ctx.builtAt, capability: "price-history", simulated: ctx.quote ? !ctx.quote.live : true }],
+        sources: [{ kind: "market", label: "Relative return", detail: `3M: stock ${a.stock.toFixed(2)}%, peers ${a.peerMedian.toFixed(2)}% across ${a.peerN} names`, asOf: ctx.builtAt, capability: "price-history", unpriced: ctx.quote ? !ctx.quote.live : true }],
         cadence: "daily", asOf: ctx.builtAt,
       });
     }

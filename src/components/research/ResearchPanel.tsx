@@ -236,7 +236,7 @@ function ClaimView({ claim }: { claim: Claim }) {
       <div className="rsx-claim-foot">
         <span className="rsx-claim-conf">{Math.round(claim.confidence * 100)}% confidence</span>
         {claim.sources.slice(0, 4).map((s, i) => (
-          <span key={i} className={`rsx-chip ${s.simulated ? "sim" : ""}`}>{s.label}</span>
+          <span key={i} className={`rsx-chip ${s.unpriced ? "sim" : ""}`}>{s.label}</span>
         ))}
         <button className="rsx-evidence-btn" aria-expanded={show} onClick={() => setShow((v) => !v)}>
           {show ? "HIDE EVIDENCE" : "SHOW EVIDENCE"}
@@ -273,7 +273,7 @@ function ClaimView({ claim }: { claim: Claim }) {
                   {s.label}
                   {s.metricKey && <span className="rsx-key">{s.metricKey}</span>}
                 </span>
-                {s.simulated && <span className="rsx-ev-sim">SIMULATED</span>}
+                {s.unpriced && <span className="rsx-ev-sim">NO PRICE</span>}
                 <span className="rsx-ev-detail">{s.detail}</span>
                 <span className="rsx-ev-time">{new Date(s.asOf).toISOString().replace("T", " ").slice(0, 16)} UTC</span>
                 {s.url && <a className="rsx-ev-link" href={s.url} target="_blank" rel="noopener noreferrer">source ↗</a>}

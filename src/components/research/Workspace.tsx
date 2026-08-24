@@ -292,7 +292,7 @@ function ClaimRow({ claim }: { claim: Claim }) {
               <li key={i}>
                 <span className="rw-src-label">{s.label}</span>
                 {s.metricKey && <code>{s.metricKey}</code>}
-                {s.simulated && <span className="rw-sim">SIMULATED</span>}
+                {s.unpriced && <span className="rw-sim">NO PRICE</span>}
                 <span className="rw-src-detail">{s.detail}</span>
                 <span className="rw-src-time">
                   {new Date(s.asOf).toISOString().replace("T", " ").slice(0, 16)} UTC

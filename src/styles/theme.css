@@ -2716,3 +2716,35 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
   font-family: var(--mono); font-size: 8.5px; font-weight: 800; letter-spacing: 0.14em;
   color: var(--faint); border: 1px solid var(--line-strong); border-radius: 3px; padding: 2px 6px;
 }
+
+/* ── Blog / market notes (growth-plan items 101, 102, 104) ───────────────── */
+
+.blog-lede { font-size: 13.5px; color: var(--muted); line-height: 1.65; margin: 0 0 22px; }
+.blog-empty { font-size: 13px; color: var(--muted); }
+.blog-list { display: flex; flex-direction: column; gap: 8px; }
+.blog-card {
+  display: flex; flex-direction: column; gap: 4px; padding: 13px 15px;
+  border: 1px solid var(--line); border-radius: 7px; background: var(--panel);
+  text-decoration: none; color: var(--text);
+  transition: border-color 140ms ease, background 140ms ease;
+}
+.blog-card:hover { border-color: var(--line-strong); background: rgba(255,255,255,0.045); }
+.blog-date { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; color: var(--faint); }
+.blog-title { font-size: 15px; font-weight: 700; line-height: 1.35; }
+.blog-sum { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+
+.blog-meta { font-family: var(--mono); font-size: 9.5px; color: var(--faint); letter-spacing: 0.08em; margin-bottom: 14px; }
+.blog-summary { font-size: 15px; line-height: 1.65; color: var(--text); margin: 0 0 18px; }
+.blog-takeaways { margin: 0 0 22px; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
+.blog-takeaways li { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.blog-section { margin-bottom: 24px; }
+.blog-section h2 { font-size: 15px; font-weight: 700; margin: 0 0 4px; }
+.blog-note { font-size: 11.5px; color: var(--faint); line-height: 1.55; margin: 0 0 10px; }
+.blog-table { width: 100%; border-collapse: collapse; }
+.blog-table td { padding: 7px 6px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.blog-table .num { text-align: right; font-family: var(--mono); font-weight: 700; }
+.blog-rowmeta { margin-left: 8px; font-size: 10.5px; color: var(--faint); }
+.blog-method { margin-top: 26px; padding: 13px 15px; border: 1px dashed var(--line-strong); border-radius: 7px; }
+.blog-method h2 { font-size: 12px; font-weight: 700; margin: 0 0 6px; }
+.blog-method p { font-size: 12px; color: var(--muted); line-height: 1.65; margin: 0; }
+.blog-foot { font-size: 11px; color: var(--faint); margin-top: 18px; }

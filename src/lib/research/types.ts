@@ -42,7 +42,14 @@ export interface Source {
   url?: string;
   /** Which capability served this, so the trail survives a provider swap. */
   capability?: CapabilityId;
-  simulated?: boolean;
+  /**
+   * Set when the instrument has no usable price — either a feed covers it and
+   * has not answered, or none reaches it at all. Previously named `simulated`,
+   * which stopped being true when the price simulation was removed: the
+   * evidence panel was telling readers a claim rested on a simulated price
+   * where in fact there was no price.
+   */
+  unpriced?: boolean;
 }
 
 /** A reproducible computation: inputs in, expression, result out. */

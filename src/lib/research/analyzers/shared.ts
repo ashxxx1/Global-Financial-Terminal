@@ -44,7 +44,7 @@ export function marketSource(symbol: string): Source {
     asOf: Date.now(),
     raw: q?.price,
     capability: "quote",
-    simulated: q?.source !== "live",
+    unpriced: !q || !Number.isFinite(q.price),
   };
 }
 

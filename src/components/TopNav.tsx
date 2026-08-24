@@ -24,6 +24,7 @@ const OVERFLOW_LINKS = [
   { to: "/portfolio", label: "PORTFOLIO" },
   { to: "/watchlist", label: "WATCHLIST" },
   { to: "/calendar", label: "CALENDAR" },
+  { to: "/blog", label: "NOTES" },
   { to: "/macro", label: "MACRO" },
   { to: "/compare", label: "COMPARE" },
   { to: "/glossary", label: "GLOSSARY" },

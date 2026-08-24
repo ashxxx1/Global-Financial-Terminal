@@ -6,9 +6,27 @@
 import { publish } from "./bus";
 import { setLiveQuote } from "../market";
 
+/**
+ * Binance stream name → registry key.
+ *
+ * USDT rather than USD because that is what Binance actually quotes. The two
+ * track within a few basis points, which is why the pair is displayed as /USD;
+ * the provenance detail says the quote is against USDT so the substitution is
+ * visible rather than assumed.
+ */
 const STREAMS: Record<string, string> = {
   btcusdt: "IDX:BTC/USD",
   ethusdt: "IDX:ETH/USD",
+  solusdt: "IDX:SOL/USD",
+  bnbusdt: "IDX:BNB/USD",
+  xrpusdt: "IDX:XRP/USD",
+  adausdt: "IDX:ADA/USD",
+  dogeusdt: "IDX:DOGE/USD",
+  dotusdt: "IDX:DOT/USD",
+  linkusdt: "IDX:LINK/USD",
+  avaxusdt: "IDX:AVAX/USD",
+  ltcusdt: "IDX:LTC/USD",
+  maticusdt: "IDX:MATIC/USD",
 };
 
 let started = false;

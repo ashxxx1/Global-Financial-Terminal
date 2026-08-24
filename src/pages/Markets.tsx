@@ -58,6 +58,14 @@ export default function Markets() {
         >
           COMPARE CHARTS
         </button>
+        <button
+          type="button"
+          className="chip"
+          onClick={() => navigate("/markets/browse")}
+          title="Browse by country, sector and company size"
+        >
+          BROWSE BY COUNTRY →
+        </button>
         {savedCompare.length > 0 && (
           <span style={{ display: "flex", gap: 6, alignItems: "center" }} aria-label="Saved compare pairs">
             {savedCompare.slice(0, 3).map((p) => (

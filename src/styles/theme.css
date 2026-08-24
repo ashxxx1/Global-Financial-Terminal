@@ -2683,3 +2683,22 @@ body.nerd .mono.nerd-only { display: inline-flex !important; }
   border: 1px dashed var(--line-strong); border-radius: 3px; padding: 1px 4px;
 }
 .ctry-movers-foot { font-size: 10.5px; color: var(--faint); line-height: 1.55; margin: 6px 14px 12px; }
+/* ── Markets tree: country → sector → cap band ───────────────────────────── */
+
+.mt-crumbs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.mt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+.mt-card {
+  text-align: left; padding: 11px 13px; border-radius: 6px; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--line); color: var(--text);
+  transition: border-color 140ms ease, background 140ms ease;
+}
+.mt-card:hover { border-color: var(--line-strong); background: rgba(255,255,255,0.045); }
+.mt-card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.mt-card-name { font-size: 13.5px; font-weight: 600; }
+.mt-card-sub { font-size: 10.5px; color: var(--faint); margin-top: 4px; line-height: 1.5; }
+.mt-bands { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.mt-sim {
+  margin-left: 6px; font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.1em;
+  color: var(--faint); border: 1px dashed var(--line-strong); border-radius: 3px; padding: 1px 4px;
+}
+.mt-note { font-size: 11px; color: var(--faint); line-height: 1.6; margin: 12px 0; max-width: 720px; }

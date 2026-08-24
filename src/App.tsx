@@ -56,6 +56,7 @@ const Portfolio = lazy(() => import("./pages/Portfolio"));
 const Watchlist = lazy(() => import("./pages/Watchlist"));
 const Calendar = lazy(() => import("./pages/Calendar"));
 const Instrument = lazy(() => import("./pages/Instrument"));
+const MarketsTree = lazy(() => import("./pages/MarketsTree"));
 
 const ResearchWorkspace = lazy(() => import("./components/research/Workspace"));
 const ImpactCopilot = lazy(() => import("./pages/ImpactCopilot"));
@@ -150,6 +151,7 @@ function Shell() {
             <Route path="/" element={<World />} />
             <Route path="/country/:code" element={<Country />} />
             <Route path="/markets" element={<Markets />} />
+            <Route path="/markets/browse" element={<MarketsTree />} />
             <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/watchlist" element={<Watchlist />} />
             <Route path="/calendar" element={<Calendar />} />

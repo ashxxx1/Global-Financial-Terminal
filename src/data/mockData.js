@@ -3032,9 +3032,38 @@ export const GLOBAL_INDICES = [
   { name: "NAT GAS", value: "$2.34", change: "-1.23%", up: false },
   { name: "BTC/USD", value: "$67,234", change: "+2.14%", up: true },
   { name: "ETH/USD", value: "$3,456", change: "+3.21%", up: true },
+  // Crypto: streamed live from Binance. Seed values are placeholders that are
+  // overwritten within a second of the socket connecting.
+  { name: "SOL/USD", value: "$95", change: "+0.06%", up: true },
+  { name: "BNB/USD", value: "$703", change: "+0.78%", up: true },
+  { name: "XRP/USD", value: "$1.50", change: "-1.65%", up: false },
+  { name: "ADA/USD", value: "$0.22", change: "-2.58%", up: false },
+  { name: "DOGE/USD", value: "$0.09", change: "-2.88%", up: false },
+  { name: "DOT/USD", value: "$0.91", change: "-2.46%", up: false },
+  { name: "LINK/USD", value: "$11.65", change: "+0.40%", up: true },
+  { name: "AVAX/USD", value: "$7.54", change: "-1.31%", up: false },
+  { name: "LTC/USD", value: "$52.17", change: "-1.71%", up: false },
+  { name: "MATIC/USD", value: "$0.37", change: "-0.29%", up: false },
   { name: "EUR/USD", value: "1.0876", change: "-0.12%", up: false },
   { name: "GBP/USD", value: "1.2734", change: "-0.23%", up: false },
   { name: "USD/JPY", value: "142.34", change: "+0.45%", up: true },
+  // FX: ECB reference rates, cross-rated from the USD base. One published
+  // source for every pair, so no two pairs can disagree with each other.
+  { name: "USD/CHF", value: "0.88", change: "0.00%", up: true },
+  { name: "USD/CAD", value: "1.36", change: "0.00%", up: true },
+  { name: "AUD/USD", value: "0.66", change: "0.00%", up: true },
+  { name: "NZD/USD", value: "0.60", change: "0.00%", up: true },
+  { name: "USD/CNY", value: "7.20", change: "0.00%", up: true },
+  { name: "USD/INR", value: "83.5", change: "0.00%", up: true },
+  { name: "USD/KRW", value: "1380", change: "0.00%", up: true },
+  { name: "USD/SGD", value: "1.34", change: "0.00%", up: true },
+  { name: "USD/SEK", value: "10.5", change: "0.00%", up: true },
+  { name: "USD/NOK", value: "10.6", change: "0.00%", up: true },
+  { name: "USD/MXN", value: "17.1", change: "0.00%", up: true },
+  { name: "USD/BRL", value: "5.10", change: "0.00%", up: true },
+  { name: "USD/ZAR", value: "18.3", change: "0.00%", up: true },
+  { name: "USD/TRY", value: "32.5", change: "0.00%", up: true },
+  { name: "EUR/GBP", value: "0.85", change: "0.00%", up: true },
   { name: "DXY", value: "104.23", change: "+0.21%", up: true },
   { name: "VIX", value: "15.62", change: "-1.20%", up: false }
 ];

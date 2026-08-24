@@ -28,7 +28,21 @@ const cache = new Map<string, { at: number; result: MarketDataResult }>();
 const CACHE_TTL_LIVE_MS = 30_000;
 const CACHE_TTL_SIM_MS = 120_000;
 
-const DEV_KEY: string = (import.meta as any).env?.VITE_FINNHUB_API_KEY || "";
+/**
+ * Local-dev-only fallback key.
+ *
+ * Two things matter here and both were wrong before:
+ *
+ *  1. The access must be the literal `import.meta.env.X`. Writing
+ *     `(import.meta as any).env?.X` is a DYNAMIC lookup, which Vite cannot
+ *     statically replace — so it inlined the entire env object into the
+ *     production bundle, publishing this key and every other VITE_ variable.
+ *  2. It must be gated on DEV so the production build drops the reference
+ *     altogether rather than shipping a key that simply happens to be unused.
+ */
+const DEV_KEY: string = import.meta.env.DEV
+  ? (import.meta.env.VITE_FINNHUB_API_KEY || "")
+  : "";
 
 function cacheKey(ticker: string, resolution: string, from: number, to: number): string {
   return `${ticker}|${resolution}|${from}|${to}`;

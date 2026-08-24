@@ -159,9 +159,8 @@ export function generateSignals(opts: GenerateOptions = {}): { signals: Signal[]
 
 export function isDemoMode(): boolean {
   try {
-    const env = (import.meta as any)?.env;
-    if (env?.VITE_SIGNALS_DEMO_MODE === "false") return false;
-    if (env?.VITE_SIGNALS_LIVE === "true") return false;
+    if (import.meta.env.VITE_SIGNALS_DEMO_MODE === "false") return false;
+    if (import.meta.env.VITE_SIGNALS_LIVE === "true") return false;
     // Default demo until a live track record exists
     return true;
   } catch {

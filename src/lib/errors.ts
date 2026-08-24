@@ -22,7 +22,7 @@ const MAX_REPORTS = 12;
 let sent = 0;
 let installed = false;
 
-const RELEASE: string = (import.meta as any).env?.VITE_RELEASE || "dev";
+const RELEASE: string = import.meta.env.VITE_RELEASE || "dev";
 
 /** Path without the query string — see rule 3 above. */
 function safePath(): string {

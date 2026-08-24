@@ -149,7 +149,7 @@ export function globalNews(perCountry = 2, countries?: string[]): Article[] {
    deterministic engine when no key / offline, and says so via `source: "sim"`.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-const GNEWS_KEY: string = (import.meta as any).env?.VITE_GNEWS_API_KEY || "";
+const GNEWS_KEY: string = import.meta.env.VITE_GNEWS_API_KEY || "";
 // Countries GNews' top-headlines endpoint supports:
 const GNEWS_COUNTRIES = new Set([
   "AU","BR","CA","CN","EG","FR","DE","GR","HK","IN","IE","IL","IT","JP","NL","NO",
@@ -191,7 +191,7 @@ function scoreSentiment(text: string): number {
 
 export interface CountryNewsResult { articles: Article[]; live: boolean; }
 
-const API_URL: string = (import.meta as any).env?.VITE_API_URL || "";
+const API_URL: string = import.meta.env.VITE_API_URL || "";
 
 export async function fetchCountryNews(country: string, max = 10): Promise<CountryNewsResult> {
   const iso = country.toUpperCase();

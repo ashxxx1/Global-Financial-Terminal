@@ -44,7 +44,7 @@ function flush(): void {
       kind: "vitals",
       message: collected.map((c) => `${c.name} ${c.value.toFixed(c.name === "CLS" ? 3 : 0)} ${c.rating}`).join(" | "),
       path: window.location.pathname,
-      release: (import.meta as { env?: { VITE_RELEASE?: string } }).env?.VITE_RELEASE || "dev",
+      release: import.meta.env.VITE_RELEASE || "dev",
     });
     navigator.sendBeacon?.(ENDPOINT, new Blob([payload], { type: "application/json" }));
   } catch {

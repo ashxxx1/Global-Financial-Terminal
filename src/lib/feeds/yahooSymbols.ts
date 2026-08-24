@@ -491,6 +491,31 @@ export const YAHOO_SYMBOLS: Record<string, { y: string; cur: string }> = {
   "ZA:SBK": { y: "SBK.JO", cur: "ZAc" },
   "ZA:SOL": { y: "SOL.JO", cur: "ZAc" },
   "ZA:VOD": { y: "VOD.JO", cur: "ZAc" },
+  // ── AE ── Only Emirates NBD resolves; the rest of the DFM/ADX names have no feed.
+  "AE:ENBD": { y: "EMIRATESNBD.AE", cur: "AED" },
+  // ── MY ── Bursa Malaysia quotes numeric codes where our universe holds names.
+  "MY:MAYBANK": { y: "1155.KL", cur: "MYR" },
+  "MY:CIMB": { y: "1023.KL", cur: "MYR" },
+  "MY:PUBBANK": { y: "1295.KL", cur: "MYR" },
+  "MY:PCHEM": { y: "5183.KL", cur: "MYR" },
+  "MY:TENAGA": { y: "5347.KL", cur: "MYR" },
+  "MY:DIGI": { y: "6947.KL", cur: "MYR" },
+  "MY:IHH": { y: "5225.KL", cur: "MYR" },
+  "MY:GENTING": { y: "3182.KL", cur: "MYR" },
+  "MY:AXIATA": { y: "6888.KL", cur: "MYR" },
+  "MY:KLCC": { y: "5235SS.KL", cur: "MYR" },
+  // ── RU ── MOEX still publishes prices. Western investors generally cannot trade these; showing the real local quote is more honest than simulating one.
+  "RU:GAZP": { y: "GAZP.ME", cur: "RUB" },
+  "RU:LKOH": { y: "LKOH.ME", cur: "RUB" },
+  "RU:ROSN": { y: "ROSN.ME", cur: "RUB" },
+  "RU:SBER": { y: "SBER.ME", cur: "RUB" },
+  "RU:VTBR": { y: "VTBR.ME", cur: "RUB" },
+  "RU:GMKN": { y: "GMKN.ME", cur: "RUB" },
+  "RU:NLMK": { y: "NLMK.ME", cur: "RUB" },
+  "RU:MTSS": { y: "MTSS.ME", cur: "RUB" },
+  "RU:ALRS": { y: "ALRS.ME", cur: "RUB" },
+  // ── UA ── MHP trades in London, not Kyiv.
+  "UA:MHP": { y: "MHPC.IL", cur: "USD" },
 };
 
 /** The Yahoo symbol for one of our tickers, if it has a verified local listing. */

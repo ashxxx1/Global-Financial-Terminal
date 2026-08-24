@@ -221,6 +221,22 @@ export default defineConfig({
     allowedHosts: true,
   },
   build: {
+    /**
+     * Do not preload the heavy route-specific chunks.
+     *
+     * Vite emits <link rel="modulepreload"> for chunks it predicts will be
+     * needed, which for this app meant the browser eagerly downloaded the
+     * globe (1.7MB), charts (601kB) and firebase (584kB) on first paint — 3.5MB
+     * of critical path for code that is lazily imported and often never used.
+     * That is the code-splitting being undone by the preload hints.
+     *
+     * These four are fetched on demand instead: the globe when the World page
+     * mounts, charts when a chart renders, firebase when auth initialises.
+     */
+    modulePreload: {
+      resolveDependencies: (_url, deps) =>
+        deps.filter((d) => !/(globe|charts|firebase|analytics)-[A-Za-z0-9_-]+\.js$/.test(d)),
+    },
     // Split the heavy vendors out of the entry chunk. Without this everything
     // ships as one ~900KB gzipped file, so a visitor who only ever sees the
     // landing page still downloads three.js, recharts and firebase before

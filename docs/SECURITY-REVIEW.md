@@ -44,6 +44,13 @@ The site sent only HSTS. Added in `vercel.json`:
 props throughout. Removing it means rewriting every component, so it is a known
 gap rather than an oversight.
 
+**A CSP breaks things quietly, so verify it in production.** The first version
+of this policy blocked Google Fonts — the site rendered, no error was visible to
+a user, and the display typeface silently fell back. Only the browser console on
+the deployed site showed it. `fonts.googleapis.com` is now allowed in
+`style-src` and `fonts.gstatic.com` in `font-src`. Check the console after any
+change to this header.
+
 ## MEDIUM — 5 dependency vulnerabilities (fixed)
 
 Five advisories in `tar`, reached through `@tailwindcss/oxide`. Resolved by

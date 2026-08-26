@@ -677,8 +677,13 @@ export default function TradingChart({
                 now carries exactly that — so this header rendered "$NaN" beside
                 a panel explaining that we deliberately show no number. */}
             {(() => {
+              // The fallback to the last bar is for a real series between
+              // ticks. Taking it from a synthetic one printed ₦456.78 directly
+              // above a panel saying no feed reaches that exchange — the exact
+              // contradiction removing the price simulation was meant to end.
+              const barIsReal = data?.source !== "sim" && Number.isFinite(lastBar?.c);
               const shown = Number.isFinite(price) ? (price as number)
-                : Number.isFinite(lastBar?.c) ? (lastBar!.c as number) : null;
+                : barIsReal ? (lastBar!.c as number) : null;
               const moved = typeof changePct === "number" && Number.isFinite(changePct);
               return (
                 <>

@@ -20,6 +20,7 @@ export const SECTORS: SectorDef[] = [
   { slug: "utilities", name: "Utilities", match: ["Utilities"], blurb: "Power, water and regulated utilities." },
   { slug: "real-estate", name: "Real Estate", match: ["Real Estate"], blurb: "REITs and property companies." },
   { slug: "mining-resources", name: "Mining & Resources", match: ["Mining & Resources"], blurb: "Metals, mining and materials." },
+  { slug: "media", name: "Media", match: ["Media"], blurb: "Broadcasters, streaming, publishing and information services." },
   { slug: "transportation", name: "Transportation", match: ["Transportation"], blurb: "Logistics, airlines, shipping and rails." },
 ];
 

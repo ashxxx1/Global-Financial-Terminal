@@ -1,7 +1,12 @@
 /**
  * Global Financial Terminal — v1 shell.
- * Fully public: no authentication anywhere. Layout per spec:
- * top nav · content + right rail · bottom live ticker.
+ *
+ * Layout per spec: top nav · content + right rail · bottom live ticker.
+ *
+ * Access policy lives in `Gate` below: content routes are public, personal and
+ * social routes need a session. That split is load-bearing for the growth plan
+ * — every acquisition item in it assumes a stranger arriving from a search
+ * result can read the page they clicked on.
  */
 import { useEffect, useState, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
@@ -124,7 +129,13 @@ function Shell() {
     document.body.classList.toggle("high-density", highDensity);
   }, [highDensity]);
   const watchlistEmpty = useTerminal((st) => st.watchlist.length === 0);
-  const showOnboarding = !onboarded && watchlistEmpty;
+  /**
+   * Onboarding is for someone who arrived without a question. Now that content
+   * routes are public, most first visits land on a specific page from a search
+   * result — and covering "Apple share price" with "which markets do you care
+   * about?" answers a question nobody asked. It waits for the world view.
+   */
+  const showOnboarding = !onboarded && watchlistEmpty && onWorld;
 
   // Boot the live data layer once. Prefer the hosted ingest backend (unified
   // SSE, server-side keys, history) when VITE_API_URL is set; otherwise run the
@@ -230,13 +241,32 @@ function Shell() {
 }
 
 /**
- * Auth gate. Visitors land on the sign-in screen; the terminal only mounts
- * once there is a session.
+ * Routes that genuinely need a session: a person's own holdings, their lists,
+ * and anything they post under their name. Everything else is content.
+ */
+const PRIVATE_ROUTES = ["/portfolio", "/watchlist", "/forum", "/user", "/profile", "/login"];
+const isPrivate = (p: string) =>
+  PRIVATE_ROUTES.some((r) => p === r || p.startsWith(`${r}/`));
+
+/**
+ * Access gate.
  *
- * When Firebase is not configured `authRequired()` is false, so a fresh clone
- * still boots straight into the app instead of a login nobody can pass.
+ * It used to be a wall: no session, no terminal, whatever URL you asked for.
+ * That quietly broke the entire acquisition plan. A visitor arriving from a
+ * search result for "Apple share price" was shown the marketing page instead of
+ * the page they clicked, and so was every crawler — which meant all ~1,000
+ * public URLs rendered as one identical landing page. Nothing can rank like
+ * that, and nobody arriving from search could see what they came for.
+ *
+ * So the split is by route, not by session. Content is public. Personal and
+ * social routes still require a session, and the root stays the marketing page
+ * for anonymous visitors, because that is where the pitch belongs.
+ *
+ * When Firebase is not configured `authRequired()` is false and everything is
+ * open, so a fresh clone still boots straight into the app.
  */
 function Gate() {
+  const { pathname } = useLocation();
   const status = useAuth((s) => s.status);
   const init = useAuth((s) => s.init);
   // Anonymous visitors land on the marketing page, not the login form — the
@@ -250,6 +280,13 @@ function Gate() {
   }, [init]);
 
   if (!authRequired()) return <Shell />;
+  if (status === "signedIn") return <Shell />;
+
+  // Only the routes that actually need an identity wait for one. A content
+  // route rendering the terminal while the session resolves is not a leak —
+  // there is nothing personal on it to leak.
+  const needsSession = pathname === "/" || isPrivate(pathname);
+  if (!needsSession) return <Shell />;
 
   if (status === "loading") {
     return (
@@ -262,8 +299,9 @@ function Gate() {
       </div>
     );
   }
-  if (status === "signedIn") return <Shell />;
-  if (authView) return <Login initialMode={authView} onBack={() => setAuthView(null)} />;
+  if (authView || isPrivate(pathname)) {
+    return <Login initialMode={authView ?? "signin"} onBack={() => setAuthView(null)} />;
+  }
   return (
     <Suspense fallback={<BootFallback />}>
       <Landing onGetStarted={(mode = "signup") => setAuthView(mode)} />
@@ -272,6 +310,23 @@ function Gate() {
 }
 
 export default function App() {
+  /**
+   * Retire the prerendered shell.
+   *
+   * scripts/prerender.mjs writes a real document for every public route so that
+   * crawlers which do not run JavaScript — and readers on a slow connection —
+   * get content instead of an empty mount point. Once React has painted, that
+   * content is a duplicate, so it goes.
+   *
+   * This lives in App rather than in Shell because Shell is only one branch of
+   * the gate: an anonymous visitor gets Landing or Login, and the first version
+   * of this left the static shell sitting on top of both.
+   */
+  useEffect(() => {
+    document.getElementById("seo-shell")?.remove();
+    document.getElementById("seo-shell-css")?.remove();
+  }, []);
+
   // BASE_URL is "/" at root hosting and "/Global-Financial-Terminal/" on
   // GitHub Pages project sites; the router needs it without a trailing slash.
   const basename = import.meta.env.BASE_URL.replace(/\/$/, "");

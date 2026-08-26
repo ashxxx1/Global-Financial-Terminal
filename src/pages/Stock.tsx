@@ -14,7 +14,8 @@ import { setPrioritySymbol } from "../lib/feeds/stocks";
 import { setIndexPriority } from "../lib/feeds/indices";
 import { setIntlPriority } from "../lib/feeds/intlLive";
 import { sectorSlugForName } from "../lib/sectors";
-import { generateFundamentals } from "../lib/fundamentals";
+import { useFundamentals } from "../lib/liveFundamentals";
+import { useStockThesis } from "../lib/useStockThesis";
 import OptionsChain from "../components/OptionsChain";
 import SmartAlertModal from "../components/SmartAlertModal";
 import "../styles/charts.css";
@@ -74,23 +75,14 @@ export default function Stock() {
     }, { replace: true });
   }, [setSearchParams, sym]);
 
-  const ai = useMemo(() => {
-    if (!meta || !quote) return null;
-    const mom = quote.changePct;
-    const seedChar = sym.charCodeAt(0) + sym.length * 7;
-    const valuation = 40 + (seedChar % 45);            // deterministic pseudo-P/E
-    const risk = 25 + ((seedChar * 13) % 55);
-    const rating = mom > 1.2 ? "Bullish" : mom < -1.2 ? "Bearish" : "Neutral";
-    return {
-      rating,
-      confidence: 55 + ((seedChar * 7) % 35),
-      risk,
-      bull: `Momentum is ${mom >= 0 ? "positive" : "recovering"}; ${meta.sector} demand and ${COUNTRIES[meta.country || ""]?.name || "domestic"} policy tailwinds support multiple expansion. Institutional flows into ${meta.sector.toLowerCase()} favor liquid leaders like ${meta.name}.`,
-      bear: `Valuation near ${valuation}× earnings leaves little cushion if ${meta.sector.toLowerCase()} growth slows; FX and rate volatility in ${COUNTRIES[meta.country || ""]?.name || "the region"} could compress margins. Watch for crowded positioning unwinds.`,
-      catalysts: ["Next earnings print", "Sector rotation flows", "Central-bank guidance"],
-      thesis: `${meta.name} is a ${meta.sector} ${mom >= 0 ? "leader with constructive momentum" : "name in a drawdown testing support"}. Balanced stance: size positions to the ${risk > 55 ? "elevated" : "moderate"} risk score rather than the headline trend.`,
-    };
-  }, [meta, quote, sym]);
+  /**
+   * Evidence-backed bull and bear case, replacing a block that produced both
+   * from a hash of the ticker and the day's move. The engine behind this is the
+   * one the research workspace uses, so the two cannot disagree, and every point
+   * carries the metric it rests on.
+   */
+  const thesis = useStockThesis(meta ? sym : null);
+  const fundamentals = useFundamentals(meta ? sym : null, meta?.currency ?? "", meta?.country ?? null);
 
   if (!meta) {
     return (
@@ -190,79 +182,115 @@ export default function Stock() {
             </span>
           );
         })()}
-        <span className={`chg ${up ? "up" : "down"}`} style={{ fontSize: 12 }}>
-          {up ? "▲" : "▼"} {Math.abs(quote?.changePct ?? 0).toFixed(2)}% session
-        </span>
+        {hasPrice(quote) && Number.isFinite(quote?.changePct) && (
+          <span className={`chg ${up ? "up" : "down"}`} style={{ fontSize: 12 }}>
+            {up ? "▲" : "▼"} {Math.abs(quote!.changePct).toFixed(2)}% session
+          </span>
+        )}
       </div>
 
-      {/* Fundamentals Panel */}
-      {quote && (
-        <div className="panel" style={{ marginBottom: 16 }}>
-          <div className="panel-head">
-            <span className="panel-title">Key Fundamentals <span className="demo-tag">SIM</span></span>
-            <span className="label nerd-only">simulated values</span>
-          </div>
-          <div className="panel-body">
-            {(() => {
-              const f = generateFundamentals(sym, quote.price);
-              return (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 16 }}>
-                  <div><div className="label">Market Cap</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.marketCap}</div></div>
-                  <div><div className="label">P/E Ratio</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.peRatio}</div></div>
-                  <div><div className="label">EPS (TTM)</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.eps}</div></div>
-                  <div><div className="label">Div Yield</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.divYield}</div></div>
-                  <div><div className="label">Beta</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.beta}</div></div>
-                  <div><div className="label">Avg Volume</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.avgVolume}</div></div>
-                  <div><div className="label">52W High</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.high52w}</div></div>
-                  <div><div className="label">52W Low</div><div className="mono" style={{ fontSize: 16, marginTop: 4 }}>{f.low52w}</div></div>
-                </div>
-              );
-            })()}
-          </div>
+      {/* Key fundamentals — from the provider, or a stated absence. */}
+      <div className="panel" style={{ marginBottom: 16 }}>
+        <div className="panel-head">
+          <span className="panel-title">Key fundamentals</span>
+          {fundamentals.state === "ok" && (
+            <span className="label">
+              Finnhub · as at {new Date(fundamentals.asOf).toISOString().slice(0, 16).replace("T", " ")} UTC
+            </span>
+          )}
         </div>
-      )}
+        <div className="panel-body">
+          {fundamentals.state === "loading" && <p className="label" style={{ margin: 0 }}>Loading fundamentals…</p>}
+          {fundamentals.state === "unavailable" && (
+            <div className="no-price hard" style={{ marginBottom: 0 }}>
+              <span className="no-price-tag">NO FUNDAMENTALS</span>
+              <span>{fundamentals.reason}</span>
+            </div>
+          )}
+          {fundamentals.state === "ok" && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 16 }}>
+              {fundamentals.rows.map((r) => (
+                <div key={r.metricKey}>
+                  <div className="label" title={`provider field: ${r.metricKey}`}>{r.label}</div>
+                  <div className="mono" style={{ fontSize: 16, marginTop: 4, color: r.value ? undefined : "var(--faint)" }}>
+                    {r.value ?? "—"}
+                  </div>
+                  {r.note && <div className="label" style={{ marginTop: 2, color: "var(--faint)" }}>{r.note}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {showOptions && quote && (
         <OptionsChain symbol={sym} currentPrice={quote.price} />
       )}
 
-      {/* AI analysis */}
-      {ai && (
+      {/* Bull and bear case, from evidence rather than from the ticker string. */}
+      {thesis.state !== "idle" && (
         <div className="panel">
           <div className="panel-head">
-            <span className="panel-title">AI investment intelligence <span className="demo-tag">DEMO</span></span>
-            <span className="label nerd-only">confidence {ai.confidence}% · risk {ai.risk}/100 — illustrative</span>
+            <span className="panel-title">Bull case · bear case</span>
+            <button className="chip" onClick={() => navigate(`/research/${sym}`)}>
+              FULL RESEARCH WORKSPACE →
+            </button>
           </div>
           <div className="panel-body" style={{ display: "grid", gap: 12 }}>
-            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-              <span className="chg" style={{
-                fontSize: 12,
-                color: ai.rating === "Bullish" ? "var(--up)" : ai.rating === "Bearish" ? "var(--down)" : "var(--gold)",
-                background: ai.rating === "Bullish" ? "var(--up-dim)" : ai.rating === "Bearish" ? "var(--down-dim)" : "var(--gold-dim)",
-              }}>{ai.rating.toUpperCase()}</span>
-              <span style={{ fontSize: 13, color: "var(--muted)" }}>Balanced view — reasoning over recommendation.</span>
-            </div>
-            <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.65 }}>{ai.thesis}</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
-              <div>
-                <div className="label" style={{ color: "var(--up)", marginBottom: 4 }}>Bull case</div>
-                <p style={{ margin: 0, fontSize: 12.5, color: "var(--text)", lineHeight: 1.6 }}>{ai.bull}</p>
+            {thesis.state === "loading" && <p className="label" style={{ margin: 0 }}>Building the case from the evidence…</p>}
+            {thesis.state === "unavailable" && (
+              <div className="no-price hard" style={{ marginBottom: 0 }}>
+                <span className="no-price-tag">NOT ENOUGH EVIDENCE</span>
+                <span>{thesis.reason}</span>
               </div>
-              <div>
-                <div className="label" style={{ color: "var(--down)", marginBottom: 4 }}>Bear case</div>
-                <p style={{ margin: 0, fontSize: 12.5, color: "var(--text)", lineHeight: 1.6 }}>{ai.bear}</p>
-              </div>
-            </div>
-            <div>
-              <div className="label" style={{ marginBottom: 4 }}>Catalysts to watch</div>
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {ai.catalysts.map((c) => <span key={c} className="chip" style={{ cursor: "default" }}>{c}</span>)}
-              </div>
-            </div>
-            <p className="label" style={{ margin: 0 }}>
-              Generated text and scores, produced from the symbol and its price move — not
-              research, not a model output, and not financial advice. See <a href="/data-sources">data sources</a>.
-            </p>
+            )}
+            {thesis.state === "ok" && (
+              <>
+                {thesis.note && <p className="label" style={{ margin: 0 }}>{thesis.note}</p>}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
+                  <div>
+                    <div className="label" style={{ color: "var(--up)", marginBottom: 6 }}>
+                      Bull case ({thesis.bull.length})
+                    </div>
+                    {thesis.bull.length === 0
+                      ? <p className="label" style={{ margin: 0 }}>Nothing in the measured evidence supports a positive case right now.</p>
+                      : thesis.bull.map((pt) => (
+                        <p key={pt.dimension} style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.6 }}>
+                          <span className="label" style={{ marginRight: 6 }}>{pt.dimension}</span>{pt.text}
+                        </p>
+                      ))}
+                  </div>
+                  <div>
+                    <div className="label" style={{ color: "var(--down)", marginBottom: 6 }}>
+                      Bear case ({thesis.bear.length})
+                    </div>
+                    {thesis.bear.length === 0
+                      ? <p className="label" style={{ margin: 0 }}>Nothing in the measured evidence supports a negative case right now.</p>
+                      : thesis.bear.map((pt) => (
+                        <p key={pt.dimension} style={{ margin: "0 0 8px", fontSize: 12.5, lineHeight: 1.6 }}>
+                          <span className="label" style={{ marginRight: 6 }}>{pt.dimension}</span>{pt.text}
+                        </p>
+                      ))}
+                  </div>
+                </div>
+                {thesis.falsifiers.length > 0 && (
+                  <div>
+                    <div className="label" style={{ marginBottom: 6 }}>What would change this</div>
+                    <ul style={{ margin: 0, paddingLeft: 18 }}>
+                      {thesis.falsifiers.map((f) => (
+                        <li key={f.target + f.test} style={{ fontSize: 12.5, lineHeight: 1.6, marginBottom: 4 }}>
+                          {f.test} <span className="label">— {f.basis}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                <p className="label" style={{ margin: 0 }}>
+                  Each point is a measured dimension of this company against its own history and its peers,
+                  not a recommendation. Open the workspace for the figure behind every line. Not financial advice.
+                </p>
+              </>
+            )}
           </div>
         </div>
       )}

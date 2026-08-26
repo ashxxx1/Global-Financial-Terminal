@@ -5,19 +5,21 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/generate-sitemap.mjs && vite build",
+    "build": "npm run sitemap && vite build && npm run prerender",
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "node server/index.js",
     "start": "node server/index.js",
-    "sitemap": "node scripts/generate-sitemap.mjs",
+    "sitemap": "node --import ./scripts/lib/ts-resolve.mjs scripts/generate-sitemap.mjs",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run typecheck && npm run lint && npm run build",
-    "setup": "npm ci && git config core.hooksPath .githooks && echo \"\u2714 hooks installed \u2014 pre-push now runs npm run verify\"",
+    "verify": "npm run typecheck && npm run lint && npm run build && npm run prerender:test",
+    "setup": "npm ci && git config core.hooksPath .githooks && echo \"✔ hooks installed — pre-push now runs npm run verify\"",
     "research:selftest": "node scripts/research-selftest.mjs",
     "research:test": "node scripts/research-tests.mjs",
     "impact:test": "npx --yes tsx scripts/impact-tests.ts",
-    "anomaly:test": "npx --yes tsx scripts/anomaly-tests.ts"
+    "anomaly:test": "npx --yes tsx scripts/anomaly-tests.ts",
+    "prerender": "node --import ./scripts/lib/ts-resolve.mjs scripts/prerender.mjs",
+    "prerender:test": "node --import ./scripts/lib/ts-resolve.mjs scripts/prerender-tests.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.0",

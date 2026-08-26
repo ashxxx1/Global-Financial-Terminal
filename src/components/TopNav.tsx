@@ -7,7 +7,7 @@ import SourceBadge from "./SourceBadge";
 import ShareButton from "./ShareButton";
 import SavedViews from "./SavedViews";
 import AccountModal from "./AccountModal";
-import { useAuth } from "../lib/auth";
+import { useAuth, authRequired } from "../lib/auth";
 
 /** Four destinations cover what almost everyone came for. Eight top-level
  *  links is a menu, not navigation — the rest live behind MORE. */
@@ -230,12 +230,29 @@ export default function TopNav() {
   );
 }
 
-/** Signed-in identity + sign out. Renders nothing when auth is off. */
+/**
+ * Signed-in identity + sign out, or a way in for anonymous readers.
+ *
+ * Content routes are public now, so a visitor from a search result reaches the
+ * terminal with no session. Returning null for them left the nav with no way to
+ * sign up at all — the acquisition path ended at the page they landed on.
+ * Renders nothing when auth is switched off entirely.
+ */
 function AccountChip() {
   const user = useAuth((s) => s.user);
   const signOut = useAuth((s) => s.signOut);
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  if (!user) return null;
+
+  if (!user) {
+    if (!authRequired()) return null;
+    return (
+      <button className="chip" style={{ padding: "3px 9px", fontSize: 9.5 }}
+        onClick={() => navigate("/login")}>
+        SIGN IN
+      </button>
+    );
+  }
 
   const initials = (user.displayName || user.email || "?")
     .split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join("").toUpperCase();

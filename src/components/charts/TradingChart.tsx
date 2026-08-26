@@ -673,18 +673,31 @@ export default function TradingChart({
             <div className="tc-name">{name}</div>
           </div>
           <div className="tc-price-block">
-            <div className="tc-price mono" aria-live="polite">
-              {currency}{(price ?? lastBar?.c)?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "—"}
-            </div>
-            <div className={`tc-chg mono ${up ? "up" : "down"}`}>
-              {(() => {
-                if (changePct == null || price == null) return "—";
-                const abs = price - price / (1 + changePct / 100);
-                const sign = changePct >= 0 ? "+" : "";
-                return `${sign}${abs.toFixed(2)} (${sign}${changePct.toFixed(2)}%)`;
-              })()}
-              <span className="sr-only">{up ? " up on the day" : " down on the day"}</span>
-            </div>
+            {/* `??` passes NaN straight through, and an instrument with no feed
+                now carries exactly that — so this header rendered "$NaN" beside
+                a panel explaining that we deliberately show no number. */}
+            {(() => {
+              const shown = Number.isFinite(price) ? (price as number)
+                : Number.isFinite(lastBar?.c) ? (lastBar!.c as number) : null;
+              const moved = typeof changePct === "number" && Number.isFinite(changePct);
+              return (
+                <>
+                  <div className="tc-price mono" aria-live="polite">
+                    {shown === null ? "—"
+                      : `${currency}${shown.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  </div>
+                  <div className={`tc-chg mono ${!moved ? "" : up ? "up" : "down"}`}>
+                    {(() => {
+                      if (!moved || shown === null) return "—";
+                      const abs = shown - shown / (1 + changePct / 100);
+                      const sign = changePct >= 0 ? "+" : "";
+                      return `${sign}${abs.toFixed(2)} (${sign}${changePct.toFixed(2)}%)`;
+                    })()}
+                    {moved && <span className="sr-only">{up ? " up on the day" : " down on the day"}</span>}
+                  </div>
+                </>
+              );
+            })()}
             <div className="tc-session">
               <span className={`fresh fresh-${fresh.tone}`}>
                 <span className="fresh-dot" aria-hidden="true" />

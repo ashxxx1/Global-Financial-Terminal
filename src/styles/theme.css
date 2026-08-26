@@ -165,6 +165,14 @@ input, select { font-family: inherit; }
   position: relative;
   z-index: 1;
 }
+/* The environment banner is a fourth child of a three-row grid, so on every
+   non-production deployment it took the nav's row and pushed the whole shell
+   down one — the preview environments built to be checked (item 31) were the
+   only ones that looked broken. It renders nothing on production, so the extra
+   row is only declared when it is actually there. */
+.shell:has(> .env-banner) {
+  grid-template-rows: auto var(--nav-h) 1fr var(--ticker-h);
+}
 .shell-main { display: flex; min-height: 0; }
 .shell-content { flex: 1; min-width: 0; overflow-y: auto; position: relative; }
 

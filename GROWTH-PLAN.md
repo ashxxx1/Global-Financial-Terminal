@@ -179,15 +179,15 @@ with a big roadmap and no users.
 *Goal: 70K visitors/month, mostly organic. Gate G3.*
 
 ### The SSR decision (blocks all SEO)
-- [ ] 85. **Decide: migrate to Next.js for SSR/SSG.** Current Vite SPA is largely invisible to search. This is the single biggest unlock in the plan.
-- [ ] 86. Migrate routing and rendering
-- [ ] 87. Verify server-rendered HTML for all public pages
-- [ ] 88. Set up ISR/revalidation for data-driven pages
+- [x] 85. **Decided: do NOT migrate to Next.js. Prerender the Vite build instead.** — `docs/SSR-DECISION.md`. Measured first: every one of ~1,000 URLs served identical HTML with zero body text, so the JS-free crawlers that matter most for a research product (GPTBot, PerplexityBot, ClaudeBot, social scrapers) saw one untitled page. But the bigger fault was found while fixing that one — see item 87. Next.js would buy server-rendered *live data*, which is the one thing this product must not cache into HTML, and would not have fixed the real blocker at all
+- [x] 86. Migrate routing and rendering — not needed under the decision above. `scripts/prerender.mjs` emits a real document per route after `vite build`; react-router is unchanged
+- [x] 87. Verify server-rendered HTML for all public pages — and the fault this uncovered: **the public pages were not public.** The auth gate rendered the marketing page for anyone without a session, whatever URL they asked for, so all ~1,000 URLs rendered as one identical page for every crawler and every visitor arriving from search. Access is now per route: content public, personal and social routes gated, `/` still the pitch for anonymous visitors. `scripts/prerender-tests.mjs` gates the build on eight checks including the one that matters — no price, change or index level may be written into build-time HTML, because HTML cached for the life of a deployment cannot carry a number that moves
+- [x] 88. Set up ISR/revalidation for data-driven pages — deliberately not done, and the reason is the point: the data-driven half of every page is fetched by the client from the live feeds. Revalidation exists to keep cached data fresh; we cache no data. The edge cache on `/api/*` is where freshness is actually managed
 
 ### Programmatic SEO — the volume play
-- [ ] 89. Build 68 country pages: "[Country] Stock Market Today — Live Index, Currency & News"
-- [ ] 90. Build ticker pages for every symbol in the registry
-- [ ] 91. Build sector pages
+- [x] 89. Build 68 country pages — "[Country] Stock Market Today — Live Index, Currency & News", each with the benchmark, exchange, trading hours, currency and the companies we track there, prerendered and in the index
+- [x] 90. Build ticker pages for every symbol in the registry — 613 companies, each with its listing venue, sector, size band and comparable names in its own market, plus the reason its price is unavailable where it is
+- [x] 91. Build sector pages — 14, one per sector in the registry. Media was missing from the taxonomy entirely, so three companies had no sector page to belong to and the links pointing at it went nowhere
 - [x] 92. Build index pages (S&P 500, FTSE, Nikkei…) — `/index/:slug`, e.g. `/index/s-p-500`. States the ETF proxy inline and refuses to rescale it into a synthetic index level
 - [x] 93. Build currency pair pages — `/fx/:slug`, e.g. `/fx/eur-usd`
 - [x] 94. Build crypto asset pages — `/crypto/:slug`, e.g. `/crypto/btc-usd`; these are genuinely LIVE from Binance and the badge says so

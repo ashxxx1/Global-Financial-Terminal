@@ -84,7 +84,13 @@ export default function Onboarding() {
         <div className="ob-grid">
           {options.map((o) => {
             const on = picked.includes(o.symbol);
-            const up = (o.quote?.changePct ?? 0) >= 0;
+            // `?? 0` does not catch NaN, and an unpriced instrument now carries
+            // exactly that — which rendered "▼ NaN%" on the first screen a new
+            // visitor ever sees.
+            const change = o.quote?.changePct;
+            const priced = typeof change === "number" && Number.isFinite(change);
+            const up = priced && change >= 0;
+            const tone = !priced ? "var(--faint)" : up ? "var(--up)" : "var(--down)";
             return (
               <button
                 key={o.symbol}
@@ -107,10 +113,10 @@ export default function Onboarding() {
                     width={54}
                     height={18}
                     animate={false}
-                    tone={up ? "var(--up)" : "var(--down)"}
+                    tone={tone}
                   />
-                  <span className="mono" style={{ color: up ? "var(--up)" : "var(--down)" }}>
-                    {up ? "▲" : "▼"} {Math.abs(o.quote?.changePct ?? 0).toFixed(2)}%
+                  <span className="mono" style={{ color: tone }}>
+                    {priced ? `${up ? "▲" : "▼"} ${Math.abs(change).toFixed(2)}%` : "—"}
                   </span>
                 </span>
               </button>

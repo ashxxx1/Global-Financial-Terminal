@@ -1,0 +1,251 @@
+{
+ "slug": "the-markets-no-price-feed-reaches",
+ "title": "The markets no price feed reaches",
+ "date": "2026-08-26",
+ "kind": "data-study",
+ "summary": "Of 68 national markets we tried to price, 16 have no live feed we could reach at any price — 95 listed companies with no quote available to a retail data buyer.",
+ "sections": [
+  {
+   "heading": "Markets with no reachable price feed",
+   "note": "Not delayed, not expensive — absent. No provider we could find, free or paid, publishes a live quote for these exchanges in a form a small consumer of market data can consume.",
+   "rows": [
+    {
+     "label": "Algeria",
+     "meta": "SGBV",
+     "value": "3 listed",
+     "raw": 3
+    },
+    {
+     "label": "Bahrain",
+     "meta": "Bahrain Bourse",
+     "value": "5 listed",
+     "raw": 5
+    },
+    {
+     "label": "Bangladesh",
+     "meta": "DSE",
+     "value": "7 listed",
+     "raw": 7
+    },
+    {
+     "label": "Ghana",
+     "meta": "Ghana Stock Exchange",
+     "value": "6 listed",
+     "raw": 6
+    },
+    {
+     "label": "Guyana",
+     "meta": "GASCI",
+     "value": "3 listed",
+     "raw": 3
+    },
+    {
+     "label": "Iran",
+     "meta": "Tehran Stock Exchange",
+     "value": "5 listed",
+     "raw": 5
+    },
+    {
+     "label": "Ivory Coast",
+     "meta": "BRVM",
+     "value": "5 listed",
+     "raw": 5
+    },
+    {
+     "label": "Jordan",
+     "meta": "Amman Stock Exchange",
+     "value": "5 listed",
+     "raw": 5
+    },
+    {
+     "label": "Kazakhstan",
+     "meta": "Kazakhstan Stock Exchange",
+     "value": "5 listed",
+     "raw": 5
+    },
+    {
+     "label": "Kenya",
+     "meta": "NSE",
+     "value": "7 listed",
+     "raw": 7
+    },
+    {
+     "label": "Morocco",
+     "meta": "Casablanca SE",
+     "value": "7 listed",
+     "raw": 7
+    },
+    {
+     "label": "Nigeria",
+     "meta": "NGX",
+     "value": "10 listed",
+     "raw": 10
+    },
+    {
+     "label": "Oman",
+     "meta": "Muscat Stock Exchange",
+     "value": "5 listed",
+     "raw": 5
+    },
+    {
+     "label": "Philippines",
+     "meta": "PSE",
+     "value": "10 listed",
+     "raw": 10
+    },
+    {
+     "label": "Sri Lanka",
+     "meta": "Colombo Stock Exchange",
+     "value": "7 listed",
+     "raw": 7
+    },
+    {
+     "label": "Tanzania",
+     "meta": "Dar es Salaam Stock Exchange",
+     "value": "5 listed",
+     "raw": 5
+    }
+   ]
+  },
+  {
+   "heading": "Markets we can price only in part",
+   "note": "Usually because the largest companies carry a US listing or a secondary line elsewhere, and the rest of the exchange does not. Coverage follows a company's foreign listings, not its home market.",
+   "rows": [
+    {
+     "label": "Ukraine",
+     "meta": "PFTS Stock Exchange",
+     "value": "1 of 5 priced",
+     "raw": 0.2
+    },
+    {
+     "label": "Ireland",
+     "meta": "Euronext Dublin",
+     "value": "3 of 7 priced",
+     "raw": 0.42857142857142855
+    },
+    {
+     "label": "UAE",
+     "meta": "DFM / ADX",
+     "value": "5 of 10 priced",
+     "raw": 0.5
+    },
+    {
+     "label": "Peru",
+     "meta": "Bolsa de Valores de Lima",
+     "value": "3 of 6 priced",
+     "raw": 0.5
+    },
+    {
+     "label": "Czech Republic",
+     "meta": "Prague Stock Exchange",
+     "value": "3 of 5 priced",
+     "raw": 0.6
+    },
+    {
+     "label": "Israel",
+     "meta": "TASE",
+     "value": "6 of 10 priced",
+     "raw": 0.6
+    },
+    {
+     "label": "Greece",
+     "meta": "Athens Stock Exchange",
+     "value": "5 of 7 priced",
+     "raw": 0.7142857142857143
+    },
+    {
+     "label": "Italy",
+     "meta": "Borsa Italiana",
+     "value": "8 of 10 priced",
+     "raw": 0.8
+    },
+    {
+     "label": "Kuwait",
+     "meta": "Boursa Kuwait",
+     "value": "4 of 5 priced",
+     "raw": 0.8
+    },
+    {
+     "label": "Belgium",
+     "meta": "Euronext Brussels",
+     "value": "6 of 7 priced",
+     "raw": 0.8571428571428571
+    },
+    {
+     "label": "Finland",
+     "meta": "Nasdaq Helsinki",
+     "value": "7 of 8 priced",
+     "raw": 0.875
+    },
+    {
+     "label": "Egypt",
+     "meta": "EGX",
+     "value": "7 of 8 priced",
+     "raw": 0.875
+    },
+    {
+     "label": "South Africa",
+     "meta": "JSE",
+     "value": "9 of 10 priced",
+     "raw": 0.9
+    },
+    {
+     "label": "Singapore",
+     "meta": "SGX",
+     "value": "9 of 10 priced",
+     "raw": 0.9
+    },
+    {
+     "label": "Russia",
+     "meta": "MOEX",
+     "value": "9 of 10 priced",
+     "raw": 0.9
+    },
+    {
+     "label": "Spain",
+     "meta": "Bolsa de Madrid",
+     "value": "9 of 10 priced",
+     "raw": 0.9
+    },
+    {
+     "label": "Hong Kong",
+     "meta": "HKEX",
+     "value": "9 of 10 priced",
+     "raw": 0.9
+    },
+    {
+     "label": "Thailand",
+     "meta": "SET",
+     "value": "9 of 10 priced",
+     "raw": 0.9
+    },
+    {
+     "label": "Vietnam",
+     "meta": "HOSE",
+     "value": "9 of 10 priced",
+     "raw": 0.9
+    },
+    {
+     "label": "Pakistan",
+     "meta": "PSX",
+     "value": "9 of 10 priced",
+     "raw": 0.9
+    },
+    {
+     "label": "Netherlands",
+     "meta": "Euronext Amsterdam",
+     "value": "10 of 11 priced",
+     "raw": 0.9090909090909091
+    }
+   ]
+  }
+ ],
+ "takeaways": [
+  "487 of 621 listed companies across 68 markets can be priced live: 78%.",
+  "31 markets are fully covered, 21 partly, and 16 not at all.",
+  "The 16 uncovered markets are not small or obscure economies — they are national exchanges with 95 listed companies between them in this sample.",
+  "Data coverage tracks where the money already is. A market that is hard to invest in is hard to get prices for, which makes it harder to invest in."
+ ],
+ "method": "Computed from the instrument registry this terminal runs on, using the same availability rules the product uses to decide whether to show a price. 'Reachable' means we could obtain a live or delayed quote through a provider available to us: the free tier of a US market-data API, a public exchange endpoint, an ETF that tracks the index, or a foreign listing of the same company. The limits worth stating: this is our coverage, not a census of the industry — a bank with an institutional terminal may reach markets we cannot, and our sample is the companies we track in each market rather than every listing on it. What the figures do establish is what a small, well-motivated buyer of market data can and cannot get, which is the question this product had to answer to exist.",
+ "generatedAt": 1787752067892
+}

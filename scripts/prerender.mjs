@@ -117,10 +117,18 @@ function setTag(html, pattern, replacement) {
 
 function render(template, p) {
   const url = `${SITE}${p.path === "/" ? "" : p.path}`;
-  // Per-page card. The default was one generic image across every URL, and
-  // because useSeo only ever set the per-page one client-side, no scraper had
-  // ever seen it — card scrapers do not run JavaScript.
-  const ogImage = p.ogImage ? `${SITE}${p.ogImage}` : `${SITE}/og.png`;
+  /**
+   * The static card, for now.
+   *
+   * The per-page card at /api/og renders SVG, and Facebook, X, LinkedIn and
+   * Slack all ignore SVG for og:image — pointing at it would mean no card at
+   * all, which is worse than a generic one that renders. The catalogue still
+   * carries `ogImage` per page and the endpoint still serves it (browsers
+   * render SVG fine, which is what the embed badge needs); this line is the
+   * single place to flip once there is a raster generator.
+   * See docs/OPEN-QUESTIONS.md.
+   */
+  const ogImage = `${SITE}/og.png`;
   let html = template;
 
   html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(p.title)}</title>`);

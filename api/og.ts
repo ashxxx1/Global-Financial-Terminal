@@ -1,68 +1,134 @@
 export const config = { runtime: "edge" };
 
 /**
- * Dynamic Open Graph card for any page — growth-plan item 96.
+ * Share card for any page — growth-plan items 96 and 109.
  *
- * Generalises api/og-compare.ts, which only ever handled the compare route, so
- * every page can present itself properly when shared. Social CTR is the whole
- * point: a link with a real card gets clicked several times more often than a
- * bare URL, and this is the cheapest distribution work available.
+ * Two faults are fixed here, both found by looking at what a scraper actually
+ * receives rather than at what the code intended.
  *
- * SVG rather than a rasteriser: it renders in every card scraper that matters,
- * costs no dependency, and stays legible at any size. Everything is escaped
- * because every value here comes from a query string.
+ * 1. FORMAT. The card was an SVG. Facebook, X, LinkedIn and Slack all whitelist
+ *    raster formats for og:image and ignore SVG, so on the platforms this
+ *    exists for, the card rendered as nothing. It is a PNG now.
  *
- * GET /api/og?title=...&subtitle=...&value=...&change=1.24&kind=stock
+ * 2. THE NUMBERS CAME FROM THE QUERY STRING. `?value=$0.01&change=-99` rendered
+ *    exactly that, on our own domain, over our own branding. Anyone could mint a
+ *    convincing screenshot of a false price attributed to us. The card now
+ *    resolves the company from our own registry and fetches the quote itself;
+ *    no figure in the output comes from the caller.
+ *
+ * Because it runs per request, the price is live at the moment the card is
+ * scraped rather than baked in at build time — the one place a live number is
+ * safe, and the reason the prerenderer can point at it without breaking its own
+ * no-prices rule. The card stamps the minute it was generated so a stale
+ * re-share is legible as one.
+ *
+ * GET /api/og?symbol=AAPL
+ * GET /api/og?title=...&subtitle=...&kind=...
  */
+import { ImageResponse } from "@vercel/og";
+import { listing, country, countryName, quote } from "../src/lib/server/listings";
 
-const CLAMP = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+const INK = "#F5F6F7";
+const MUTED = "#A4A9B3";
+const FAINT = "#6B7079";
+const UP = "#26D07C";
+const DOWN = "#FF4D5E";
 
-/** XML-escape. The card is user-supplied text rendered into markup. */
-function esc(s: string): string {
-  return s.replace(/[<>&"']/g, (c) =>
-    ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" }[c] as string));
+const clamp = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+
+/* ── layout, as plain element objects (satori reads type/props directly) ──── */
+
+type El = { type: string; props: Record<string, unknown> };
+const div = (style: Record<string, unknown>, children: unknown): El =>
+  ({ type: "div", props: { style: { display: "flex", ...style }, children } });
+
+function card(opts: {
+  kicker: string; title: string; subtitle: string;
+  value?: string; change?: number; asOf?: string; foot: string;
+}): El {
+  const accent = opts.change === undefined ? FAINT : opts.change >= 0 ? UP : DOWN;
+  const changeText = opts.change === undefined ? ""
+    : `${opts.change >= 0 ? "+" : ""}${opts.change.toFixed(2)}%`;
+
+  return div(
+    {
+      flexDirection: "column", width: "1200px", height: "630px",
+      backgroundColor: "#08090B", color: INK, padding: "68px 72px",
+      justifyContent: "space-between", borderTop: `4px solid ${accent}`,
+    },
+    [
+      div({ flexDirection: "column" }, [
+        div({ fontSize: 20, color: FAINT, letterSpacing: "6px" }, opts.kicker),
+        div({ fontSize: 72, marginTop: "26px", lineHeight: 1.1 }, opts.title),
+        div({ fontSize: 30, color: MUTED, marginTop: "16px" }, opts.subtitle),
+      ]),
+      div({ flexDirection: "column" }, [
+        opts.value
+          ? div({ alignItems: "flex-end" }, [
+              div({ fontSize: 84 }, opts.value),
+              changeText ? div({ fontSize: 40, color: accent, marginLeft: "22px", paddingBottom: "12px" }, changeText) : "",
+            ])
+          : "",
+        div({ fontSize: 21, color: FAINT, marginTop: "22px" },
+          opts.asOf ? `${opts.foot} · as at ${opts.asOf}` : opts.foot),
+      ]),
+    ],
+  );
 }
 
 export default async function handler(req: Request): Promise<Response> {
   const p = new URL(req.url).searchParams;
+  const sym = (p.get("symbol") || "").toUpperCase().trim();
+  const code = (p.get("country") || "").toUpperCase().trim();
 
-  const title = esc(CLAMP((p.get("title") || "Global Financial Terminal").trim(), 42));
-  const subtitle = esc(CLAMP((p.get("subtitle") || "The world's economy, on one screen").trim(), 70));
-  const value = esc(CLAMP((p.get("value") || "").trim(), 18));
-  const kind = esc(CLAMP((p.get("kind") || "").trim(), 18)).toUpperCase();
+  let opts: Parameters<typeof card>[0];
+  let ttl = 86400;
 
-  const changeRaw = Number(p.get("change"));
-  const hasChange = Number.isFinite(changeRaw);
-  const up = changeRaw >= 0;
-  const changeText = hasChange ? `${up ? "+" : ""}${changeRaw.toFixed(2)}%` : "";
-  const accent = !hasChange ? "#8a8f98" : up ? "#26D07C" : "#FF4D5E";
+  const l = sym ? listing(sym) : undefined;
+  const c = code ? country(code) : undefined;
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#050506"/>
-      <stop offset="100%" stop-color="#0d0f14"/>
-    </linearGradient>
-  </defs>
-  <rect width="1200" height="630" fill="url(#bg)"/>
-  <rect x="0" y="0" width="1200" height="3" fill="${accent}"/>
+  if (l) {
+    const q = l.country === "US" ? await quote(l.ticker) : null;
+    opts = {
+      kicker: `GFT · TERMINAL · ${l.sector.toUpperCase()}`,
+      title: clamp(l.name, 34),
+      subtitle: `${l.ticker} · ${countryName(l.country)}`,
+      value: q ? `${l.currency}${q.price.toFixed(2)}` : undefined,
+      change: q ? q.changePct : undefined,
+      asOf: q ? `${new Date().toISOString().slice(11, 16)} UTC` : undefined,
+      foot: q ? "Delayed quote · every figure on the page states its source"
+        : "No live feed reaches this listing — the page says why, rather than showing a number",
+    };
+    // A card carrying a price may only be cached for as long as the price is
+    // worth trusting. An identity card has nothing to go stale.
+    if (q) ttl = 300;
+  } else if (c) {
+    opts = {
+      kicker: "GFT · TERMINAL · COUNTRY",
+      title: clamp(`${c.name} markets`, 34),
+      subtitle: `${c.marketIndex} · ${c.exchange} · ${c.currency}`,
+      foot: "Live markets across 68 countries · every figure states its source",
+    };
+  } else {
+    // Text-only fallback. No number is accepted from the caller — see the note
+    // at the top of this file.
+    opts = {
+      kicker: clamp((p.get("kind") || "GFT · TERMINAL").trim(), 28).toUpperCase(),
+      title: clamp((p.get("title") || "Global Financial Terminal").trim(), 34),
+      subtitle: clamp((p.get("subtitle") || "The world's economy, on one screen").trim(), 72),
+      foot: "Live markets across 68 countries · every figure states its source",
+    };
+  }
 
-  <text x="72" y="104" fill="#8a8f98" font-family="ui-monospace,Menlo,monospace" font-size="20" letter-spacing="6">GFT · TERMINAL${kind ? ` · ${kind}` : ""}</text>
-
-  <text x="72" y="248" fill="#f5f6f7" font-family="Georgia,'Times New Roman',serif" font-size="76" font-weight="700">${title}</text>
-  <text x="72" y="312" fill="#a4a9b3" font-family="system-ui,-apple-system,sans-serif" font-size="30">${subtitle}</text>
-
-  ${value ? `<text x="72" y="470" fill="#f5f6f7" font-family="ui-monospace,Menlo,monospace" font-size="86" font-weight="700">${value}</text>` : ""}
-  ${changeText ? `<text x="${value ? 72 + value.length * 52 : 72}" y="470" fill="${accent}" font-family="ui-monospace,Menlo,monospace" font-size="42" font-weight="700">${changeText}</text>` : ""}
-
-  <text x="72" y="566" fill="#6b7079" font-family="system-ui,-apple-system,sans-serif" font-size="22">Live markets across 68 countries · every figure states its source</text>
-</svg>`;
-
-  return new Response(svg, {
-    headers: {
-      "content-type": "image/svg+xml; charset=utf-8",
-      // Cards are scraped repeatedly by every platform; cache hard.
-      "cache-control": "public, s-maxage=86400, stale-while-revalidate=604800",
-    },
-  });
+  try {
+    return new ImageResponse(card(opts) as unknown as React.ReactElement, {
+      width: 1200, height: 630,
+      headers: {
+        "cache-control": `public, s-maxage=${ttl}, stale-while-revalidate=${ttl * 4}`,
+      },
+    });
+  } catch {
+    // Never fail a scrape: a missing card is a link with no preview at all.
+    return Response.redirect(new URL("/og.png", req.url).toString(), 302);
+  }
 }

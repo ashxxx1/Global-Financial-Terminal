@@ -101,10 +101,10 @@ export default function Compare() {
           text: `Compare ${left} and ${right} on GFT Terminal`,
           url,
         });
-        track("shared", { method: "native", surface: "compare" });
+        track("shared", { method: "native", surface: "compare", path: window.location.pathname });
       } else {
         await navigator.clipboard.writeText(url);
-        track("shared", { method: "clipboard", surface: "compare" });
+        track("shared", { method: "clipboard", surface: "compare", path: window.location.pathname });
         setShareMsg("Link copied");
         setTimeout(() => setShareMsg(""), 2000);
       }

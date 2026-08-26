@@ -117,7 +117,10 @@ function setTag(html, pattern, replacement) {
 
 function render(template, p) {
   const url = `${SITE}${p.path === "/" ? "" : p.path}`;
-  const ogImage = `${SITE}/og.png`;
+  // Per-page card. The default was one generic image across every URL, and
+  // because useSeo only ever set the per-page one client-side, no scraper had
+  // ever seen it — card scrapers do not run JavaScript.
+  const ogImage = p.ogImage ? `${SITE}${p.ogImage}` : `${SITE}/og.png`;
   let html = template;
 
   html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(p.title)}</title>`);
@@ -129,6 +132,11 @@ function render(template, p) {
   html = setTag(html, /<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${esc(p.description)}" />`);
   html = setTag(html, /<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${esc(url)}" />`);
   html = setTag(html, /<meta property="og:image"[^>]*>/, `<meta property="og:image" content="${esc(ogImage)}" />`);
+  html = setTag(html, /<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${esc(ogImage)}" />`);
+  // Dimensions let a scraper lay the card out before it has fetched the image;
+  // without them some platforms fall back to a small square crop.
+  html = setTag(html, /<meta property="og:image:width"[^>]*>/, `<meta property="og:image:width" content="1200" />`);
+  html = setTag(html, /<meta property="og:image:height"[^>]*>/, `<meta property="og:image:height" content="630" />`);
 
   const ld = [siteGraph(url, p.title, p.description), ...(p.jsonLd ? [p.jsonLd] : [])]
     .map((o) => `<script type="application/ld+json">${escJson(o)}</script>`).join("\n    ");

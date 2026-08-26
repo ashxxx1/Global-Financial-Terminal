@@ -12,6 +12,7 @@ import { connectionsForCountry } from "../lib/graph";
 import { useTerminal } from "../store";
 import { useSeo, ogImageFor } from "../lib/seo";
 import { track } from "../lib/analytics";
+import EmbedDialog from "../components/EmbedDialog";
 
 const TABS = ["OVERVIEW", "AI PICKS", "MARKETS", "NEWS", "AI SUMMARY"] as const;
 
@@ -54,15 +55,11 @@ export default function Country() {
       : "Live country market data, indices, currencies and financial news.",
     path: `/country/${iso}`,
     image: meta
-      ? ogImageFor({
-          title: meta.name,
-          subtitle: `${meta.marketIndex || "Benchmark"} · live market data`,
-          change: indexLive?.changePct,
-          kind: "country",
-        })
+      ? ogImageFor({ country: iso })
       : undefined,
   });
   const [tab, setTab] = useState<(typeof TABS)[number]>("OVERVIEW");
+  const [showEmbed, setShowEmbed] = useState(false);
 
   /**
    * Today's movers in this market — growth-plan item 79.
@@ -117,9 +114,13 @@ export default function Country() {
 
   return (
     <div style={{ padding: 18, maxWidth: 1100, margin: "0 auto" }}>
+      {showEmbed && (
+        <EmbedDialog kind="country" id={iso} name={name} onClose={() => setShowEmbed(false)} />
+      )}
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
         <button className="chip" onClick={() => navigate("/")}>← WORLD</button>
+        <button className="chip" onClick={() => setShowEmbed(true)}>EMBED</button>
         <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>{name}</h1>
         <span className="label">{iso}</span>
         {stats && (

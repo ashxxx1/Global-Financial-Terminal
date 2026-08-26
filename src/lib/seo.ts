@@ -102,15 +102,31 @@ function setJsonLd(url: string, title: string, description: string): void {
  * bare URL, and this is the cheapest distribution work available. Values are
  * encoded here so callers cannot accidentally emit a broken query string.
  */
+/**
+ * URL of the share card for a page.
+ *
+ * `symbol` and `country` are the preferred forms: the endpoint resolves the
+ * company or market from our own registry and fetches the quote itself, at the
+ * moment the card is scraped. The older shape passed `value` and `change`
+ * through the query string, which meant anyone could mint a card on our domain
+ * showing a price we never published — so the endpoint no longer reads a figure
+ * from the caller, and neither does this.
+ */
 export function ogImageFor(opts: {
-  title: string; subtitle?: string; value?: string; change?: number; kind?: string;
+  symbol?: string;
+  country?: string;
+  title?: string;
+  subtitle?: string;
+  kind?: string;
 }): string {
   const q = new URLSearchParams();
-  q.set("title", opts.title);
-  if (opts.subtitle) q.set("subtitle", opts.subtitle);
-  if (opts.value) q.set("value", opts.value);
-  if (typeof opts.change === "number" && Number.isFinite(opts.change)) q.set("change", opts.change.toFixed(2));
-  if (opts.kind) q.set("kind", opts.kind);
+  if (opts.symbol) q.set("symbol", opts.symbol);
+  else if (opts.country) q.set("country", opts.country);
+  else {
+    if (opts.title) q.set("title", opts.title);
+    if (opts.subtitle) q.set("subtitle", opts.subtitle);
+    if (opts.kind) q.set("kind", opts.kind);
+  }
   return `${SITE}/api/og?${q.toString()}`;
 }
 

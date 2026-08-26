@@ -18,6 +18,7 @@ import { useFundamentals } from "../lib/liveFundamentals";
 import { useStockThesis } from "../lib/useStockThesis";
 import OptionsChain from "../components/OptionsChain";
 import SmartAlertModal from "../components/SmartAlertModal";
+import EmbedDialog from "../components/EmbedDialog";
 import "../styles/charts.css";
 
 export default function Stock() {
@@ -38,15 +39,13 @@ export default function Stock() {
       : "Live share price and chart.",
     path: `/stock/${sym}`,
     image: meta
-      ? ogImageFor({
-          title: meta.name, subtitle: `${sym} · ${meta.sector}`,
-          value: quote?.display, change: quote?.changePct, kind: "stock",
-        })
+      ? ogImageFor({ symbol: sym })
       : undefined,
   });
   const { addWatch, removeWatch, inWatchlist } = useTerminal();
   const [showOptions, setShowOptions] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
+  const [showEmbed, setShowEmbed] = useState(false);
 
   const pushRecent = useTerminal((s) => s.pushRecent);
   useEffect(() => {
@@ -123,6 +122,7 @@ export default function Stock() {
           {watched ? "★ Watching" : "☆ Watch"}
         </button>
         <a className="chip" href="#trading-chart" style={{ textDecoration: "none" }}>Trading chart</a>
+        <button type="button" className="chip" onClick={() => setShowEmbed(true)}>Embed</button>
         <Link
           to={`/compare/${sym}/${comparePeer}`}
           className="chip"
@@ -293,6 +293,10 @@ export default function Stock() {
             )}
           </div>
         </div>
+      )}
+
+      {showEmbed && (
+        <EmbedDialog kind="stock" id={sym} name={meta.name} onClose={() => setShowEmbed(false)} />
       )}
 
       {showAlertModal && quote && (

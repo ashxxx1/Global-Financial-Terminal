@@ -86,7 +86,7 @@ export default function PostCard({ post, reposted, repostedBy }: PostCardProps) 
     if (navigator.share) {
       try {
         await navigator.share(shareData);
-        track("shared", { method: "native", surface: "forum_post" });
+        track("shared", { method: "native", surface: "forum_post", path: window.location.pathname });
         return;
       } catch {
         // cancelled or unsupported target — fall through to clipboard
@@ -95,7 +95,7 @@ export default function PostCard({ post, reposted, repostedBy }: PostCardProps) 
     try {
       await navigator.clipboard.writeText(shareData.url);
       setCopied(true);
-      track("shared", { method: "clipboard", surface: "forum_post" });
+      track("shared", { method: "clipboard", surface: "forum_post", path: window.location.pathname });
       setTimeout(() => setCopied(false), 1800);
     } catch {
       /* clipboard blocked — nothing more we can do silently */

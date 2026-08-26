@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useTerminal } from "../store";
 
 interface Props {
@@ -27,7 +28,11 @@ export default function SmartAlertModal({ symbol, currentPrice, onClose }: Props
     onClose();
   };
 
-  return (
+  // Portalled for the same reason AccountModal is: `.route-fade` animates a
+  // transform, which makes it the containing block for `position: fixed`, so a
+  // modal rendered from inside a page lands against the route wrapper instead
+  // of the viewport.
+  return createPortal(
     <div
       style={{
         position: "fixed", inset: 0, zIndex: 1000,
@@ -91,6 +96,7 @@ export default function SmartAlertModal({ symbol, currentPrice, onClose }: Props
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

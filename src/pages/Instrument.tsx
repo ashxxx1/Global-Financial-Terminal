@@ -80,13 +80,7 @@ export default function Instrument({ kind }: { kind: Kind }) {
       : "Instrument not found.",
     path: `/${kind === "fx" ? "fx" : kind}/${slug}`,
     image: meta
-      ? ogImageFor({
-          title: meta.name,
-          subtitle: `Live ${label} · source and delay stated`,
-          value: q?.display,
-          change: q?.changePct,
-          kind,
-        })
+      ? ogImageFor({ title: meta.name, subtitle: `Live ${label} · source and delay stated`, kind })
       : undefined,
   });
 

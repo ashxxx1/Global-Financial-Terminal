@@ -29,6 +29,16 @@ import { availabilityOf, unavailableReason } from "../../src/lib/priceAvailabili
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const TODAY = new Date().toISOString().slice(0, 10);
 
+/**
+ * Share-card URL for a page.
+ *
+ * Prerendered HTML may not contain a price, but it may point at an endpoint
+ * that resolves one per request — which is where a live figure belongs. The
+ * symbol and country forms let /api/og look the instrument up itself; nothing
+ * here passes it a number.
+ */
+const og = (params) => `/api/og?${new URLSearchParams(params).toString()}`;
+
 const slugify = (x) => String(x).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 /* ── shared lookups ──────────────────────────────────────────────────────── */
@@ -286,6 +296,7 @@ function countryPages() {
       description:
         `${c.name} markets: the ${c.marketIndex} benchmark, ${c.currency}, and ${list.length} listed companies on ` +
         `${c.exchange}, each labelled with its true price source.`,
+      ogImage: og({ country: code }),
       kicker: "COUNTRY",
       h1: `${c.name} stock market`,
       intro:
@@ -348,6 +359,7 @@ function stockPages() {
         (coverable
           ? "Live price, fundamentals and evidence-backed research where every claim shows its source."
           : `${reason} We publish the reason instead of a price.`),
+      ogImage: og({ symbol: s.ticker }),
       kicker: "COMPANY",
       h1: `${s.name} (${s.ticker})`,
       intro: `${s.sector} · ${countryName(s.country)} · quoted in ${s.currency}` + (cap ? ` · ${cap.band} cap` : ""),
@@ -372,6 +384,7 @@ function sectorPages() {
       priority: "0.75", changefreq: "daily",
       title: `${sec.name} Stocks — ${members.length} Companies Across ${markets.length} Markets`,
       description: `${sec.blurb} ${members.length} ${sec.name.toLowerCase()} companies across ${markets.length} markets, each with its own price source.`,
+      ogImage: og({ title: `${sec.name} stocks`, subtitle: `${members.length} companies across ${markets.length} markets`, kind: "sector" }),
       kicker: "SECTOR",
       h1: `${sec.name} stocks`,
       intro: sec.blurb,
@@ -403,6 +416,7 @@ function glossaryPages() {
     /** The numbers in a worked example are invented for the example. See the
      *  price rule at the top of this file and scripts/prerender-tests.mjs. */
     staticFigures: true,
+    ogImage: og({ title: t.term, subtitle: t.short, kind: `glossary · ${t.category}` }),
     kicker: `GLOSSARY · ${t.category.toUpperCase()}`,
     h1: t.term,
     intro: t.short,
@@ -460,6 +474,7 @@ async function blogPages() {
       priority: "0.7", changefreq: "monthly", lastmod: meta.date,
       title: `${meta.title} — GFT Market Notes`,
       description: meta.summary,
+      ogImage: og({ title: "Market note", subtitle: meta.summary, kind: `market note · ${meta.date}` }),
       kicker: `MARKET NOTE · ${meta.date}`,
       /** A move that happened in a named past week does not go stale. */
       staticFigures: true,
@@ -501,6 +516,7 @@ function instrumentPages() {
       priority: "0.7", changefreq: "hourly",
       title: `${idx.name} — Live ${kind === "fx" ? "Rate" : kind === "crypto" ? "Price" : "Level"} and Source`,
       description: `${idx.name}: what it is, where the number comes from, and how delayed it is.`,
+      ogImage: og({ title: idx.name, subtitle: `Live ${kind} · source and delay stated`, kind }),
       kicker: kind.toUpperCase(),
       h1: idx.name,
       intro: what,
@@ -524,6 +540,7 @@ function comparisonPages() {
     description:
       `${a.name} and ${b.name} side by side: both ${sector.toLowerCase()} companies listed in ` +
       `${theName(country)}, compared on valuation, margins and earnings history.`,
+    ogImage: og({ title: `${a.ticker} vs ${b.ticker}`, subtitle: `${a.name} and ${b.name} · ${sector} · ${countryName(country)}`, kind: "comparison" }),
     kicker: "COMPARISON",
     h1: `${a.name} vs ${b.name}`,
     intro: `Both are ${sector.toLowerCase()} companies listed in ${theName(country)}, which is what makes the ` +

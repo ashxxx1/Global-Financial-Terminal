@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import fs from 'node:fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -25,9 +26,71 @@ function localFinnhubApi() {
       // Vite loads .env.local for the client, not for this config, so the dev
       // API middleware would otherwise always answer "not configured".
       const env = loadEnv('development', process.cwd(), '')
+      // The four endpoints below are mirrored by hand for historical reasons.
+      // Everything else in api/ is run for real — see runEdgeFunction.
+      const MIRRORED = ['/api/quote', '/api/candles', '/api/research', '/api/intl-quotes']
+      // /api/og renders with @vercel/og, whose resvg and yoga wasm modules only
+      // load under the real edge runtime — importing it here does not throw, it
+      // aborts the dev server process. Dev serves the static card instead; the
+      // generated one is verified against production.
+      const EDGE_ONLY = ['og']
+
+      /**
+       * Run a real api/*.ts edge handler in dev.
+       *
+       * The alternative is re-implementing each new endpoint in this file, which
+       * is how the mirrored four came to exist and is exactly how dev and
+       * production drift apart. Vite can load the handler as a module, and the
+       * handlers take a standard Request and return a standard Response, so
+       * there is nothing to reimplement.
+       */
+      async function runEdgeFunction(name, req, res) {
+        const file = path.join(__dirname, 'api', `${name}.ts`)
+        if (!fs.existsSync(file)) return false
+        // The functions read process.env; dev loads .env.local into `env`.
+        for (const k of ['FINNHUB_API_KEY', 'SITE_URL']) {
+          if (!process.env[k] && env[k]) process.env[k] = env[k]
+        }
+        if (!process.env.FINNHUB_API_KEY && env.VITE_FINNHUB_API_KEY) {
+          process.env.FINNHUB_API_KEY = env.VITE_FINNHUB_API_KEY
+        }
+        const mod = await server.ssrLoadModule(`/api/${name}.ts`)
+        const request = new Request(new URL(req.url, 'http://localhost:5173'), {
+          method: req.method,
+          headers: req.headers,
+        })
+        const out = await mod.default(request)
+        res.statusCode = out.status
+        out.headers.forEach((v, k) => res.setHeader(k, v))
+        res.end(Buffer.from(await out.arrayBuffer()))
+        return true
+      }
+
       server.middlewares.use(async (req, res, next) => {
-        const url = req.url || ''
-        if (!url.startsWith('/api/quote') && !url.startsWith('/api/candles') && !url.startsWith('/api/research') && !url.startsWith('/api/intl-quotes')) return next()
+        let url = req.url || ''
+
+        // Mirror the production rewrite so /embed/stock/AAPL works in dev too.
+        const embed = url.match(/^\/embed\/([a-z]+)\/([^/?]+)/)
+        if (embed) url = `/api/embed?kind=${embed[1]}&id=${encodeURIComponent(embed[2])}`
+
+        if (url.startsWith('/api/') && !MIRRORED.some((m) => url.startsWith(m))) {
+          const name = url.slice(5).split(/[/?]/)[0]
+          if (EDGE_ONLY.includes(name)) {
+            res.statusCode = 302
+            res.setHeader('location', '/og.png')
+            return res.end()
+          }
+          try {
+            req.url = url
+            if (await runEdgeFunction(name, req, res)) return
+          } catch (err) {
+            res.statusCode = 500
+            res.setHeader('content-type', 'text/plain')
+            return res.end(`dev edge function ${name} failed: ${err?.message || err}`)
+          }
+        }
+
+        if (!MIRRORED.some((m) => url.startsWith(m))) return next()
 
         const key = process.env.FINNHUB_API_KEY || env.FINNHUB_API_KEY || env.VITE_FINNHUB_API_KEY || ''
         const send = (status, body) => {

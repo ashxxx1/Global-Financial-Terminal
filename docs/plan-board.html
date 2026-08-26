@@ -1,0 +1,1796 @@
+<title>Road to 20,000</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --ground:#EEEFF2; --surface:#FFFFFF; --surface-2:#F6F7F9;
+  --ink:#15161A; --ink-2:#4A4D57; --ink-3:#767A86;
+  --line:#DDDFE5; --line-2:#EAEBEF;
+  --accent:#8A6320; --accent-soft:#F3E9D6;
+  --done:#2C7A55; --done-soft:#E2F1E9;
+  --mine:#3B5EA8; --mine-soft:#E5EBF7;
+  --yours:#A8482C; --yours-soft:#F8E7E1;
+  --shadow:0 1px 2px rgba(20,22,28,.05),0 8px 24px -16px rgba(20,22,28,.25);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0C0D11; --surface:#15171C; --surface-2:#1B1E24;
+    --ink:#EDEEF1; --ink-2:#A7ACB8; --ink-3:#767C8A;
+    --line:#252932; --line-2:#1E222A;
+    --accent:#D9A94A; --accent-soft:#2C2413;
+    --done:#4FC98D; --done-soft:#132A20;
+    --mine:#7FA6EE; --mine-soft:#141C2C;
+    --yours:#F0866A; --yours-soft:#2B1710;
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px -18px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0C0D11; --surface:#15171C; --surface-2:#1B1E24;
+  --ink:#EDEEF1; --ink-2:#A7ACB8; --ink-3:#767C8A;
+  --line:#252932; --line-2:#1E222A;
+  --accent:#D9A94A; --accent-soft:#2C2413;
+  --done:#4FC98D; --done-soft:#132A20;
+  --mine:#7FA6EE; --mine-soft:#141C2C;
+  --yours:#F0866A; --yours-soft:#2B1710;
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 10px 30px -18px rgba(0,0,0,.9);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:Archivo,ui-sans-serif,system-ui,sans-serif;
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 80px}
+.masthead{display:flex;flex-direction:column;gap:6px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.02;margin:0;font-weight:700;letter-spacing:-.022em;text-wrap:balance}
+.sub{font-family:"Source Serif 4",Georgia,serif;font-size:17px;color:var(--ink-2);max-width:62ch;margin:6px 0 0}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin:26px 0 0;box-shadow:var(--shadow)}
+.stat{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.stat b{font-family:"IBM Plex Mono",monospace;font-size:30px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-family:"IBM Plex Mono",monospace}
+.stat.s-done b{color:var(--done)} .stat.s-mine b{color:var(--mine)} .stat.s-yours b{color:var(--yours)}
+
+.bar{margin:22px 0 0;display:flex;height:10px;border:1px solid var(--line);background:var(--surface)}
+.bar i{display:block;height:100%}
+.bar .b-done{background:var(--done)} .bar .b-mine{background:var(--mine)} .bar .b-yours{background:var(--yours)}
+
+.controls{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+  margin:26px 0 0;padding:12px 0;background:var(--ground);border-bottom:1px solid var(--line)}
+.filter{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.04em;padding:6px 12px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-2);cursor:pointer;border-radius:0}
+.filter:hover{border-color:var(--ink-3);color:var(--ink)}
+.filter[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.filter:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.gates{margin:34px 0 0;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow)}
+.gates h2{margin:0;padding:14px 18px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  font-family:"IBM Plex Mono",monospace;color:var(--ink-3);border-bottom:1px solid var(--line-2);font-weight:500}
+.gate{display:grid;grid-template-columns:52px 1fr;gap:0 16px;padding:12px 18px;border-bottom:1px solid var(--line-2);align-items:baseline}
+.gate:last-child{border-bottom:0}
+.gate-id{font-family:"IBM Plex Mono",monospace;font-weight:500;color:var(--accent);font-size:14px}
+.gate-name{font-weight:600;font-size:14.5px}
+.gate-crit{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-3);grid-column:2}
+
+.phase{margin:44px 0 0}
+.phase-head{display:grid;grid-template-columns:1fr auto;gap:4px 20px;align-items:end;
+  padding-bottom:12px;border-bottom:1px solid var(--line)}
+.phase-id{grid-column:1;font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.16em;color:var(--ink-3)}
+.phase h2{grid-column:1;margin:0;font-size:23px;letter-spacing:-.015em;font-weight:700}
+.phase-goal{grid-column:1;margin:2px 0 0;font-family:"Source Serif 4",Georgia,serif;color:var(--ink-2);font-size:15px;max-width:60ch}
+.meter{grid-column:2;grid-row:2;width:150px;height:6px;background:var(--line);overflow:hidden}
+.meter span{display:block;height:100%;background:var(--done)}
+.phase-count{grid-column:2;grid-row:3;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3);text-align:right}
+.phase-count b{color:var(--ink)}
+
+.group{margin:22px 0 0}
+.group-title{margin:0 0 8px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  font-family:"IBM Plex Mono",monospace;color:var(--ink-3);font-weight:500}
+.items{list-style:none;margin:0;padding:0;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow)}
+.item{display:grid;grid-template-columns:46px 84px 1fr;gap:0 12px;padding:11px 16px;
+  border-bottom:1px solid var(--line-2);align-items:baseline}
+.item:last-child{border-bottom:0}
+.item[hidden]{display:none}
+.num{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 7px;border:1px solid currentColor;justify-self:start;white-space:nowrap}
+.chip-done{color:var(--done);background:var(--done-soft)}
+.chip-mine{color:var(--mine);background:var(--mine-soft)}
+.chip-yours{color:var(--yours);background:var(--yours-soft)}
+.body{display:flex;flex-direction:column;gap:4px;min-width:0}
+.title{font-size:14.5px;font-weight:500;line-height:1.4}
+.note{font-family:"Source Serif 4",Georgia,serif;font-size:14px;color:var(--ink-2);line-height:1.55;max-width:74ch}
+.why{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--yours);line-height:1.5}
+code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--surface-2);padding:1px 4px;border:1px solid var(--line-2)}
+.foot{margin:56px 0 0;padding-top:18px;border-top:1px solid var(--line);font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-3)}
+@media (max-width:640px){
+  .item{grid-template-columns:40px 1fr;gap:0 10px}
+  .chip{grid-column:2;margin-bottom:2px}
+  .body{grid-column:2}
+  .phase-head{grid-template-columns:1fr}
+  .meter,.phase-count{grid-column:1;grid-row:auto;text-align:left;width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow">Global Financial Terminal · status 2026-08-26</div>
+    <h1>Road to 20,000 users</h1>
+    <p class="sub">Every item in the growth plan, and — the part the checklist cannot show — which of the
+    open ones are waiting on you rather than on me.</p>
+  </header>
+
+  <div class="summary">
+    <div class="stat s-done"><b>75</b><span>done</span></div>
+    <div class="stat s-mine"><b>51</b><span>open · I can build</span></div>
+    <div class="stat s-yours"><b>29</b><span>needs you</span></div>
+    <div class="stat"><b>155</b><span>total</span></div>
+  </div>
+  <div class="bar" role="img" aria-label="75 done, 51 open, 29 need you">
+    <i class="b-done" style="width:48.38709677419355%"></i>
+    <i class="b-mine" style="width:32.903225806451616%"></i>
+    <i class="b-yours" style="width:18.70967741935484%"></i>
+  </div>
+
+  <div class="controls" role="group" aria-label="Filter items">
+    <button class="filter" data-f="all" aria-pressed="true">All 155</button>
+    <button class="filter" data-f="yours" aria-pressed="false">Needs you 29</button>
+    <button class="filter" data-f="mine" aria-pressed="false">Open 51</button>
+    <button class="filter" data-f="done" aria-pressed="false">Done 75</button>
+  </div>
+
+  <div class="gates">
+    <h2>Milestone gates — do not advance a phase until its gate is met</h2>
+    <div class="gate">
+      <div class="gate-id">G1</div><div class="gate-name">First signal</div>
+      <div class="gate-crit">100 signups · 15 interviews · ≥25% week-1 retention</div>
+    </div>
+<div class="gate">
+      <div class="gate-id">G2</div><div class="gate-name">Retention works</div>
+      <div class="gate-crit">1,000 MAU · ≥30% D30 · digest opens ≥35%</div>
+    </div>
+<div class="gate">
+      <div class="gate-id">G3</div><div class="gate-name">Acquisition works</div>
+      <div class="gate-crit">10,000 MAU · 50K visits/mo · ≥40% organic</div>
+    </div>
+<div class="gate">
+      <div class="gate-id">G4</div><div class="gate-name">Money works</div>
+      <div class="gate-crit">$1K MRR · ≥2% conversion · churn <8%</div>
+    </div>
+<div class="gate">
+      <div class="gate-id">G5</div><div class="gate-name">Target</div>
+      <div class="gate-crit">20,000 MAU · $100K ARR</div>
+    </div>
+  </div>
+
+  
+<section class="phase" aria-labelledby="ph-0">
+  <header class="phase-head">
+    <div class="phase-id">PHASE 0</div>
+    <h2 id="ph-0">Foundation &amp; Truth</h2>
+    <p class="phase-goal">a product that is honest, measurable, and legally safe to charge for.</p>
+    <div class="meter" role="img" aria-label="27 of 33 complete">
+      <span style="width:82%"></span>
+    </div>
+    <div class="phase-count"><b>27</b> / 33 done</div>
+  </header>
+  
+  <div class="group">
+    <h3 class="group-title">Data integrity (non-negotiable before charging)</h3>
+    <ul class="items">
+      <li class="item" data-status="done">
+        <span class="num">001</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Wire real delayed equity data</span>
+          <span class="note">Finnhub via the server-side <code>/api/quote</code> proxy, verified live on production (AAPL 313.33). Feed self-heals and prioritises the symbol on screen. <strong>Indices remain simulated</strong> — they need a provider that licenses index data</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">002</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Label every instrument with its true source and delay</span>
+          <span class="note"><code>provenanceFor()</code> in <code>src/lib/marketStatus.ts</code> + <code>&lt;ProvenanceBadge&gt;</code>; fixed Markets/Country badges that hardcoded SIM while showing live data</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">003</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Make the Risk Index real</span>
+          <span class="note"><code>riskFor()</code> in <code>src/lib/countryRisk.ts</code>: market dispersion + declining breadth + inflation distance from target + policy-rate level, weighted. Carries a <code>basis</code> (live/mixed/simulated) so a figure derived from simulated prices stays labelled</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">004</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Make sentiment real</span>
+          <span class="note"><code>sentimentFor()</code> averages the classified score of real published headlines per country; returns null below 3 articles rather than colouring a country from an anecdote. Renamed NEWS SENTIMENT (it is not AI)</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">005</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Build a public <code>/data-sources</code> page listing every provider</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">006</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Review each provider's ToS for redistribution rights</span>
+          <span class="note"><code>docs/DATA-LICENSING.md</code> (2 items flagged ⚠️ for counsel before charging)</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">007</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Add a data-freshness indicator per panel (last updated timestamp)</span>
+          <span class="note"><code>src/lib/marketStatus.ts</code> + freshness pill on the stock page (LIVE / AT FRI CLOSE / PREV CLOSE / SIMULATED, from the NYSE session clock)</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">008</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Remove or clearly fence any remaining simulated numbers</span>
+          <span class="note"><strong>extended 2026-08-20</strong>: the signals track record was seeded per browser, so no two visitors saw the same one. It is now a single record published by CI (<code>.github/workflows/signals.yml</code>), generated by the same model against REAL bars from our own candles API, resolved daily, and committed — git history is the audit trail proving nothing was back-filled. Legacy demo signals are purged from local storage on migration. Country pages now read the live benchmark from the ETF proxy feed and label it <code>live</code> or <code>static</code> rather than showing a frozen number beside live prices — DEMO tags on the Stock AI panel + Country AI synthesis; scores relabelled "illustrative"</span>
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Legal &amp; compliance (finance is a regulated-adjacent space)</h3>
+    <ul class="items">
+      <li class="item" data-status="done">
+        <span class="num">009</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Terms of Service page</span>
+          <span class="note"><code>/terms</code> (template, needs legal review per item 5)</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">010</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Privacy Policy page (GDPR + CCPA)</span>
+          <span class="note"><code>/privacy</code>, matched to the controls that actually exist (consent gate, export, delete)</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">011</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Cookie consent banner (required for EU traffic)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">012</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Prominent "not investment advice" disclaimer on every data surface</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">013</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Account deletion + data export flow (GDPR right to erasure)</span>
+          <span class="note"><code>AccountModal</code> from the nav avatar: JSON export of everything we hold + type-DELETE erasure (reauth-aware), in <code>src/lib/auth.ts</code></span>
+          
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">014</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Decide and document jurisdiction of operation</span>
+          
+          <span class="why">A jurisdiction is a decision about where you operate, not a task.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">015</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Register the business entity before taking payments</span>
+          
+          <span class="why">Registering a company needs your identity and your money.</span>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Measurement</h3>
+    <ul class="items">
+      <li class="item" data-status="yours">
+        <span class="num">016</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Add PostHog key to <code>.env.local</code> and Vercel (code is already wired)</span>
+          
+          <span class="why">Needs a PostHog account and its project key.</span>
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">017</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Define the North Star metric (proposed: *weekly active users who view ≥2 sessions*)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">018</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Define "active user" precisely and write it down</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">019</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Build the core funnel dashboard: visit → signup → activation → W1 → W4</span>
+          
+          <span class="why">Nothing to build a funnel from until item 16 lands.</span>
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">020</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Instrument activation events (first watchlist add, first alert, first country open)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">021</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Add Sentry (or equivalent) for runtime error monitoring</span>
+          <span class="note">first-party instead of a vendor: <code>src/lib/errors.ts</code> catches uncaught errors and unhandled rejections, <code>&lt;ErrorBoundary&gt;</code> catches render crashes (there was none, so any thrown render blanked the page to white), and <code>api/client-error.ts</code> logs to the Vercel runtime logs /privacy already discloses. Deduped and capped at 12 reports/page so a render loop cannot become a request loop. Verified in-browser: boundary catches, reports once, re-throw adds nothing</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">022</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Add uptime monitoring with alerting</span>
+          <span class="note"><code>.github/workflows/uptime.yml</code> every 15 min, no vendor. Asserts on a real price from <code>/api/quote</code>, not a 200: this is a CDN-served SPA, so the shell keeps returning 200 long after the data dies, which is exactly how the last outage hid. Failure opens/updates a labelled GitHub issue (email + push via GitHub), recovery closes it. Probe verified passing against production and failing against a bad target</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">023</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Set a weekly metrics review ritual</span>
+          <span class="note"><code>docs/WEEKLY-REVIEW.md</code> (Monday 09:00, five numbers, four questions, one bottleneck)</span>
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Technical foundation</h3>
+    <ul class="items">
+      <li class="item" data-status="yours">
+        <span class="num">024</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Deploy Firestore security rules (<code>npx firebase deploy --only firestore:rules</code>)</span>
+          
+          <span class="why"><code>npx firebase deploy</code> needs your Firebase credentials.</span>
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">025</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Code-split the bundle (currently 2.3MB / 654KB gzipped</span>
+          <span class="note">too heavy)</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">026</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Lazy-load the globe and Three.js off the critical path</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">027</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Pass Core Web Vitals (LCP &lt; 2.5s, INP &lt; 200ms, CLS &lt; 0.1)</span>
+          <span class="note">measured in the FIELD, not the lab: <code>src/lib/vitals.ts</code> records LCP, INP and CLS from real sessions via PerformanceObserver and reports through the existing crash endpoint. No web-vitals dependency; a performance budget should not be paid for with a package. Google's own thresholds, so "good" means what it means everywhere</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">028</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Full mobile responsive audit</span>
+          <span class="note">verified at mobile viewport: no page-level horizontal scroll, 0 tap targets under 24px, panels stack correctly. Ticker marquee overflow is contained by design</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">029</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Per-route SEO meta (title/description/canonical)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">030</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title"><code>sitemap.xml</code> + <code>robots.txt</code></span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">031</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Set up a staging environment separate from production</span>
+          <span class="note"><code>docs/ENVIRONMENT.md</code> already covered data safety; the missing half was that a Vercel preview URL is pixel-identical to production, so nobody could tell which they were reading. <code>EnvBanner</code> now shows the deployment, branch and commit on anything that is not production, and renders nothing where silence is correct. <code>VERCEL_ENV</code> is inlined at build time via vite <code>define</code></span>
+          
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">032</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Automated backups of Firestore</span>
+          
+          <span class="why">Needs a service account with backup rights.</span>
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">033</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Accessibility pass to WCAG 2.2 AA</span>
+          <span class="note">contrast measured, not eyeballed: <code>--faint</code> was 3.39:1 (fails 1.4.3) and is now 4.89:1; landing <code>--ink-3</code>/<code>--ink-4</code> likewise. Fixed invalid <code>role="tab"</code> without a tabpanel (1.3.1), added sr-only labels for the ▲/▼ toggle (4.1.2), and 24×24 minimum targets (2.5.8)</span>
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="phase" aria-labelledby="ph-1">
+  <header class="phase-head">
+    <div class="phase-id">PHASE 1</div>
+    <h2 id="ph-1">First 100 Users &amp; PMF Signal</h2>
+    <p class="phase-goal">prove someone actually wants this. Gate G1.</p>
+    <div class="meter" role="img" aria-label="14 of 24 complete">
+      <span style="width:58%"></span>
+    </div>
+    <div class="phase-count"><b>14</b> / 24 done</div>
+  </header>
+  
+  <div class="group">
+    <h3 class="group-title">Know who this is for</h3>
+    <ul class="items">
+      <li class="item" data-status="done">
+        <span class="num">034</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Write the ICP in one paragraph</span>
+          <span class="note">who specifically, not "investors"</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">035</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Define the top 3 jobs-to-be-done the product serves</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">036</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Write the positioning statement (for X who Y, we are Z unlike W)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">037</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Identify the 3 closest competitors and your honest wedge vs each</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Onboarding &amp; activation</h3>
+    <ul class="items">
+      <li class="item" data-status="done">
+        <span class="num">038</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Design the first-run experience (what happens in the first 60 seconds)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">039</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Guided onboarding: pick 3 stocks to watch → instant personalized value</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">040</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Define the activation moment and instrument it</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">041</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Fill every empty state with a next action (not just "nothing here")</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">042</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Add a product tour or coach marks for the globe interactions</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">043</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Welcome email on signup</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">044</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Reduce signup friction</span>
+          <span class="note">Google stays first; the Name field is gone (3 fields → 2) and a display name is derived from the email</span>
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Talk to humans</h3>
+    <ul class="items">
+      <li class="item" data-status="yours">
+        <span class="num">045</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Recruit and run 15 user interviews (30 min each, recorded)</span>
+          
+          <span class="why">Fifteen conversations with real people. Cannot be delegated.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">046</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Write up interview findings into a themes document</span>
+          
+          <span class="why">Follows the interviews.</span>
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">047</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Add an in-app feedback widget</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">048</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Set up a support channel (email or Crisp/Intercom)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">049</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Run the Sean Ellis PMF survey ("how disappointed if this disappeared?")</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">050</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Publish a public changelog to show momentum</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">First distribution push</h3>
+    <ul class="items">
+      <li class="item" data-status="yours">
+        <span class="num">051</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Post to r/investing, r/stocks, r/dataisbeautiful (value-first, not spam)</span>
+          
+          <span class="why">Posting under your name, from your account.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">052</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Show HN launch</span>
+          
+          <span class="why">Posting under your name, from your account.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">053</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Product Hunt launch (prepare assets, hunter, day-of plan)</span>
+          
+          <span class="why">Needs a hunter, a launch date and your presence on the day.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">054</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Indie Hackers build-in-public post</span>
+          
+          <span class="why">Posting under your name, from your account.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">055</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">X/Twitter launch thread with the globe as the hook</span>
+          
+          <span class="why">Posting under your name, from your account.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">056</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Post to relevant Discord/Slack communities</span>
+          
+          <span class="why">Posting under your name, from your account.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">057</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Email personal network for first users and feedback</span>
+          
+          <span class="why">Your personal network.</span>
+        </span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="phase" aria-labelledby="ph-2">
+  <header class="phase-head">
+    <div class="phase-id">PHASE 2</div>
+    <h2 id="ph-2">The Retention Engine</h2>
+    <p class="phase-goal">people come back without being asked. Gate G2.</p>
+    <div class="meter" role="img" aria-label="11 of 27 complete">
+      <span style="width:41%"></span>
+    </div>
+    <div class="phase-count"><b>11</b> / 27 done</div>
+  </header>
+  
+  <div class="group">
+    <h3 class="group-title">Email infrastructure</h3>
+    <ul class="items">
+      <li class="item" data-status="yours">
+        <span class="num">058</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Choose and integrate a transactional email provider (Resend/Postmark)</span>
+          
+          <span class="why">Pick a provider and create the account — everything downstream waits here.</span>
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">059</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Set up SPF, DKIM, DMARC (deliverability is make-or-break)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">060</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Build the email template system matching the brand</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">061</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Preference centre + one-click unsubscribe (legally required)</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">The digest — highest-leverage retention feature in fintech</h3>
+    <ul class="items">
+      <li class="item" data-status="mine">
+        <span class="num">062</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Build the daily market digest (watchlist moves + world overnight)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">063</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Cron job to generate and send it</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">064</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Personalize by the user's watchlist and countries</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">065</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">A/B test send time and subject lines</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">066</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Track open rate, click rate, and its effect on retention</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">067</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Weekly digest variant for less-engaged users</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Alerts that actually reach people</h3>
+    <ul class="items">
+      <li class="item" data-status="mine">
+        <span class="num">068</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Off-site alert delivery via email (in-app toasts already exist)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">069</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">PWA setup</span>
+          <span class="note">installable app — the manifest already existed; the missing half was the service worker (<code>public/sw.js</code>) and install prompt (<code>src/lib/pwa.ts</code>). Deliberately conservative caching: <code>/api/*</code> is NEVER cached, because serving a stale quote would break the one promise the product makes. App shell is network-first so a deploy lands immediately, with an offline fallback. Registration deferred to <code>load</code> so it does not compete with the first price fetches</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">070</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Web push notifications</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">071</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Alert types: price level, % move, unusual volume, news on a holding</span>
+          <span class="note">all four in <code>AlertWatcher</code>. Volume compares the session against its own 20-day median rather than a fixed number. Everything except news is one-shot and records <code>firedAt</code>: an alert that re-fires every tick past its threshold is a stuck horn, and the first thing a user does is delete it</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">072</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Alert management UI</span>
+          <span class="note"><code>AlertManager</code> on /markets: list, jump to symbol, delete. Alerts were previously invisible once armed</span>
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Sticky features</h3>
+    <ul class="items">
+      <li class="item" data-status="done">
+        <span class="num">073</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Portfolio tracking (manual entry + CSV import</span>
+          <span class="note">no brokerage integration) — <code>/portfolio</code>. Multi-currency: totals convert via ECB rates (26 currencies) plus the three hard USD pegs, labelled as pegs not live quotes. Positions we cannot price or convert are EXCLUDED from the total and named on screen — a total that silently drops holdings is worse than one that says which. CSV parser is forgiving about column order and header naming, and reports every rejected line with its reason</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">074</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Portfolio performance over time with charts</span>
+          <span class="note">value, cost basis, total P&amp;L and today's P&amp;L tiles, per-position P&amp;L in local currency, and allocation bars by country and sector. Day P&amp;L is derived per position from its own move rather than a portfolio-level guess</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">075</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Watchlist depth: notes, tags, target prices, multiple lists</span>
+          <span class="note"><code>/watchlist</code>. Target prices show live distance ("+9.2% away"); tags become filters automatically. Deleting a list moves its entries to the default rather than deleting them — losing a note someone wrote is worse than an entry appearing somewhere unexpected</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">076</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Economic calendar (Fed, CPI, earnings) plotted on the globe/timeline</span>
+          <span class="note">the globe already pinned macro events; <code>/calendar</code> adds somewhere to read them in order plus <strong>real</strong> scheduled earnings dates with the consensus estimate for each print, filterable to what you watch or hold. The two sources are kept visually and textually distinct: the earnings dates are published fact, the macro schedule is a rolled-forward seed and says so, because a projected central-bank date sitting unlabelled next to a confirmed earnings date is exactly the blending this product refuses</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">077</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Saved views and custom layouts</span>
+          <span class="note">a view is the route plus the two layout toggles, not a serialised component tree. That survives any redesign; a saved layout that breaks the first time a page changes is worse than none. Verified round-trip: save on /markets, navigate to /news, re-apply, lands back on /markets with the layout restored</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">078</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Recently viewed / jump back in</span>
+          <span class="note"><code>RecentlyViewed</code>, last 8 symbols, persisted</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">079</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Country deep-dive pages worth returning to</span>
+          <span class="note">the rest of the page is context that barely changes between visits (GDP, policy rate, a benchmark return). Added today's movers for that market, computed from the same live quotes the terminal uses, each linking into the company's full research workspace. Rows still on simulated prices are marked SIM and the footnote says to treat them as illustrative rather than as today's actual leader</span>
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Retention analytics</h3>
+    <ul class="items">
+      <li class="item" data-status="mine">
+        <span class="num">080</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Cohort retention curves in PostHog</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">081</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Identify the "aha" action correlated with retention, then push new users to it</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">082</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Churn survey on account deletion</span>
+          <span class="note">six reasons plus an optional note, recorded before the account goes since afterwards there is nobody to ask. Fire-and-forget and never blocking: a failed survey must not stand between a user and a deletion they are legally entitled to</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">083</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Re-engagement email campaign for dormant users</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">084</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Measure D1/D7/D30 and set improvement targets</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="phase" aria-labelledby="ph-3">
+  <header class="phase-head">
+    <div class="phase-id">PHASE 3</div>
+    <h2 id="ph-3">The Acquisition Machine</h2>
+    <p class="phase-goal">70K visitors/month, mostly organic. Gate G3.</p>
+    <div class="meter" role="img" aria-label="23 of 35 complete">
+      <span style="width:66%"></span>
+    </div>
+    <div class="phase-count"><b>23</b> / 35 done</div>
+  </header>
+  
+  <div class="group">
+    <h3 class="group-title">The SSR decision (blocks all SEO)</h3>
+    <ul class="items">
+      <li class="item" data-status="done">
+        <span class="num">085</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title"><strong>Decided: do NOT migrate to Next.js. Prerender the Vite build instead.</strong></span>
+          <span class="note"><code>docs/SSR-DECISION.md</code>. Measured first: every one of ~1,000 URLs served identical HTML with zero body text, so the JS-free crawlers that matter most for a research product (GPTBot, PerplexityBot, ClaudeBot, social scrapers) saw one untitled page. But the bigger fault was found while fixing that one — see item 87. Next.js would buy server-rendered *live data*, which is the one thing this product must not cache into HTML, and would not have fixed the real blocker at all</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">086</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Migrate routing and rendering</span>
+          <span class="note">not needed under the decision above. <code>scripts/prerender.mjs</code> emits a real document per route after <code>vite build</code>; react-router is unchanged</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">087</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Verify server-rendered HTML for all public pages</span>
+          <span class="note">and the fault this uncovered: <strong>the public pages were not public.</strong> The auth gate rendered the marketing page for anyone without a session, whatever URL they asked for, so all ~1,000 URLs rendered as one identical page for every crawler and every visitor arriving from search. Access is now per route: content public, personal and social routes gated, <code>/</code> still the pitch for anonymous visitors. <code>scripts/prerender-tests.mjs</code> gates the build on eight checks including the one that matters — no price, change or index level may be written into build-time HTML, because HTML cached for the life of a deployment cannot carry a number that moves</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">088</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Set up ISR/revalidation for data-driven pages</span>
+          <span class="note">deliberately not done, and the reason is the point: the data-driven half of every page is fetched by the client from the live feeds. Revalidation exists to keep cached data fresh; we cache no data. The edge cache on <code>/api/*</code> is where freshness is actually managed</span>
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Programmatic SEO — the volume play</h3>
+    <ul class="items">
+      <li class="item" data-status="done">
+        <span class="num">089</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Build 68 country pages</span>
+          <span class="note">"[Country] Stock Market Today — Live Index, Currency &amp; News", each with the benchmark, exchange, trading hours, currency and the companies we track there, prerendered and in the index</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">090</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Build ticker pages for every symbol in the registry</span>
+          <span class="note">613 companies, each with its listing venue, sector, size band and comparable names in its own market, plus the reason its price is unavailable where it is</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">091</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Build sector pages</span>
+          <span class="note">14, one per sector in the registry. Media was missing from the taxonomy entirely, so three companies had no sector page to belong to and the links pointing at it went nowhere</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">092</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Build index pages (S&amp;P 500, FTSE, Nikkei…)</span>
+          <span class="note"><code>/index/:slug</code>, e.g. <code>/index/s-p-500</code>. States the ETF proxy inline and refuses to rescale it into a synthetic index level</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">093</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Build currency pair pages</span>
+          <span class="note"><code>/fx/:slug</code>, e.g. <code>/fx/eur-usd</code></span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">094</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Build crypto asset pages</span>
+          <span class="note"><code>/crypto/:slug</code>, e.g. <code>/crypto/btc-usd</code>; these are genuinely LIVE from Binance and the badge says so</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">095</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Template comparison pages ("X vs Y")</span>
+          <span class="note">241 pairs in the sitemap, same-sector and same-market only. "AAPL vs JPM" is a page nobody searches for and generating it would be inflating a URL count, which is precisely the thin-content trap item 100 exists to avoid</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">096</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Auto-generated OG image per page</span>
+          <span class="note"><strong>corrected 2026-08-26</strong>: this shipped working only in theory. <code>useSeo</code> set the per-page card client-side, and card scrapers do not run JavaScript, so every one of the ~1,000 URLs handed out the same generic <code>og.png</code>. The prerenderer now writes <code>og:image</code> per page into the HTML itself. See item 109 for the two faults in the card endpoint. Original note: <code>api/og.ts</code> generalises the old compare-only card to any page: title, subtitle, value and a signed change in the right colour. Wired into stock, country and instrument pages. Every value is XML-escaped and length-clamped because it all arrives from a query string. SVG rather than a rasteriser — renders in every scraper that matters, costs no dependency</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">097</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Schema.org structured data</span>
+          <span class="note">JSON-LD Organization/WebSite/WebPage graph emitted per route from <code>useSeo</code>, with SearchAction for a sitelinks searchbox</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">098</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Internal linking strategy across the page graph</span>
+          <span class="note">instrument pages link to the countries they benchmark and the companies in that market; country pages link back through the benchmark. The sitemap generator reads the same data module the app builds its registry from, so it cannot drift from routes that actually resolve (728 URLs)</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">099</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Keyword research to prioritize which templates ship first</span>
+          <span class="note"><code>docs/SEO-PRIORITIES.md</code>. No keyword tool is available, so rather than invent volume figures the ranking runs on evidence we have: what we can serve well, intent shape, and visible competition. Research and compare rank first because they are the only templates where we have something the incumbents do not — and the doc says plainly that item 85 (SSR) gates every row, since none of it indexes today</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">100</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Ensure pages have genuine unique value</span>
+          <span class="note">this shaped the instrument template. Each page carries what a search result cannot: the true source and its delay, the real one-year range and where the price sits in it, the ETF proxy named inline, and links into the connected markets. An unknown slug returns an honest 'not tracked' page rather than an empty shell</span>
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Content &amp; authority</h3>
+    <ul class="items">
+      <li class="item" data-status="done">
+        <span class="num">101</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Launch a blog on the same domain</span>
+          <span class="note"><code>/blog</code>. Posts are static JSON committed to the repo, so there is no build step, no database, and git history shows exactly when each was written — which matters for anything making claims about market moves</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">102</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Publish a weekly market-visualization post</span>
+          <span class="note"><code>scripts/weekly-recap.mjs</code> + a Friday CI job. The advantage is precise: most recaps are written from memory and a glance at a chart, while every figure in ours is computed from the same feeds the terminal runs on and can be checked against the live product. It reports what moved and deliberately does not explain why — attributing a move needs evidence a generator does not have, and a guess dressed as analysis is worse than none</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">103</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Educational glossary</span>
+          <span class="note"><code>/glossary</code> hub + 13 term pages, each with a worked example, the common mistake and DefinedTerm structured data (not thin, per item 100). Sitemap 667 → 687 URLs</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">104</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Data-story posts using your own visuals</span>
+          <span class="note">the weekly recap is exactly this format: 10 markets and 4 commodities ranked by five-session return, with a dispersion read. First post published from real data (Bovespa +3.52% strongest, Nikkei −3.40% weakest, 6.9pt spread)</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">105</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Guest posts on finance blogs for backlinks</span>
+          
+          <span class="why">Outreach under your name.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">106</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Digital PR: publish an original data study journalists will cite</span>
+          
+          <span class="why">I can compute the study; the pitch to journalists is yours.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">107</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Get listed in fintech/tool directories</span>
+          
+          <span class="why">Directory submissions ask for a founder and a contact.</span>
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">108</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Build a backlink acquisition process</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Viral &amp; social loops</h3>
+    <ul class="items">
+      <li class="item" data-status="done">
+        <span class="num">109</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Per-country and per-stock shareable snapshot cards</span>
+          <span class="note"><code>api/og.ts</code>, rewritten. Two faults: the card was an <strong>SVG</strong>, which Facebook, X, LinkedIn and Slack all ignore for <code>og:image</code>, so on the platforms it existed for it rendered as nothing — it is a PNG now; and it <strong>took its numbers from the query string</strong>, so <code>?value=$0.01&amp;change=-99</code> rendered exactly that over our own branding, letting anyone mint a false price attributed to us. It now resolves the company from our own registry and fetches the quote itself. Because it runs per request the price is live at scrape time, which is the one place a live number is safe — and why the prerenderer can point at it without breaking its own no-prices rule</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">110</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">"Share this view" deep links</span>
+          <span class="note">the share button sent <code>window.location.origin</code> from every page, so someone reading the Japan market page and pressing share sent their friend to the homepage. It shares the page being read now, with that page's own title and description, and the <code>shared</code> event carries the path so the viral coefficient can be attributed to a page rather than to the site</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="done">
+        <span class="num">111</span>
+        <span class="chip chip-done">done</span>
+        <span class="body">
+          <span class="title">Embeddable widget (also the B2B product)</span>
+          <span class="note"><code>/embed/stock/:sym</code> and <code>/embed/country/:code</code>, a self-contained 2.6 kB document served from the edge: no framework, no fonts, no third-party requests, because an embed's weight becomes someone else's page-speed problem. Refreshes every 60s while visible and stamps the minute it was generated, so a stale embed reads as stale. Framing is allowed on those paths only, via a CSP block that the global <code>frame-ancestors 'none'</code> no longer covers. <strong>The dialog says plainly which snippet is which</strong>: the iframe earns readers, not rankings — search engines do not attribute a link inside an iframe to the host page — and the static badge beside it is the one that is actually a backlink (item 108)</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">112</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Automated X/Twitter bot posting daily market visuals</span>
+          
+          <span class="why">Needs an X developer account and posting credentials.</span>
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">113</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Daily market recap video/GIF for TikTok/Reels/Shorts</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">114</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Referral programme ("give a month, get a month")</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">115</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Instrument and track viral coefficient (K-factor)</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Community</h3>
+    <ul class="items">
+      <li class="item" data-status="yours">
+        <span class="num">116</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Launch a newsletter as a standalone growth asset</span>
+          
+          <span class="why">Needs the email provider from item 58.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">117</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Build a Discord or community space</span>
+          
+          <span class="why">A community needs someone in it.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">118</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Sustained authentic presence in 3 finance subreddits</span>
+          
+          <span class="why">Sustained presence under your name.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">119</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Build in public</span>
+          <span class="note">weekly progress posts</span>
+          <span class="why">Your voice, weekly.</span>
+        </span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="phase" aria-labelledby="ph-4">
+  <header class="phase-head">
+    <div class="phase-id">PHASE 4</div>
+    <h2 id="ph-4">Monetization</h2>
+    <p class="phase-goal">first real revenue, clean unit economics. Gate G4.</p>
+    <div class="meter" role="img" aria-label="0 of 27 complete">
+      <span style="width:0%"></span>
+    </div>
+    <div class="phase-count"><b>0</b> / 27 done</div>
+  </header>
+  
+  <div class="group">
+    <h3 class="group-title">Billing infrastructure</h3>
+    <ul class="items">
+      <li class="item" data-status="yours">
+        <span class="num">120</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Integrate Stripe (Checkout + Customer Portal)</span>
+          
+          <span class="why">Needs a Stripe account with your business details.</span>
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">121</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title"><strong>Set Pro at $15/mo</strong> (see the math</span>
+          <span class="note">$9 cannot reach the target)</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">122</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Add an annual plan at ~20% discount (cash up front, lower churn)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">123</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Implement subscription state in Firestore + webhook sync</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">124</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Stripe Tax for VAT/GST compliance</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">125</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Dunning flow for failed payments</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">126</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Refund and cancellation policy</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">127</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Invoice/receipt emails</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">128</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Test the full billing lifecycle in Stripe test mode</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Paywall design</h3>
+    <ul class="items">
+      <li class="item" data-status="mine">
+        <span class="num">129</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Define exact Free vs Pro limits (proposed Free: 3 watchlist symbols, no email alerts, no digest, no portfolio)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">130</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Enforce limits server-side, not just in the UI</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">131</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Design upgrade prompts at the moment of limit-hit (not random nags)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">132</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Free trial of Pro (test 7-day vs 14-day vs none)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">133</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Build the in-app upgrade flow with <code>upgrade_clicked</code> instrumentation (already partly wired)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">134</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Grandfather early users as a launch incentive</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Revenue diversification</h3>
+    <ul class="items">
+      <li class="item" data-status="yours">
+        <span class="num">135</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Apply to broker affiliate programmes (highest-yield line in fintech content)</span>
+          
+          <span class="why">Affiliate programmes underwrite a person and a company.</span>
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">136</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Build tasteful "trade this" affiliate placements</span>
+          <span class="note">never disguised as advice</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">137</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Package and price the embeddable widget for B2B</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">138</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Build a B2B landing page + outbound list of fintech blogs/brokers</span>
+          
+          <span class="why">Outbound under your name.</span>
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">139</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Close the first 3 embed customers</span>
+          
+          <span class="why">Sales calls.</span>
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">140</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Consider a developer API tier</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3 class="group-title">Conversion optimization</h3>
+    <ul class="items">
+      <li class="item" data-status="mine">
+        <span class="num">141</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Set up an A/B testing framework (PostHog feature flags)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">142</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Test pricing page layout and plan ordering</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">143</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Test paywall trigger points</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">144</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Analyze the free→paid funnel and fix the biggest drop</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">145</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Add social proof (user count, testimonials) once real</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">146</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Measure and reduce monthly churn below 8%</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="phase" aria-labelledby="ph-5">
+  <header class="phase-head">
+    <div class="phase-id">PHASE 5</div>
+    <h2 id="ph-5">Scale to Target</h2>
+    <p class="phase-goal">20,000 MAU · $100K ARR. Gate G5.</p>
+    <div class="meter" role="img" aria-label="0 of 9 complete">
+      <span style="width:0%"></span>
+    </div>
+    <div class="phase-count"><b>0</b> / 9 done</div>
+  </header>
+  
+  <div class="group">
+    
+    <ul class="items">
+      <li class="item" data-status="mine">
+        <span class="num">147</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Double down on whichever acquisition channel proved best</span>
+          <span class="note">kill the rest</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">148</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Internationalization (i18n)</span>
+          <span class="note">finance is global and you already cover 68 countries</span>
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">149</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Localized SEO pages for top non-English markets</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">150</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Native mobile app (or polished PWA) if mobile is &gt;50% of traffic</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">151</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Advanced Pro features to justify a higher tier (screeners, backtesting, API)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">152</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Consider a Teams/Pro+ tier at higher ARPU</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="yours">
+        <span class="num">153</span>
+        <span class="chip chip-yours">needs you</span>
+        <span class="body">
+          <span class="title">Hire or contract: content/SEO first, then support</span>
+          
+          <span class="why">Hiring.</span>
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">154</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Build a partnership pipeline (brokers, fintech newsletters, educators)</span>
+          
+          
+        </span>
+      </li>
+<li class="item" data-status="mine">
+        <span class="num">155</span>
+        <span class="chip chip-mine">open</span>
+        <span class="body">
+          <span class="title">Quarterly strategy review against the gates in this document</span>
+          
+          
+        </span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+  <p class="foot">Generated from GROWTH-PLAN.md by scripts/plan-board.mjs. Re-run it after ticking items.</p>
+</div>
+
+<script>
+(function(){
+  var buttons = Array.prototype.slice.call(document.querySelectorAll(".filter"));
+  var items = Array.prototype.slice.call(document.querySelectorAll(".item"));
+  function apply(f){
+    buttons.forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.f === f)); });
+    items.forEach(function(i){ i.hidden = f !== "all" && i.dataset.status !== f; });
+    // A group whose every item is filtered out should go too, or the page fills
+    // with empty headings.
+    Array.prototype.slice.call(document.querySelectorAll(".group")).forEach(function(g){
+      g.hidden = !g.querySelector(".item:not([hidden])");
+    });
+    Array.prototype.slice.call(document.querySelectorAll(".phase")).forEach(function(p){
+      p.hidden = !p.querySelector(".item:not([hidden])");
+    });
+  }
+  buttons.forEach(function(b){ b.addEventListener("click", function(){ apply(b.dataset.f); }); });
+})();
+</script>

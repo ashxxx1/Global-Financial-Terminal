@@ -97,7 +97,12 @@ export interface EventMap {
   search_opened: Record<string, never>;
   news_clicked: { source: string };
   upgrade_clicked: { placement: string };
-  shared: { method: "native" | "clipboard"; surface: string };
+  /** Which snippet publishers actually take — the widget or the badge — is the
+   *  question item 137 has to price against. */
+  embed_copied: { kind: string; id: string; snippet: string };
+  /** `path` matters for the viral coefficient: which pages get shared is the
+   *  question, and the event used to carry no way to answer it. */
+  shared: { method: "native" | "clipboard"; surface: string; path: string };
   /** Fired exactly once per user, on their first value action. The single
    *  most important event in the funnel — see docs/METRICS.md. */
   activated: { via: string };

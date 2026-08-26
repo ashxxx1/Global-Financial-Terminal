@@ -34,7 +34,6 @@ export const config = { runtime: "nodejs" };
  * GET /api/og?symbol=AAPL
  * GET /api/og?title=...&subtitle=...&kind=...
  */
-import { listing, country, countryName, quote } from "../src/lib/server/listings";
 
 const INK = "#F5F6F7";
 const MUTED = "#A4A9B3";
@@ -84,7 +83,26 @@ function card(opts: {
   );
 }
 
+/** Everything that can fail is loaded inside the handler — see the note in the
+ *  catch block at the bottom. */
 export default async function handler(req: Request): Promise<Response> {
+  try {
+    return await render(req);
+  } catch (err) {
+    // Diagnostics for a failure that only reproduces on the deployed runtime.
+    // A card scraper ignores the body; ?debug=1 makes it readable to us.
+    if (new URL(req.url).searchParams.get("debug") === "1") {
+      return new Response(`og render failed: ${err instanceof Error ? `${err.message}\n${err.stack}` : String(err)}`,
+        { status: 200, headers: { "content-type": "text/plain; charset=utf-8" } });
+    }
+    // Never 500. Every page's og:image points here, and a broken image means no
+    // card at all — worse than the generic one this falls back to.
+    return Response.redirect(new URL("/og.png", req.url).toString(), 302);
+  }
+}
+
+async function render(req: Request): Promise<Response> {
+  const { listing, country, countryName, quote } = await import("../src/lib/server/listings");
   const p = new URL(req.url).searchParams;
   const sym = (p.get("symbol") || "").toUpperCase().trim();
   const code = (p.get("country") || "").toUpperCase().trim();
@@ -128,22 +146,11 @@ export default async function handler(req: Request): Promise<Response> {
     };
   }
 
-  try {
-    // Imported here, not at the top of the file. @vercel/og's Node build reaches
-    // for `require` inside its font shaper, which throws on import under
-    // "type": "module" — and a module that throws while loading takes the whole
-    // invocation down before any handler code runs. Every page's og:image now
-    // points at this endpoint, so it has to degrade, not fail.
-    const { ImageResponse } = await import("@vercel/og");
-    return new ImageResponse(card(opts) as unknown as React.ReactElement, {
-      width: 1200, height: 630,
-      headers: {
-        "cache-control": `public, s-maxage=${ttl}, stale-while-revalidate=${ttl * 4}`,
-      },
-    });
-  } catch {
-    // A missing card is a link with no preview at all; the static one is worse
-    // than the generated one and far better than nothing.
-    return Response.redirect(new URL("/og.png", req.url).toString(), 302);
-  }
+  const { ImageResponse } = await import("@vercel/og");
+  return new ImageResponse(card(opts) as unknown as React.ReactElement, {
+    width: 1200, height: 630,
+    headers: {
+      "cache-control": `public, s-maxage=${ttl}, stale-while-revalidate=${ttl * 4}`,
+    },
+  });
 }

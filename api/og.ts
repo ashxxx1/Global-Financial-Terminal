@@ -34,7 +34,6 @@ export const config = { runtime: "nodejs" };
  * GET /api/og?symbol=AAPL
  * GET /api/og?title=...&subtitle=...&kind=...
  */
-import { ImageResponse } from "@vercel/og";
 import { listing, country, countryName, quote } from "../src/lib/server/listings";
 
 const INK = "#F5F6F7";
@@ -130,6 +129,12 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   try {
+    // Imported here, not at the top of the file. @vercel/og's Node build reaches
+    // for `require` inside its font shaper, which throws on import under
+    // "type": "module" — and a module that throws while loading takes the whole
+    // invocation down before any handler code runs. Every page's og:image now
+    // points at this endpoint, so it has to degrade, not fail.
+    const { ImageResponse } = await import("@vercel/og");
     return new ImageResponse(card(opts) as unknown as React.ReactElement, {
       width: 1200, height: 630,
       headers: {
@@ -137,7 +142,8 @@ export default async function handler(req: Request): Promise<Response> {
       },
     });
   } catch {
-    // Never fail a scrape: a missing card is a link with no preview at all.
+    // A missing card is a link with no preview at all; the static one is worse
+    // than the generated one and far better than nothing.
     return Response.redirect(new URL("/og.png", req.url).toString(), 302);
   }
 }

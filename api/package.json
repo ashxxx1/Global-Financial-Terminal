@@ -1,0 +1,4 @@
+{
+  "type": "commonjs",
+  "_why": "Vercel compiles api/*.ts using the nearest package.json module type. The root sets \"type\": \"module\", which made the share-card function ESM — and @vercel/og's Node build calls require() inside its font shaper, which throws on import under ESM and takes the whole invocation down. Scoping the api directory to CommonJS fixes it without changing how the app itself is built. Nothing in api/ uses import.meta or top-level await, so nothing here depends on being ESM."
+}

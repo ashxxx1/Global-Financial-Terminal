@@ -1,13 +1,20 @@
 /**
- * The Node runtime, not edge — deliberately.
+ * The Node runtime, not edge — and therefore the Node handler signature.
  *
- * @vercel/og rasterises through resvg and yoga compiled to WebAssembly. Under
- * the edge runtime that pushed the function past its bundle budget and the
- * deployment failed outright; the Node runtime carries the wasm comfortably.
- * The trade is a slower cold start, which costs nothing here: this endpoint is
- * hit by card scrapers, not by the app, and every response is cached.
+ * @vercel/og rasterises through resvg and yoga compiled to WebAssembly, which
+ * will not fit an edge bundle: that build failed outright. Node carries it, at
+ * the cost of a colder start on an endpoint only card scrapers hit and whose
+ * every response is cached.
+ *
+ * The catch is that Vercel's Node functions take (req, res) — the Web-standard
+ * `Request` in, `Response` out shape that every other function in this
+ * directory uses is an edge-runtime convention. Handing Node a Response object
+ * fails the invocation before the handler is even entered, which is why the
+ * first two attempts at this returned 500 with nothing catchable.
  */
 export const config = { runtime: "nodejs" };
+
+import type { IncomingMessage, ServerResponse } from "node:http";
 
 /**
  * Share card for any page — growth-plan items 96 and 109.
@@ -83,27 +90,36 @@ function card(opts: {
   );
 }
 
-/** Everything that can fail is loaded inside the handler — see the note in the
- *  catch block at the bottom. */
-export default async function handler(req: Request): Promise<Response> {
+/**
+ * Everything that can fail runs inside the try. Every page's og:image points
+ * here, and a broken image means no card at all — worse than the generic one
+ * this falls back to — so the endpoint must degrade rather than fail.
+ */
+export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  const url = new URL(req.url || "/", `https://${req.headers.host || "localhost"}`);
   try {
-    return await render(req);
+    const { body, headers } = await render(url);
+    for (const [k, v] of Object.entries(headers)) res.setHeader(k, v);
+    res.statusCode = 200;
+    res.end(body);
   } catch (err) {
-    // Diagnostics for a failure that only reproduces on the deployed runtime.
-    // A card scraper ignores the body; ?debug=1 makes it readable to us.
-    if (new URL(req.url).searchParams.get("debug") === "1") {
-      return new Response(`og render failed: ${err instanceof Error ? `${err.message}\n${err.stack}` : String(err)}`,
-        { status: 200, headers: { "content-type": "text/plain; charset=utf-8" } });
+    // This only reproduces on the deployed runtime and the function logs are
+    // not reachable from here, so ?debug=1 returns the error as text.
+    if (url.searchParams.get("debug") === "1") {
+      res.statusCode = 200;
+      res.setHeader("content-type", "text/plain; charset=utf-8");
+      res.end(`og render failed: ${err instanceof Error ? `${err.message}\n${err.stack}` : String(err)}`);
+      return;
     }
-    // Never 500. Every page's og:image points here, and a broken image means no
-    // card at all — worse than the generic one this falls back to.
-    return Response.redirect(new URL("/og.png", req.url).toString(), 302);
+    res.statusCode = 302;
+    res.setHeader("location", "/og.png");
+    res.end();
   }
 }
 
-async function render(req: Request): Promise<Response> {
+async function render(url: URL): Promise<{ body: Buffer; headers: Record<string, string> }> {
   const { listing, country, countryName, quote } = await import("../src/lib/server/listings");
-  const p = new URL(req.url).searchParams;
+  const p = url.searchParams;
   const sym = (p.get("symbol") || "").toUpperCase().trim();
   const code = (p.get("country") || "").toUpperCase().trim();
 
@@ -147,10 +163,14 @@ async function render(req: Request): Promise<Response> {
   }
 
   const { ImageResponse } = await import("@vercel/og");
-  return new ImageResponse(card(opts) as unknown as React.ReactElement, {
-    width: 1200, height: 630,
+  const image = new ImageResponse(card(opts) as unknown as React.ReactElement, { width: 1200, height: 630 });
+  return {
+    body: Buffer.from(await image.arrayBuffer()),
     headers: {
+      "content-type": "image/png",
+      // A card carrying a price may only be cached for as long as the price is
+      // worth trusting. An identity card has nothing to go stale.
       "cache-control": `public, s-maxage=${ttl}, stale-while-revalidate=${ttl * 4}`,
     },
-  });
+  };
 }

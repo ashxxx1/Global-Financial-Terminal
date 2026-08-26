@@ -1,0 +1,10 @@
+{
+  "//": "The api/ directory has never been typechecked: tsconfig.json includes only src, so a mistake in an endpoint could only be found by deploying it. That is exactly how a Node-runtime function shipped with the edge runtime's Web handler signature and returned 500 to every share-card scrape.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "noEmit": true
+  },
+  "include": ["api/**/*.ts", "src/lib/server/**/*.ts"]
+}

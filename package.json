@@ -11,7 +11,7 @@
     "server": "node server/index.js",
     "start": "node server/index.js",
     "sitemap": "node --import ./scripts/lib/ts-resolve.mjs scripts/generate-sitemap.mjs",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && npm run typecheck:api",
     "verify": "npm run typecheck && npm run lint && npm run build && npm run prerender:test",
     "setup": "npm ci && git config core.hooksPath .githooks && echo \"✔ hooks installed — pre-push now runs npm run verify\"",
     "research:selftest": "node scripts/research-selftest.mjs",
@@ -19,7 +19,8 @@
     "impact:test": "npx --yes tsx scripts/impact-tests.ts",
     "anomaly:test": "npx --yes tsx scripts/anomaly-tests.ts",
     "prerender": "node --import ./scripts/lib/ts-resolve.mjs scripts/prerender.mjs",
-    "prerender:test": "node --import ./scripts/lib/ts-resolve.mjs scripts/prerender-tests.mjs"
+    "prerender:test": "node --import ./scripts/lib/ts-resolve.mjs scripts/prerender-tests.mjs",
+    "typecheck:api": "tsc -p tsconfig.api.json"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.0",
@@ -47,6 +48,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.61.1",
+    "@types/node": "^26.3.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/three": "^0.185.4",

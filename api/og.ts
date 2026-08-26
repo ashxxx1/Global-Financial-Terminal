@@ -1,4 +1,13 @@
-export const config = { runtime: "edge" };
+/**
+ * The Node runtime, not edge — deliberately.
+ *
+ * @vercel/og rasterises through resvg and yoga compiled to WebAssembly. Under
+ * the edge runtime that pushed the function past its bundle budget and the
+ * deployment failed outright; the Node runtime carries the wasm comfortably.
+ * The trade is a slower cold start, which costs nothing here: this endpoint is
+ * hit by card scrapers, not by the app, and every response is cached.
+ */
+export const config = { runtime: "nodejs" };
 
 /**
  * Share card for any page — growth-plan items 96 and 109.
